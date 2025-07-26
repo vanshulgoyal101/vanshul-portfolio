@@ -2,9 +2,10 @@
 import { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { motion, useInView } from 'framer-motion';
-import { FaEnvelope, FaLinkedin, FaGithub, FaTwitter, FaPaperPlane } from 'react-icons/fa';
+import { FaEnvelope, FaLinkedin, FaTwitter, FaInstagram, FaPaperPlane } from 'react-icons/fa';
 import { MdLocationOn, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
+
 
 // Styled Components
 const ContactSection = styled.section`
@@ -375,11 +376,12 @@ const Contact = () => {
     },
   ];
 
-  const socialLinks = [
-    { icon: <FaLinkedin />, url: 'https://linkedin.com/in/vanshulgoyal', label: 'LinkedIn' },
-    { icon: <FaGithub />, url: 'https://github.com/vanshulgoyal', label: 'GitHub' },
-    { icon: <FaTwitter />, url: 'https://twitter.com/vanshulgoyal', label: 'Twitter' },
-  ];
+const socialLinks = [
+  { icon: <FaTwitter />, url: 'https://x.com/goyal_vanshul', label: 'Twitter' },
+  { icon: <FaLinkedin />, url: 'https://www.linkedin.com/in/vanshul-goyal00/', label: 'LinkedIn' },
+  { icon: <FaInstagram />, url: 'https://www.instagram.com/vanshul_goyal/', label: 'Instagram' },
+];
+
 
   return (
     <ContactSection ref={sectionRef}>

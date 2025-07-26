@@ -8,17 +8,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Component imports (we'll create these next)
 import GlobalStyles from './styles/GlobalStyles';
 import Navigation from './components/Navigation/Navigation';
-// import Hero from './components/Hero/Hero';
 import About from './components/About/About';
 import Work from './components/Work/Work';
-// import Projects from './components/Projects/Projects';
 import Blog from './components/Blog/Blog';
 import Contact from './components/Contact/Contact';
 
-// Fun interactive elements
-// import FloatingRocket from './components/FunElements/FloatingRocket';
-// import PandaCursor from './components/FunElements/PandaCursor';
-// import AirplaneTrail from './components/FunElements/AirplaneTrail';
 
 
 
@@ -105,49 +99,57 @@ const AirplaneTrail = lazy(() => import('./components/FunElements/AirplaneTrail'
 
 
 function App() {
-  const lenisRef = useRef(null);
-  const rafRef = useRef(null);
+  // const lenisRef = useRef(null);
+  // const rafRef = useRef(null);
   // Initialize Lenis smooth scroll
   useEffect(() => {
 
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      gestureDirection: 'vertical',
-      smooth: true,
-      mouseMultiplier: 1,
-      smoothTouch: false,
-      touchMultiplier: 2,
-      infinite: false,
-    });
+    // const lenis = new Lenis({
+    //   duration: 1.2,
+    //   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    //   direction: 'vertical',
+    //   gestureDirection: 'vertical',
+    //   smooth: true,
+    //   mouseMultiplier: 1,
+    //   smoothTouch: false,
+    //   touchMultiplier: 2,
+    //   infinite: false,
+    // });
 
-    lenisRef.current = lenis;
+    // lenisRef.current = lenis;
 
-    function raf(time) {
-      lenis.raf(time);
-      rafRef.current = requestAnimationFrame(raf);
-    }
+    // function raf(time) {
+    //   lenis.raf(time);
+    //   rafRef.current = requestAnimationFrame(raf);
+    // }
 
-    rafRef.current = requestAnimationFrame(raf);
+    // rafRef.current = requestAnimationFrame(raf);
     document.body.style.cursor = 'none';
 
     return () => {
       document.body.style.cursor = 'auto';
-      lenis.destroy();
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
+    //   lenis.destroy();
+    //   if (rafRef.current) {
+    //     cancelAnimationFrame(rafRef.current);
+    //   }
     };
   }, []);
 
   // Scroll to section function for navigation
+  // const scrollToSection = (sectionId) => {
+  //   const element = document.getElementById(sectionId);
+  //   if (element && lenisRef.current) {
+  //     lenisRef.current.scrollTo(element);
+  //   }
+  // };
+
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
-    if (element && lenisRef.current) {
-      lenisRef.current.scrollTo(element);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
 
   // Page transition variants
   const pageVariants = {
