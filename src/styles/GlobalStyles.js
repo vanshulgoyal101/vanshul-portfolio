@@ -83,6 +83,7 @@ const GlobalStyles = createGlobalStyle`
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    cursor: none !important;
   }
 
   html {
@@ -194,6 +195,7 @@ const GlobalStyles = createGlobalStyle`
 
   /* Fluid Section Spacing */
   .section {
+    will-change: auto; /* Only use will-change when needed */
     padding: var(--spacing-2xl) 0;
     position: relative;
     z-index: 2;
@@ -281,8 +283,10 @@ const GlobalStyles = createGlobalStyle`
   }
 
   /* Media query for reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    * {
+ @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;

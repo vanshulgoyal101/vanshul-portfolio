@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import styled from 'styled-components';
 import Lenis from '@studio-freight/lenis';
@@ -8,17 +8,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Component imports (we'll create these next)
 import GlobalStyles from './styles/GlobalStyles';
 import Navigation from './components/Navigation/Navigation';
-import Hero from './components/Hero/Hero';
+// import Hero from './components/Hero/Hero';
 import About from './components/About/About';
 import Work from './components/Work/Work';
-import Projects from './components/Projects/Projects';
+// import Projects from './components/Projects/Projects';
 import Blog from './components/Blog/Blog';
 import Contact from './components/Contact/Contact';
 
 // Fun interactive elements
-import FloatingRocket from './components/FunElements/FloatingRocket';
-import PandaCursor from './components/FunElements/PandaCursor';
-import AirplaneTrail from './components/FunElements/AirplaneTrail';
+// import FloatingRocket from './components/FunElements/FloatingRocket';
+// import PandaCursor from './components/FunElements/PandaCursor';
+// import AirplaneTrail from './components/FunElements/AirplaneTrail';
+
+
+
 
 // Styled Components
 const AppWrapper = styled.div`
@@ -83,12 +86,30 @@ const SectionWrapper = styled(motion.section)`
   position: relative;
 `;
 
+// Loading component
+const Loading = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  color: var(--color-accent-primary);
+`;
+
+// Lazy load heavy components
+const Hero = lazy(() => import('./components/Hero/Hero'));
+const Projects = lazy(() => import('./components/Projects/Projects'));
+const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
+const PandaCursor = lazy(() => import('./components/FunElements/PandaCursor'));
+const AirplaneTrail = lazy(() => import('./components/FunElements/AirplaneTrail'));
+
+
+
 function App() {
   const lenisRef = useRef(null);
   const rafRef = useRef(null);
-
   // Initialize Lenis smooth scroll
   useEffect(() => {
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -109,8 +130,10 @@ function App() {
     }
 
     rafRef.current = requestAnimationFrame(raf);
+    document.body.style.cursor = 'none';
 
     return () => {
+      document.body.style.cursor = 'auto';
       lenis.destroy();
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
@@ -154,28 +177,26 @@ function App() {
         <BackgroundElements />
         
         {/* Fun Interactive Elements - spread throughout the site */}
-        <PandaCursor />
-        <FloatingRocket />
-        <AirplaneTrail />
+        {/* Lazy load fun elements */}
+        <Suspense fallback={null}>
+          <PandaCursor />
+          <FloatingRocket />
+          <AirplaneTrail />
+        </Suspense>
         
-        {/* Navigation */}
         <Navigation scrollToSection={scrollToSection} />
         
-        {/* Main Content */}
         <AnimatePresence mode="wait">
           <MainContent>
-            {/* Hero Section with 3D elements */}
-            <SectionWrapper
-              id="home"
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <Hero />
-            </SectionWrapper>
+            <Suspense fallback={<Loading>Loading...</Loading>}>
+              <SectionWrapper id="home">
+                <Hero />
+              </SectionWrapper>
+            </Suspense>
 
             {/* About Section */}
+            <Suspense fallback={<Loading>Loading...</Loading>}>
+
             <SectionWrapper
               id="about"
               variants={pageVariants}
@@ -229,6 +250,7 @@ function App() {
             >
               <Contact />
             </SectionWrapper>
+            </Suspense>
           </MainContent>
         </AnimatePresence>
       </AppWrapper>

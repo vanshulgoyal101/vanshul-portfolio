@@ -1,22 +1,16 @@
 // src/components/Projects/Projects.jsx
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { FaRocket, FaGlobeAfrica, FaExternalLinkAlt, FaGithub, FaStar } from 'react-icons/fa';
+import { motion, useInView } from 'framer-motion';
+import { FaRocket, FaGlobeAfrica, FaStar, FaExternalLinkAlt } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
-
-// Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger);
 
 // Styled Components
 const ProjectsSection = styled.section`
   position: relative;
   background: var(--color-bg-secondary);
-  overflow: hidden;
-  padding: var(--spacing-2xl) 0;
+  padding: var(--spacing-xl) 0;
 `;
 
 const Container = styled.div`
@@ -27,7 +21,7 @@ const Container = styled.div`
 
 const SectionHeader = styled(motion.div)`
   text-align: center;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-lg);
 `;
 
 const SectionTitle = styled.h2`
@@ -46,66 +40,35 @@ const SectionSubtitle = styled.p`
   margin: 0 auto;
 `;
 
-const HorizontalScrollWrapper = styled.div`
-  overflow: hidden;
-  position: relative;
-`;
-
-const ProjectsTimeline = styled.div`
-  display: flex;
-  gap: var(--spacing-xl);
-  padding: var(--spacing-xl) 0;
-  will-change: transform;
+// Simple Grid Layout (No GSAP)
+const ProjectsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
 `;
 
 const ProjectCard = styled(motion.div)`
-  flex: 0 0 auto;
-  width: min(400px, 80vw);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
-  position: relative;
   transition: all 0.3s ease;
   
   &:hover {
-    transform: translateY(-10px);
+    transform: translateY(-5px);
     border-color: var(--color-accent-primary);
-    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
   }
 `;
 
 const ProjectImage = styled.div`
-  height: 250px;
+  height: 200px;
   background: ${props => props.$image ? `url(${props.$image})` : 'var(--color-gradient-1)'};
   background-size: cover;
   background-position: center;
   position: relative;
-  overflow: hidden;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.8) 100%);
-  }
-`;
-
-const ProjectIcon = styled.div`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  background: rgba(99, 102, 241, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: white;
-  z-index: 2;
 `;
 
 const ProjectContent = styled.div`
@@ -113,7 +76,7 @@ const ProjectContent = styled.div`
 `;
 
 const ProjectTitle = styled.h3`
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   margin-bottom: var(--spacing-sm);
   color: var(--color-text-primary);
 `;
@@ -133,8 +96,8 @@ const ProjectDescription = styled.p`
 `;
 
 const ProjectStats = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
 `;
@@ -142,7 +105,7 @@ const ProjectStats = styled.div`
 const StatItem = styled.div`
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
   
@@ -151,159 +114,59 @@ const StatItem = styled.div`
   }
 `;
 
-const ProjectLinks = styled.div`
-  display: flex;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
-`;
-
-const ProjectLink = styled(motion.a)`
+const ProjectLink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: 8px 16px;
-  background: rgba(99, 102, 241, 0.1);
   color: var(--color-accent-primary);
-  border-radius: 20px;
   font-size: var(--text-sm);
   font-weight: 500;
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
   
   &:hover {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: var(--color-accent-primary);
-    transform: translateY(-2px);
+    text-decoration: underline;
   }
-`;
-
-const ScrollIndicator = styled(motion.div)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const ArrowIcon = styled(motion.div)`
-  display: flex;
-  align-items: center;
-  font-size: var(--text-xl);
-`;
-
-// Floating Rocket Component
-const FloatingRocketIcon = styled(motion.div)`
-  position: absolute;
-  font-size: 4rem;
-  color: var(--color-accent-primary);
-  opacity: 0.1;
-  z-index: 1;
-  pointer-events: none;
-  top: 20%;
-  left: 5%;
 `;
 
 const Projects = () => {
   const sectionRef = useRef(null);
-  const timelineRef = useRef(null);
-  const triggerRef = useRef(null);
-
-  useEffect(() => {
-    const timeline = timelineRef.current;
-    const trigger = triggerRef.current;
-
-    if (!timeline || !trigger) return;
-
-    // Calculate the scroll distance
-    const getScrollDistance = () => {
-      const timelineWidth = timeline.scrollWidth;
-      const windowWidth = window.innerWidth;
-      return -(timelineWidth - windowWidth);
-    };
-
-    // Create GSAP timeline
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: trigger,
-        start: 'top top',
-        end: () => `+=${Math.abs(getScrollDistance()) * 1.5}`,
-        scrub: 1.5,
-        pin: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-      }
-    });
-
-    // Horizontal scroll animation
-    tl.to(timeline, {
-      x: getScrollDistance,
-      ease: 'none',
-    });
-
-    // Refresh ScrollTrigger on window resize
-    const handleResize = () => {
-      ScrollTrigger.refresh();
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      tl.kill();
-    };
-  }, []);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.1 });
 
   const projects = [
     {
       id: 1,
       title: 'NASA Human Exploration Rover Challenge',
       role: 'Team Lead',
-      description: 'Led the design and construction of a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking among international teams.',
+      description: 'Led the design and construction of a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking.',
       image: '/images/projects/nasa-herc.jpg',
-      icon: <FaRocket />,
       stats: [
-        { icon: <MdGroups />, text: '12,000+ Students Engaged' },
-        { icon: <BiMoney />, text: '$30,000 Sponsorship' },
+        { icon: <MdGroups />, text: '12k+ Students' },
+        { icon: <BiMoney />, text: '$30k Funding' },
       ],
-      links: [
-        { text: 'View Project', url: '#', icon: <FaExternalLinkAlt /> }
-      ]
+      link: '#'
     },
     {
       id: 2,
       title: 'NASA Space Apps Challenge',
       role: 'Global Space Leader',
-      description: 'Selected among 30 global space leaders for the pilot program. Developed weather visualization tools for Zimbabwean farmers using NASA open data.',
+      description: 'Selected among 30 global space leaders. Developed weather visualization tools for Zimbabwean farmers using NASA data.',
       image: '/images/projects/space-apps.jpg',
-      icon: <FaGlobeAfrica />,
       stats: [
-        { icon: <MdGroups />, text: 'Global Collaboration' },
-        { icon: <FaRocket />, text: 'NASA Open Data' },
+        { icon: <MdGroups />, text: 'Global Team' },
+        { icon: <FaRocket />, text: 'NASA Data' },
       ],
-      links: [
-        { text: 'View Solution', url: '#', icon: <FaExternalLinkAlt /> }
-      ]
+      link: '#'
     },
     {
       id: 3,
       title: 'Astronomy & Space Physics Society',
       role: 'Core Team Member',
-      description: 'Organized telescope workshops, stargazing sessions, and educational events to promote space sciences among students.',
+      description: 'Organized telescope workshops and educational events to promote space sciences among students.',
       image: '/images/projects/college.jpg',
-      icon: <FaStar />,
       stats: [
-        { icon: <MdGroups />, text: '500+ Participants' },
+        { icon: <MdGroups />, text: '500+ Students' },
         { icon: <FaRocket />, text: 'Multiple Events' },
       ],
-      links: [
-        { text: 'Learn More', url: '#', icon: <FaExternalLinkAlt /> }
-      ]
+      link: '#'
     },
     {
       id: 4,
@@ -311,61 +174,38 @@ const Projects = () => {
       role: 'Co-Founder',
       description: 'Building sustainable energy solutions across Chandigarh and Haryana. Installing solar plants under government schemes.',
       image: '/images/projects/solaride.jpg',
-      icon: <FaRocket />,
       stats: [
-        { icon: <MdGroups />, text: 'Multiple Installations' },
-        { icon: <FaRocket />, text: 'Government Registered' },
+        { icon: <MdGroups />, text: 'Active Projects' },
+        { icon: <FaRocket />, text: 'Govt. Registered' },
       ],
-      links: [
-        { text: 'Visit Website', url: 'https://solaride.in', icon: <FaExternalLinkAlt /> }
-      ]
+      link: 'https://solaride.in'
     }
   ];
 
   return (
     <ProjectsSection ref={sectionRef}>
-      {/* Floating Rocket */}
-      <FloatingRocketIcon
-        animate={{
-          y: [0, -30, 0],
-          rotate: [0, 10, 0],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      >
-        <FaRocket />
-      </FloatingRocketIcon>
-
       <Container>
         <SectionHeader
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
         >
           <SectionTitle>Featured Projects</SectionTitle>
           <SectionSubtitle>
             From space exploration to sustainable energy - projects that define my journey
           </SectionSubtitle>
         </SectionHeader>
-      </Container>
 
-      <HorizontalScrollWrapper ref={triggerRef}>
-        <ProjectsTimeline ref={timelineRef}>
+        <ProjectsGrid>
           {projects.map((project, index) => (
             <ProjectCard
               key={project.id}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ y: -5 }}
             >
-              <ProjectImage $image={project.image}>
-                <ProjectIcon>{project.icon}</ProjectIcon>
-              </ProjectImage>
+              <ProjectImage $image={project.image} />
               <ProjectContent>
                 <ProjectTitle>{project.title}</ProjectTitle>
                 <ProjectRole>{project.role}</ProjectRole>
@@ -380,45 +220,21 @@ const Projects = () => {
                   ))}
                 </ProjectStats>
 
-                <ProjectLinks>
-                  {project.links.map((link, idx) => (
-                    <ProjectLink
-                      key={idx}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {link.text}
-                      {link.icon}
-                    </ProjectLink>
-                  ))}
-                </ProjectLinks>
+                {project.link && (
+                  <ProjectLink
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Project
+                    <FaExternalLinkAlt size={12} />
+                  </ProjectLink>
+                )}
               </ProjectContent>
             </ProjectCard>
           ))}
-        </ProjectsTimeline>
-      </HorizontalScrollWrapper>
-
-      <ScrollIndicator
-        animate={{ opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <ArrowIcon
-          animate={{ x: [-10, 10, -10] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          ←
-        </ArrowIcon>
-        <span>Scroll horizontally to explore projects</span>
-        <ArrowIcon
-          animate={{ x: [-10, 10, -10] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          →
-        </ArrowIcon>
-      </ScrollIndicator>
+        </ProjectsGrid>
+      </Container>
     </ProjectsSection>
   );
 };
