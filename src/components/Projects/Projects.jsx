@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { FaRocket, FaGlobeAfrica, FaTelescope, FaExternalLinkAlt, FaGithub } from 'react-icons/fa';
+import { FaRocket, FaGlobeAfrica, FaExternalLinkAlt, FaGithub, FaStar } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
 
@@ -296,7 +296,7 @@ const Projects = () => {
       role: 'Core Team Member',
       description: 'Organized telescope workshops, stargazing sessions, and educational events to promote space sciences among students.',
       image: '/images/projects/college.jpg',
-      icon: <FaTelescope />,
+      icon: <FaStar />,
       stats: [
         { icon: <MdGroups />, text: '500+ Participants' },
         { icon: <FaRocket />, text: 'Multiple Events' },
