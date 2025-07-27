@@ -339,7 +339,7 @@ const Hero = () => {
                 </CanvasContainer>
             </HeroContainer>
 
-            <ScrollIndicator
+            {/* <ScrollIndicator
                 onClick={scrollToAbout}
                 whileHover={{ y: 5 }}
                 animate={{ y: [0, 10, 0] }}
@@ -347,7 +347,7 @@ const Hero = () => {
             >
                 <ScrollText>Scroll</ScrollText>
                 <HiArrowDown />
-            </ScrollIndicator>
+            </ScrollIndicator> */}
         </HeroSection>
     );
 };

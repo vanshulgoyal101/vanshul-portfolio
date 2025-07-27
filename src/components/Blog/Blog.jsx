@@ -58,6 +58,11 @@ const ComingSoonCard = styled(motion.div)`
   position: relative;
   overflow: hidden;
   
+    @media (max-width: 768px) {
+        padding: var(--spacing-lg);
+        border-radius: 12px;
+    }
+
   &::before {
     content: '';
     position: absolute;
@@ -100,6 +105,12 @@ const TopicsGrid = styled.div`
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+  }
 `;
 
 const TopicCard = styled(motion.div)`
@@ -174,6 +185,11 @@ const NotifySection = styled(motion.div)`
   background: var(--color-bg-card);
   border-radius: 20px;
   border: 1px solid var(--color-border);
+    
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg);
+    border-radius: 12px;
+  }
 `;
 
 const NotifyTitle = styled.h3`
@@ -196,7 +212,9 @@ const EmailForm = styled.form`
   
   @media (max-width: 640px) {
     flex-direction: column;
+    width: 100%;
   }
+
 `;
 
 const EmailInput = styled.input`

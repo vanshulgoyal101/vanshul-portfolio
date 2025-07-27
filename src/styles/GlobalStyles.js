@@ -197,8 +197,9 @@ const GlobalStyles = createGlobalStyle`
   .section {
     will-change: auto; /* Only use will-change when needed */
     padding: var(--spacing-2xl) 0;
-    position: relative;
-    z-index: 2;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 2 !important;
   }
 
   /* Responsive Grid System */
@@ -302,6 +303,26 @@ const GlobalStyles = createGlobalStyle`
     * {
       -ms-overflow-style: none;
       scrollbar-width: none;
+    }
+
+      /* Fix sections not showing */
+  section {
+    min-height: auto !important;
+    padding: var(--spacing-lg) 0 !important;
+  }
+  
+    /* Fix container padding */
+    .container {
+        padding: 0 1rem !important;
+    }
+    /* Fix font sizes */
+    h1 { font-size: var(--text-4xl) !important; }
+    h2 { font-size: var(--text-3xl) !important; }
+    h3 { font-size: var(--text-2xl) !important; }
+    
+    /* Fix grid layouts */
+    .grid {
+        grid-template-columns: 1fr !important;
     }
   }
 `;

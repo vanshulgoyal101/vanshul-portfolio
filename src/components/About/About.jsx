@@ -52,6 +52,11 @@ const AboutGrid = styled.div`
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
   }
+      @media (max-width: 768px) {
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+
 `;
 
 const AboutContent = styled(motion.div)`
@@ -199,6 +204,11 @@ const SkillsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--spacing-md);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
 `;
 
 const SkillCategory = styled(motion.div)`

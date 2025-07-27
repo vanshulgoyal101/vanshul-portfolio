@@ -47,6 +47,11 @@ const ProjectsGrid = styled.div`
   gap: var(--spacing-lg);
   max-width: 1200px;
   margin: 0 auto;
+    
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
 `;
 
 const ProjectCard = styled(motion.div)`
@@ -56,6 +61,10 @@ const ProjectCard = styled(motion.div)`
   overflow: hidden;
   transition: all 0.3s ease;
   
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
+
   &:hover {
     transform: translateY(-5px);
     border-color: var(--color-accent-primary);
