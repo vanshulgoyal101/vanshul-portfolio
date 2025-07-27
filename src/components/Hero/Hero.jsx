@@ -258,12 +258,12 @@ const Hero = () => {
                     </Title>
 
                     <Subtitle variants={itemVariants}>
-                        Analyst at United Airlines | Co-founder at Solaride
+                        Associate Analyst at United Airlines | Co-founder at Solaride
                     </Subtitle>
 
                     <Description variants={itemVariants}>
-                        Building sustainable solutions at the intersection of technology and innovation.
-                        Passionate about aerospace, renewable energy, and creating meaningful impact.
+                        Driven by a deep curiosity for how things work. I enjoy getting my hands dirty with engineering
+                        and building new things from the ground up.
                     </Description>
 
                     <CTAContainer variants={itemVariants}>
