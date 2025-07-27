@@ -1,7 +1,6 @@
 // src/components/Projects/Projects.jsx
 import { useRef } from 'react';
 import styled from 'styled-components';
-import { motion, useInView } from 'framer-motion';
 import { FaRocket, FaGlobeAfrica, FaStar, FaExternalLinkAlt } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
@@ -11,6 +10,10 @@ const ProjectsSection = styled.section`
   position: relative;
   background: var(--color-bg-secondary);
   padding: var(--spacing-xl) 0;
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg) 0;
+  }
 `;
 
 const Container = styled.div`
@@ -19,9 +22,13 @@ const Container = styled.div`
   padding: 0 var(--container-padding);
 `;
 
-const SectionHeader = styled(motion.div)`
+const SectionHeader = styled.div`
   text-align: center;
   margin-bottom: var(--spacing-lg);
+  
+  @media (max-width: 768px) {
+    margin-bottom: var(--spacing-md);
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -31,6 +38,10 @@ const SectionTitle = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-3xl);
+  }
 `;
 
 const SectionSubtitle = styled.p`
@@ -38,6 +49,10 @@ const SectionSubtitle = styled.p`
   color: var(--color-text-secondary);
   max-width: 600px;
   margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-base);
+  }
 `;
 
 // Simple Grid Layout (No GSAP)
@@ -47,28 +62,30 @@ const ProjectsGrid = styled.div`
   gap: var(--spacing-lg);
   max-width: 1200px;
   margin: 0 auto;
-    
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: var(--spacing-sm);
   }
 `;
 
-const ProjectCard = styled(motion.div)`
+const ProjectCard = styled.div`
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   overflow: hidden;
   transition: all 0.3s ease;
-  
-  @media (max-width: 768px) {
-    padding: var(--spacing-md);
-  }
 
   &:hover {
     transform: translateY(-5px);
     border-color: var(--color-accent-primary);
     box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    &:hover {
+      transform: none;
+    }
   }
 `;
 
@@ -78,16 +95,28 @@ const ProjectImage = styled.div`
   background-size: cover;
   background-position: center;
   position: relative;
+  
+  @media (max-width: 768px) {
+    height: 150px;
+  }
 `;
 
 const ProjectContent = styled.div`
   padding: var(--spacing-lg);
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
 `;
 
 const ProjectTitle = styled.h3`
   font-size: var(--text-xl);
   margin-bottom: var(--spacing-sm);
   color: var(--color-text-primary);
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-lg);
+  }
 `;
 
 const ProjectRole = styled.p`
@@ -102,6 +131,11 @@ const ProjectDescription = styled.p`
   line-height: 1.7;
   margin-bottom: var(--spacing-md);
   font-size: var(--text-base);
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-sm);
+    margin-bottom: var(--spacing-sm);
+  }
 `;
 
 const ProjectStats = styled.div`
@@ -109,6 +143,11 @@ const ProjectStats = styled.div`
   flex-wrap: wrap;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
+  
+  @media (max-width: 768px) {
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
 `;
 
 const StatItem = styled.div`
@@ -117,9 +156,13 @@ const StatItem = styled.div`
   gap: var(--spacing-xs);
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
-  
+
   svg {
     color: var(--color-accent-primary);
+  }
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-xs);
   }
 `;
 
@@ -130,7 +173,7 @@ const ProjectLink = styled.a`
   color: var(--color-accent-primary);
   font-size: var(--text-sm);
   font-weight: 500;
-  
+
   &:hover {
     text-decoration: underline;
   }
@@ -138,7 +181,6 @@ const ProjectLink = styled.a`
 
 const Projects = () => {
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.1 });
 
   const projects = [
     {
@@ -173,7 +215,7 @@ const Projects = () => {
       image: '/images/projects/college.jpg',
       stats: [
         { icon: <MdGroups />, text: '500+ Students' },
-        { icon: <FaRocket />, text: 'Multiple Events' },
+        { icon: <FaStar />, text: 'Multiple Events' },
       ],
       link: '#'
     },
@@ -192,13 +234,9 @@ const Projects = () => {
   ];
 
   return (
-    <ProjectsSection ref={sectionRef}>
+    <ProjectsSection ref={sectionRef} id="projects">
       <Container>
-        <SectionHeader
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-        >
+        <SectionHeader>
           <SectionTitle>Featured Projects</SectionTitle>
           <SectionSubtitle>
             From space exploration to sustainable energy - projects that define my journey
@@ -206,14 +244,8 @@ const Projects = () => {
         </SectionHeader>
 
         <ProjectsGrid>
-          {projects.map((project, index) => (
-            <ProjectCard
-              key={project.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
-            >
+          {projects.map((project) => (
+            <ProjectCard key={project.id}>
               <ProjectImage $image={project.image} />
               <ProjectContent>
                 <ProjectTitle>{project.title}</ProjectTitle>
@@ -229,7 +261,7 @@ const Projects = () => {
                   ))}
                 </ProjectStats>
 
-                {project.link && (
+                {project.link && project.link !== '#' && (
                   <ProjectLink
                     href={project.link}
                     target="_blank"

@@ -28,7 +28,7 @@ const FloatingShape = () => {
     gradient.addColorStop(1, '#6366f1');
     
     context.fillStyle = gradient;
-    context.fillRect(0, 0, 128, 128);
+    context.fillRect(0, 0, 256, 256);
     
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
@@ -87,7 +87,7 @@ const FloatingShape = () => {
       {/* Orbit controls for interactivity */}
       <OrbitControls
         enableZoom={false}
-        enablePan={false}
+        enablePan={true}
         autoRotate
         autoRotateSpeed={0.5}
         minPolarAngle={Math.PI / 3}
@@ -96,7 +96,7 @@ const FloatingShape = () => {
       
       {/* Main floating shape */}
       <Float
-        speed={2}
+        speed={3}
         rotationIntensity={1}
         floatIntensity={2}
         floatingRange={[-0.1, 0.1]}

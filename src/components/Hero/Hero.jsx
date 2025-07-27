@@ -321,15 +321,15 @@ const Hero = () => {
                     <Suspense fallback={
                         <LoadingContainer>
                             <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                // animate={{ rotate: 360 }}
+                                // transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                             >
                                 Loading 3D...
                             </motion.div>
                         </LoadingContainer>
                     }>
                         <Canvas
-                            camera={{ position: [0, 0, 5], fov: 75 }}
+                            camera={{ position: [-5, -5, 0], fov: 75 }}
                             gl={{ antialias: true, alpha: true }}
                         >
                             <Preload all />

@@ -12,6 +12,10 @@ const AboutSection = styled.section`
   position: relative;
   background: var(--color-bg-secondary);
   overflow: hidden;
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg) 0;
+  }
 `;
 
 const Container = styled.div`
@@ -20,9 +24,13 @@ const Container = styled.div`
   padding: 0 var(--container-padding);
 `;
 
-const SectionHeader = styled(motion.div)`
+const SectionHeader = styled.div`
   text-align: center;
   margin-bottom: var(--spacing-xl);
+  
+  @media (max-width: 768px) {
+    margin-bottom: var(--spacing-lg);
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -32,6 +40,10 @@ const SectionTitle = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-3xl);
+  }
 `;
 
 const SectionSubtitle = styled.p`
@@ -39,6 +51,10 @@ const SectionSubtitle = styled.p`
   color: var(--color-text-secondary);
   max-width: 600px;
   margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-base);
+  }
 `;
 
 const AboutGrid = styled.div`
@@ -52,14 +68,14 @@ const AboutGrid = styled.div`
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
   }
-      @media (max-width: 768px) {
+  
+  @media (max-width: 768px) {
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
   }
-
 `;
 
-const AboutContent = styled(motion.div)`
+const AboutContent = styled.div`
   order: 1;
 
   @media (max-width: 1024px) {
@@ -67,7 +83,7 @@ const AboutContent = styled(motion.div)`
   }
 `;
 
-const AboutImageContainer = styled(motion.div)`
+const AboutImageContainer = styled.div`
   order: 2;
   position: relative;
   
@@ -75,6 +91,10 @@ const AboutImageContainer = styled(motion.div)`
     order: 1;
     max-width: 500px;
     margin: 0 auto;
+  }
+  
+  @media (max-width: 768px) {
+    max-width: 300px;
   }
 `;
 
@@ -85,6 +105,10 @@ const ImageWrapper = styled.div`
   aspect-ratio: 4/5;
   background: var(--color-gradient-1);
   padding: 3px;
+  
+  @media (max-width: 768px) {
+    aspect-ratio: 1/1;
+  }
   
   &::before {
     content: '';
@@ -143,9 +167,15 @@ const StatsGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--spacing-md);
   margin-top: var(--spacing-xl);
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+  }
 `;
 
-const StatCard = styled(motion.div)`
+const StatCard = styled.div`
   background: var(--color-bg-card);
   padding: var(--spacing-lg);
   border-radius: 16px;
@@ -153,6 +183,10 @@ const StatCard = styled(motion.div)`
   text-align: center;
   position: relative;
   overflow: hidden;
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
   
   &::before {
     content: '';
@@ -190,7 +224,7 @@ const StatLabel = styled.p`
   color: var(--color-text-secondary);
 `;
 
-const SkillsContainer = styled(motion.div)`
+const SkillsContainer = styled.div`
   margin-top: var(--spacing-2xl);
 `;
 
@@ -208,10 +242,9 @@ const SkillsGrid = styled.div`
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
-
 `;
 
-const SkillCategory = styled(motion.div)`
+const SkillCategory = styled.div`
   background: var(--color-bg-card);
   padding: var(--spacing-lg);
   border-radius: 16px;
@@ -234,7 +267,7 @@ const SkillsList = styled.ul`
   gap: var(--spacing-sm);
 `;
 
-const SkillTag = styled(motion.li)`
+const SkillTag = styled.li`
   background: rgba(99, 102, 241, 0.1);
   color: var(--color-text-primary);
   padding: 6px 16px;
@@ -258,43 +291,15 @@ const FloatingPanda = styled(motion.div)`
   opacity: 0.1;
   z-index: 1;
   pointer-events: none;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const About = () => {
   const sectionRef = useRef(null);
-  const controls = useAnimation();
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
   const [imageLoaded, setImageLoaded] = useState(false);
-
-  useEffect(() => {
-    if (isInView) {
-      controls.start('visible');
-    }
-  }, [isInView, controls]);
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
-    },
-  };
 
   const statsData = [
     { icon: <FaGraduationCap />, number: '2024', label: 'B.Tech Graduate' },
@@ -311,7 +316,7 @@ const About = () => {
   };
 
   return (
-    <AboutSection ref={sectionRef}>
+    <AboutSection ref={sectionRef} id="about">
       {/* Floating Panda Easter Egg */}
       <FloatingPanda
         animate={{
@@ -330,11 +335,7 @@ const About = () => {
       </FloatingPanda>
 
       <Container>
-        <SectionHeader
-          variants={itemVariants}
-          initial="hidden"
-          animate={controls}
-        >
+        <SectionHeader>
           <SectionTitle>About Me</SectionTitle>
           <SectionSubtitle>
             Engineer, entrepreneur, and lifelong learner passionate about 
@@ -343,45 +344,35 @@ const About = () => {
         </SectionHeader>
 
         <AboutGrid>
-          <AboutContent
-            variants={containerVariants}
-            initial="hidden"
-            animate={controls}
-          >
+          <AboutContent>
             <AboutText>
-              <motion.h3 variants={itemVariants}>
-                Building the Future, One Innovation at a Time
-              </motion.h3>
-              <motion.p variants={itemVariants}>
+              <h3>Building the Future, One Innovation at a Time</h3>
+              <p>
                 I'm <HighlightText>Vanshul Goyal</HighlightText>, a recent graduate from 
                 Punjab Engineering College with a B.Tech in <HighlightText>Electronics and 
                 Communication Engineering</HighlightText> and a minor in Computer Science.
-              </motion.p>
-              <motion.p variants={itemVariants}>
+              </p>
+              <p>
                 Currently, I work as an <HighlightText>Associate Engineer at United Airlines</HighlightText> in 
                 the Air Operations department, while co-founding <HighlightText>Solaride</HighlightText>, 
                 an EPC company accelerating India's transition to sustainable energy.
-              </motion.p>
-              <motion.p variants={itemVariants}>
+              </p>
+              <p>
                 My journey has been shaped by incredible experiences - from leading a team 
                 to <HighlightText>NASA's Human Exploration Rover Challenge</HighlightText> to being selected 
                 among <HighlightText>30 global space leaders</HighlightText> for NASA Space Apps. 
                 These experiences taught me that innovation happens at the intersection of 
                 technology, teamwork, and purpose.
-              </motion.p>
-              <motion.p variants={itemVariants}>
+              </p>
+              <p>
                 When I'm not coding or optimizing business operations, you'll find me 
                 lost in books by Naval Ravikant or Yuval Noah Harari, or penning down 
                 insights about life and technology.
-              </motion.p>
+              </p>
             </AboutText>
           </AboutContent>
 
-          <AboutImageContainer
-            variants={itemVariants}
-            initial="hidden"
-            animate={controls}
-          >
+          <AboutImageContainer>
             <ImageWrapper>
               {imageLoaded ? (
                 <ProfileImage 
@@ -401,13 +392,7 @@ const About = () => {
         {/* Stats Grid */}
         <StatsGrid>
           {statsData.map((stat, index) => (
-            <StatCard
-              key={index}
-              variants={itemVariants}
-              initial="hidden"
-              animate={controls}
-              whileHover={{ y: -5 }}
-            >
+            <StatCard key={index}>
               <StatIcon>{stat.icon}</StatIcon>
               <StatNumber>{stat.number}</StatNumber>
               <StatLabel>{stat.label}</StatLabel>
@@ -416,35 +401,18 @@ const About = () => {
         </StatsGrid>
 
         {/* Skills Section */}
-        <SkillsContainer
-          variants={containerVariants}
-          initial="hidden"
-          animate={controls}
-        >
+        <SkillsContainer>
           <SkillsTitle>Technical Skills</SkillsTitle>
           <SkillsGrid>
-            {Object.entries(skills).map(([category, skillList], index) => (
-              <SkillCategory
-                key={category}
-                variants={itemVariants}
-                whileHover={{ scale: 1.02 }}
-              >
+            {Object.entries(skills).map(([category, skillList]) => (
+              <SkillCategory key={category}>
                 <SkillCategoryTitle>
                   <FaCode />
                   {category}
                 </SkillCategoryTitle>
                 <SkillsList>
-                  {skillList.map((skill, skillIndex) => (
-                    <SkillTag
-                      key={skill}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ 
-                        delay: index * 0.1 + skillIndex * 0.05,
-                        duration: 0.3 
-                      }}
-                      whileHover={{ scale: 1.05 }}
-                    >
+                  {skillList.map((skill) => (
+                    <SkillTag key={skill}>
                       {skill}
                     </SkillTag>
                   ))}
