@@ -347,7 +347,7 @@ const Blog = () => {
           <motion.div variants={itemVariants}>
             <SectionTitle>Writings</SectionTitle>
             <SectionSubtitle>
-              A collection of thoughts and insights
+              A collection of thoughts and insights (More coming soon...)
             </SectionSubtitle>
           </motion.div>
         </SectionHeader>
