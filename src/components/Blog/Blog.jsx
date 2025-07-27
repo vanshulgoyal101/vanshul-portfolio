@@ -78,13 +78,18 @@ const BlogCard = styled(motion.article)`
 `;
 
 const BlogMeta = styled.div`
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-sm);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-  
+
+  svg {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
   @media (max-width: 480px) {
     flex-wrap: wrap;
     gap: var(--spacing-sm);
