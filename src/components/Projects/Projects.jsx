@@ -1,6 +1,7 @@
 // src/components/Projects/Projects.jsx
 import { useRef } from 'react';
 import styled from 'styled-components';
+import { motion, useInView } from 'framer-motion';
 import { FaRocket, FaGlobeAfrica, FaStar, FaExternalLinkAlt } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
@@ -34,6 +35,7 @@ const SectionHeader = styled.div`
 const SectionTitle = styled.h2`
   font-size: var(--text-5xl);
   margin-bottom: var(--spacing-md);
+  padding-top: var(--spacing-md);
   background: var(--color-gradient-1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -181,6 +183,30 @@ const ProjectLink = styled.a`
 
 const Projects = () => {
   const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: 'easeOut',
+      },
+    },
+  };
 
   const projects = [
     {
@@ -236,13 +262,26 @@ const Projects = () => {
   return (
     <ProjectsSection ref={sectionRef} id="projects">
       <Container>
-        <SectionHeader>
+
+        {/* <SectionHeader>
           <SectionTitle>Featured Projects</SectionTitle>
           <SectionSubtitle>
             From space sector to sustainable energy - projects that define my journey
           </SectionSubtitle>
-        </SectionHeader>
+        </SectionHeader> */}
 
+        <SectionHeader
+          variants={containerVariants}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
+          <motion.div variants={itemVariants}>
+            <SectionTitle>Featured Projects</SectionTitle>
+            <SectionSubtitle>
+              From space sector to sustainable energy - projects that define my journey
+            </SectionSubtitle>
+          </motion.div>
+        </SectionHeader>
         <ProjectsGrid>
           {projects.map((project) => (
             <ProjectCard key={project.id}>
@@ -251,7 +290,7 @@ const Projects = () => {
                 <ProjectTitle>{project.title}</ProjectTitle>
                 <ProjectRole>{project.role}</ProjectRole>
                 <ProjectDescription>{project.description}</ProjectDescription>
-                
+
                 <ProjectStats>
                   {project.stats.map((stat, idx) => (
                     <StatItem key={idx}>

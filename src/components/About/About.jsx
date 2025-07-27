@@ -340,8 +340,7 @@ const About = () => {
         <SectionHeader>
           <SectionTitle>About Me</SectionTitle>
           <SectionSubtitle>
-            Engineer, entrepreneur, and lifelong learner passionate about
-            technology and sustainable innovation
+            Engineer, entrepreneur, and a passionate learner.
           </SectionSubtitle>
         </SectionHeader>
 
@@ -368,7 +367,7 @@ const About = () => {
               </p>
               <p>
                 When I'm not coding or optimizing business operations, you'll find me
-                lost in books or playing around with friends.
+                lost in books or playing around in parks.
               </p>
             </AboutText>
           </AboutContent>

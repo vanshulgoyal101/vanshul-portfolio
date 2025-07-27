@@ -1,10 +1,11 @@
 // src/components/Blog/Blog.jsx
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { motion, useInView } from 'framer-motion';
-import { FaPen, FaBook, FaQuoteLeft, FaFeatherAlt } from 'react-icons/fa';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { FaPen, FaBook, FaQuoteLeft, FaFeatherAlt, FaTimes } from 'react-icons/fa';
 import { BiTime } from 'react-icons/bi';
-import { MdArrowForward } from 'react-icons/md';
+import { MdArrowForward, MdDateRange } from 'react-icons/md';
+import blogPosts from './blogs.json'; // Import blog data
 
 // Styled Components
 const BlogSection = styled.section`
@@ -32,6 +33,10 @@ const SectionTitle = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-3xl);
+  }
 `;
 
 const SectionSubtitle = styled.p`
@@ -39,110 +44,207 @@ const SectionSubtitle = styled.p`
   color: var(--color-text-secondary);
   max-width: 600px;
   margin: 0 auto;
-`;
-
-const BlogContent = styled.div`
-  display: grid;
-  gap: var(--spacing-xl);
-  margin-bottom: var(--spacing-2xl);
-`;
-
-const ComingSoonCard = styled(motion.div)`
-  max-width: 800px;
-  margin: 0 auto;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-  padding: var(--spacing-2xl);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
   
-    @media (max-width: 768px) {
-        padding: var(--spacing-lg);
-        border-radius: 12px;
-    }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--color-gradient-1);
+  @media (max-width: 768px) {
+    font-size: var(--text-base);
   }
 `;
 
-const ComingSoonIcon = styled.div`
-  font-size: 4rem;
-  color: var(--color-accent-primary);
-  margin-bottom: var(--spacing-lg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ComingSoonTitle = styled.h3`
-  font-size: var(--text-3xl);
-  margin-bottom: var(--spacing-md);
-  color: var(--color-text-primary);
-`;
-
-const ComingSoonText = styled.p`
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
-  line-height: 1.8;
-  max-width: 600px;
-  margin: 0 auto var(--spacing-lg);
-`;
-
-const TopicsGrid = styled.div`
+const BlogGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
+  
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-lg);
+    gap: var(--spacing-md);
   }
 `;
 
-const TopicCard = styled(motion.div)`
-  background: rgba(99, 102, 241, 0.05);
+const BlogCard = styled(motion.article)`
+  background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: var(--spacing-md);
-  text-align: center;
+  border-radius: 16px;
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: var(--color-accent-primary);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+  }
+`;
+
+const BlogMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  
+  @media (max-width: 480px) {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+`;
+
+const BlogTitle = styled.h3`
+  font-size: var(--text-xl);
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-primary);
+  line-height: 1.4;
+`;
+
+const BlogSummary = styled.p`
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--spacing-md);
+`;
+
+const ReadMore = styled.span`
+  color: var(--color-accent-primary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  
+  svg {
+    transition: transform 0.3s ease;
+  }
+  
+  ${BlogCard}:hover & svg {
+    transform: translateX(5px);
+  }
+`;
+
+// Modal Components
+const ModalOverlay = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+`;
+
+const ModalContent = styled(motion.div)`
+  background: var(--color-bg-card);
+  border-radius: 20px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  
+  @media (max-width: 768px) {
+    max-height: 100vh;
+    border-radius: 20px 20px 0 0;
+  }
+`;
+
+const ModalHeader = styled.div`
+  padding: var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  background: var(--color-bg-card);
+  z-index: 10;
+`;
+
+const ModalTitle = styled.h2`
+  font-size: var(--text-3xl);
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-primary);
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-2xl);
+  }
+`;
+
+const ModalMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: var(--text-xl);
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  border-radius: 50%;
   transition: all 0.3s ease;
   
   &:hover {
     background: rgba(99, 102, 241, 0.1);
-    border-color: var(--color-accent-primary);
-    transform: translateY(-5px);
+    color: var(--color-accent-primary);
   }
 `;
 
-const TopicIcon = styled.div`
-  font-size: 2rem;
-  color: var(--color-accent-primary);
-  margin-bottom: var(--spacing-sm);
+const ModalBody = styled.div`
+  padding: var(--spacing-xl);
+  
+  h3 {
+    font-size: var(--text-2xl);
+    margin: var(--spacing-lg) 0 var(--spacing-md);
+    color: var(--color-text-primary);
+  }
+  
+  p {
+    font-size: var(--text-base);
+    line-height: 1.8;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  ul, ol {
+    margin: var(--spacing-md) 0;
+    padding-left: var(--spacing-lg);
+    color: var(--color-text-secondary);
+  }
+  
+  li {
+    margin-bottom: var(--spacing-sm);
+  }
 `;
 
-const TopicTitle = styled.h4`
-  font-size: var(--text-base);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-xs);
-`;
-
-const TopicDescription = styled.p`
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+const EmptyState = styled.div`
+  text-align: center;
+  padding: var(--spacing-2xl);
+  
+  svg {
+    font-size: 4rem;
+    color: var(--color-accent-primary);
+    opacity: 0.3;
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  h3 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text-primary);
+  }
+  
+  p {
+    color: var(--color-text-secondary);
+    max-width: 400px;
+    margin: 0 auto;
+  }
 `;
 
 const QuoteSection = styled(motion.div)`
@@ -177,100 +279,10 @@ const QuoteAuthor = styled.cite`
   }
 `;
 
-const NotifySection = styled(motion.div)`
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
-  padding: var(--spacing-xl);
-  background: var(--color-bg-card);
-  border-radius: 20px;
-  border: 1px solid var(--color-border);
-    
-  @media (max-width: 768px) {
-    padding: var(--spacing-lg);
-    border-radius: 12px;
-  }
-`;
-
-const NotifyTitle = styled.h3`
-  font-size: var(--text-xl);
-  margin-bottom: var(--spacing-md);
-  color: var(--color-text-primary);
-`;
-
-const NotifyText = styled.p`
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-lg);
-`;
-
-const EmailForm = styled.form`
-  display: flex;
-  gap: var(--spacing-sm);
-  max-width: 400px;
-  margin: 0 auto;
-  
-  @media (max-width: 640px) {
-    flex-direction: column;
-    width: 100%;
-  }
-
-`;
-
-const EmailInput = styled.input`
-  flex: 1;
-  padding: 12px 20px;
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: 25px;
-  color: var(--color-text-primary);
-  font-size: var(--text-base);
-  transition: all 0.3s ease;
-  
-  &::placeholder {
-    color: var(--color-text-muted);
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: var(--color-accent-primary);
-  }
-`;
-
-const SubmitButton = styled(motion.button)`
-  padding: 12px 24px;
-  background: var(--color-gradient-1);
-  color: white;
-  border: none;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
-  }
-`;
-
-// Floating Feather Component
-const FloatingFeather = styled(motion.div)`
-  position: absolute;
-  font-size: 2.5rem;
-  color: var(--color-accent-primary);
-  opacity: 0.1;
-  z-index: 1;
-  pointer-events: none;
-  top: 10%;
-  right: 10%;
-`;
-
 const Blog = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const [selectedBlog, setSelectedBlog] = useState(null);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -295,48 +307,32 @@ const Blog = () => {
     },
   };
 
-  const topics = [
-    {
-      icon: <FaPen />,
-      title: 'Life Insights',
-      description: 'Random thoughts and observations about life',
+  const modalVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.3 }
     },
-    {
-      icon: <FaBook />,
-      title: 'Book Notes',
-      description: 'Key takeaways from Naval & Yuval',
-    },
-    {
-      icon: <BiTime />,
-      title: 'Tech & Future',
-      description: 'Thoughts on technology and innovation',
-    },
-  ];
+    exit: { 
+      opacity: 0, 
+      scale: 0.9,
+      transition: { duration: 0.2 }
+    }
+  };
 
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    // Handle email subscription
-    console.log('Email subscription submitted');
+  const handleBlogClick = (blog) => {
+    setSelectedBlog(blog);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const handleCloseModal = () => {
+    setSelectedBlog(null);
+    document.body.style.overflow = '';
   };
 
   return (
-    <BlogSection ref={sectionRef}>
-      {/* Floating Feather */}
-      <FloatingFeather
-        animate={{
-          y: [0, -20, 0],
-          x: [0, 10, 0],
-          rotate: [0, 5, 0],
-        }}
-        transition={{
-          duration: 5,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      >
-        <FaFeatherAlt />
-      </FloatingFeather>
-
+    <BlogSection ref={sectionRef} id="blog">
       <Container>
         <SectionHeader
           variants={containerVariants}
@@ -351,88 +347,93 @@ const Blog = () => {
           </motion.div>
         </SectionHeader>
 
-        <BlogContent>
-          <ComingSoonCard
-            variants={itemVariants}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-            whileHover={{ scale: 1.02 }}
-          >
-            <ComingSoonIcon>
-              <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <FaPen />
-              </motion.div>
-            </ComingSoonIcon>
-            <ComingSoonTitle>Coming Soon</ComingSoonTitle>
-            <ComingSoonText>
-              I'm currently crafting my thoughts into words. Soon, this space will be filled 
-              with insights on technology, entrepreneurship, life lessons, and everything in between. 
-              Stay tuned for stories from my journey - from NASA challenges to building sustainable futures.
-            </ComingSoonText>
-          </ComingSoonCard>
-
-          <TopicsGrid>
-            {topics.map((topic, index) => (
-              <TopicCard
-                key={index}
+        {blogPosts && blogPosts.length > 0 ? (
+          <BlogGrid>
+            {blogPosts.map((blog, index) => (
+              <BlogCard
+                key={blog.id}
                 variants={itemVariants}
                 initial="hidden"
                 animate={isInView ? 'visible' : 'hidden'}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
+                onClick={() => handleBlogClick(blog)}
+                whileHover={{ scale: 1.02 }}
               >
-                <TopicIcon>{topic.icon}</TopicIcon>
-                <TopicTitle>{topic.title}</TopicTitle>
-                <TopicDescription>{topic.description}</TopicDescription>
-              </TopicCard>
+                <BlogMeta>
+                  <span>
+                    <MdDateRange /> {blog.date}
+                  </span>
+                  <span>
+                    <BiTime /> {blog.readTime}
+                  </span>
+                </BlogMeta>
+                <BlogTitle>{blog.title}</BlogTitle>
+                <BlogSummary>{blog.summary}</BlogSummary>
+                <ReadMore>
+                  Read More <MdArrowForward />
+                </ReadMore>
+              </BlogCard>
             ))}
-          </TopicsGrid>
+          </BlogGrid>
+        ) : (
+          <EmptyState>
+            <FaPen />
+            <h3>Coming Soon</h3>
+            <p>I'm currently crafting my thoughts into words. Check back soon for insights and stories from my journey.</p>
+          </EmptyState>
+        )}
 
-          <QuoteSection
-            variants={itemVariants}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-          >
-            <QuoteIcon>
-              <FaQuoteLeft />
-            </QuoteIcon>
-            <Quote>
-              "Specific knowledge is found by pursuing your genuine curiosity and passion 
-              rather than whatever is hot right now."
-            </Quote>
-            <QuoteAuthor>Naval Ravikant</QuoteAuthor>
-          </QuoteSection>
-
-          <NotifySection
-            variants={itemVariants}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-          >
-            <NotifyTitle>Get Notified</NotifyTitle>
-            <NotifyText>
-              Be the first to know when I publish new articles
-            </NotifyText>
-            <EmailForm onSubmit={handleSubscribe}>
-              <EmailInput 
-                type="email" 
-                placeholder="Enter your email" 
-                required 
-              />
-              <SubmitButton
-                type="submit"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Notify Me
-                <MdArrowForward />
-              </SubmitButton>
-            </EmailForm>
-          </NotifySection>
-        </BlogContent>
+        <QuoteSection
+          variants={itemVariants}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
+          <QuoteIcon>
+            <FaQuoteLeft />
+          </QuoteIcon>
+          <Quote>
+            "Specific knowledge is found by pursuing your genuine curiosity and passion 
+            rather than whatever is hot right now."
+          </Quote>
+          <QuoteAuthor>Naval Ravikant</QuoteAuthor>
+        </QuoteSection>
       </Container>
+
+      {/* Blog Modal */}
+      <AnimatePresence>
+        {selectedBlog && (
+          <ModalOverlay
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleCloseModal}
+          >
+            <ModalContent
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ModalHeader>
+                <CloseButton onClick={handleCloseModal}>
+                  <FaTimes />
+                </CloseButton>
+                <ModalTitle>{selectedBlog.title}</ModalTitle>
+                <ModalMeta>
+                  <span>
+                    <MdDateRange /> {selectedBlog.date}
+                  </span>
+                  <span>
+                    <BiTime /> {selectedBlog.readTime}
+                  </span>
+                </ModalMeta>
+              </ModalHeader>
+              <ModalBody dangerouslySetInnerHTML={{ __html: selectedBlog.content }} />
+            </ModalContent>
+          </ModalOverlay>
+        )}
+      </AnimatePresence>
     </BlogSection>
   );
 };

@@ -20,12 +20,13 @@ const Container = styled.div`
 
 const SectionHeader = styled(motion.div)`
   text-align: center;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
 `;
 
 const SectionTitle = styled.h2`
   font-size: var(--text-5xl);
   margin-bottom: var(--spacing-md);
+  padding-top: var(--spacing-md);
   background: var(--color-gradient-1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
