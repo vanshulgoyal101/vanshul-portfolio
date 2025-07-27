@@ -209,8 +209,21 @@ const Projects = () => {
   };
 
   const projects = [
-    {
+
+        {
       id: 1,
+      title: 'Solaride',
+      role: 'Co-Founder',
+      description: 'Powering a Greener Future with Solar Energy. Installing solar power plants on houses, malls, factories, farmland, etc .',
+      image: '/images/projects/Solaride.png',
+      stats: [
+        { icon: <MdGroups />, text: 'EPC company' },
+        { icon: <FaRocket />, text: 'Govt. Registered vendor' },
+      ],
+      link: 'https://solaride.in'
+    },
+    {
+      id: 2,
       title: 'NASA Human Exploration Rover Challenge',
       role: 'Team Lead',
       description: 'Led a team of 6 people to design and manufacture a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking.',
@@ -222,7 +235,7 @@ const Projects = () => {
       link: 'https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge/'
     },
     {
-      id: 2,
+      id: 3,
       title: 'NASA Space Apps Collective',
       role: 'Global Community Member',
       description: 'Selected among 30 global space leaders. Developed weather visualization tools for Zimbabwean farmers using NASA data.',
@@ -245,18 +258,7 @@ const Projects = () => {
     //   ],
     //   link: '#'
     // },
-    {
-      id: 3,
-      title: 'Solaride',
-      role: 'Co-Founder',
-      description: 'Powering a Greener Future with Solar Energy. Installing solar power plants on houses, malls, factories, farmland, etc .',
-      image: '/images/projects/Solaride.png',
-      stats: [
-        { icon: <MdGroups />, text: 'EPC company' },
-        { icon: <FaRocket />, text: 'Govt. Registered vendor' },
-      ],
-      link: 'https://solaride.in'
-    }
+
   ];
 
   return (
