@@ -155,13 +155,13 @@ const Work = () => {
     {
       id: 1,
       icon: <FaPlane />,
-      title: 'Associate Engineer',
+      title: 'Associate Analyst',
       company: 'United Airlines',
       department: 'Air Operations',
-      duration: '2024 - Present',
-      location: 'India',
+      duration: 'Jul 2025 - Present',
+      location: 'Gurugram, India',
       description: 'Contributing to air operations systems and processes at one of the world\'s leading airlines. Working on optimizing critical aviation systems and improving operational efficiency.',
-      tech: ['Aviation Systems', 'Operations', 'Data Analysis'],
+      tech: ['Power BI', 'MS Excel', 'Tableau', 'Data Analysis'],
       link: null,
     },
     {
@@ -172,8 +172,8 @@ const Work = () => {
       department: 'Operations & Strategy',
       duration: '2024 - Present',
       location: 'Chandigarh, India',
-      description: 'Leading business operations and scaling strategies for an EPC company specializing in solar installations. Managing projects under PM Surya Ghar and PM KUSUM Yojana across Chandigarh Tricity and Haryana.',
-      tech: ['Business Strategy', 'Operations', 'Solar Energy', 'Project Management'],
+      description: 'Leading business operations and scaling strategies for the EPC company specializing in solar installations. Managing projects under PM Surya Ghar and PM KUSUM Yojana.',
+      tech: ['Operations', 'Project Management', 'Business Development', 'Solar Energy'],
       link: 'https://solaride.in',
     },
     {
@@ -185,8 +185,8 @@ const Work = () => {
       duration: '2023 - 2024',
       location: 'San Francisco, US (Remote)',
       description: 'Developed and automated end-to-end sign-up process for healthcare providers. Engineered custom interfaces for 100+ Healthcare Organizations to securely manage Patient Health Records in compliance with healthcare standards.',
-      tech: ['Java', 'Spring Boot', 'React', 'Healthcare APIs', 'AWS'],
-      link: null,
+      tech: ['Java', 'Spring Boot', 'JavaScript', 'SQL'],
+      link: 'https://www.zhealthehr.com/',
     },
   ];
 

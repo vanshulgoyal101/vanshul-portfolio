@@ -187,47 +187,47 @@ const Projects = () => {
       id: 1,
       title: 'NASA Human Exploration Rover Challenge',
       role: 'Team Lead',
-      description: 'Led the design and construction of a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking.',
+      description: 'Led a team of 6 people to design and manufacture a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking.',
       image: '/images/projects/nasa-herc.jpg',
       stats: [
-        { icon: <MdGroups />, text: '12k+ Students' },
-        { icon: <BiMoney />, text: '$30k Funding' },
+        { icon: <MdGroups />, text: 'Reached out to 12k+ Students for STEM engagement activites' },
+        { icon: <BiMoney />, text: 'Raised $30,000 Funding via government and private sources' },
       ],
-      link: '#'
+      link: 'https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge/'
     },
     {
       id: 2,
-      title: 'NASA Space Apps Challenge',
-      role: 'Global Space Leader',
+      title: 'NASA Space Apps Collective',
+      role: 'Global Community Member',
       description: 'Selected among 30 global space leaders. Developed weather visualization tools for Zimbabwean farmers using NASA data.',
-      image: '/images/projects/space-apps.jpg',
+      image: '/images/projects/spaceapps.png',
       stats: [
-        { icon: <MdGroups />, text: 'Global Team' },
-        { icon: <FaRocket />, text: 'NASA Data' },
+        { icon: <MdGroups />, text: 'Worked with a diverse global team' },
+        { icon: <FaRocket />, text: "Used NASA's open-source Data" },
       ],
-      link: '#'
+      link: 'https://www.spaceappschallenge.org/collective/'
     },
+    // {
+    //   id: 3,
+    //   title: 'Astronomy & Space Physics Society',
+    //   role: 'Core Team Member',
+    //   description: 'Organized telescope workshops and educational events to promote space sciences among students.',
+    //   image: '/images/projects/college.jpg',
+    //   stats: [
+    //     { icon: <MdGroups />, text: '500+ Students' },
+    //     { icon: <FaStar />, text: 'Multiple Events' },
+    //   ],
+    //   link: '#'
+    // },
     {
       id: 3,
-      title: 'Astronomy & Space Physics Society',
-      role: 'Core Team Member',
-      description: 'Organized telescope workshops and educational events to promote space sciences among students.',
-      image: '/images/projects/college.jpg',
-      stats: [
-        { icon: <MdGroups />, text: '500+ Students' },
-        { icon: <FaStar />, text: 'Multiple Events' },
-      ],
-      link: '#'
-    },
-    {
-      id: 4,
       title: 'Solaride',
       role: 'Co-Founder',
-      description: 'Building sustainable energy solutions across Chandigarh and Haryana. Installing solar plants under government schemes.',
-      image: '/images/projects/solaride.jpg',
+      description: 'Powering a Greener Future with Solar Energy. Installing solar power plants on houses, malls, factories, farmland, etc .',
+      image: '/images/projects/Solaride.png',
       stats: [
-        { icon: <MdGroups />, text: 'Active Projects' },
-        { icon: <FaRocket />, text: 'Govt. Registered' },
+        { icon: <MdGroups />, text: 'EPC company' },
+        { icon: <FaRocket />, text: 'Govt. Registered vendor' },
       ],
       link: 'https://solaride.in'
     }
@@ -239,7 +239,7 @@ const Projects = () => {
         <SectionHeader>
           <SectionTitle>Featured Projects</SectionTitle>
           <SectionSubtitle>
-            From space exploration to sustainable energy - projects that define my journey
+            From space sector to sustainable energy - projects that define my journey
           </SectionSubtitle>
         </SectionHeader>
 
@@ -267,8 +267,8 @@ const Projects = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    View Project
-                    <FaExternalLinkAlt size={12} />
+                    Visit Website
+                    <FaExternalLinkAlt size={20} />
                   </ProjectLink>
                 )}
               </ProjectContent>

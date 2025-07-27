@@ -124,10 +124,10 @@ function App() {
     // }
 
     // rafRef.current = requestAnimationFrame(raf);
-    document.body.style.cursor = 'none';
+    // document.body.style.cursor = 'none';
 
     return () => {
-      document.body.style.cursor = 'auto';
+      // document.body.style.cursor = 'auto';
     //   lenis.destroy();
     //   if (rafRef.current) {
     //     cancelAnimationFrame(rafRef.current);
@@ -181,7 +181,7 @@ function App() {
         {/* Fun Interactive Elements - spread throughout the site */}
         {/* Lazy load fun elements */}
         <Suspense fallback={null}>
-          <PandaCursor />
+          {/* <PandaCursor /> */}
           <FloatingRocket />
           <AirplaneTrail />
         </Suspense>

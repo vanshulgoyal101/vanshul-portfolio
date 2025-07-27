@@ -258,7 +258,7 @@ const Hero = () => {
                     </Title>
 
                     <Subtitle variants={itemVariants}>
-                        Engineer at United Airlines • Co-founder at Solaride
+                        Analyst at United Airlines | Co-founder at Solaride
                     </Subtitle>
 
                     <Description variants={itemVariants}>
@@ -329,7 +329,7 @@ const Hero = () => {
                         </LoadingContainer>
                     }>
                         <Canvas
-                            camera={{ position: [-5, -5, 0], fov: 75 }}
+                            camera={{ position: [-3, -3, 0], fov: 100 }}
                             gl={{ antialias: true, alpha: true }}
                         >
                             <Preload all />

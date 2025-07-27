@@ -128,6 +128,7 @@ const ProfileImage = styled.img`
   object-fit: cover;
   border-radius: 17px;
   display: block;
+  z-index: 10;
 `;
 
 const ImagePlaceholder = styled.div`
@@ -299,20 +300,21 @@ const FloatingPanda = styled(motion.div)`
 
 const About = () => {
   const sectionRef = useRef(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(true);
 
   const statsData = [
-    { icon: <FaGraduationCap />, number: '2024', label: 'B.Tech Graduate' },
-    { icon: <FaRocket />, number: 'Top 20', label: 'NASA HERC Global' },
+    { icon: <FaGraduationCap />, number: '2025', label: 'B.Tech | Electronics and Communication engineering ' },
+    { icon: <FaTrophy />, number: 'Sports', label: 'State Level Cricket, Baseball and Softball' },
+    { icon: <FaRocket />, number: 'Top 20', label: 'NASA HERC 2023' },
     { icon: <FaTrophy />, number: '98.6%', label: 'JEE Mains' },
-    { icon: <BiAtom />, number: '30', label: 'Global Space Leaders' },
+    // { icon: <BiAtom />, number: '30', label: 'Global Space Leaders' },
   ];
 
   const skills = {
     'Languages': ['Java', 'Python', 'JavaScript', 'SQL'],
     'Frontend': ['React', 'HTML/CSS', 'Framer Motion'],
     'Backend': ['Spring Boot', 'Node.js', 'Express'],
-    'Tools': ['Git', 'Docker', 'AWS', 'MongoDB']
+    'Tools': ['Git', 'Docker', 'MySQL', 'Postman', 'etc'],
   };
 
   return (
@@ -338,7 +340,7 @@ const About = () => {
         <SectionHeader>
           <SectionTitle>About Me</SectionTitle>
           <SectionSubtitle>
-            Engineer, entrepreneur, and lifelong learner passionate about 
+            Engineer, entrepreneur, and lifelong learner passionate about
             technology and sustainable innovation
           </SectionSubtitle>
         </SectionHeader>
@@ -348,39 +350,39 @@ const About = () => {
             <AboutText>
               <h3>Building the Future, One Innovation at a Time</h3>
               <p>
-                I'm <HighlightText>Vanshul Goyal</HighlightText>, a recent graduate from 
-                Punjab Engineering College with a B.Tech in <HighlightText>Electronics and 
-                Communication Engineering</HighlightText> and a minor in Computer Science.
+                I'm <HighlightText>Vanshul Goyal</HighlightText>, a recent graduate from
+                Punjab Engineering College with a B.Tech in <HighlightText>Electronics and
+                  Communication Engineering</HighlightText> and a minor in Computer Science.
               </p>
               <p>
-                Currently, I work as an <HighlightText>Associate Engineer at United Airlines</HighlightText> in 
-                the Air Operations department, while co-founding <HighlightText>Solaride</HighlightText>, 
+                Currently, I work as an <HighlightText>Associate Analyst at United Airlines</HighlightText> in
+                the Air Operations department, while co-founding <HighlightText>Solaride</HighlightText>,
                 an EPC company accelerating India's transition to sustainable energy.
               </p>
               <p>
-                My journey has been shaped by incredible experiences - from leading a team 
-                to <HighlightText>NASA's Human Exploration Rover Challenge</HighlightText> to being selected 
-                among <HighlightText>30 global space leaders</HighlightText> for NASA Space Apps. 
-                These experiences taught me that innovation happens at the intersection of 
+                My journey has been shaped by incredible experiences - from leading a team
+                to <HighlightText>NASA's Human Exploration Rover Challenge</HighlightText> to being selected
+                among <HighlightText>30 global space leaders</HighlightText> for NASA Space Apps collective.
+                These experiences taught me that innovation happens at the intersection of
                 technology, teamwork, and purpose.
               </p>
               <p>
-                When I'm not coding or optimizing business operations, you'll find me 
-                lost in books by Naval Ravikant or Yuval Noah Harari, or penning down 
-                insights about life and technology.
+                When I'm not coding or optimizing business operations, you'll find me
+                lost in books or playing around with friends.
               </p>
             </AboutText>
           </AboutContent>
 
           <AboutImageContainer>
             <ImageWrapper>
-              {imageLoaded ? (
-                <ProfileImage 
-                  src="/images/profile.jpg" 
-                  alt="Vanshul Goyal"
-                  onError={() => setImageLoaded(false)}
-                />
-              ) : (
+              <ProfileImage
+                src="/images/projects/profile.jpeg"  
+                alt="Vanshul Goyal"
+                onLoad={() => setImageLoaded(true)}  
+                onError={() => setImageLoaded(false)}
+                style={{ display: imageLoaded ? 'block' : 'none' }}  
+              />
+              {!imageLoaded && (  // Show placeholder only when image fails
                 <ImagePlaceholder>
                   <FaCode />
                 </ImagePlaceholder>
