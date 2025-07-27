@@ -342,7 +342,7 @@ const Blog = () => {
           <motion.div variants={itemVariants}>
             <SectionTitle>Writings</SectionTitle>
             <SectionSubtitle>
-              A collection of thoughts, insights, and learnings from my journey
+              A collection of thoughts and insights
             </SectionSubtitle>
           </motion.div>
         </SectionHeader>
