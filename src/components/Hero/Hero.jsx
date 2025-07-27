@@ -258,7 +258,7 @@ const Hero = () => {
                     </Title>
 
                     <Subtitle variants={itemVariants}>
-                        Associate Analyst at United Airlines | Co-founder at Solaride
+                        Associate Analyst at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">United Airlines</a> | Co-founder at <a href="https://solaride.in" target="_blank" rel="noopener noreferrer">Solaride</a>
                     </Subtitle>
 
                     <Description variants={itemVariants}>

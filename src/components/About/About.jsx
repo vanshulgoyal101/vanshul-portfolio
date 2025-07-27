@@ -354,9 +354,10 @@ const About = () => {
                   Communication Engineering</HighlightText> and a minor in Computer Science.
               </p>
               <p>
-                Currently, I work as an <HighlightText>Associate Analyst at United Airlines</HighlightText> in
-                the Air Operations department, while co-founding <HighlightText>Solaride</HighlightText>,
-                an EPC company accelerating India's transition to sustainable energy.
+                Currently, I work as an <HighlightText>Associate Analyst at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">United Airlines</a></HighlightText> in
+                the Air Operations department, while co-founding <a href="https://solaride.in" target="_blank" rel="noopener noreferrer">
+                  <HighlightText>Solaride</HighlightText>
+                </a>, an EPC company accelerating India's transition to sustainable energy.
               </p>
               <p>
                 My journey has been shaped by incredible experiences - from leading a team
@@ -375,11 +376,11 @@ const About = () => {
           <AboutImageContainer>
             <ImageWrapper>
               <ProfileImage
-                src="/images/projects/profile.jpeg"  
+                src="/images/projects/profile.jpeg"
                 alt="Vanshul Goyal"
-                onLoad={() => setImageLoaded(true)}  
+                onLoad={() => setImageLoaded(true)}
                 onError={() => setImageLoaded(false)}
-                style={{ display: imageLoaded ? 'block' : 'none' }}  
+                style={{ display: imageLoaded ? 'block' : 'none' }}
               />
               {!imageLoaded && (  // Show placeholder only when image fails
                 <ImagePlaceholder>
