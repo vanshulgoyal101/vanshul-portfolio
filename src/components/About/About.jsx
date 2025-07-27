@@ -347,7 +347,7 @@ const About = () => {
         <AboutGrid>
           <AboutContent>
             <AboutText>
-              <h3>Building the Future, One Innovation at a Time</h3>
+              <h3>Hey There! </h3>
               <p>
                 I'm <HighlightText>Vanshul Goyal</HighlightText>, a recent graduate from
                 Punjab Engineering College with a B.Tech in <HighlightText>Electronics and
