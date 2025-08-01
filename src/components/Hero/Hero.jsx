@@ -208,138 +208,138 @@ const LoadingContainer = styled.div`
 
 // Hero Component
 const Hero = () => {
-    const containerRef = useRef();
+  const containerRef = useRef();
 
-    // Animation variants
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.2,
-                delayChildren: 0.3,
-            },
-        },
-    };
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      },
+    },
+  };
 
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.6,
-                ease: 'easeOut',
-            },
-        },
-    };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: 'easeOut',
+      },
+    },
+  };
 
-    const scrollToAbout = () => {
-        const aboutSection = document.getElementById('about');
-        if (aboutSection) {
-            aboutSection.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
+  const scrollToAbout = () => {
+    const aboutSection = document.getElementById('about');
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
-    return (
-        <HeroSection ref={containerRef}>
-            <HeroContainer>
-                <HeroContent
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                >
-                    <Greeting variants={itemVariants}>
-                        Hello, I'm
-                    </Greeting>
+  return (
+    <HeroSection ref={containerRef}>
+      <HeroContainer>
+        <HeroContent
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Greeting variants={itemVariants}>
+            Hello, I'm
+          </Greeting>
 
-                    <Title variants={itemVariants}>
-                        Vanshul Goyal
-                    </Title>
+          <Title variants={itemVariants}>
+            Vanshul Goyal
+          </Title>
 
-                    <Subtitle variants={itemVariants}>
-                        Associate Analyst at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">United Airlines</a> | Co-founder at <a href="https://solaride.in" target="_blank" rel="noopener noreferrer">Solaride</a>
-                    </Subtitle>
+          <Subtitle variants={itemVariants}>
+            Associate Analyst at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">United Airlines</a> | Co-founder at <a href="https://solaride.in" target="_blank" rel="noopener noreferrer">Solaride</a> | NASA <a href='https://www.spaceappschallenge.org/collective/' target='_blank' rel='noopener noreferrer'> SpaceApps Collective</a>, <a href='https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge' target='_blank' rel='noopener noreferrer'> HERC 2023</a>
+          </Subtitle>
 
-                    <Description variants={itemVariants}>
-                        Driven by a deep curiosity for how things work. I enjoy getting my hands dirty with engineering
-                        and building new things from the ground up.
-                    </Description>
+          <Description variants={itemVariants}>
+            Driven by a deep curiosity for how things work. I enjoy getting my hands dirty with engineering
+            and building new things from the ground up.
+          </Description>
 
-                    <CTAContainer variants={itemVariants}>
-                        <CTAButton
-                            href="#work"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Explore My Work
-                        </CTAButton>
-                        <SecondaryButton
-                            href="#contact"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Get In Touch
-                        </SecondaryButton>
-                    </CTAContainer>
+          <CTAContainer variants={itemVariants}>
+            <CTAButton
+              href="#work"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Explore My Work
+            </CTAButton>
+            <SecondaryButton
+              href="#contact"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Get In Touch
+            </SecondaryButton>
+          </CTAContainer>
 
-                    <SocialLinks variants={itemVariants}>
-                        <SocialLink
-                            href="https://x.com/goyal_vanshul"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            aria-label="Twitter"
-                        >
-                            <FaTwitter />
-                        </SocialLink>
-                        <SocialLink
-                            href="https://www.linkedin.com/in/vanshul-goyal00/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            aria-label="LinkedIn"
-                        >
-                            <FaLinkedin />
-                        </SocialLink>
-                        <SocialLink
-                            href="https://www.instagram.com/vanshul_goyal/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            aria-label="Instagram"
-                        >
-                            <FaInstagram />
-                        </SocialLink>
-                    </SocialLinks>
-                </HeroContent>
+          <SocialLinks variants={itemVariants}>
+            <SocialLink
+              href="https://x.com/goyal_vanshul"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              aria-label="Twitter"
+            >
+              <FaTwitter />
+            </SocialLink>
+            <SocialLink
+              href="https://www.linkedin.com/in/vanshul-goyal00/"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              aria-label="LinkedIn"
+            >
+              <FaLinkedin />
+            </SocialLink>
+            <SocialLink
+              href="https://www.instagram.com/vanshul_goyal/"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              aria-label="Instagram"
+            >
+              <FaInstagram />
+            </SocialLink>
+          </SocialLinks>
+        </HeroContent>
 
-                <CanvasContainer>
-                    <Suspense fallback={
-                        <LoadingContainer>
-                            <motion.div
-                                // animate={{ rotate: 360 }}
-                                // transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                            >
-                                Loading 3D...
-                            </motion.div>
-                        </LoadingContainer>
-                    }>
-                        <Canvas
-                            camera={{ position: [-3, -3, 0], fov: 100 }}
-                            gl={{ antialias: true, alpha: true }}
-                        >
-                            <Preload all />
-                            <FloatingShape />
-                        </Canvas>
-                    </Suspense>
-                </CanvasContainer>
-            </HeroContainer>
+        <CanvasContainer>
+          <Suspense fallback={
+            <LoadingContainer>
+              <motion.div
+              // animate={{ rotate: 360 }}
+              // transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+              >
+                Loading 3D...
+              </motion.div>
+            </LoadingContainer>
+          }>
+            <Canvas
+              camera={{ position: [-3, -3, 0], fov: 100 }}
+              gl={{ antialias: true, alpha: true }}
+            >
+              <Preload all />
+              <FloatingShape />
+            </Canvas>
+          </Suspense>
+        </CanvasContainer>
+      </HeroContainer>
 
-            {/* <ScrollIndicator
+      {/* <ScrollIndicator
                 onClick={scrollToAbout}
                 whileHover={{ y: 5 }}
                 animate={{ y: [0, 10, 0] }}
@@ -348,8 +348,8 @@ const Hero = () => {
                 <ScrollText>Scroll</ScrollText>
                 <HiArrowDown />
             </ScrollIndicator> */}
-        </HeroSection>
-    );
+    </HeroSection>
+  );
 };
 
 export default Hero;
