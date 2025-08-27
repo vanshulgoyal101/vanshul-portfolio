@@ -180,11 +180,6 @@ const ModalMeta = styled.div`
   gap: var(--spacing-md);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-
-  svg {
-    display: inline-block;
-    vertical-align: middle;
-  }
 `;
 
 const CloseButton = styled.button`
@@ -289,8 +284,6 @@ const QuoteAuthor = styled.cite`
   }
 `;
 
-const sortedBlogPosts = blogPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
 const Blog = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
@@ -359,9 +352,9 @@ const Blog = () => {
           </motion.div>
         </SectionHeader>
 
-        {sortedBlogPosts && sortedBlogPosts.length > 0 ? (
+        {blogPosts && blogPosts.length > 0 ? (
           <BlogGrid>
-            {sortedBlogPosts.map((blog, index) => (
+            {blogPosts.map((blog, index) => (
               <BlogCard
                 key={blog.id}
                 variants={itemVariants}
