@@ -376,7 +376,7 @@ const About = () => {
           <AboutImageContainer>
             <ImageWrapper>
               <ProfileImage
-                src="/images/projects/profile.jpeg"
+                src="/images/projects/profile2.png"
                 alt="Vanshul Goyal"
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageLoaded(false)}
