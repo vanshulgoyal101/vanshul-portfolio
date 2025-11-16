@@ -146,6 +146,13 @@ const SocialLink = styled(motion.a)`
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
   }
+  
+  &:focus-visible {
+    outline: 3px solid var(--color-accent-primary);
+    outline-offset: 4px;
+    color: var(--color-accent-primary);
+    border-color: var(--color-accent-primary);
+  }
 `;
 
 const spin = keyframes`

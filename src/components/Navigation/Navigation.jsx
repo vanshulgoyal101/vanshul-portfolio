@@ -97,6 +97,13 @@ const NavLink = styled(motion.a)`
     color: var(--color-text-primary);
   }
   
+  &:focus-visible {
+    outline: 3px solid var(--color-accent-primary);
+    outline-offset: 4px;
+    border-radius: 4px;
+    color: var(--color-text-primary);
+  }
+  
   @media (max-width: 768px) {
     min-height: 48px;
     display: flex;
@@ -116,7 +123,8 @@ const NavLink = styled(motion.a)`
       transition: width 0.3s ease;
     }
 
-    &:hover::after {
+    &:hover::after,
+    &:focus-visible::after {
       width: 100%;
     }
 
@@ -147,6 +155,12 @@ const MenuButton = styled(motion.button)`
   padding: 0.5rem;
   position: relative;
   z-index: var(--z-fixed);
+  
+  &:focus-visible {
+    outline: 3px solid var(--color-accent-primary);
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
 
   @media (max-width: 768px) {
     display: flex;

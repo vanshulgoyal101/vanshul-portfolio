@@ -120,6 +120,11 @@ const CTAButton = styled(motion.a)`
   &:hover::before {
     transform: translateX(0);
   }
+  
+  &:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+  }
 `;
 
 const SecondaryButton = styled(motion.a)`
@@ -132,6 +137,13 @@ const SecondaryButton = styled(motion.a)`
   transition: all 0.3s ease;
   
   &:hover {
+    border-color: var(--color-accent-primary);
+    color: var(--color-accent-primary);
+  }
+  
+  &:focus-visible {
+    outline: 3px solid var(--color-accent-primary);
+    outline-offset: 4px;
     border-color: var(--color-accent-primary);
     color: var(--color-accent-primary);
   }
@@ -162,6 +174,13 @@ const SocialLink = styled(motion.a)`
     color: var(--color-accent-primary);
     border-color: var(--color-accent-primary);
     transform: translateY(-3px);
+  }
+  
+  &:focus-visible {
+    outline: 3px solid var(--color-accent-primary);
+    outline-offset: 4px;
+    color: var(--color-accent-primary);
+    border-color: var(--color-accent-primary);
   }
 `;
 

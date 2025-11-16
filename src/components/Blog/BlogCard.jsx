@@ -6,12 +6,6 @@ import { MdArrowForward, MdDateRange } from 'react-icons/md';
 import PropTypes from 'prop-types';
 
 // Styled Components
-const CardLink = styled(Link)`
-  text-decoration: none;
-  color: inherit;
-  display: block;
-`;
-
 const Card = styled(motion.article)`
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
@@ -31,6 +25,24 @@ const Card = styled(motion.article)`
       transform: none;
       box-shadow: none;
     }
+  }
+`;
+
+const CardLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  border-radius: 16px;
+  
+  &:focus-visible {
+    outline: 3px solid var(--color-accent-primary);
+    outline-offset: 4px;
+  }
+  
+  &:focus-visible ${Card} {
+    border-color: var(--color-accent-primary);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
   }
 `;
 
