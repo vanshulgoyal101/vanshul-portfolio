@@ -1,10 +1,11 @@
 // src/components/Projects/Projects.jsx
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, useInView } from 'framer-motion';
 import { FaRocket, FaGlobeAfrica, FaStar, FaExternalLinkAlt } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
+import { ProjectSkeletonCard } from '../Skeleton';
 
 // Styled Components
 const ProjectsSection = styled.section`
@@ -191,6 +192,7 @@ const ProjectLink = styled.a`
 const Projects = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const [isLoading, setIsLoading] = useState(true);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -214,6 +216,14 @@ const Projects = () => {
       },
     },
   };
+
+  // Simulate loading delay for better UX
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const projects = [
 
@@ -292,36 +302,44 @@ const Projects = () => {
           </motion.div>
         </SectionHeader>
         <ProjectsGrid>
-          {projects.map((project) => (
-            <ProjectCard key={project.id}>
-              <ProjectImage $image={project.image} />
-              <ProjectContent>
-                <ProjectTitle>{project.title}</ProjectTitle>
-                <ProjectRole>{project.role}</ProjectRole>
-                <ProjectDescription>{project.description}</ProjectDescription>
+          {isLoading ? (
+            <>
+              {[...Array(3)].map((_, index) => (
+                <ProjectSkeletonCard key={`skeleton-${index}`} />
+              ))}
+            </>
+          ) : (
+            projects.map((project) => (
+              <ProjectCard key={project.id}>
+                <ProjectImage $image={project.image} />
+                <ProjectContent>
+                  <ProjectTitle>{project.title}</ProjectTitle>
+                  <ProjectRole>{project.role}</ProjectRole>
+                  <ProjectDescription>{project.description}</ProjectDescription>
 
-                <ProjectStats>
-                  {project.stats.map((stat, idx) => (
-                    <StatItem key={idx}>
-                      {stat.icon}
-                      <span>{stat.text}</span>
-                    </StatItem>
-                  ))}
-                </ProjectStats>
+                  <ProjectStats>
+                    {project.stats.map((stat, idx) => (
+                      <StatItem key={idx}>
+                        {stat.icon}
+                        <span>{stat.text}</span>
+                      </StatItem>
+                    ))}
+                  </ProjectStats>
 
-                {project.link && project.link !== '#' && (
-                  <ProjectLink
-                    href={project.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Visit Website
-                    <FaExternalLinkAlt size={20} />
-                  </ProjectLink>
-                )}
-              </ProjectContent>
-            </ProjectCard>
-          ))}
+                  {project.link && project.link !== '#' && (
+                    <ProjectLink
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Visit Website
+                      <FaExternalLinkAlt size={20} />
+                    </ProjectLink>
+                  )}
+                </ProjectContent>
+              </ProjectCard>
+            ))
+          )}
         </ProjectsGrid>
       </Container>
     </ProjectsSection>
