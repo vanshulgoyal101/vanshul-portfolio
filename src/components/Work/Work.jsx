@@ -158,9 +158,15 @@ const CompanyLink = styled.a`
   font-size: var(--text-sm);
   font-weight: 500;
   margin-top: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  min-height: 44px;
   
   &:hover {
     text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    min-height: 48px;
   }
 `;
 

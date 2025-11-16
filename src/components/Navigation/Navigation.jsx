@@ -96,6 +96,12 @@ const NavLink = styled(motion.a)`
   &:hover {
     color: var(--color-text-primary);
   }
+  
+  @media (max-width: 768px) {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
 
   @media (min-width: 769px) {
     &::after {

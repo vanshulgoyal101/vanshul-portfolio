@@ -92,6 +92,7 @@ const BackButton = styled(motion.button)`
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: 8px;
   transition: all 0.3s ease;
+  min-height: 44px;
   
   &:hover {
     background: rgba(99, 102, 241, 0.2);
@@ -101,6 +102,11 @@ const BackButton = styled(motion.button)`
   
   svg {
     font-size: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    min-height: 48px;
+    padding: var(--spacing-sm) var(--spacing-lg);
   }
 `;
 
@@ -116,6 +122,7 @@ const ShareButton = styled(motion.button)`
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: 8px;
   transition: all 0.3s ease;
+  min-height: 44px;
   
   &:hover {
     background: rgba(99, 102, 241, 0.2);
@@ -124,6 +131,11 @@ const ShareButton = styled(motion.button)`
   
   svg {
     font-size: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    min-height: 48px;
+    padding: var(--spacing-sm) var(--spacing-lg);
   }
 `;
 

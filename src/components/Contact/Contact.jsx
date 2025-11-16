@@ -245,6 +245,7 @@ const SubmitButton = styled(motion.button)`
   justify-content: center;
   gap: var(--spacing-sm);
   transition: all 0.3s ease;
+  min-height: 48px;
   
   &:hover:not(:disabled) {
     transform: translateY(-2px);
@@ -254,6 +255,10 @@ const SubmitButton = styled(motion.button)`
   &:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    min-height: 52px;
   }
 `;
 
