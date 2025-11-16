@@ -1,9 +1,9 @@
 // src/components/Contact/Contact.jsx
 import { useRef, useState } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { motion, useInView } from 'framer-motion';
 import { FaEnvelope, FaLinkedin, FaTwitter, FaInstagram, FaPaperPlane } from 'react-icons/fa';
-import { MdLocationOn, MdWork } from 'react-icons/md';
+import { MdLocationOn, MdEmail, MdPhone, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
 
 
@@ -147,6 +147,24 @@ const SocialLink = styled(motion.a)`
   }
 `;
 
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const Spinner = styled.div`
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: ${spin} 0.8s linear infinite;
+`;
+
 const ContactFormWrapper = styled(motion.div)`
   background: var(--color-bg-card);
   padding: var(--spacing-xl);
@@ -205,6 +223,12 @@ const FormInput = styled.input`
     border-color: var(--color-accent-primary);
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--color-bg-primary);
+  }
 `;
 
 const FormTextarea = styled.textarea`
@@ -228,6 +252,12 @@ const FormTextarea = styled.textarea`
     border-color: var(--color-accent-primary);
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--color-bg-primary);
+  }
 `;
 
 const SubmitButton = styled(motion.button)`
@@ -246,6 +276,7 @@ const SubmitButton = styled(motion.button)`
   gap: var(--spacing-sm);
   transition: all 0.3s ease;
   min-height: 48px;
+  position: relative;
   
   &:hover:not(:disabled) {
     transform: translateY(-2px);
@@ -253,8 +284,9 @@ const SubmitButton = styled(motion.button)`
   }
   
   &:disabled {
-    opacity: 0.7;
+    opacity: 0.6;
     cursor: not-allowed;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.6) 0%, rgba(168, 85, 247, 0.6) 100%);
   }
   
   @media (max-width: 768px) {
@@ -489,6 +521,7 @@ const socialLinks = [
                   onChange={handleChange}
                   placeholder="John Doe"
                   required
+                  disabled={isSubmitting}
                 />
               </FormGroup>
 
@@ -502,6 +535,7 @@ const socialLinks = [
                   onChange={handleChange}
                   placeholder="john@example.com"
                   required
+                  disabled={isSubmitting}
                 />
               </FormGroup>
 
@@ -515,23 +549,19 @@ const socialLinks = [
                   placeholder="Tell me about your project or just say hi!"
                   rows="5"
                   required
+                  disabled={isSubmitting}
                 />
               </FormGroup>
 
               <SubmitButton
                 type="submit"
                 disabled={isSubmitting}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={!isSubmitting ? { scale: 1.02 } : {}}
+                whileTap={!isSubmitting ? { scale: 0.98 } : {}}
               >
                 {isSubmitting ? (
                   <>
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    >
-                      ⏳
-                    </motion.span>
+                    <Spinner />
                     Sending...
                   </>
                 ) : (
