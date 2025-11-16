@@ -258,13 +258,13 @@ const Navigation = ({ scrollToSection }) => {
     } else {
       // Navigate to home page first, then scroll
       navigate('/');
-      // Wait for navigation to complete, then scroll
+      // Wait for navigation and DOM render to complete, then scroll
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
-      }, 100);
+      }, 500);
     }
   }, [scrollToSection, navigate, location.pathname]);
 
