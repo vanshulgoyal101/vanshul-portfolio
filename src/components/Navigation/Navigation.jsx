@@ -69,13 +69,15 @@ const NavLinks = styled(motion.ul)`
     width: min(75vw, 400px);
     background: rgba(15, 15, 15, 0.98);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     flex-direction: column;
     justify-content: center;
     gap: 2rem;
     padding: 2rem;
     transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    border-left: 1px solid var(--color-border);
 
     ${({ $isOpen }) => $isOpen && `
       transform: translateX(0);
@@ -154,8 +156,11 @@ const MobileOverlay = styled(motion.div)`
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: calc(var(--z-fixed) - 1);
+    cursor: pointer;
   }
 `;
 
@@ -251,8 +256,20 @@ const Navigation = ({ scrollToSection }) => {
   };
 
   const mobileMenuVariants = {
-    closed: { opacity: 0 },
-    open: { opacity: 1 },
+    closed: { 
+      opacity: 0,
+      transition: {
+        duration: 0.2,
+        ease: 'easeOut'
+      }
+    },
+    open: { 
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        ease: 'easeIn'
+      }
+    },
   };
 
   return (
