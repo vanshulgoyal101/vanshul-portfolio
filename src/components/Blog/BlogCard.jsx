@@ -25,6 +25,13 @@ const Card = styled(motion.article)`
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
   }
+  
+  @media (max-width: 768px) {
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
 `;
 
 const Meta = styled.div`
