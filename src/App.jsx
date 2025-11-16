@@ -13,6 +13,7 @@ import Work from './components/Work/Work';
 import Blog from './components/Blog/Blog';
 import Contact from './components/Contact/Contact';
 import BlogPost from './pages/BlogPost';
+import { ToastProvider } from './components/Toast';
 
 
 
@@ -174,22 +175,23 @@ function App() {
 
   return (
     <Router>
-      <GlobalStyles />
-      <AppWrapper>
-        {/* Background ambient elements */}
-        <BackgroundElements />
-        
-        {/* Fun Interactive Elements - spread throughout the site */}
-        {/* Lazy load fun elements */}
-        <Suspense fallback={null}>
-          {/* <PandaCursor /> */}
-          <FloatingRocket />
-          {/* <AirplaneTrail /> */}
-        </Suspense>
-        
-        <Routes>
-          {/* Main portfolio page */}
-          <Route path="/" element={
+      <ToastProvider>
+        <GlobalStyles />
+        <AppWrapper>
+          {/* Background ambient elements */}
+          <BackgroundElements />
+          
+          {/* Fun Interactive Elements - spread throughout the site */}
+          {/* Lazy load fun elements */}
+          <Suspense fallback={null}>
+            {/* <PandaCursor /> */}
+            <FloatingRocket />
+            {/* <AirplaneTrail /> */}
+          </Suspense>
+          
+          <Routes>
+            {/* Main portfolio page */}
+            <Route path="/" element={
             <>
               <Navigation scrollToSection={scrollToSection} />
               <AnimatePresence mode="wait">
@@ -262,12 +264,12 @@ function App() {
             </>
           } />
           
-          {/* Individual blog post page */}
-          <Route path="/blog/:slug" element={<BlogPost />} />
-        </Routes>
-      </AppWrapper>
+            
+            {/* Individual blog post page */}
+            <Route path="/blog/:slug" element={<BlogPost />} />
+          </Routes>
+        </AppWrapper>
+      </ToastProvider>
     </Router>
   );
-}
-
-export default App;
+}export default App;
