@@ -1,17 +1,18 @@
 // src/App.jsx
 import { lazy, Suspense, useEffect, useRef } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import Lenis from '@studio-freight/lenis';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Component imports (we'll create these next)
+// Component imports
 import GlobalStyles from './styles/GlobalStyles';
 import Navigation from './components/Navigation/Navigation';
 import About from './components/About/About';
 import Work from './components/Work/Work';
 import Blog from './components/Blog/Blog';
 import Contact from './components/Contact/Contact';
+import BlogPost from './pages/BlogPost';
 
 
 
@@ -183,78 +184,87 @@ function App() {
         <Suspense fallback={null}>
           {/* <PandaCursor /> */}
           <FloatingRocket />
-          <AirplaneTrail />
+          {/* <AirplaneTrail /> */}
         </Suspense>
         
-        <Navigation scrollToSection={scrollToSection} />
-        
-        <AnimatePresence mode="wait">
-          <MainContent>
-            <Suspense fallback={<Loading>Loading...</Loading>}>
-              <SectionWrapper id="home">
-                <Hero />
-              </SectionWrapper>
-            </Suspense>
+        <Routes>
+          {/* Main portfolio page */}
+          <Route path="/" element={
+            <>
+              <Navigation scrollToSection={scrollToSection} />
+              <AnimatePresence mode="wait">
+                <MainContent>
+                  <Suspense fallback={<Loading>Loading...</Loading>}>
+                    <SectionWrapper id="home">
+                      <Hero />
+                    </SectionWrapper>
+                  </Suspense>
 
-            {/* About Section */}
-            <Suspense fallback={<Loading>Loading...</Loading>}>
+                  {/* About Section */}
+                  <Suspense fallback={<Loading>Loading...</Loading>}>
 
-            <SectionWrapper
-              id="about"
-              variants={pageVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              <About />
-            </SectionWrapper>
+                  <SectionWrapper
+                    id="about"
+                    variants={pageVariants}
+                    initial="initial"
+                    whileInView="animate"
+                    viewport={{ once: true, amount: 0.3 }}
+                  >
+                    <About />
+                  </SectionWrapper>
 
-            {/* Work Experience Section */}
-            <SectionWrapper
-              id="work"
-              variants={pageVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              <Work />
-            </SectionWrapper>
+                  {/* Work Experience Section */}
+                  <SectionWrapper
+                    id="work"
+                    variants={pageVariants}
+                    initial="initial"
+                    whileInView="animate"
+                    viewport={{ once: true, amount: 0.3 }}
+                  >
+                    <Work />
+                  </SectionWrapper>
 
-            {/* Projects Section with horizontal scroll */}
-            <SectionWrapper
-              id="projects"
-              variants={pageVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              <Projects />
-            </SectionWrapper>
+                  {/* Projects Section with horizontal scroll */}
+                  <SectionWrapper
+                    id="projects"
+                    variants={pageVariants}
+                    initial="initial"
+                    whileInView="animate"
+                    viewport={{ once: true, amount: 0.3 }}
+                  >
+                    <Projects />
+                  </SectionWrapper>
 
-            {/* Blog Section */}
-            <SectionWrapper
-              id="blog"
-              variants={pageVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              <Blog />
-            </SectionWrapper>
+                  {/* Blog Section */}
+                  <SectionWrapper
+                    id="blog"
+                    variants={pageVariants}
+                    initial="initial"
+                    whileInView="animate"
+                    viewport={{ once: true, amount: 0.3 }}
+                  >
+                    <Blog />
+                  </SectionWrapper>
 
-            {/* Contact Section */}
-            <SectionWrapper
-              id="contact"
-              variants={pageVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              <Contact />
-            </SectionWrapper>
-            </Suspense>
-          </MainContent>
-        </AnimatePresence>
+                  {/* Contact Section */}
+                  <SectionWrapper
+                    id="contact"
+                    variants={pageVariants}
+                    initial="initial"
+                    whileInView="animate"
+                    viewport={{ once: true, amount: 0.3 }}
+                  >
+                    <Contact />
+                  </SectionWrapper>
+                  </Suspense>
+                </MainContent>
+              </AnimatePresence>
+            </>
+          } />
+          
+          {/* Individual blog post page */}
+          <Route path="/blog/:slug" element={<BlogPost />} />
+        </Routes>
       </AppWrapper>
     </Router>
   );

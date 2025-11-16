@@ -1,11 +1,15 @@
-// src/components/Blog/Blog.jsx
-import { useRef, useState } from 'react';
+import { useRef, useMemo } from 'react';
 import styled from 'styled-components';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { FaPen, FaBook, FaQuoteLeft, FaFeatherAlt, FaTimes } from 'react-icons/fa';
-import { BiTime } from 'react-icons/bi';
-import { MdArrowForward, MdDateRange } from 'react-icons/md';
-import blogPosts from './blogs.json'; // Import blog data
+import { motion, useInView } from 'framer-motion';
+import { FaPen, FaQuoteLeft } from 'react-icons/fa';
+
+// Component imports
+import BlogCard from './BlogCard';
+
+// Utility imports
+import { sortBlogsByDate } from '../../utils/blogUtils';
+import { loadBlogPosts } from '../../utils/blogLoader';
+import { BLOG_ANIMATION_VARIANTS, BLOG_CONTENT } from '../../constants/blogConstants';
 
 // Styled Components
 const BlogSection = styled.section`
@@ -59,177 +63,6 @@ const BlogGrid = styled.div`
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: var(--spacing-md);
-  }
-`;
-
-const BlogCard = styled(motion.article)`
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: var(--spacing-lg);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: var(--color-accent-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
-  }
-`;
-
-const BlogMeta = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-sm);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-
-  svg {
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-  @media (max-width: 480px) {
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-  }
-`;
-
-const BlogTitle = styled.h3`
-  font-size: var(--text-xl);
-  margin-bottom: var(--spacing-sm);
-  color: var(--color-text-primary);
-  line-height: 1.4;
-`;
-
-const BlogSummary = styled.p`
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  margin-bottom: var(--spacing-md);
-`;
-
-const ReadMore = styled.span`
-  color: var(--color-accent-primary);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  
-  svg {
-    transition: transform 0.3s ease;
-  }
-  
-  ${BlogCard}:hover & svg {
-    transform: translateX(5px);
-  }
-`;
-
-// Modal Components
-const ModalOverlay = styled(motion.div)`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: var(--z-modal);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-lg);
-  overflow-y: auto;
-`;
-
-const ModalContent = styled(motion.div)`
-  background: var(--color-bg-card);
-  border-radius: 20px;
-  max-width: 800px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  
-  @media (max-width: 768px) {
-    max-height: 100vh;
-    border-radius: 20px 20px 0 0;
-  }
-`;
-
-const ModalHeader = styled.div`
-  padding: var(--spacing-xl);
-  border-bottom: 1px solid var(--color-border);
-  position: sticky;
-  top: 0;
-  background: var(--color-bg-card);
-  z-index: 10;
-`;
-
-const ModalTitle = styled.h2`
-  font-size: var(--text-3xl);
-  margin-bottom: var(--spacing-sm);
-  color: var(--color-text-primary);
-  
-  @media (max-width: 768px) {
-    font-size: var(--text-2xl);
-  }
-`;
-
-const ModalMeta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-
-  svg {
-    display: inline-block;
-    vertical-align: middle;
-  }
-`;
-
-const CloseButton = styled.button`
-  position: absolute;
-  top: var(--spacing-lg);
-  right: var(--spacing-lg);
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: var(--text-xl);
-  cursor: pointer;
-  padding: var(--spacing-sm);
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: rgba(99, 102, 241, 0.1);
-    color: var(--color-accent-primary);
-  }
-`;
-
-const ModalBody = styled.div`
-  padding: var(--spacing-xl);
-  
-  h3 {
-    font-size: var(--text-2xl);
-    margin: var(--spacing-lg) 0 var(--spacing-md);
-    color: var(--color-text-primary);
-  }
-  
-  p {
-    font-size: var(--text-base);
-    line-height: 1.8;
-    color: var(--color-text-secondary);
-    margin-bottom: var(--spacing-md);
-  }
-  
-  ul, ol {
-    margin: var(--spacing-md) 0;
-    padding-left: var(--spacing-lg);
-    color: var(--color-text-secondary);
-  }
-  
-  li {
-    margin-bottom: var(--spacing-sm);
   }
 `;
 
@@ -289,73 +122,38 @@ const QuoteAuthor = styled.cite`
   }
 `;
 
-const sortedBlogPosts = blogPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+/**
+ * Blog Component
+ * Main blog section displaying blog posts with modal functionality
+ */
 const Blog = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
-  const [selectedBlog, setSelectedBlog] = useState(null);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
-    },
-  };
-
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { 
-      opacity: 1, 
-      scale: 1,
-      transition: { duration: 0.3 }
-    },
-    exit: { 
-      opacity: 0, 
-      scale: 0.9,
-      transition: { duration: 0.2 }
+  // Load blog posts from markdown files (now synchronous)
+  const blogPosts = useMemo(() => {
+    try {
+      return loadBlogPosts();
+    } catch (error) {
+      console.error('Error loading blog posts:', error);
+      return [];
     }
-  };
+  }, []);
 
-  const handleBlogClick = (blog) => {
-    setSelectedBlog(blog);
-    document.body.style.overflow = 'hidden';
-  };
-
-  const handleCloseModal = () => {
-    setSelectedBlog(null);
-    document.body.style.overflow = '';
-  };
+  // Sort blog posts by date (newest first)
+  const sortedBlogPosts = useMemo(() => sortBlogsByDate(blogPosts), [blogPosts]);
 
   return (
     <BlogSection ref={sectionRef} id="blog">
       <Container>
         <SectionHeader
-          variants={containerVariants}
+          variants={BLOG_ANIMATION_VARIANTS.container}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
         >
-          <motion.div variants={itemVariants}>
-            <SectionTitle>Writings</SectionTitle>
-            <SectionSubtitle>
-              A collection of thoughts and insights (More coming soon...)
-            </SectionSubtitle>
+          <motion.div variants={BLOG_ANIMATION_VARIANTS.item}>
+            <SectionTitle>{BLOG_CONTENT.sectionTitle}</SectionTitle>
+            <SectionSubtitle>{BLOG_CONTENT.sectionSubtitle}</SectionSubtitle>
           </motion.div>
         </SectionHeader>
 
@@ -364,88 +162,33 @@ const Blog = () => {
             {sortedBlogPosts.map((blog, index) => (
               <BlogCard
                 key={blog.id}
-                variants={itemVariants}
-                initial="hidden"
-                animate={isInView ? 'visible' : 'hidden'}
-                transition={{ delay: index * 0.1 }}
-                onClick={() => handleBlogClick(blog)}
-                whileHover={{ scale: 1.02 }}
-              >
-                <BlogMeta>
-                  <span>
-                    <MdDateRange /> {blog.date}
-                  </span>
-                  <span>
-                    <BiTime /> {blog.readTime}
-                  </span>
-                </BlogMeta>
-                <BlogTitle>{blog.title}</BlogTitle>
-                <BlogSummary>{blog.summary}</BlogSummary>
-                <ReadMore>
-                  Read More <MdArrowForward />
-                </ReadMore>
-              </BlogCard>
+                blog={blog}
+                index={index}
+                isInView={isInView}
+                variants={BLOG_ANIMATION_VARIANTS.item}
+              />
             ))}
           </BlogGrid>
         ) : (
           <EmptyState>
             <FaPen />
-            <h3>Coming Soon</h3>
-            <p>I'm currently crafting my thoughts into words. Check back soon for insights and stories from my journey.</p>
+            <h3>{BLOG_CONTENT.emptyStateTitle}</h3>
+            <p>{BLOG_CONTENT.emptyStateMessage}</p>
           </EmptyState>
         )}
 
         <QuoteSection
-          variants={itemVariants}
+          variants={BLOG_ANIMATION_VARIANTS.item}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
         >
           <QuoteIcon>
             <FaQuoteLeft />
           </QuoteIcon>
-          <Quote>
-            "Specific knowledge is found by pursuing your genuine curiosity and passion 
-            rather than whatever is hot right now."
-          </Quote>
-          <QuoteAuthor>Naval Ravikant</QuoteAuthor>
+          <Quote>{BLOG_CONTENT.quote.text}</Quote>
+          <QuoteAuthor>{BLOG_CONTENT.quote.author}</QuoteAuthor>
         </QuoteSection>
       </Container>
-
-      {/* Blog Modal */}
-      <AnimatePresence>
-        {selectedBlog && (
-          <ModalOverlay
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleCloseModal}
-          >
-            <ModalContent
-              variants={modalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ModalHeader>
-                <CloseButton onClick={handleCloseModal}>
-                  <FaTimes />
-                </CloseButton>
-                <ModalTitle>{selectedBlog.title}</ModalTitle>
-                <ModalMeta>
-                  <span>
-                    <MdDateRange /> {selectedBlog.date}
-                  </span>
-                  <span>
-                    <BiTime /> {selectedBlog.readTime}
-                  </span>
-                </ModalMeta>
-              </ModalHeader>
-              <ModalBody dangerouslySetInnerHTML={{ __html: selectedBlog.content }} />
-            </ModalContent>
-          </ModalOverlay>
-        )}
-      </AnimatePresence>
     </BlogSection>
   );
 };

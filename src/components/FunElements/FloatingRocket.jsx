@@ -29,7 +29,7 @@ const Rocket = styled(motion.div)`
 
 const Flame = styled(motion.div)`
   position: absolute;
-  bottom: -20px;
+  bottom: -15px;
   left: 50%;
   transform: translateX(-50%);
   width: 20px;
@@ -38,6 +38,7 @@ const Flame = styled(motion.div)`
   border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
   filter: blur(2px);
   opacity: 0;
+  transform-origin: top center;
 `;
 
 const Smoke = styled(motion.div)`
@@ -162,7 +163,9 @@ const FloatingRocket = () => {
       <Flame
         animate={{ 
           opacity: hasLaunched ? 1 : 0,
-          scaleY: hasLaunched ? [1, 1.5, 1] : 1
+          scaleY: hasLaunched ? [1, 1.5, 1] : 1,
+          rotate: hasLaunched ? 45 : 0,
+          x: hasLaunched ? '-30%' : '-50%'
         }}
         transition={{ 
           duration: 0.2,

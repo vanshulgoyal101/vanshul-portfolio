@@ -39,22 +39,32 @@ p, h1, h2, h3, h4, h5, h6 {
   isolation: isolate;
 }
 
-/* Scrollbar styles for browsers that don't support CSS variables in scrollbar */
+/* Scrollbar styles - hidden */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 0px;
+  display: none;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f0f0f;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #6366f1;
-  border-radius: 4px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #818cf8;
+  background: transparent;
+}
+
+/* Hide scrollbar for Firefox */
+* {
+  scrollbar-width: none;
+}
+
+/* Hide scrollbar for IE and Edge */
+body {
+  -ms-overflow-style: none;
 }
 
 /* Loading animation for React */
