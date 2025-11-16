@@ -14,9 +14,10 @@ const AboutSection = styled.section`
   overflow: hidden;
   
   @media (max-width: 768px) {
-    padding: var(--spacing-lg) 0;
+    padding: var(--spacing-xl) 0;
   }
 `;
+
 
 const Container = styled.div`
   max-width: var(--container-xl);

@@ -16,7 +16,11 @@ const HeroSection = styled.section`
   justify-content: center;
   position: relative;
   overflow: hidden;
-  padding: var(--spacing-xl) var(--container-padding);
+  padding: var(--spacing-2xl) var(--container-padding);
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-xl) var(--container-padding);
+  }
 `;
 
 const HeroContainer = styled.div`

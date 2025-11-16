@@ -10,10 +10,10 @@ import { BiMoney } from 'react-icons/bi';
 const ProjectsSection = styled.section`
   position: relative;
   background: var(--color-bg-secondary);
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-2xl) 0;
   
   @media (max-width: 768px) {
-    padding: var(--spacing-lg) 0;
+    padding: var(--spacing-xl) 0;
   }
 `;
 

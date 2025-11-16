@@ -7,9 +7,13 @@ import { MdWork } from 'react-icons/md';
 
 // Styled Components
 const WorkSection = styled.section`
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-2xl) 0;
   position: relative;
   background: var(--color-bg-primary);
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-xl) 0;
+  }
 `;
 
 const Container = styled.div`
