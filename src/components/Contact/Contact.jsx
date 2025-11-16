@@ -5,6 +5,7 @@ import { motion, useInView } from 'framer-motion';
 import { FaEnvelope, FaLinkedin, FaTwitter, FaInstagram, FaPaperPlane } from 'react-icons/fa';
 import { MdLocationOn, MdEmail, MdPhone, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
+import { useToast } from '../Toast';
 
 
 // Styled Components
@@ -294,26 +295,6 @@ const SubmitButton = styled(motion.button)`
   }
 `;
 
-const SuccessMessage = styled(motion.div)`
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  color: #22c55e;
-  padding: var(--spacing-md);
-  border-radius: 8px;
-  margin-top: var(--spacing-md);
-  text-align: center;
-`;
-
-const ErrorMessage = styled(motion.div)`
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #ef4444;
-  padding: var(--spacing-md);
-  border-radius: 8px;
-  margin-top: var(--spacing-md);
-  text-align: center;
-`;
-
 // Floating Paper Plane
 const FloatingPlane = styled(motion.div)`
   position: absolute;
@@ -329,13 +310,13 @@ const FloatingPlane = styled(motion.div)`
 const Contact = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const { showSuccess, showError } = useToast();
   const [formState, setFormState] = useState({
     name: '',
     email: '',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -370,7 +351,6 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitStatus(null);
 
     try {
       // Replace with your Formspree endpoint
@@ -387,13 +367,22 @@ const Contact = () => {
       });
 
       if (response.ok) {
-        setSubmitStatus('success');
+        showSuccess(
+          'Message Sent!', 
+          'Thank you for reaching out. I\'ll get back to you soon!'
+        );
         setFormState({ name: '', email: '', message: '' });
       } else {
-        setSubmitStatus('error');
+        showError(
+          'Oops! Something went wrong',
+          'Failed to send your message. Please try again or email me directly.'
+        );
       }
     } catch (error) {
-      setSubmitStatus('error');
+      showError(
+        'Network Error',
+        'Unable to send message. Please check your connection and try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -571,26 +560,6 @@ const socialLinks = [
                   </>
                 )}
               </SubmitButton>
-
-              {submitStatus === 'success' && (
-                <SuccessMessage
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                >
-                  ✅ Message sent successfully! I'll get back to you soon.
-                </SuccessMessage>
-              )}
-
-              {submitStatus === 'error' && (
-                <ErrorMessage
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                >
-                  ❌ Something went wrong. Please try again or email directly at vanshulg101@gmail.com
-                </ErrorMessage>
-              )}
             </ContactForm>
           </ContactFormWrapper>
         </ContactGrid>
