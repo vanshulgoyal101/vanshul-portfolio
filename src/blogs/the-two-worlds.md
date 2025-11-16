@@ -1,9 +1,11 @@
 ---
+id: 4
 title: "The Two Worlds"
-date: "12 Oct, 2025"
+slug: "the-two-worlds"
 summary: "Developing nations are fighting for clean water and reliable roads. Developed nations are building AI and racing to Mars. Are we living in two different worlds?"
-author: "Vanshul Goyal"
-image: ""
+date: "12 Oct, 2025"
+readTime: "3 min read"
+category: "Infrastructure"
 ---
 
 We don't live in one world. We live in two.
