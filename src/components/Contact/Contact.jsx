@@ -34,6 +34,10 @@ const SectionTitle = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-2xl);
+  }
 `;
 
 const SectionSubtitle = styled.p`

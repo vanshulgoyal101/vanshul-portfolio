@@ -43,7 +43,7 @@ const SectionTitle = styled.h2`
   background-clip: text;
   
   @media (max-width: 768px) {
-    font-size: var(--text-3xl);
+    font-size: var(--text-2xl);
   }
 `;
 
