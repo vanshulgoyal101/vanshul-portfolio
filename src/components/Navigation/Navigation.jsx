@@ -1,5 +1,6 @@
 // src/components/Navigation/Navigation.jsx
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiMenuAlt3, HiX } from 'react-icons/hi';
@@ -189,6 +190,8 @@ const Navigation = ({ scrollToSection }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Navigation items
   const navItems = [
@@ -244,11 +247,26 @@ const Navigation = ({ scrollToSection }) => {
     e.preventDefault();
     setIsMobileMenuOpen(false);
     
-    // Small delay for mobile menu animation
-    setTimeout(() => {
-      scrollToSection(sectionId);
-    }, 300);
-  }, [scrollToSection]);
+    // Check if we're on the home page
+    const isOnHomePage = location.pathname === '/';
+    
+    if (isOnHomePage) {
+      // Already on home page, just scroll to section
+      setTimeout(() => {
+        scrollToSection(sectionId);
+      }, 300);
+    } else {
+      // Navigate to home page first, then scroll
+      navigate('/');
+      // Wait for navigation to complete, then scroll
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, [scrollToSection, navigate, location.pathname]);
 
   // Animation variants
   const navVariants = {
