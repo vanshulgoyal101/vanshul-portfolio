@@ -13,6 +13,9 @@ const Card = styled(motion.article)`
   padding: var(--spacing-lg);
   cursor: pointer;
   transition: all 0.3s ease;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
   
   &:hover {
     border-color: var(--color-accent-primary);
@@ -70,6 +73,12 @@ const Title = styled.h3`
   margin-bottom: var(--spacing-sm);
   color: var(--color-text-primary);
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 2.8em;
 `;
 
 const Summary = styled.p`
