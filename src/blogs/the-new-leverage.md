@@ -16,7 +16,7 @@ Historically, making a big impact has always required one thing: **leverage**. L
 
 - **Capital:** Money. The ability to fund big projects and tools.
 - **Labor:** People. The ability to coordinate a team to get more done.
-- **Code & Media:** Things with no cost to copy. This is the one [**Naval Ravikant**](https://nav.al/rich) famously explained. You write code once or record a podcast once, and it can serve millions of people without extra effort.
+- **Code & Media:** Things with no cost to copy. This is the one [**Naval Ravikant**](https://nav.al) famously explained. You write code once or record a podcast once, and it can serve millions of people without extra effort.
 
 But something new is happening. We're in the early days of two new forms of leverage so powerful they're going to completely reshape our world.
 
