@@ -1,6 +1,6 @@
 ---
 title: "The Two Worlds"
-date: "2025-10-12"
+date: "12 Oct, 2025"
 summary: "Developing nations are fighting for clean water and reliable roads. Developed nations are building AI and racing to Mars. Are we living in two different worlds?"
 author: "Vanshul Goyal"
 image: ""
