@@ -1,10 +1,11 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, useInView } from 'framer-motion';
 import { FaPen, FaQuoteLeft } from 'react-icons/fa';
 
 // Component imports
 import BlogCard from './BlogCard';
+import { BlogSkeletonCard } from '../Skeleton';
 
 // Utility imports
 import { sortBlogsByDate } from '../../utils/blogUtils';
@@ -129,6 +130,7 @@ const QuoteAuthor = styled.cite`
 const Blog = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load blog posts from markdown files (now synchronous)
   const blogPosts = useMemo(() => {
@@ -142,6 +144,14 @@ const Blog = () => {
 
   // Sort blog posts by date (newest first)
   const sortedBlogPosts = useMemo(() => sortBlogsByDate(blogPosts), [blogPosts]);
+
+  // Simulate loading delay for better UX (can be removed if not needed)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <BlogSection ref={sectionRef} id="blog">
@@ -157,7 +167,13 @@ const Blog = () => {
           </motion.div>
         </SectionHeader>
 
-        {sortedBlogPosts && sortedBlogPosts.length > 0 ? (
+        {isLoading ? (
+          <BlogGrid>
+            {[...Array(3)].map((_, index) => (
+              <BlogSkeletonCard key={`skeleton-${index}`} />
+            ))}
+          </BlogGrid>
+        ) : sortedBlogPosts && sortedBlogPosts.length > 0 ? (
           <BlogGrid>
             {sortedBlogPosts.map((blog, index) => (
               <BlogCard
