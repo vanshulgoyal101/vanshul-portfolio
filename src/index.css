@@ -1,25 +1,20 @@
 /* src/index.css */
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Import Google Fonts - Space Grotesk, Lora (Editorial Serif), and Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* CSS Reset */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-* {
+/* Base Reset Overrides */
+html, body {
   margin: 0;
   padding: 0;
-}
-
-html {
   height: 100%;
+  background-color: #070a13;
+  color: #f8fafc;
 }
 
-body {
+#root {
+  isolation: isolate;
   min-height: 100%;
-  -webkit-font-smoothing: antialiased;
 }
 
 img, picture, video, canvas, svg {
@@ -29,94 +24,30 @@ img, picture, video, canvas, svg {
 
 input, button, textarea, select {
   font: inherit;
+  background: none;
+  border: none;
+  color: inherit;
 }
 
 p, h1, h2, h3, h4, h5, h6 {
   overflow-wrap: break-word;
 }
 
-#root {
-  isolation: isolate;
-}
-
-/* Scrollbar styles - hidden */
+/* Scrollbar styles - hidden globally but keeping functionality on touch devices */
 ::-webkit-scrollbar {
-  width: 0px;
-  display: none;
+  width: 6px;
+  height: 6px;
+  display: block;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: transparent;
-}
-
-/* Hide scrollbar for Firefox */
-* {
-  scrollbar-width: none;
-}
-
-/* Hide scrollbar for IE and Edge */
-body {
-  -ms-overflow-style: none;
-}
-
-/* Loading animation for React */
-.react-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #0a0a0a;
-  color: #6366f1;
-  font-family: 'Inter', sans-serif;
-  font-size: 1.5rem;
-}
-
-/* Disable default cursor on elements with custom cursor */
-body.has-custom-cursor * {
-  cursor: none !important;
-}
-
-/* Accessible focus styles - WCAG 2.1 compliant */
+/* Focus styles for keyboard users */
 *:focus-visible {
-  outline: 3px solid #6366f1;
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: 2px solid #f59e0b;
+  outline-offset: 4px;
 }
 
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #6366f1;
+  outline: 2px solid #f59e0b;
   outline-offset: 3px;
-}
-
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 3px solid #6366f1;
-  outline-offset: 2px;
-}
-
-/* Remove default outline for mouse users, keep for keyboard users */
-*:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* Print styles */
-@media print {
-  body {
-    background: white;
-    color: black;
-  }
-  
-  .no-print {
-    display: none !important;
-  }
 }

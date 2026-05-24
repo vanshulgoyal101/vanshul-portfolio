@@ -1,19 +1,9 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { FaCheckCircle, FaExclamationCircle, FaInfoCircle, FaTimes } from 'react-icons/fa';
-
-// Toast Context
-const ToastContext = createContext();
-
-export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
-  }
-  return context;
-};
+import { ToastContext } from './ToastContext';
 
 // Styled Components
 const slideIn = keyframes`
@@ -183,6 +173,10 @@ Toast.propTypes = {
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
+  const removeToast = useCallback((id) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  }, []);
+
   const addToast = useCallback(({ type = 'info', title, message, duration = 5000 }) => {
     const id = `toast-${Date.now()}-${Math.random()}`;
     const newToast = { id, type, title, message };
@@ -196,11 +190,7 @@ export const ToastProvider = ({ children }) => {
     }
 
     return id;
-  }, []);
-
-  const removeToast = useCallback((id) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, []);
+  }, [removeToast]);
 
   const showSuccess = useCallback((title, message, duration) => {
     return addToast({ type: 'success', title, message, duration });

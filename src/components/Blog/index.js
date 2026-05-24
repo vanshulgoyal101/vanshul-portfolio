@@ -5,4 +5,3 @@
 
 export { default as Blog } from './Blog';
 export { default as BlogCard } from './BlogCard';
-export { default as BlogModal } from './BlogModal';

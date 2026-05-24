@@ -116,10 +116,10 @@ export const sanitizeHTML = (html) => {
   if (!html) return '';
   
   // Basic sanitization - you may want to use DOMPurify in production
-  const allowedTags = ['p', 'br', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-  const allowedAttributes = {
-    'a': ['href', 'target', 'rel']
-  };
+  // const allowedTags = ['p', 'br', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  // const allowedAttributes = {
+  //   'a': ['href', 'target', 'rel']
+  // };
   
   // For now, return as-is, but recommend using DOMPurify
   return html;

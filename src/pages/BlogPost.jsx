@@ -1,3 +1,4 @@
+// src/pages/BlogPost.jsx
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -17,271 +18,209 @@ const PageWrapper = styled.div`
   overflow-x: hidden;
 `;
 
-const BackgroundElements = styled.div`
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, var(--color-accent-primary) 0%, transparent 70%);
-    opacity: 0.05;
-    filter: blur(100px);
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -50%;
-    left: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, var(--color-accent-secondary) 0%, transparent 70%);
-    opacity: 0.05;
-    filter: blur(100px);
-  }
-`;
-
 const ContentWrapper = styled.div`
   position: relative;
   z-index: 10;
   padding-top: 100px;
   
   @media (max-width: 768px) {
-    padding-top: 90px;
+    padding-top: 80px;
   }
 `;
 
 const Container = styled.div`
-  max-width: 1100px;
+  max-width: 800px; /* narrowed for comfortable reading line-length */
   margin: 0 auto;
-  padding: 0 var(--spacing-xl) var(--spacing-xl);
-  
-  @media (max-width: 768px) {
-    padding: 0 var(--spacing-md) var(--spacing-lg);
-  }
+  padding: 0 var(--spacing-md) var(--spacing-2xl);
 `;
 
 const TopBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
   gap: var(--spacing-md);
-  
-  @media (max-width: 768px) {
-    margin-bottom: var(--spacing-sm);
-  }
 `;
 
 const BackButton = styled(motion.button)`
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  background: rgba(99, 102, 241, 0.1);
+  gap: var(--spacing-xs);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 500;
   cursor: pointer;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: var(--transition-base);
+  min-height: auto;
+  min-width: auto;
   
   &:hover {
-    background: rgba(99, 102, 241, 0.2);
+    color: var(--color-accent-primary);
     border-color: var(--color-accent-primary);
-    transform: translateX(-3px);
-  }
-  
-  svg {
-    font-size: 1rem;
-  }
-  
-  @media (max-width: 768px) {
-    min-height: 48px;
-    padding: var(--spacing-sm) var(--spacing-lg);
+    background: rgba(245, 158, 11, 0.02);
   }
 `;
 
 const ShareButton = styled(motion.button)`
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  background: rgba(99, 102, 241, 0.1);
+  gap: var(--spacing-xs);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 500;
   cursor: pointer;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: var(--transition-base);
+  min-height: auto;
+  min-width: auto;
   
   &:hover {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: var(--color-accent-primary);
-  }
-  
-  svg {
-    font-size: 1rem;
-  }
-  
-  @media (max-width: 768px) {
-    min-height: 48px;
-    padding: var(--spacing-sm) var(--spacing-lg);
+    color: var(--color-accent-secondary);
+    border-color: var(--color-accent-secondary);
+    background: rgba(56, 189, 248, 0.02);
   }
 `;
 
-const Article = styled(motion.article)`
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-`;
-
-const Header = styled.div`
-  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-md);
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, transparent 100%);
+const ArticleHeader = styled.div`
+  margin-bottom: var(--spacing-lg);
   border-bottom: 1px solid var(--color-border);
-  
-  @media (max-width: 768px) {
-    padding: var(--spacing-md);
-  }
+  padding-bottom: var(--spacing-md);
 `;
 
-const Category = styled.span`
+const CategoryBadge = styled.span`
   display: inline-block;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: rgba(99, 102, 241, 0.15);
-  color: var(--color-accent-primary);
-  border-radius: 20px;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-accent-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-family: var(--font-mono);
   font-size: var(--text-xs);
-  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
   margin-bottom: var(--spacing-md);
 `;
 
 const Title = styled.h1`
-  font-size: var(--text-4xl);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1.2;
   margin-bottom: var(--spacing-sm);
   color: var(--color-text-primary);
-  line-height: 1.2;
-  font-weight: 700;
-  
-  @media (max-width: 768px) {
-    font-size: var(--text-2xl);
-  }
 `;
 
 const Meta = styled.div`
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  margin-top: var(--spacing-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
 
   span {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--spacing-xs);
-  }
-
-  svg {
-    display: inline-block;
-    vertical-align: middle;
-    color: var(--color-accent-primary);
+    gap: 4px;
   }
 `;
 
-const Body = styled.div`
-  padding: var(--spacing-lg) var(--spacing-xl);
-  
-  @media (max-width: 768px) {
-    padding: var(--spacing-md);
-  }
+const ArticleBody = styled.div`
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 1.85;
+  color: var(--color-text-primary);
   
   h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
     color: var(--color-text-primary);
     margin-top: var(--spacing-lg);
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
     font-weight: 600;
     line-height: 1.3;
   }
   
-  h1 { font-size: var(--text-3xl); }
+  h1 { font-size: var(--text-2xl); }
   h2 { 
-    font-size: var(--text-2xl);
-    padding-bottom: var(--spacing-xs);
-    border-bottom: 2px solid var(--color-border);
+    font-size: var(--text-xl);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 4px;
   }
-  h3 { font-size: var(--text-xl); }
-  h4 { font-size: var(--text-lg); }
-  h5 { font-size: var(--text-base); }
-  h6 { font-size: var(--text-sm); }
+  h3 { font-size: var(--text-lg); }
   
   p {
+    font-family: var(--font-serif);
     color: var(--color-text-secondary);
-    line-height: 1.7;
     margin-bottom: var(--spacing-md);
-    font-size: var(--text-base);
   }
   
   ul, ol {
     color: var(--color-text-secondary);
-    line-height: 1.8;
     margin-bottom: var(--spacing-md);
     padding-left: var(--spacing-lg);
-  }
-  
-  li {
-    margin-bottom: var(--spacing-xs);
+    
+    li {
+      margin-bottom: 6px;
+    }
   }
   
   a {
     color: var(--color-accent-primary);
     text-decoration: underline;
-    transition: opacity 0.3s ease;
+    text-decoration-color: rgba(245, 158, 11, 0.3);
+    text-underline-offset: 3px;
+    transition: var(--transition-base);
     
     &:hover {
-      opacity: 0.8;
+      color: var(--color-accent-glow);
+      text-decoration-color: var(--color-accent-glow);
     }
   }
   
   blockquote {
-    border-left: 4px solid var(--color-accent-primary);
+    border-left: 3px solid var(--color-accent-primary);
     padding-left: var(--spacing-md);
-    margin: var(--spacing-lg) 0;
-    color: var(--color-text-secondary);
+    margin: var(--spacing-md) 0;
+    color: var(--color-text-primary);
     font-style: italic;
+    background: rgba(255, 255, 255, 0.01);
+    padding-top: var(--spacing-xs);
+    padding-bottom: var(--spacing-xs);
   }
   
   code {
-    background: rgba(99, 102, 241, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-border);
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.9em;
-    color: var(--color-accent-primary);
+    font-family: var(--font-mono);
+    color: var(--color-accent-secondary);
   }
   
   pre {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--color-border);
     padding: var(--spacing-md);
-    border-radius: 8px;
+    border-radius: 6px;
     overflow-x: auto;
     margin-bottom: var(--spacing-md);
     
     code {
       background: none;
+      border: none;
       padding: 0;
       color: var(--color-text-primary);
     }
@@ -289,8 +228,18 @@ const Body = styled.div`
   
   img {
     max-width: 100%;
-    border-radius: 8px;
-    margin: var(--spacing-lg) 0;
+    height: auto;
+    border-radius: 6px;
+    margin: var(--spacing-lg) 0 var(--spacing-xs);
+    border: 1px solid var(--color-border);
+  }
+
+  em.caption {
+    display: block;
+    text-align: center;
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-md);
   }
   
   hr {
@@ -302,20 +251,19 @@ const Body = styled.div`
 
 const NotFound = styled.div`
   text-align: center;
-  padding: var(--spacing-2xl);
+  padding: var(--spacing-2xl) 0;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 24px;
+  border-radius: 8px;
   
   h2 {
-    font-size: var(--text-3xl);
-    margin-bottom: var(--spacing-md);
-    color: var(--color-text-primary);
+    font-size: var(--text-2xl);
+    margin-bottom: var(--spacing-sm);
   }
   
   p {
     color: var(--color-text-secondary);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
   }
 `;
 
@@ -345,7 +293,7 @@ const BlogPost = () => {
         console.log('Error sharing:', err);
       }
     } else {
-      // Fallback: copy to clipboard
+      // Fallback copy
       navigator.clipboard.writeText(url);
       alert('Link copied to clipboard!');
     }
@@ -355,65 +303,54 @@ const BlogPost = () => {
     navigate(`/#${sectionId}`);
   };
 
-  if (!blog) {
-    return (
-      <PageWrapper>
-        <BackgroundElements />
-        <Navigation scrollToSection={scrollToSection} />
-        <ContentWrapper>
-          <Container>
-            <TopBar>
-              <BackButton onClick={handleBack} whileHover={{ scale: 1.05 }}>
-                <FaArrowLeft /> Back to Blog
-              </BackButton>
-            </TopBar>
-            <NotFound>
-              <h2>Blog Post Not Found</h2>
-              <p>The blog post you're looking for doesn't exist.</p>
-            </NotFound>
-          </Container>
-        </ContentWrapper>
-      </PageWrapper>
-    );
-  }
-
   return (
     <PageWrapper>
-      <BackgroundElements />
       <Navigation scrollToSection={scrollToSection} />
       <ContentWrapper>
         <Container>
           <TopBar>
-            <BackButton onClick={handleBack} whileHover={{ scale: 1.05 }}>
-              <FaArrowLeft /> Back to Blog
+            <BackButton onClick={handleBack} whileHover={{ x: -2 }}>
+              <FaArrowLeft size={10} /> Back to chronicles
             </BackButton>
-            <ShareButton onClick={handleShare} whileHover={{ scale: 1.05 }}>
-              <FaShare /> Share
-            </ShareButton>
+            {blog && (
+              <ShareButton onClick={handleShare}>
+                <FaShare size={10} /> Share entry
+              </ShareButton>
+            )}
           </TopBar>
           
-          <Article
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-          >
-            <Header>
-              {blog.category && <Category>{blog.category}</Category>}
-              <Title>{blog.title}</Title>
-              <Meta>
-                <span>
-                  <MdDateRange /> {blog.date}
-                </span>
-                <span>
-                  <BiTime /> {blog.readTime}
-                </span>
-              </Meta>
-            </Header>
-            
-            <Body>
-              <ReactMarkdown>{blog.content}</ReactMarkdown>
-            </Body>
-          </Article>
+          {blog ? (
+            <motion.article
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
+              <ArticleHeader>
+                {blog.category && <CategoryBadge>{blog.category}</CategoryBadge>}
+                <Title>{blog.title}</Title>
+                <Meta>
+                  <span>
+                    <MdDateRange size={12} /> {blog.date}
+                  </span>
+                  <span>
+                    <BiTime size={12} /> {blog.readTime}
+                  </span>
+                </Meta>
+              </ArticleHeader>
+              
+              <ArticleBody>
+                <ReactMarkdown>{blog.content}</ReactMarkdown>
+              </ArticleBody>
+            </motion.article>
+          ) : (
+            <NotFound>
+              <h2>Entry Not Found</h2>
+              <p>The chronicle you're searching for does not exist in this library.</p>
+              <BackButton onClick={handleBack}>
+                Return to blog
+              </BackButton>
+            </NotFound>
+          )}
         </Container>
       </ContentWrapper>
     </PageWrapper>

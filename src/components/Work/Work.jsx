@@ -1,19 +1,13 @@
 // src/components/Work/Work.jsx
-import { useRef } from 'react';
 import styled from 'styled-components';
-import { motion, useInView } from 'framer-motion';
-import { FaPlane, FaSolarPanel, FaLaptopCode, FaExternalLinkAlt, FaMapMarkerAlt } from 'react-icons/fa';
-import { MdWork } from 'react-icons/md';
+import { motion } from 'framer-motion';
+import { FaPlane, FaSolarPanel, FaLaptopCode, FaExternalLinkAlt } from 'react-icons/fa';
+import { experiences } from '../../constants/portfolioData';
 
 // Styled Components
 const WorkSection = styled.section`
   padding: var(--spacing-2xl) 0;
-  position: relative;
   background: var(--color-bg-primary);
-  
-  @media (max-width: 768px) {
-    padding: var(--spacing-xl) 0;
-  }
 `;
 
 const Container = styled.div`
@@ -22,254 +16,200 @@ const Container = styled.div`
   padding: 0 var(--container-padding);
 `;
 
-const SectionHeader = styled(motion.div)`
-  text-align: center;
-  margin-bottom: var(--spacing-md);
+const SectionHeader = styled.div`
+  margin-bottom: var(--spacing-xl);
+  text-align: left;
 `;
 
-const SectionTitle = styled.h2`
-  font-size: var(--text-5xl);
-  margin-bottom: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  background: var(--color-gradient-1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+const Title = styled.h2`
+  font-size: var(--text-4xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  letter-spacing: -0.02em;
   
-  @media (max-width: 768px) {
-    font-size: var(--text-2xl);
+  span {
+    color: var(--color-accent-primary);
   }
 `;
 
-const SectionSubtitle = styled.p`
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
+const Underline = styled.div`
+  width: 60px;
+  height: 2px;
+  background: var(--color-accent-primary);
+  margin-top: var(--spacing-xs);
 `;
 
-// Simplified Timeline
-const ExperienceGrid = styled.div`
-  display: grid;
-  gap: var(--spacing-md);
-  max-width: 900px;
-  margin: 0 auto;
-`;
-
-const ExperienceCard = styled(motion.div)`
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: var(--spacing-lg);
-  position: relative;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: var(--color-accent-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
-  }
-  
-  @media (max-width: 768px) {
-    &:hover {
-      transform: none;
-      box-shadow: none;
-    }
-  }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    left: -20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    background: var(--color-accent-primary);
-    border-radius: 50%;
-    opacity: 0.5;
-    
-    @media (max-width: 768px) {
-      display: none;
-    }
-  }
-`;
-
-const CardHeader = styled.div`
+const WorkList = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  max-width: 900px;
+  margin-top: var(--spacing-lg);
+`;
+
+const WorkRow = styled(motion.div)`
+  display: grid;
+  grid-template-columns: 80px 1.2fr 2fr;
+  gap: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-lg);
   align-items: start;
-  margin-bottom: var(--spacing-md);
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+    padding-bottom: var(--spacing-md);
+  }
 `;
 
-const CardInfo = styled.div`
-  flex: 1;
+const IconColumn = styled.div`
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent-primary);
+  font-size: 1.2rem;
+  
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
 `;
 
-const JobTitle = styled.h3`
-  font-size: var(--text-xl);
+const TitleColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const Role = styled.h3`
+  font-size: var(--text-lg);
+  font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: var(--spacing-xs);
+  letter-spacing: -0.01em;
 `;
 
 const CompanyName = styled.h4`
-  font-size: var(--text-lg);
-  color: var(--color-accent-primary);
+  font-size: var(--text-base);
   font-weight: 500;
-  margin-bottom: var(--spacing-xs);
+  color: var(--color-accent-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  
+  a {
+    color: var(--color-accent-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--text-xs);
+    
+    &:hover {
+      color: var(--color-accent-primary);
+    }
+  }
 `;
 
-const MetaInfo = styled.div`
+const DateRange = styled.span`
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 4px;
+`;
+
+const DetailsColumn = styled.div`
   display: flex;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  flex-direction: column;
+  gap: var(--spacing-sm);
 `;
 
 const Description = styled.p`
+  font-size: var(--text-base);
   color: var(--color-text-secondary);
-  line-height: 1.8;
-  margin-bottom: var(--spacing-md);
+  line-height: 1.75;
 `;
 
 const TechStack = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: 6px;
+  margin-top: 4px;
 `;
 
 const TechTag = styled.span`
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--color-accent-primary);
-  padding: 4px 12px;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  padding: 2px 8px;
+  border-radius: 4px;
   font-size: var(--text-xs);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-`;
-
-const CompanyLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  color: var(--color-accent-primary);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  margin-top: var(--spacing-sm);
-  padding: var(--spacing-xs) 0;
-  min-height: 44px;
-  
-  &:hover {
-    text-decoration: underline;
-  }
-  
-  @media (max-width: 768px) {
-    min-height: 48px;
-  }
+  font-family: var(--font-mono);
 `;
 
 const Work = () => {
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
-
-  const experiences = [
-    {
-      id: 1,
-      icon: <FaPlane />,
-      title: 'Associate Analyst',
-      company: 'United Airlines',
-      department: 'Air Operations',
-      duration: 'Jul 2025 - Present',
-      location: 'Gurugram, India',
-      description: 'Contributing to air operations systems and processes at one of the world\'s leading airlines. Working on optimizing critical aviation systems and improving operational efficiency.',
-      tech: ['Power BI', 'MS Excel', 'Tableau', 'Data Analysis'],
-      link: null,
-    },
-    {
-      id: 2,
-      icon: <FaSolarPanel />,
-      title: 'Co-Founder',
-      company: 'Solaride',
-      department: 'Operations & Strategy',
-      duration: '2024 - Present',
-      location: 'Chandigarh, India',
-      description: 'Leading business operations and scaling strategies for the EPC company specializing in solar installations. Managing projects under PM Surya Ghar and PM KUSUM Yojana.',
-      tech: ['Operations', 'Project Management', 'Business Development', 'Solar Energy'],
-      link: 'https://solaride.in',
-    },
-    {
-      id: 3,
-      icon: <FaLaptopCode />,
-      title: 'Software Development Engineer Intern',
-      company: 'zHealth',
-      department: 'Engineering',
-      duration: '2023 - 2024',
-      location: 'San Francisco, US (Remote)',
-      description: 'Developed and automated end-to-end sign-up process for healthcare providers. Engineered custom interfaces for 100+ Healthcare Organizations to securely manage Patient Health Records in compliance with healthcare standards.',
-      tech: ['Java', 'Spring Boot', 'JavaScript', 'SQL'],
-      link: 'https://www.zhealthehr.com/',
-    },
-  ];
+  const getIcon = (id) => {
+    switch (id) {
+      case 'work-united':
+        return <FaPlane />;
+      case 'work-solaride':
+        return <FaSolarPanel />;
+      case 'work-zhealth':
+        return <FaLaptopCode />;
+      default:
+        return <FaLaptopCode />;
+    }
+  };
 
   return (
-    <WorkSection ref={sectionRef}>
+    <WorkSection id="work">
       <Container>
-        <SectionHeader
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-        >
-          <SectionTitle>Work Experience</SectionTitle>
-          <SectionSubtitle>
-            Building impactful solutions across aviation, renewable energy, and healthcare
-          </SectionSubtitle>
+        <SectionHeader>
+          <Title>Professional <span>Footprint</span></Title>
+          <Underline />
         </SectionHeader>
-
-        <ExperienceGrid>
+        
+        <WorkList>
           {experiences.map((exp, index) => (
-            <ExperienceCard
+            <WorkRow
               key={exp.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <CardHeader>
-                <CardInfo>
-                  <JobTitle>{exp.title}</JobTitle>
-                  <CompanyName>
-                    {exp.company}
-                    {exp.department && ` • ${exp.department}`}
-                  </CompanyName>
-                  <MetaInfo>
-                    <span>{exp.duration}</span>
-                    <span>{exp.location}</span>
-                  </MetaInfo>
-                </CardInfo>
-              </CardHeader>
-
-              <Description>{exp.description}</Description>
-
-              <TechStack>
-                {exp.tech.map((tech) => (
-                  <TechTag key={tech}>{tech}</TechTag>
-                ))}
-              </TechStack>
-
-              {exp.link && (
-                <CompanyLink
-                  href={exp.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Visit Website
-                  <FaExternalLinkAlt size={12} />
-                </CompanyLink>
-              )}
-            </ExperienceCard>
+              <IconColumn>
+                {getIcon(exp.id)}
+              </IconColumn>
+              
+              <TitleColumn>
+                <Role>{exp.role}</Role>
+                <CompanyName>
+                  {exp.company}
+                  {exp.link && (
+                    <a href={exp.link} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${exp.company} Website`}>
+                      <FaExternalLinkAlt size={10} />
+                    </a>
+                  )}
+                </CompanyName>
+                <DateRange>{exp.duration} // {exp.location}</DateRange>
+              </TitleColumn>
+              
+              <DetailsColumn>
+                <Description>{exp.description}</Description>
+                <TechStack>
+                  {exp.tech.map((tag) => (
+                    <TechTag key={tag}>{tag}</TechTag>
+                  ))}
+                </TechStack>
+              </DetailsColumn>
+            </WorkRow>
           ))}
-        </ExperienceGrid>
+        </WorkList>
       </Container>
     </WorkSection>
   );

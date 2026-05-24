@@ -1,20 +1,16 @@
 // src/components/Contact/Contact.jsx
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { motion, useInView } from 'framer-motion';
-import { FaEnvelope, FaLinkedin, FaTwitter, FaInstagram, FaPaperPlane } from 'react-icons/fa';
-import { MdLocationOn, MdEmail, MdPhone, MdWork } from 'react-icons/md';
-import { BiWorld } from 'react-icons/bi';
+import { motion } from 'framer-motion';
+import { FaPaperPlane, FaGithub, FaLinkedin, FaTwitter, FaInstagram } from 'react-icons/fa';
+import { MdLocationOn, MdWork, MdTranslate } from 'react-icons/md';
 import { useToast } from '../Toast';
-
+import { bioData } from '../../constants/portfolioData';
 
 // Styled Components
 const ContactSection = styled.section`
   padding: var(--spacing-2xl) 0;
-  position: relative;
-  background: var(--color-bg-secondary);
-  overflow: hidden;
-  min-height: 80vh;
+  background: var(--color-bg-primary);
 `;
 
 const Container = styled.div`
@@ -23,181 +19,134 @@ const Container = styled.div`
   padding: 0 var(--container-padding);
 `;
 
-const SectionHeader = styled(motion.div)`
-  text-align: center;
+const SectionHeader = styled.div`
   margin-bottom: var(--spacing-xl);
+  text-align: left;
 `;
 
-const SectionTitle = styled.h2`
-  font-size: var(--text-5xl);
-  margin-bottom: var(--spacing-md);
-  background: var(--color-gradient-1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+const Title = styled.h2`
+  font-size: var(--text-4xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  letter-spacing: -0.02em;
   
-  @media (max-width: 768px) {
-    font-size: var(--text-2xl);
+  span {
+    color: var(--color-accent-primary);
   }
 `;
 
-const SectionSubtitle = styled.p`
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
+const Underline = styled.div`
+  width: 60px;
+  height: 2px;
+  background: var(--color-accent-primary);
+  margin-top: var(--spacing-xs);
 `;
 
 const ContactGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.1fr;
   gap: var(--spacing-xl);
   align-items: start;
   
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
   }
 `;
 
-const ContactInfo = styled(motion.div)`
-  padding: var(--spacing-lg);
+const ContactInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 `;
 
 const InfoTitle = styled.h3`
   font-size: var(--text-2xl);
-  margin-bottom: var(--spacing-md);
+  font-weight: 600;
   color: var(--color-text-primary);
+  letter-spacing: -0.01em;
 `;
 
 const InfoText = styled.p`
   font-size: var(--text-base);
   color: var(--color-text-secondary);
-  line-height: 1.8;
-  margin-bottom: var(--spacing-lg);
+  line-height: 1.75;
 `;
 
-const InfoItem = styled(motion.div)`
+const InfoList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+`;
+
+const InfoCard = styled.div`
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
   padding: var(--spacing-md);
-  background: var(--color-bg-card);
-  border-radius: 12px;
+  background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border);
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  transition: var(--transition-base);
   
   &:hover {
-    border-color: var(--color-accent-primary);
-    transform: translateX(10px);
+    border-color: rgba(245, 158, 11, 0.25);
   }
 `;
 
 const InfoIcon = styled.div`
-  width: 48px;
-  height: 48px;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-accent-primary);
-  font-size: 1.25rem;
+  font-size: 1.1rem;
 `;
 
-const InfoContent = styled.div`
-  flex: 1;
-`;
-
-const InfoLabel = styled.p`
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  margin-bottom: 2px;
-`;
-
-const InfoValue = styled.p`
-  font-size: var(--text-base);
-  color: var(--color-text-primary);
-  font-weight: 500;
-`;
-
-const SocialLinks = styled(motion.div)`
+const InfoDetails = styled.div`
   display: flex;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-lg);
-`;
-
-const SocialLink = styled(motion.a)`
-  width: 48px;
-  height: 48px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-  font-size: 1.25rem;
-  transition: all 0.3s ease;
+  flex-direction: column;
+  gap: 2px;
   
-  &:hover {
-    color: var(--color-accent-primary);
-    border-color: var(--color-accent-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+  span.label {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    font-family: var(--font-mono);
   }
   
-  &:focus-visible {
-    outline: 3px solid var(--color-accent-primary);
-    outline-offset: 4px;
-    color: var(--color-accent-primary);
-    border-color: var(--color-accent-primary);
+  span.value {
+    font-size: var(--text-sm);
+    color: var(--color-text-primary);
+    font-weight: 500;
   }
 `;
 
 const spin = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 `;
 
 const Spinner = styled.div`
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(7, 10, 19, 0.2);
+  border-top-color: #070a13;
   border-radius: 50%;
   animation: ${spin} 0.8s linear infinite;
 `;
 
-const ContactFormWrapper = styled(motion.div)`
+const ContactFormCard = styled.div`
   background: var(--color-bg-card);
-  padding: var(--spacing-xl);
-  border-radius: 20px;
   border: 1px solid var(--color-border);
+  padding: var(--spacing-lg);
+  border-radius: 8px;
   position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background: var(--color-gradient-1);
-    opacity: 0.05;
-    border-radius: 50%;
-    transform: translate(50%, -50%);
-  }
-`;
-
-const ContactForm = styled.form`
-  position: relative;
-  z-index: 2;
 `;
 
 const FormGroup = styled.div`
@@ -206,21 +155,22 @@ const FormGroup = styled.div`
 
 const FormLabel = styled.label`
   display: block;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-sm);
-  font-weight: 500;
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
 `;
 
 const FormInput = styled.input`
   width: 100%;
-  padding: 12px 20px;
-  background: var(--color-bg-secondary);
+  padding: 10px 14px;
+  background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 4px;
   color: var(--color-text-primary);
-  font-size: var(--text-base);
-  transition: all 0.3s ease;
+  font-size: var(--text-sm);
+  transition: var(--transition-base);
   
   &::placeholder {
     color: var(--color-text-muted);
@@ -229,27 +179,25 @@ const FormInput = styled.input`
   &:focus {
     outline: none;
     border-color: var(--color-accent-primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    background: var(--color-bg-primary);
   }
 `;
 
 const FormTextarea = styled.textarea`
   width: 100%;
-  padding: 12px 20px;
-  background: var(--color-bg-secondary);
+  padding: 10px 14px;
+  background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 4px;
   color: var(--color-text-primary);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   resize: vertical;
   min-height: 120px;
-  transition: all 0.3s ease;
+  transition: var(--transition-base);
   
   &::placeholder {
     color: var(--color-text-muted);
@@ -258,65 +206,71 @@ const FormTextarea = styled.textarea`
   &:focus {
     outline: none;
     border-color: var(--color-accent-primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    background: var(--color-bg-primary);
   }
 `;
 
 const SubmitButton = styled(motion.button)`
   width: 100%;
-  padding: 14px 28px;
-  background: var(--color-gradient-1);
-  color: white;
+  padding: 12px;
+  background: var(--color-accent-primary);
+  color: #070a13;
   border: none;
-  border-radius: 8px;
-  font-size: var(--text-base);
+  border-radius: 4px;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
-  transition: all 0.3s ease;
-  min-height: 48px;
-  position: relative;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: var(--transition-base);
+  min-height: 44px;
   
   &:hover:not(:disabled) {
+    background: #fbbf24;
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
   }
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.6) 0%, rgba(168, 85, 247, 0.6) 100%);
-  }
-  
-  @media (max-width: 768px) {
-    min-height: 52px;
   }
 `;
 
-// Floating Paper Plane
-const FloatingPlane = styled(motion.div)`
-  position: absolute;
-  font-size: 3rem;
-  color: var(--color-accent-primary);
-  opacity: 0.1;
-  z-index: 1;
-  pointer-events: none;
-  bottom: 10%;
-  right: 5%;
+const SocialLinks = styled.div`
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+`;
+
+const SocialLink = styled.a`
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  transition: var(--transition-base);
+  
+  &:hover {
+    color: var(--color-accent-primary);
+    border-color: var(--color-accent-primary);
+  }
 `;
 
 const Contact = () => {
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
   const { showSuccess, showError } = useToast();
   const [formState, setFormState] = useState({
     name: '',
@@ -324,29 +278,6 @@ const Contact = () => {
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
-    },
-  };
 
   const handleChange = (e) => {
     setFormState({
@@ -360,7 +291,6 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Replace with your Formspree endpoint
       const response = await fetch('https://formspree.io/f/xgvzkqob', {
         method: 'POST',
         headers: {
@@ -375,140 +305,86 @@ const Contact = () => {
 
       if (response.ok) {
         showSuccess(
-          'Message Sent!', 
-          'Thank you for reaching out. I\'ll get back to you soon!'
+          'Message Sent', 
+          "Thank you! I'll get back to you shortly."
         );
         setFormState({ name: '', email: '', message: '' });
       } else {
         showError(
-          'Oops! Something went wrong',
-          'Failed to send your message. Please try again or email me directly.'
+          'Submission Error',
+          'Something went wrong. Please try again or reach out on LinkedIn.'
         );
       }
     } catch (error) {
+      console.error('Contact Form Submit Error:', error);
       showError(
-        'Network Error',
-        'Unable to send message. Please check your connection and try again.'
+        'Connection Error',
+        'Could not complete submission. Please check your internet connection.'
       );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const contactInfo = [
-    {
-      icon: <MdLocationOn />,
-      label: 'Location',
-      value: 'India',
-    },
-    {
-      icon: <MdWork />,
-      label: 'Current Positions',
-      value: 'United Airlines & Solaride',
-    },
-    {
-      icon: <BiWorld />,
-      label: 'Languages',
-      value: 'English, Hindi',
-    },
-  ];
-
-const socialLinks = [
-  { icon: <FaTwitter />, url: 'https://x.com/goyal_vanshul', label: 'Twitter' },
-  { icon: <FaLinkedin />, url: 'https://www.linkedin.com/in/vanshul-goyal00/', label: 'LinkedIn' },
-  { icon: <FaInstagram />, url: 'https://www.instagram.com/vanshul_goyal/', label: 'Instagram' },
-];
-
-
   return (
-    <ContactSection ref={sectionRef}>
-      {/* Floating Paper Plane */}
-      <FloatingPlane
-        animate={{
-          x: [0, 30, 0],
-          y: [0, -20, 0],
-          rotate: [0, 10, 0],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      >
-        <FaPaperPlane />
-      </FloatingPlane>
-
+    <ContactSection id="contact">
       <Container>
-        <SectionHeader
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          <motion.div variants={itemVariants}>
-            <SectionTitle>Get In Touch</SectionTitle>
-            <SectionSubtitle>
-              Let's connect and build something amazing together
-            </SectionSubtitle>
-          </motion.div>
+        <SectionHeader>
+          <Title>Get In <span>Touch</span></Title>
+          <Underline />
         </SectionHeader>
-
+        
         <ContactGrid>
-          <ContactInfo
-            variants={containerVariants}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-          >
-            <motion.div variants={itemVariants}>
-              <InfoTitle>Let's Connect</InfoTitle>
-              <InfoText>
-                Whether you want to discuss technology, sustainable energy, or just say hello, 
-                I'd love to hear from you. Feel free to reach out through the form or connect 
-                on social media.
-              </InfoText>
-            </motion.div>
-
-            {contactInfo.map((info, index) => (
-              <InfoItem
-                key={index}
-                variants={itemVariants}
-                whileHover={{ scale: 1.02 }}
-              >
-                <InfoIcon>{info.icon}</InfoIcon>
-                <InfoContent>
-                  <InfoLabel>{info.label}</InfoLabel>
-                  <InfoValue>{info.value}</InfoValue>
-                </InfoContent>
-              </InfoItem>
-            ))}
-
-            <motion.div variants={itemVariants}>
-              <InfoText>Connect with me on social media:</InfoText>
-              <SocialLinks>
-                {socialLinks.map((social, index) => (
-                  <SocialLink
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    {social.icon}
-                  </SocialLink>
-                ))}
-              </SocialLinks>
-            </motion.div>
+          <ContactInfo>
+            <InfoTitle>Let's Open a Conversation</InfoTitle>
+            <InfoText>
+              Have a question about my work in operations analysis, solar plants scaling, space research rovers, or stoic philosophy? Send a message through the form or link up on social media.
+            </InfoText>
+            
+            <InfoList>
+              <InfoCard>
+                <InfoIcon><MdLocationOn /></InfoIcon>
+                <InfoDetails>
+                  <span className="label">Base location</span>
+                  <span className="value">Gurugram / Chandigarh, India</span>
+                </InfoDetails>
+              </InfoCard>
+              <InfoCard>
+                <InfoIcon><MdWork /></InfoIcon>
+                <InfoDetails>
+                  <span className="label">Current Roles</span>
+                  <span className="value">United Airlines & Solaride Energy</span>
+                </InfoDetails>
+              </InfoCard>
+              <InfoCard>
+                <InfoIcon><MdTranslate /></InfoIcon>
+                <InfoDetails>
+                  <span className="label">Communication languages</span>
+                  <span className="value">English, Hindi</span>
+                </InfoDetails>
+              </InfoCard>
+            </InfoList>
+            
+            <SocialLinks>
+              <SocialLink href={bioData.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                <FaGithub />
+              </SocialLink>
+              <SocialLink href={bioData.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                <FaLinkedin />
+              </SocialLink>
+              <SocialLink href={bioData.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                <FaTwitter />
+              </SocialLink>
+              <SocialLink href={bioData.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <FaInstagram />
+              </SocialLink>
+            </SocialLinks>
           </ContactInfo>
-
-                    <ContactFormWrapper
-            variants={itemVariants}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-          >
-            <ContactForm onSubmit={handleSubmit}>
+          
+          <ContactFormCard>
+            <form onSubmit={handleSubmit}>
               <FormGroup>
-                <FormLabel htmlFor="name">Your Name</FormLabel>
+                <FormLabel htmlFor="name">Full Name</FormLabel>
                 <FormInput
                   type="text"
                   id="name"
@@ -520,7 +396,7 @@ const socialLinks = [
                   disabled={isSubmitting}
                 />
               </FormGroup>
-
+              
               <FormGroup>
                 <FormLabel htmlFor="email">Email Address</FormLabel>
                 <FormInput
@@ -534,7 +410,7 @@ const socialLinks = [
                   disabled={isSubmitting}
                 />
               </FormGroup>
-
+              
               <FormGroup>
                 <FormLabel htmlFor="message">Message</FormLabel>
                 <FormTextarea
@@ -542,23 +418,21 @@ const socialLinks = [
                   name="message"
                   value={formState.message}
                   onChange={handleChange}
-                  placeholder="Tell me about your project or just say hi!"
-                  rows="5"
+                  placeholder="What would you like to discuss?"
                   required
                   disabled={isSubmitting}
                 />
               </FormGroup>
-
+              
               <SubmitButton
                 type="submit"
                 disabled={isSubmitting}
-                whileHover={!isSubmitting ? { scale: 1.02 } : {}}
-                whileTap={!isSubmitting ? { scale: 0.98 } : {}}
+                whileTap={{ scale: 0.98 }}
               >
                 {isSubmitting ? (
                   <>
                     <Spinner />
-                    Sending...
+                    Sending Message...
                   </>
                 ) : (
                   <>
@@ -567,8 +441,8 @@ const socialLinks = [
                   </>
                 )}
               </SubmitButton>
-            </ContactForm>
-          </ContactFormWrapper>
+            </form>
+          </ContactFormCard>
         </ContactGrid>
       </Container>
     </ContactSection>

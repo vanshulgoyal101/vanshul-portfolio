@@ -1,23 +1,21 @@
-import { useRef, useMemo, useState, useEffect } from 'react';
+// src/components/Blog/Blog.jsx
+import { useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion, useInView } from 'framer-motion';
-import { FaPen, FaQuoteLeft } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaPen } from 'react-icons/fa';
 
 // Component imports
 import BlogCard from './BlogCard';
 import { BlogSkeletonCard } from '../Skeleton';
 
 // Utility imports
-import { sortBlogsByDate } from '../../utils/blogUtils';
+import { sortBlogsByDate, getBlogCategories } from '../../utils/blogUtils';
 import { loadBlogPosts } from '../../utils/blogLoader';
-import { BLOG_ANIMATION_VARIANTS, BLOG_CONTENT } from '../../constants/blogConstants';
 
 // Styled Components
 const BlogSection = styled.section`
   padding: var(--spacing-2xl) 0;
-  position: relative;
   background: var(--color-bg-primary);
-  overflow: hidden;
 `;
 
 const Container = styled.div`
@@ -26,40 +24,73 @@ const Container = styled.div`
   padding: 0 var(--container-padding);
 `;
 
-const SectionHeader = styled(motion.div)`
-  text-align: center;
+const SectionHeader = styled.div`
   margin-bottom: var(--spacing-xl);
+  text-align: left;
 `;
 
-const SectionTitle = styled.h2`
-  font-size: var(--text-5xl);
-  margin-bottom: var(--spacing-md);
-  background: var(--color-gradient-1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+const Title = styled.h2`
+  font-size: var(--text-4xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  letter-spacing: -0.02em;
   
-  @media (max-width: 768px) {
-    font-size: var(--text-2xl);
+  span {
+    color: var(--color-accent-primary);
   }
 `;
 
-const SectionSubtitle = styled.p`
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
+const Underline = styled.div`
+  width: 60px;
+  height: 2px;
+  background: var(--color-accent-primary);
+  margin-top: var(--spacing-xs);
+`;
+
+const CategoryFilterBar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-sm);
+`;
+
+const FilterButton = styled.button`
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: ${props => props.$active ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)'};
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 12px;
+  position: relative;
+  transition: var(--transition-base);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: ${props => props.$active ? '600' : '400'};
+  min-height: auto;
+  min-width: auto;
   
-  @media (max-width: 768px) {
-    font-size: var(--text-base);
+  &:hover {
+    color: var(--color-accent-primary);
   }
 `;
 
-const BlogGrid = styled.div`
+const ActiveLine = styled(motion.div)`
+  position: absolute;
+  bottom: -9px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-accent-primary);
+`;
+
+const BlogGrid = styled(motion.div)`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -69,70 +100,31 @@ const BlogGrid = styled.div`
 
 const EmptyState = styled.div`
   text-align: center;
-  padding: var(--spacing-2xl);
+  padding: var(--spacing-2xl) 0;
   
   svg {
-    font-size: 4rem;
-    color: var(--color-accent-primary);
-    opacity: 0.3;
-    margin-bottom: var(--spacing-lg);
+    font-size: 3rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-md);
+    opacity: 0.4;
   }
   
   h3 {
-    font-size: var(--text-2xl);
-    margin-bottom: var(--spacing-md);
-    color: var(--color-text-primary);
+    font-size: var(--text-lg);
+    margin-bottom: var(--spacing-xs);
   }
   
   p {
-    color: var(--color-text-secondary);
-    max-width: 400px;
-    margin: 0 auto;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
   }
 `;
 
-const QuoteSection = styled(motion.div)`
-  max-width: 800px;
-  margin: var(--spacing-2xl) auto;
-  text-align: center;
-  position: relative;
-`;
-
-const QuoteIcon = styled.div`
-  font-size: 3rem;
-  color: var(--color-accent-primary);
-  opacity: 0.2;
-  margin-bottom: var(--spacing-md);
-`;
-
-const Quote = styled.blockquote`
-  font-size: var(--text-xl);
-  color: var(--color-text-secondary);
-  font-style: italic;
-  line-height: 1.8;
-  margin-bottom: var(--spacing-md);
-`;
-
-const QuoteAuthor = styled.cite`
-  font-size: var(--text-base);
-  color: var(--color-accent-primary);
-  font-style: normal;
-  
-  &::before {
-    content: '— ';
-  }
-`;
-
-/**
- * Blog Component
- * Main blog section displaying blog posts with modal functionality
- */
 const Blog = () => {
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load blog posts from markdown files (now synchronous)
+  // Load blog posts from markdown files
   const blogPosts = useMemo(() => {
     try {
       return loadBlogPosts();
@@ -142,30 +134,55 @@ const Blog = () => {
     }
   }, []);
 
-  // Sort blog posts by date (newest first)
+  // Sort blog posts by date
   const sortedBlogPosts = useMemo(() => sortBlogsByDate(blogPosts), [blogPosts]);
 
-  // Simulate loading delay for better UX (can be removed if not needed)
+  // Extract all categories dynamically and append 'All'
+  const categories = useMemo(() => {
+    const list = getBlogCategories(sortedBlogPosts);
+    return ['All', ...list];
+  }, [sortedBlogPosts]);
+
+  // Filter posts based on selection
+  const filteredPosts = useMemo(() => {
+    if (selectedCategory === 'All') return sortedBlogPosts;
+    return sortedBlogPosts.filter(
+      post => post.category?.toLowerCase() === selectedCategory.toLowerCase()
+    );
+  }, [sortedBlogPosts, selectedCategory]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 500);
+    }, 400);
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <BlogSection ref={sectionRef} id="blog">
+    <BlogSection id="blog">
       <Container>
-        <SectionHeader
-          variants={BLOG_ANIMATION_VARIANTS.container}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          <motion.div variants={BLOG_ANIMATION_VARIANTS.item}>
-            <SectionTitle>{BLOG_CONTENT.sectionTitle}</SectionTitle>
-            <SectionSubtitle>{BLOG_CONTENT.sectionSubtitle}</SectionSubtitle>
-          </motion.div>
+        <SectionHeader>
+          <Title>Ideas & <span>Chronicles</span></Title>
+          <Underline />
         </SectionHeader>
+
+        {/* Dynamic Category Switcher */}
+        {!isLoading && categories.length > 1 && (
+          <CategoryFilterBar>
+            {categories.map((cat) => (
+              <FilterButton
+                key={cat}
+                $active={selectedCategory === cat}
+                onClick={() => setSelectedCategory(cat)}
+              >
+                {cat}
+                {selectedCategory === cat && (
+                  <ActiveLine layoutId="activeCategory" />
+                )}
+              </FilterButton>
+            ))}
+          </CategoryFilterBar>
+        )}
 
         {isLoading ? (
           <BlogGrid>
@@ -173,37 +190,31 @@ const Blog = () => {
               <BlogSkeletonCard key={`skeleton-${index}`} />
             ))}
           </BlogGrid>
-        ) : sortedBlogPosts && sortedBlogPosts.length > 0 ? (
-          <BlogGrid>
-            {sortedBlogPosts.map((blog, index) => (
-              <BlogCard
-                key={blog.id}
-                blog={blog}
-                index={index}
-                isInView={isInView}
-                variants={BLOG_ANIMATION_VARIANTS.item}
-              />
-            ))}
-          </BlogGrid>
+        ) : filteredPosts.length > 0 ? (
+          <AnimatePresence mode="popLayout">
+            <BlogGrid
+              layout
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {filteredPosts.map((blog, index) => (
+                <BlogCard
+                  key={blog.slug || blog.filename}
+                  blog={blog}
+                  index={index}
+                />
+              ))}
+            </BlogGrid>
+          </AnimatePresence>
         ) : (
           <EmptyState>
             <FaPen />
-            <h3>{BLOG_CONTENT.emptyStateTitle}</h3>
-            <p>{BLOG_CONTENT.emptyStateMessage}</p>
+            <h3>No Articles Found</h3>
+            <p>I haven't written about this category yet. Check back soon!</p>
           </EmptyState>
         )}
-
-        <QuoteSection
-          variants={BLOG_ANIMATION_VARIANTS.item}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          <QuoteIcon>
-            <FaQuoteLeft />
-          </QuoteIcon>
-          <Quote>{BLOG_CONTENT.quote.text}</Quote>
-          <QuoteAuthor>{BLOG_CONTENT.quote.author}</QuoteAuthor>
-        </QuoteSection>
       </Container>
     </BlogSection>
   );

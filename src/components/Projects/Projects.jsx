@@ -1,21 +1,15 @@
 // src/components/Projects/Projects.jsx
-import { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion, useInView } from 'framer-motion';
-import { FaRocket, FaGlobeAfrica, FaStar, FaExternalLinkAlt } from 'react-icons/fa';
-import { MdGroups } from 'react-icons/md';
-import { BiMoney } from 'react-icons/bi';
-import { ProjectSkeletonCard } from '../Skeleton';
+import { motion } from 'framer-motion';
+import { FaExternalLinkAlt } from 'react-icons/fa';
+import { projects } from '../../constants/portfolioData';
 
 // Styled Components
 const ProjectsSection = styled.section`
-  position: relative;
-  background: var(--color-bg-secondary);
   padding: var(--spacing-2xl) 0;
-  
-  @media (max-width: 768px) {
-    padding: var(--spacing-xl) 0;
-  }
+  background: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 `;
 
 const Container = styled.div`
@@ -25,322 +19,192 @@ const Container = styled.div`
 `;
 
 const SectionHeader = styled.div`
-  text-align: center;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  text-align: left;
+`;
+
+const Title = styled.h2`
+  font-size: var(--text-4xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  letter-spacing: -0.02em;
   
-  @media (max-width: 768px) {
-    margin-bottom: var(--spacing-md);
+  span {
+    color: var(--color-accent-primary);
   }
 `;
 
-const SectionTitle = styled.h2`
-  font-size: var(--text-5xl);
-  margin-bottom: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  background: var(--color-gradient-1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  
-  @media (max-width: 768px) {
-    font-size: var(--text-2xl);
-  }
+const Underline = styled.div`
+  width: 60px;
+  height: 2px;
+  background: var(--color-accent-primary);
+  margin-top: var(--spacing-xs);
 `;
 
-const SectionSubtitle = styled.p`
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
-  
-  @media (max-width: 768px) {
-    font-size: var(--text-base);
-  }
-`;
-
-// Simple Grid Layout (No GSAP)
-const ProjectsGrid = styled.div`
+const ProjectGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: var(--spacing-lg);
-  max-width: 1200px;
-  margin: 0 auto;
+  margin-top: var(--spacing-lg);
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-md);
   }
 `;
 
-const ProjectCard = styled.div`
+const ProjectCard = styled(motion.div)`
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-5px);
-    border-color: var(--color-accent-primary);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: border-color 0.3s ease;
   
-  @media (max-width: 768px) {
-    &:hover {
-      transform: none;
-      box-shadow: none;
-    }
+  &:hover {
+    border-color: rgba(245, 158, 11, 0.4);
   }
 `;
 
-const ProjectImage = styled.div`
-  height: 200px;
-  background: ${props => props.$image ? `url(${props.$image})` : 'var(--color-gradient-1)'};
+const CardImage = styled.div`
+  height: 180px;
+  background: ${props => props.$image ? `url(${props.$image})` : 'var(--color-gradient-2)'};
   background-size: cover;
   background-position: center;
+  border-bottom: 1px solid var(--color-border);
   position: relative;
   
-  @media (max-width: 768px) {
-    height: 150px;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 10, 19, 0.15); /* dark screen overlay */
   }
 `;
 
-const ProjectContent = styled.div`
-  padding: var(--spacing-lg);
-  
-  @media (max-width: 768px) {
-    padding: var(--spacing-md);
-  }
-`;
-
-const ProjectTitle = styled.h3`
-  font-size: var(--text-xl);
-  margin-bottom: var(--spacing-sm);
-  color: var(--color-text-primary);
-  
-  @media (max-width: 768px) {
-    font-size: var(--text-lg);
-  }
-`;
-
-const ProjectRole = styled.p`
-  font-size: var(--text-sm);
-  color: var(--color-accent-primary);
-  margin-bottom: var(--spacing-md);
-  font-weight: 500;
-`;
-
-const ProjectDescription = styled.p`
-  color: var(--color-text-secondary);
-  line-height: 1.7;
-  margin-bottom: var(--spacing-md);
-  font-size: var(--text-base);
-  
-  @media (max-width: 768px) {
-    font-size: var(--text-sm);
-    margin-bottom: var(--spacing-sm);
-  }
-`;
-
-const ProjectStats = styled.div`
+const CardContent = styled.div`
+  padding: var(--spacing-md);
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
+  flex-direction: column;
+  flex: 1;
+`;
+
+const CardRole = styled.span`
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+`;
+
+const CardTitle = styled.h3`
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+`;
+
+const CardDescription = styled.p`
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
   margin-bottom: var(--spacing-md);
-  
-  @media (max-width: 768px) {
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-sm);
-  }
+  flex: 1;
+`;
+
+const CardStats = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 `;
 
 const StatItem = styled.div`
   display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-
-  svg {
-    color: var(--color-accent-primary);
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  
+  span.label {
+    color: var(--color-text-muted);
   }
   
-  @media (max-width: 768px) {
-    font-size: var(--text-xs);
+  span.value {
+    color: var(--color-text-primary);
+    font-weight: 500;
   }
 `;
 
-const ProjectLink = styled.a`
+const CardLink = styled.a`
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--color-accent-secondary);
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  color: var(--color-accent-primary);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  padding: var(--spacing-xs) 0;
-  min-height: 44px;
-
-  &:hover {
-    text-decoration: underline;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  
+  svg {
+    transition: transform 0.3s ease;
   }
   
-  @media (max-width: 768px) {
-    min-height: 48px;
+  &:hover {
+    color: var(--color-accent-primary);
+    
+    svg {
+      transform: translate(2px, -2px);
+    }
   }
 `;
 
 const Projects = () => {
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
-  const [isLoading, setIsLoading] = useState(true);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
-    },
-  };
-
-  // Simulate loading delay for better UX
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const projects = [
-
-        {
-      id: 1,
-      title: 'Solaride',
-      role: 'Co-Founder',
-      description: 'Powering a Greener Future with Solar Energy. Installing solar power plants on houses, malls, factories, farmland, etc .',
-      image: '/images/projects/Solaride.png',
-      stats: [
-        { icon: <MdGroups />, text: 'EPC company' },
-        { icon: <FaRocket />, text: 'Govt. Registered vendor' },
-      ],
-      link: 'https://solaride.in'
-    },
-    {
-      id: 2,
-      title: 'NASA Human Exploration Rover Challenge',
-      role: 'Team Lead',
-      description: 'Led a team of 6 people to design and manufacture a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking.',
-      image: '/images/projects/nasa-herc.jpg',
-      stats: [
-        { icon: <MdGroups />, text: 'Reached out to 12k+ Students for STEM engagement activites' },
-        { icon: <BiMoney />, text: 'Raised $30,000 Funding via government and private sources' },
-      ],
-      link: 'https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge/'
-    },
-    {
-      id: 3,
-      title: 'NASA Space Apps Collective',
-      role: 'Global Community Member',
-      description: 'Selected among 30 global space leaders. Developed weather visualization tools for Zimbabwean farmers using NASA data.',
-      image: '/images/projects/spaceapps.png',
-      stats: [
-        { icon: <MdGroups />, text: 'Worked with a diverse global team' },
-        { icon: <FaRocket />, text: "Used NASA's open-source Data" },
-      ],
-      link: 'https://www.spaceappschallenge.org/collective/'
-    },
-    // {
-    //   id: 3,
-    //   title: 'Astronomy & Space Physics Society',
-    //   role: 'Core Team Member',
-    //   description: 'Organized telescope workshops and educational events to promote space sciences among students.',
-    //   image: '/images/projects/college.jpg',
-    //   stats: [
-    //     { icon: <MdGroups />, text: '500+ Students' },
-    //     { icon: <FaStar />, text: 'Multiple Events' },
-    //   ],
-    //   link: '#'
-    // },
-
-  ];
-
   return (
-    <ProjectsSection ref={sectionRef} id="projects">
+    <ProjectsSection id="projects">
       <Container>
-
-        {/* <SectionHeader>
-          <SectionTitle>Featured Projects</SectionTitle>
-          <SectionSubtitle>
-            From space sector to sustainable energy - projects that define my journey
-          </SectionSubtitle>
-        </SectionHeader> */}
-
-        <SectionHeader
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          <motion.div variants={itemVariants}>
-            <SectionTitle>Featured Projects</SectionTitle>
-            <SectionSubtitle>
-              From space sector to sustainable energy - projects that define my journey
-            </SectionSubtitle>
-          </motion.div>
+        <SectionHeader>
+          <Title>Featured <span>Pursuits</span></Title>
+          <Underline />
         </SectionHeader>
-        <ProjectsGrid>
-          {isLoading ? (
-            <>
-              {[...Array(3)].map((_, index) => (
-                <ProjectSkeletonCard key={`skeleton-${index}`} />
-              ))}
-            </>
-          ) : (
-            projects.map((project) => (
-              <ProjectCard key={project.id}>
-                <ProjectImage $image={project.image} />
-                <ProjectContent>
-                  <ProjectTitle>{project.title}</ProjectTitle>
-                  <ProjectRole>{project.role}</ProjectRole>
-                  <ProjectDescription>{project.description}</ProjectDescription>
-
-                  <ProjectStats>
-                    {project.stats.map((stat, idx) => (
-                      <StatItem key={idx}>
-                        {stat.icon}
-                        <span>{stat.text}</span>
-                      </StatItem>
-                    ))}
-                  </ProjectStats>
-
-                  {project.link && project.link !== '#' && (
-                    <ProjectLink
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Visit Website
-                      <FaExternalLinkAlt size={20} />
-                    </ProjectLink>
-                  )}
-                </ProjectContent>
-              </ProjectCard>
-            ))
-          )}
-        </ProjectsGrid>
+        
+        <ProjectGrid>
+          {projects.map((proj, index) => (
+            <ProjectCard
+              key={proj.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <CardImage $image={proj.image} />
+              <CardContent>
+                <CardRole>{proj.role}</CardRole>
+                <CardTitle>{proj.title}</CardTitle>
+                <CardDescription>{proj.description}</CardDescription>
+                
+                <CardStats>
+                  {proj.stats.map((stat, idx) => (
+                    <StatItem key={idx}>
+                      <span className="label">{stat.label}</span>
+                      <span className="value">{stat.value}</span>
+                    </StatItem>
+                  ))}
+                </CardStats>
+                
+                {proj.link && (
+                  <CardLink href={proj.link} target="_blank" rel="noopener noreferrer">
+                    Explore Project <FaExternalLinkAlt size={10} />
+                  </CardLink>
+                )}
+              </CardContent>
+            </ProjectCard>
+          ))}
+        </ProjectGrid>
       </Container>
     </ProjectsSection>
   );

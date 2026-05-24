@@ -1,3 +1,4 @@
+// src/components/Blog/BlogCard.jsx
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -9,25 +10,17 @@ import PropTypes from 'prop-types';
 const Card = styled(motion.article)`
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: var(--spacing-lg);
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-height: 320px;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  transition: border-color 0.3s ease;
   
   &:hover {
-    border-color: var(--color-accent-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
-  }
-  
-  @media (max-width: 768px) {
-    &:hover {
-      transform: none;
-      box-shadow: none;
-    }
+    border-color: rgba(245, 158, 11, 0.4);
   }
 `;
 
@@ -35,119 +28,112 @@ const CardLink = styled(Link)`
   text-decoration: none;
   color: inherit;
   display: block;
-  border-radius: 16px;
+  height: 100%;
   
   &:focus-visible {
-    outline: 3px solid var(--color-accent-primary);
-    outline-offset: 4px;
+    outline: none;
   }
   
   &:focus-visible ${Card} {
     border-color: var(--color-accent-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
   }
 `;
 
 const Meta = styled.div`
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-sm);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
 
-  svg {
-    display: inline-block;
-    vertical-align: middle;
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
   }
+`;
 
-  @media (max-width: 480px) {
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-  }
+const CategoryBadge = styled.span`
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-accent-secondary);
+  border: 1px solid var(--color-border);
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 500;
 `;
 
 const Title = styled.h3`
-  font-size: var(--text-xl);
-  margin-bottom: var(--spacing-sm);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
   color: var(--color-text-primary);
   line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: 2.8em;
+  letter-spacing: -0.01em;
 `;
 
 const Summary = styled.p`
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   color: var(--color-text-secondary);
   line-height: 1.6;
   margin-bottom: var(--spacing-md);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: 4.8em;
+  flex: 1;
 `;
 
 const ReadMore = styled.span`
   color: var(--color-accent-primary);
-  font-size: var(--text-sm);
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   
   svg {
     transition: transform 0.3s ease;
   }
   
   ${Card}:hover & svg {
-    transform: translateX(5px);
+    transform: translateX(4px);
   }
 `;
 
-/**
- * BlogCard Component
- * Displays a single blog post preview card with title, summary, and metadata
- * 
- * @param {Object} props
- * @param {Object} props.blog - Blog post data object
- * @param {number} props.index - Index for animation delay
- * @param {boolean} props.isInView - Whether the card is in viewport
- * @param {Object} props.variants - Animation variants
- */
-const BlogCard = ({ blog, index, isInView, variants }) => {
+const BlogCard = ({ blog, index }) => {
   if (!blog) return null;
 
   return (
     <CardLink to={`/blog/${blog.slug}`}>
       <Card
-        variants={variants}
-        initial="hidden"
-        animate={isInView ? 'visible' : 'hidden'}
-        transition={{ delay: index * 0.1 }}
-        whileHover={{ scale: 1.02 }}
-        role="article"
-        aria-label={`Blog post: ${blog.title}`}
+        layout
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.3, delay: index * 0.05 }}
+        whileTap={{ scale: 0.99 }}
       >
-        <Meta>
-          <span>
-            <MdDateRange aria-label="Publication date" /> {blog.date}
-        </span>
-        <span>
-          <BiTime aria-label="Reading time" /> {blog.readTime}
-        </span>
-      </Meta>
-      <Title>{blog.title}</Title>
-      <Summary>{blog.summary}</Summary>
-      <ReadMore>
-        Read More <MdArrowForward />
-      </ReadMore>
+        <div>
+          <Meta>
+            {blog.category && (
+              <CategoryBadge>{blog.category}</CategoryBadge>
+            )}
+            <span>
+              <MdDateRange size={12} /> {blog.date}
+            </span>
+            <span>
+              <BiTime size={12} /> {blog.readTime}
+            </span>
+          </Meta>
+          <Title>{blog.title}</Title>
+          <Summary>{blog.summary}</Summary>
+        </div>
+        
+        <ReadMore>
+          Read Entry <MdArrowForward size={14} />
+        </ReadMore>
       </Card>
     </CardLink>
   );
@@ -155,7 +141,6 @@ const BlogCard = ({ blog, index, isInView, variants }) => {
 
 BlogCard.propTypes = {
   blog: PropTypes.shape({
-    id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     summary: PropTypes.string.isRequired,
     date: PropTypes.string.isRequired,
@@ -164,8 +149,6 @@ BlogCard.propTypes = {
     category: PropTypes.string,
   }).isRequired,
   index: PropTypes.number.isRequired,
-  isInView: PropTypes.bool.isRequired,
-  variants: PropTypes.object.isRequired,
 };
 
 export default BlogCard;

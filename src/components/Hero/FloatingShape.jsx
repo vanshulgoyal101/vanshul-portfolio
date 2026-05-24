@@ -14,7 +14,7 @@ const FloatingShape = () => {
   const meshRef = useRef();
   const materialRef = useRef();
   
-  // Create gradient texture for the material
+  // Create gradient texture for the main 3D mesh
   const gradientTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = 128;
@@ -23,12 +23,12 @@ const FloatingShape = () => {
     const context = canvas.getContext('2d');
     const gradient = context.createLinearGradient(0, 0, 128, 128);
     
-    gradient.addColorStop(0, '#6366f1');
-    gradient.addColorStop(0.5, '#8b5cf6');
-    gradient.addColorStop(1, '#6366f1');
+    gradient.addColorStop(0, '#f59e0b'); // Solar Amber
+    gradient.addColorStop(0.5, '#38bdf8'); // Celestial Blue
+    gradient.addColorStop(1, '#f59e0b');
     
     context.fillStyle = gradient;
-    context.fillRect(0, 0, 256, 256);
+    context.fillRect(0, 0, 128, 128);
     
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
@@ -36,113 +36,101 @@ const FloatingShape = () => {
     return texture;
   }, []);
 
-  // Animate the shape
+  // Animate shape rotations and distortion properties
   useFrame((state) => {
     const time = state.clock.elapsedTime;
     
     if (meshRef.current) {
-      // Gentle rotation
-      meshRef.current.rotation.x = Math.sin(time * 0.3) * 0.2;
-      meshRef.current.rotation.y = time * 0.2;
-      
-      // Subtle position animation
-      meshRef.current.position.y = Math.sin(time * 0.5) * 0.1;
+      meshRef.current.rotation.x = Math.sin(time * 0.2) * 0.15;
+      meshRef.current.rotation.y = time * 0.15;
+      meshRef.current.position.y = Math.sin(time * 0.4) * 0.08;
     }
     
     if (materialRef.current) {
-      // Animate material properties
-      materialRef.current.distort = 0.4 + Math.sin(time * 0.5) * 0.2;
-      materialRef.current.speed = 1 + Math.sin(time * 0.3) * 0.5;
+      materialRef.current.distort = 0.35 + Math.sin(time * 0.4) * 0.15;
+      materialRef.current.speed = 1.2 + Math.sin(time * 0.2) * 0.3;
     }
   });
 
   return (
     <>
-      {/* Ambient lighting */}
-      <ambientLight intensity={0.5} />
+      <ambientLight intensity={0.4} />
       
-      {/* Key light */}
+      {/* Dynamic Directional lights targeting gold/blue glows */}
       <directionalLight
-        position={[10, 10, 5]}
-        intensity={1}
+        position={[8, 8, 4]}
+        intensity={1.2}
         castShadow
-        shadow-mapSize={[1024, 1024]}
       />
       
-      {/* Fill light */}
-      <pointLight position={[-10, -10, -5]} intensity={0.5} color="#8b5cf6" />
+      <pointLight position={[-8, -8, -4]} intensity={0.6} color="#38bdf8" />
       
-      {/* Rim light */}
       <spotLight
-        position={[0, 10, 0]}
-        intensity={0.5}
-        angle={0.6}
+        position={[0, 8, 0]}
+        intensity={0.4}
+        angle={0.5}
         penumbra={1}
-        color="#6366f1"
+        color="#f59e0b"
       />
       
-      {/* Environment for reflections */}
       <Environment preset="city" />
       
-      {/* Orbit controls for interactivity */}
       <OrbitControls
         enableZoom={false}
-        enablePan={true}
+        enablePan={false}
         autoRotate
-        autoRotateSpeed={0.5}
+        autoRotateSpeed={0.3}
         minPolarAngle={Math.PI / 3}
         maxPolarAngle={Math.PI / 1.5}
       />
       
-      {/* Main floating shape */}
+      {/* Main floating solar-distorted body */}
       <Float
-        speed={3}
-        rotationIntensity={1}
-        floatIntensity={2}
-        floatingRange={[-0.1, 0.1]}
+        speed={2}
+        rotationIntensity={0.8}
+        floatIntensity={1.5}
+        floatingRange={[-0.08, 0.08]}
       >
-        <mesh ref={meshRef} castShadow receiveShadow scale={1.5}>
-          {/* Icosahedron geometry for interesting shape */}
-          <icosahedronGeometry args={[1, 4]} />
+        <mesh ref={meshRef} castShadow receiveShadow scale={1.4}>
+          <icosahedronGeometry args={[1, 3]} />
           
-          {/* Distort material for organic feel */}
           <MeshDistortMaterial
             ref={materialRef}
-            color="#8b5cf6"
+            color="#fbbf24"
             map={gradientTexture}
-            emissive="#6366f1"
-            emissiveIntensity={0.2}
-            roughness={0.1}
-            metalness={0.8}
-            distort={0.4}
-            speed={2}
+            emissive="#d97706"
+            emissiveIntensity={0.15}
+            roughness={0.15}
+            metalness={0.75}
+            distort={0.3}
+            speed={1.5}
             envMapIntensity={1}
           />
         </mesh>
       </Float>
       
-      {/* Secondary floating elements */}
+      {/* Orbiting stardust satellites */}
       {[...Array(3)].map((_, i) => (
         <Float
           key={i}
-          speed={1.5 + i * 0.5}
-          rotationIntensity={0.5}
-          floatIntensity={1}
-          floatingRange={[-0.2, 0.2]}
+          speed={1.2 + i * 0.4}
+          rotationIntensity={0.4}
+          floatIntensity={0.8}
+          floatingRange={[-0.15, 0.15]}
         >
           <mesh
             position={[
-              Math.sin(i * Math.PI * 2 / 3) * 3,
-              Math.cos(i * Math.PI * 2 / 3) * 0.5,
-              Math.cos(i * Math.PI * 2 / 3) * 3
+              Math.sin(i * Math.PI * 2 / 3) * 2.8,
+              Math.cos(i * Math.PI * 2 / 3) * 0.3,
+              Math.cos(i * Math.PI * 2 / 3) * 2.8
             ]}
-            scale={0.3}
+            scale={0.22}
           >
             <octahedronGeometry args={[1, 0]} />
             <meshStandardMaterial
-              color="#6366f1"
-              emissive="#8b5cf6"
-              emissiveIntensity={0.5}
+              color="#38bdf8"
+              emissive="#0ea5e9"
+              emissiveIntensity={0.4}
               metalness={0.9}
               roughness={0.1}
             />
@@ -150,43 +138,39 @@ const FloatingShape = () => {
         </Float>
       ))}
       
-      {/* Contact shadows for depth */}
       <ContactShadows
-        position={[0, -2, 0]}
-        opacity={0.3}
-        scale={10}
+        position={[0, -1.8, 0]}
+        opacity={0.25}
+        scale={8}
         blur={2}
-        far={10}
-        color="#8b5cf6"
+        far={6}
+        color="#0c0f1a"
       />
       
-      {/* Particles for atmosphere */}
       <Particles />
     </>
   );
 };
 
-// Particle system component
+// Orbit Particle system representing space stardust
 const Particles = () => {
   const particlesRef = useRef();
-  const particleCount = 100;
+  const particleCount = 80;
   
-  // Generate random positions
   const positions = useMemo(() => {
     const pos = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount * 3; i += 3) {
-      pos[i] = (Math.random() - 0.5) * 10;
-      pos[i + 1] = (Math.random() - 0.5) * 10;
-      pos[i + 2] = (Math.random() - 0.5) * 10;
+      pos[i] = (Math.random() - 0.5) * 8;
+      pos[i + 1] = (Math.random() - 0.5) * 8;
+      pos[i + 2] = (Math.random() - 0.5) * 8;
     }
     return pos;
   }, []);
   
-  // Animate particles
   useFrame((state) => {
     if (particlesRef.current) {
-      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.05;
-      particlesRef.current.rotation.x = state.clock.elapsedTime * 0.03;
+      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.04;
+      particlesRef.current.rotation.x = state.clock.elapsedTime * 0.02;
     }
   });
   
@@ -198,13 +182,14 @@ const Particles = () => {
           count={particleCount}
           array={positions}
           itemSize={3}
+          key={positions}
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.05}
-        color="#8b5cf6"
+        size={0.035}
+        color="#38bdf8"
         transparent
-        opacity={0.6}
+        opacity={0.5}
         sizeAttenuation
       />
     </points>

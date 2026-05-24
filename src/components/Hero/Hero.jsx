@@ -1,12 +1,12 @@
 // src/components/Hero/Hero.jsx
-import { useRef, Suspense } from 'react';
+import { Suspense } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 import { Preload } from '@react-three/drei';
+import { FaLinkedin, FaTwitter, FaInstagram, FaGithub } from 'react-icons/fa';
 import FloatingShape from './FloatingShape';
-import { FaLinkedin, FaTwitter, FaInstagram } from 'react-icons/fa';
-import { HiArrowDown } from 'react-icons/hi';
+import { bioData } from '../../constants/portfolioData';
 
 // Styled Components
 const HeroSection = styled.section`
@@ -16,18 +16,17 @@ const HeroSection = styled.section`
   justify-content: center;
   position: relative;
   overflow: hidden;
-  padding: var(--spacing-2xl) var(--container-padding);
-  
-  @media (max-width: 768px) {
-    padding: var(--spacing-xl) var(--container-padding);
-  }
+  padding: clamp(80px, 12vh, 120px) 0;
+  background: var(--color-bg-primary);
 `;
 
-const HeroContainer = styled.div`
+const Container = styled.div`
   max-width: var(--container-xl);
   margin: 0 auto;
+  padding: 0 var(--container-padding);
+  width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.2fr 0.8fr;
   gap: var(--spacing-xl);
   align-items: center;
   position: relative;
@@ -36,12 +35,13 @@ const HeroContainer = styled.div`
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
     text-align: center;
+    gap: var(--spacing-lg);
   }
 `;
 
 const HeroContent = styled(motion.div)`
-  max-width: 600px;
-
+  max-width: 650px;
+  
   @media (max-width: 1024px) {
     margin: 0 auto;
   }
@@ -49,42 +49,58 @@ const HeroContent = styled(motion.div)`
 
 const Greeting = styled(motion.span)`
   display: inline-block;
-  font-size: var(--text-lg);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
   color: var(--color-accent-primary);
   font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   margin-bottom: var(--spacing-sm);
 `;
 
 const Title = styled(motion.h1)`
-  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-size: clamp(2.5rem, 8vw, 5rem);
   font-weight: 700;
   line-height: 1.1;
   margin-bottom: var(--spacing-md);
-  background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-accent-primary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  
+  span {
+    color: var(--color-accent-primary);
+    background: linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 `;
 
-const Subtitle = styled(motion.p)`
-  font-size: var(--text-xl);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-md);
-  line-height: 1.6;
-`;
-
-const Description = styled(motion.p)`
+const Subtitle = styled(motion.h2)`
+  font-family: var(--font-primary);
   font-size: var(--text-base);
+  font-weight: 400;
   color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-lg);
   line-height: 1.8;
+  margin-bottom: var(--spacing-lg);
+  
+  a {
+    color: var(--color-text-primary);
+    font-weight: 500;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    transition: var(--transition-base);
+    
+    &:hover {
+      color: var(--color-accent-primary);
+      border-color: var(--color-accent-primary);
+    }
+  }
 `;
 
 const CTAContainer = styled(motion.div)`
   display: flex;
   gap: var(--spacing-md);
   align-items: center;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
   flex-wrap: wrap;
 
   @media (max-width: 1024px) {
@@ -92,60 +108,45 @@ const CTAContainer = styled(motion.div)`
   }
 `;
 
-const CTAButton = styled(motion.a)`
-  padding: clamp(0.875rem, 2vw, 1rem) clamp(1.75rem, 4vw, 2.5rem);
-  background: var(--color-gradient-1);
-  color: var(--color-bg-primary);
+const PrimaryButton = styled(motion.a)`
+  padding: 12px 28px;
+  background: var(--color-accent-primary);
+  color: #070a13;
+  font-family: var(--font-display);
   font-weight: 600;
-  border-radius: 50px;
-  font-size: var(--text-base);
-  position: relative;
-  overflow: hidden;
+  border-radius: 4px;
+  font-size: var(--text-sm);
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: var(--transition-base);
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
   
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-  }
-  
-  &:hover::before {
-    transform: translateX(0);
-  }
-  
-  &:focus-visible {
-    outline: 3px solid #fff;
-    outline-offset: 4px;
+  &:hover {
+    background: #fbbf24;
+    color: #070a13;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(245, 158, 11, 0.3);
   }
 `;
 
 const SecondaryButton = styled(motion.a)`
-  padding: clamp(0.875rem, 2vw, 1rem) clamp(1.75rem, 4vw, 2.5rem);
-  border: 2px solid var(--color-border);
+  padding: 12px 28px;
+  border: 1px solid var(--color-border);
   color: var(--color-text-primary);
-  font-weight: 600;
-  border-radius: 50px;
-  font-size: var(--text-base);
-  transition: all 0.3s ease;
+  font-family: var(--font-display);
+  font-weight: 500;
+  border-radius: 4px;
+  font-size: var(--text-sm);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: var(--transition-base);
   
   &:hover {
-    border-color: var(--color-accent-primary);
-    color: var(--color-accent-primary);
-  }
-  
-  &:focus-visible {
-    outline: 3px solid var(--color-accent-primary);
-    outline-offset: 4px;
-    border-color: var(--color-accent-primary);
-    color: var(--color-accent-primary);
+    border-color: var(--color-accent-secondary);
+    color: var(--color-accent-secondary);
+    transform: translateY(-2px);
   }
 `;
 
@@ -159,65 +160,33 @@ const SocialLinks = styled(motion.div)`
 `;
 
 const SocialLink = styled(motion.a)`
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--color-border);
-  border-radius: 50%;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-text-secondary);
-  font-size: 1.25rem;
-  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  transition: var(--transition-base);
   
   &:hover {
     color: var(--color-accent-primary);
     border-color: var(--color-accent-primary);
     transform: translateY(-3px);
   }
-  
-  &:focus-visible {
-    outline: 3px solid var(--color-accent-primary);
-    outline-offset: 4px;
-    color: var(--color-accent-primary);
-    border-color: var(--color-accent-primary);
-  }
 `;
 
 const CanvasContainer = styled.div`
   width: 100%;
-  height: 600px;
+  height: 480px;
   position: relative;
 
   @media (max-width: 1024px) {
-    height: 400px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.3;
-    z-index: -1;
+    height: 320px;
+    opacity: 0.8;
   }
-`;
-
-const ScrollIndicator = styled(motion.div)`
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-`;
-
-const ScrollText = styled.span`
-  font-size: var(--text-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
 `;
 
 const LoadingContainer = styled.div`
@@ -226,81 +195,66 @@ const LoadingContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
 `;
 
-// Hero Component
 const Hero = () => {
-  const containerRef = useRef();
-
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
+        staggerChildren: 0.15,
+        delayChildren: 0.2,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 15 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.6,
+        duration: 0.5,
         ease: 'easeOut',
       },
     },
   };
 
-  const scrollToAbout = () => {
-    const aboutSection = document.getElementById('about');
-    if (aboutSection) {
-      aboutSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <HeroSection ref={containerRef}>
-      <HeroContainer>
+    <HeroSection id="home">
+      <Container>
         <HeroContent
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
           <Greeting variants={itemVariants}>
-            Hello, I'm
+            {bioData.tagline}
           </Greeting>
 
           <Title variants={itemVariants}>
-            Vanshul Goyal
+            Vanshul <span>Goyal</span>
           </Title>
 
           <Subtitle variants={itemVariants}>
-            Associate Analyst at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">United Airlines</a> | Co-founder at <a href="https://solaride.in" target="_blank" rel="noopener noreferrer">Solaride</a> | NASA <a href='https://www.spaceappschallenge.org/collective/' target='_blank' rel='noopener noreferrer'> SpaceApps Collective</a>, <a href='https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge' target='_blank' rel='noopener noreferrer'> HERC 2023</a>
+            Associate Analyst at <a href="https://www.united.com" target="_blank" rel="noopener noreferrer">United Airlines</a> • Co-founder at <a href="https://solaride.in" target="_blank" rel="noopener noreferrer">Solaride</a> • NASA <a href='https://www.spaceappschallenge.org' target='_blank' rel='noopener noreferrer'>SpaceApps</a> Community & NASA <a href='https://www.nasa.gov' target='_blank' rel='noopener noreferrer'>HERC SEDS PEC</a> Alum.
           </Subtitle>
 
-          <Description variants={itemVariants}>
-            Driven by a deep curiosity for how things work. I enjoy getting my hands dirty with engineering
-            and building new things from the ground up.
-          </Description>
-
           <CTAContainer variants={itemVariants}>
-            <CTAButton
+            <PrimaryButton
               href="#work"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.98 }}
             >
-              Explore My Work
-            </CTAButton>
+              Explore Experience
+            </PrimaryButton>
             <SecondaryButton
               href="#contact"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.98 }}
             >
               Get In Touch
             </SecondaryButton>
@@ -308,31 +262,33 @@ const Hero = () => {
 
           <SocialLinks variants={itemVariants}>
             <SocialLink
-              href="https://x.com/goyal_vanshul"
+              href={bioData.github}
               target="_blank"
               rel="noopener noreferrer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="Twitter"
+              aria-label="GitHub"
             >
-              <FaTwitter />
+              <FaGithub />
             </SocialLink>
             <SocialLink
-              href="https://www.linkedin.com/in/vanshul-goyal00/"
+              href={bioData.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
               aria-label="LinkedIn"
             >
               <FaLinkedin />
             </SocialLink>
             <SocialLink
-              href="https://www.instagram.com/vanshul_goyal/"
+              href={bioData.twitter}
               target="_blank"
               rel="noopener noreferrer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+              aria-label="Twitter"
+            >
+              <FaTwitter />
+            </SocialLink>
+            <SocialLink
+              href={bioData.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="Instagram"
             >
               <FaInstagram />
@@ -343,16 +299,11 @@ const Hero = () => {
         <CanvasContainer>
           <Suspense fallback={
             <LoadingContainer>
-              <motion.div
-              // animate={{ rotate: 360 }}
-              // transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-              >
-                Loading 3D...
-              </motion.div>
+              INITIALIZING 3D ORBITAL...
             </LoadingContainer>
           }>
             <Canvas
-              camera={{ position: [-3, -3, 0], fov: 100 }}
+              camera={{ position: [-3, -3, 0], fov: 90 }}
               gl={{ antialias: true, alpha: true }}
             >
               <Preload all />
@@ -360,17 +311,7 @@ const Hero = () => {
             </Canvas>
           </Suspense>
         </CanvasContainer>
-      </HeroContainer>
-
-      {/* <ScrollIndicator
-                onClick={scrollToAbout}
-                whileHover={{ y: 5 }}
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-            >
-                <ScrollText>Scroll</ScrollText>
-                <HiArrowDown />
-            </ScrollIndicator> */}
+      </Container>
     </HeroSection>
   );
 };

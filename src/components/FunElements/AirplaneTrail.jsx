@@ -1,5 +1,5 @@
 // src/components/FunElements/AirplaneTrail.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPaperPlane } from 'react-icons/fa';
@@ -95,7 +95,7 @@ const AirplaneTrail = () => {
   };
 
   // Start new flight
-  const startFlight = () => {
+  const startFlight = useCallback(() => {
     setFlightCount(prev => prev + 1);
     
     // Show banner at random times
@@ -105,7 +105,7 @@ const AirplaneTrail = () => {
         setTimeout(() => setShowBanner(false), 3000);
       }, currentPath.duration * 500);
     }
-  };
+  }, [currentPath.duration]);
 
   useEffect(() => {
     // Start first flight after 5 seconds
@@ -118,7 +118,7 @@ const AirplaneTrail = () => {
       clearTimeout(initialTimer);
       clearInterval(interval);
     };
-  }, []);
+  }, [startFlight]);
 
   return (
     <>

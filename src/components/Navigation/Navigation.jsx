@@ -17,8 +17,8 @@ const Nav = styled(motion.nav)`
   transition: var(--transition-base);
 
   ${({ $scrolled }) => $scrolled && `
-    background: rgba(10, 10, 10, 0.9);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: rgba(7, 10, 19, 0.95);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
   `}
 `;
 
@@ -185,6 +185,16 @@ const MobileOverlay = styled(motion.div)`
   }
 `;
 
+// Navigation items static declaration at file scope
+const navItems = [
+  { id: 'home', label: 'Home' },
+  { id: 'about', label: 'About' },
+  { id: 'work', label: 'Work' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'blog', label: 'Blog' },
+  { id: 'contact', label: 'Contact' },
+];
+
 // Navigation Component
 const Navigation = ({ scrollToSection }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -192,16 +202,6 @@ const Navigation = ({ scrollToSection }) => {
   const [activeSection, setActiveSection] = useState('home');
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Navigation items
-  const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About' },
-    { id: 'work', label: 'Work' },
-    { id: 'projects', label: 'Projects' },
-    { id: 'blog', label: 'Blog' },
-    { id: 'contact', label: 'Contact' },
-  ];
 
   // Handle scroll events
   useEffect(() => {
