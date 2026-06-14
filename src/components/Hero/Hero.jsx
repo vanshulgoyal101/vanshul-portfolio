@@ -229,6 +229,22 @@ const LoadingContainer = styled.div`
   color: var(--color-text-secondary);
 `;
 
+const TelemetryMarker = styled.div`
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  
+  @media (max-width: 1024px) {
+    display: none;
+  }
+`;
+
 // Hero Component
 const Hero = () => {
   const containerRef = useRef();

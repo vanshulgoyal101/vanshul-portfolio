@@ -12,10 +12,11 @@ import Navigation from '../components/Navigation/Navigation';
 // Styled Components
 const PageWrapper = styled.div`
   min-height: 100vh;
-  background: var(--color-bg-primary);
+  background: transparent;
   position: relative;
   overflow-x: hidden;
 `;
+
 
 const BackgroundElements = styled.div`
   position: fixed;
@@ -62,6 +63,7 @@ const Container = styled.div`
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 var(--spacing-xl) var(--spacing-xl);
+  position: relative;
   
   @media (max-width: 768px) {
     padding: 0 var(--spacing-md) var(--spacing-lg);

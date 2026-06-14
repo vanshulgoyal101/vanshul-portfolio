@@ -1,5 +1,5 @@
 // src/App.jsx
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import Lenis from '@studio-freight/lenis';
@@ -8,12 +8,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Component imports
 import GlobalStyles from './styles/GlobalStyles';
 import Navigation from './components/Navigation/Navigation';
-import About from './components/About/About';
-import Work from './components/Work/Work';
-import Blog from './components/Blog/Blog';
-import Contact from './components/Contact/Contact';
 import BlogPost from './pages/BlogPost';
 import { ToastProvider } from './components/Toast';
+import BootLoader from './components/FunElements/BootLoader';
+import { BlogSkeletonCard, ProjectSkeletonCard, WorkSkeletonCard, SkeletonElement } from './components/Skeleton';
+
 
 
 
@@ -82,14 +81,49 @@ const SectionWrapper = styled(motion.section)`
   position: relative;
 `;
 
-// Loading component
+
+
+
+// Loading fallback spacers
 const Loading = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
-  color: var(--color-accent-primary);
+  min-height: 200px;
 `;
+
+const HeroSkeleton = () => (
+  <div style={{ padding: '100px var(--container-padding)', display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '800px', margin: '0 auto', minHeight: '80vh', justifyContent: 'center' }}>
+    <SkeletonElement $width="200px" $height="24px" />
+    <SkeletonElement $width="80%" $height="64px" />
+    <SkeletonElement $width="95%" $height="40px" />
+    <div style={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
+      <SkeletonElement $width="150px" $height="48px" $radius="8px" />
+      <SkeletonElement $width="150px" $height="48px" $radius="8px" />
+    </div>
+  </div>
+);
+
+const AboutSkeleton = () => (
+  <div style={{ padding: '80px var(--container-padding)', display: 'flex', gap: '60px', maxWidth: '1200px', margin: '0 auto', flexWrap: 'wrap', minHeight: '500px', alignItems: 'center' }}>
+    <div style={{ flex: 1, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <SkeletonElement $width="250px" $height="40px" />
+      <SkeletonElement $width="100%" $height="180px" />
+      <SkeletonElement $width="70%" $height="28px" />
+    </div>
+    <SkeletonElement $width="300px" $height="300px" $radius="16px" />
+  </div>
+);
+
+const ContactSkeleton = () => (
+  <div style={{ padding: '80px var(--container-padding)', maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px', minHeight: '400px' }}>
+    <div style={{ alignSelf: 'center', width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <SkeletonElement $width="300px" $height="40px" />
+    </div>
+    <SkeletonElement $width="100%" $height="50px" />
+    <SkeletonElement $width="100%" $height="50px" />
+    <SkeletonElement $width="100%" $height="120px" />
+    <SkeletonElement $width="160px" $height="48px" $radius="8px" />
+  </div>
+);
+
 
 // Lazy load heavy components
 const Hero = lazy(() => import('./components/Hero/Hero'));
@@ -97,10 +131,20 @@ const Projects = lazy(() => import('./components/Projects/Projects'));
 const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
 const PandaCursor = lazy(() => import('./components/FunElements/PandaCursor'));
 const AirplaneTrail = lazy(() => import('./components/FunElements/AirplaneTrail'));
+const RandomTelemetry = lazy(() => import('./components/FunElements/RandomTelemetry'));
+const InteractiveSpaceBackground = lazy(() => import('./components/FunElements/InteractiveSpaceBackground'));
+const About = lazy(() => import('./components/About/About'));
+const Work = lazy(() => import('./components/Work/Work'));
+const Blog = lazy(() => import('./components/Blog/Blog'));
+const Contact = lazy(() => import('./components/Contact/Contact'));
+
+
+
 
 
 
 function App() {
+  const [isBooting, setIsBooting] = useState(true);
   // const lenisRef = useRef(null);
   // const rafRef = useRef(null);
   // Initialize Lenis smooth scroll
@@ -177,9 +221,14 @@ function App() {
     <Router>
       <ToastProvider>
         <GlobalStyles />
+        <AnimatePresence mode="wait">
+          {isBooting && <BootLoader onComplete={() => setIsBooting(false)} />}
+        </AnimatePresence>
+        
         <AppWrapper>
           {/* Background ambient elements */}
           <BackgroundElements />
+          
           
           {/* Fun Interactive Elements - spread throughout the site */}
           {/* Lazy load fun elements */}
@@ -187,6 +236,8 @@ function App() {
             {/* <PandaCursor /> */}
             <FloatingRocket />
             {/* <AirplaneTrail /> */}
+            <RandomTelemetry />
+            <InteractiveSpaceBackground />
           </Suspense>
           
           <Routes>
@@ -196,68 +247,76 @@ function App() {
               <Navigation scrollToSection={scrollToSection} />
               <AnimatePresence mode="wait">
                 <MainContent>
-                  <Suspense fallback={<Loading>Loading...</Loading>}>
+                  {/* Hero Section */}
+                  <Suspense fallback={<HeroSkeleton />}>
                     <SectionWrapper id="home">
                       <Hero />
                     </SectionWrapper>
                   </Suspense>
 
                   {/* About Section */}
-                  <Suspense fallback={<Loading>Loading...</Loading>}>
-
-                  <SectionWrapper
-                    id="about"
-                    variants={pageVariants}
-                    initial="initial"
-                    whileInView="animate"
-                    viewport={{ once: true, amount: 0.3 }}
-                  >
-                    <About />
-                  </SectionWrapper>
+                  <Suspense fallback={<AboutSkeleton />}>
+                    <SectionWrapper
+                      id="about"
+                      variants={pageVariants}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <About />
+                    </SectionWrapper>
+                  </Suspense>
 
                   {/* Work Experience Section */}
-                  <SectionWrapper
-                    id="work"
-                    variants={pageVariants}
-                    initial="initial"
-                    whileInView="animate"
-                    viewport={{ once: true, amount: 0.3 }}
-                  >
-                    <Work />
-                  </SectionWrapper>
+                  <Suspense fallback={<div style={{ padding: '80px 0', maxWidth: 'var(--container-xl)', margin: '0 auto' }}><WorkSkeletonCard /></div>}>
+                    <SectionWrapper
+                      id="work"
+                      variants={pageVariants}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <Work />
+                    </SectionWrapper>
+                  </Suspense>
 
                   {/* Projects Section with horizontal scroll */}
-                  <SectionWrapper
-                    id="projects"
-                    variants={pageVariants}
-                    initial="initial"
-                    whileInView="animate"
-                    viewport={{ once: true, amount: 0.3 }}
-                  >
-                    <Projects />
-                  </SectionWrapper>
+                  <Suspense fallback={<div style={{ padding: '80px 0', maxWidth: 'var(--container-xl)', margin: '0 auto' }}><ProjectSkeletonCard /></div>}>
+                    <SectionWrapper
+                      id="projects"
+                      variants={pageVariants}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <Projects />
+                    </SectionWrapper>
+                  </Suspense>
 
                   {/* Blog Section */}
-                  <SectionWrapper
-                    id="blog"
-                    variants={pageVariants}
-                    initial="initial"
-                    whileInView="animate"
-                    viewport={{ once: true, amount: 0.3 }}
-                  >
-                    <Blog />
-                  </SectionWrapper>
+                  <Suspense fallback={<div style={{ padding: '80px 0', maxWidth: 'var(--container-xl)', margin: '0 auto' }}><BlogSkeletonCard /></div>}>
+                    <SectionWrapper
+                      id="blog"
+                      variants={pageVariants}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <Blog />
+                    </SectionWrapper>
+                  </Suspense>
 
                   {/* Contact Section */}
-                  <SectionWrapper
-                    id="contact"
-                    variants={pageVariants}
-                    initial="initial"
-                    whileInView="animate"
-                    viewport={{ once: true, amount: 0.3 }}
-                  >
-                    <Contact />
-                  </SectionWrapper>
+                  <Suspense fallback={<ContactSkeleton />}>
+                    <SectionWrapper
+                      id="contact"
+                      variants={pageVariants}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <Contact />
+                    </SectionWrapper>
                   </Suspense>
                 </MainContent>
               </AnimatePresence>

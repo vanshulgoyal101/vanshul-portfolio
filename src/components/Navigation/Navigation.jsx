@@ -15,10 +15,12 @@ const Nav = styled(motion.nav)`
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition: var(--transition-base);
+  background: transparent;
 
   ${({ $scrolled }) => $scrolled && `
-    background: rgba(10, 10, 10, 0.9);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: rgba(246, 243, 235, 0.95);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 2px 10px rgba(30, 41, 59, 0.04);
   `}
 `;
 
@@ -68,7 +70,7 @@ const NavLinks = styled(motion.ul)`
     right: 0;
     height: 100vh;
     width: min(75vw, 400px);
-    background: rgba(15, 15, 15, 0.98);
+    background: rgba(246, 243, 235, 0.98);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     flex-direction: column;
@@ -177,7 +179,7 @@ const MobileOverlay = styled(motion.div)`
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(30, 41, 59, 0.35);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     z-index: calc(var(--z-fixed) - 1);

@@ -73,8 +73,8 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #0a0a0a;
-  color: #6366f1;
+  background: #f6f3eb;
+  color: #1d4ed8;
   font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
 }
@@ -86,21 +86,21 @@ body.has-custom-cursor * {
 
 /* Accessible focus styles - WCAG 2.1 compliant */
 *:focus-visible {
-  outline: 3px solid #6366f1;
+  outline: 3px solid #1d4ed8;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #6366f1;
+  outline: 3px solid #1d4ed8;
   outline-offset: 3px;
 }
 
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 3px solid #6366f1;
+  outline: 3px solid #1d4ed8;
   outline-offset: 2px;
 }
 

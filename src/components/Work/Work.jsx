@@ -9,7 +9,7 @@ import { MdWork } from 'react-icons/md';
 const WorkSection = styled.section`
   padding: var(--spacing-2xl) 0;
   position: relative;
-  background: var(--color-bg-primary);
+  background: transparent;
   
   @media (max-width: 768px) {
     padding: var(--spacing-xl) 0;

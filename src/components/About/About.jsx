@@ -10,7 +10,7 @@ import { GiPanda } from 'react-icons/gi';
 const AboutSection = styled.section`
   padding: var(--spacing-2xl) 0;
   position: relative;
-  background: var(--color-bg-secondary);
+  background: transparent;
   overflow: hidden;
   
   @media (max-width: 768px) {

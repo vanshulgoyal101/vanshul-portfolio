@@ -23,9 +23,9 @@ const FloatingShape = () => {
     const context = canvas.getContext('2d');
     const gradient = context.createLinearGradient(0, 0, 128, 128);
     
-    gradient.addColorStop(0, '#6366f1');
-    gradient.addColorStop(0.5, '#8b5cf6');
-    gradient.addColorStop(1, '#6366f1');
+    gradient.addColorStop(0, '#1d4ed8');
+    gradient.addColorStop(0.5, '#3b82f6');
+    gradient.addColorStop(1, '#1d4ed8');
     
     context.fillStyle = gradient;
     context.fillRect(0, 0, 256, 256);
@@ -70,7 +70,7 @@ const FloatingShape = () => {
       />
       
       {/* Fill light */}
-      <pointLight position={[-10, -10, -5]} intensity={0.5} color="#8b5cf6" />
+      <pointLight position={[-10, -10, -5]} intensity={0.5} color="#3b82f6" />
       
       {/* Rim light */}
       <spotLight
@@ -78,7 +78,7 @@ const FloatingShape = () => {
         intensity={0.5}
         angle={0.6}
         penumbra={1}
-        color="#6366f1"
+        color="#1d4ed8"
       />
       
       {/* Environment for reflections */}
@@ -108,9 +108,9 @@ const FloatingShape = () => {
           {/* Distort material for organic feel */}
           <MeshDistortMaterial
             ref={materialRef}
-            color="#8b5cf6"
+            color="#3b82f6"
             map={gradientTexture}
-            emissive="#6366f1"
+            emissive="#1d4ed8"
             emissiveIntensity={0.2}
             roughness={0.1}
             metalness={0.8}
@@ -140,8 +140,8 @@ const FloatingShape = () => {
           >
             <octahedronGeometry args={[1, 0]} />
             <meshStandardMaterial
-              color="#6366f1"
-              emissive="#8b5cf6"
+              color="#1d4ed8"
+              emissive="#3b82f6"
               emissiveIntensity={0.5}
               metalness={0.9}
               roughness={0.1}
@@ -157,7 +157,7 @@ const FloatingShape = () => {
         scale={10}
         blur={2}
         far={10}
-        color="#8b5cf6"
+        color="#1d4ed8"
       />
       
       {/* Particles for atmosphere */}
@@ -202,7 +202,7 @@ const Particles = () => {
       </bufferGeometry>
       <pointsMaterial
         size={0.05}
-        color="#8b5cf6"
+        color="#3b82f6"
         transparent
         opacity={0.6}
         sizeAttenuation

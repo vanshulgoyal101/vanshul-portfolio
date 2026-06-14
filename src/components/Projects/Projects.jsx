@@ -10,7 +10,7 @@ import { ProjectSkeletonCard } from '../Skeleton';
 // Styled Components
 const ProjectsSection = styled.section`
   position: relative;
-  background: var(--color-bg-secondary);
+  background: transparent;
   padding: var(--spacing-2xl) 0;
   
   @media (max-width: 768px) {

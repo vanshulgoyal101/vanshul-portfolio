@@ -4,24 +4,24 @@ import { createGlobalStyle } from 'styled-components';
 const GlobalStyles = createGlobalStyle`
   :root {
     /* Color Palette - Deep blacks with electric blue/purple accents */
-    --color-bg-primary: #0a0a0a;
-    --color-bg-secondary: #0f0f0f;
-    --color-bg-tertiary: #141414;
-    --color-bg-card: #1a1a1a;
+    --color-bg-primary: #f6f3eb;
+    --color-bg-secondary: #f6f3eb;
+    --color-bg-tertiary: #edeae0;
+    --color-bg-card: #ffffff;
     
-    --color-text-primary: #ffffff;
-    --color-text-secondary: #a0a0a0;
-    --color-text-muted: #666666;
+    --color-text-primary: #1e293b;
+    --color-text-secondary: #475569;
+    --color-text-muted: #94a3b8;
     
-    --color-accent-primary: #6366f1;
-    --color-accent-secondary: #8b5cf6;
-    --color-accent-glow: #818cf8;
+    --color-accent-primary: #1d4ed8;
+    --color-accent-secondary: #3b82f6;
+    --color-accent-glow: rgba(29, 78, 216, 0.08);
     
-    --color-gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    --color-gradient-2: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    --color-gradient-1: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+    --color-gradient-2: linear-gradient(135deg, #f6f3eb 0%, #ffffff 100%);
     
-    --color-border: rgba(255, 255, 255, 0.1);
-    --color-border-hover: rgba(255, 255, 255, 0.2);
+    --color-border: rgba(30, 41, 59, 0.08);
+    --color-border-hover: rgba(30, 41, 59, 0.15);
     
     /* Fluid Spacing - scales with viewport */
     --spacing-xs: clamp(0.25rem, 0.5vw, 0.5rem);
@@ -97,6 +97,11 @@ const GlobalStyles = createGlobalStyle`
     font-family: var(--font-primary);
     font-size: var(--text-base);
     background-color: var(--color-bg-primary);
+    background-image: 
+      linear-gradient(to right, rgba(30, 41, 59, 0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(30, 41, 59, 0.025) 1px, transparent 1px);
+    background-size: 80px 80px;
+    background-attachment: fixed;
     color: var(--color-text-primary);
     line-height: 1.6;
     overflow-x: hidden;
@@ -243,7 +248,7 @@ const GlobalStyles = createGlobalStyle`
 
   /* Glass morphism effect */
   .glass {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.55);
     backdrop-filter: blur(10px);
     border: 1px solid var(--color-border);
   }

@@ -16,7 +16,7 @@ import { BLOG_ANIMATION_VARIANTS, BLOG_CONTENT } from '../../constants/blogConst
 const BlogSection = styled.section`
   padding: var(--spacing-2xl) 0;
   position: relative;
-  background: var(--color-bg-primary);
+  background: transparent;
   overflow: hidden;
 `;
 
