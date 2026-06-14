@@ -1,5 +1,5 @@
 // src/components/Hero/Hero.jsx
-import { useRef, Suspense } from 'react';
+import { Suspense } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
@@ -247,8 +247,6 @@ const TelemetryMarker = styled.div`
 
 // Hero Component
 const Hero = () => {
-  const containerRef = useRef();
-
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -273,15 +271,8 @@ const Hero = () => {
     },
   };
 
-  const scrollToAbout = () => {
-    const aboutSection = document.getElementById('about');
-    if (aboutSection) {
-      aboutSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <HeroSection ref={containerRef}>
+    <HeroSection>
       <HeroContainer>
         <HeroContent
           variants={containerVariants}
@@ -367,8 +358,8 @@ const Hero = () => {
             </LoadingContainer>
           }>
             <Canvas
-              camera={{ position: [-3, -3, 0], fov: 100 }}
-              gl={{ antialias: false, alpha: true, powerPreference: 'high-performance' }}
+              camera={{ position: [0, 0, 6], fov: 55 }}
+              gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
               dpr={Math.min(window.devicePixelRatio, 1.5)}
             >
               <FloatingShape />
