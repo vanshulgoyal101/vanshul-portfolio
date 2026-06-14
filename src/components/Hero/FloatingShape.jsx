@@ -4,8 +4,6 @@ import { useFrame } from '@react-three/fiber';
 import { 
   MeshDistortMaterial, 
   Float, 
-  Environment,
-  ContactShadows,
   OrbitControls
 } from '@react-three/drei';
 import * as THREE from 'three';
@@ -58,36 +56,16 @@ const FloatingShape = () => {
 
   return (
     <>
-      {/* Ambient lighting */}
-      <ambientLight intensity={0.5} />
+      {/* Simplified lighting - no HDR environment needed */}
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[10, 10, 5]} intensity={1.2} />
+      <pointLight position={[-8, -8, -4]} intensity={0.6} color="#3b82f6" />
+      <pointLight position={[0, 8, 0]} intensity={0.4} color="#1d4ed8" />
       
-      {/* Key light */}
-      <directionalLight
-        position={[10, 10, 5]}
-        intensity={1}
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-      />
-      
-      {/* Fill light */}
-      <pointLight position={[-10, -10, -5]} intensity={0.5} color="#3b82f6" />
-      
-      {/* Rim light */}
-      <spotLight
-        position={[0, 10, 0]}
-        intensity={0.5}
-        angle={0.6}
-        penumbra={1}
-        color="#1d4ed8"
-      />
-      
-      {/* Environment for reflections */}
-      <Environment preset="city" />
-      
-      {/* Orbit controls for interactivity */}
+      {/* Orbit controls */}
       <OrbitControls
         enableZoom={false}
-        enablePan={true}
+        enablePan={false}
         autoRotate
         autoRotateSpeed={0.5}
         minPolarAngle={Math.PI / 3}
@@ -95,81 +73,49 @@ const FloatingShape = () => {
       />
       
       {/* Main floating shape */}
-      <Float
-        speed={3}
-        rotationIntensity={1}
-        floatIntensity={2}
-        floatingRange={[-0.1, 0.1]}
-      >
-        <mesh ref={meshRef} castShadow receiveShadow scale={1.5}>
-          {/* Icosahedron geometry for interesting shape */}
-          <icosahedronGeometry args={[1, 4]} />
-          
-          {/* Distort material for organic feel */}
+      <Float speed={3} rotationIntensity={1} floatIntensity={2} floatingRange={[-0.1, 0.1]}>
+        <mesh ref={meshRef} scale={1.5}>
+          <icosahedronGeometry args={[1, 3]} />
           <MeshDistortMaterial
             ref={materialRef}
             color="#3b82f6"
             map={gradientTexture}
             emissive="#1d4ed8"
             emissiveIntensity={0.2}
-            roughness={0.1}
-            metalness={0.8}
+            roughness={0.15}
+            metalness={0.7}
             distort={0.4}
             speed={2}
-            envMapIntensity={1}
           />
         </mesh>
       </Float>
       
-      {/* Secondary floating elements */}
-      {[...Array(3)].map((_, i) => (
-        <Float
-          key={i}
-          speed={1.5 + i * 0.5}
-          rotationIntensity={0.5}
-          floatIntensity={1}
-          floatingRange={[-0.2, 0.2]}
-        >
+      {/* Secondary floating orbs */}
+      {[0, 1, 2].map((i) => (
+        <Float key={i} speed={1.5 + i * 0.5} rotationIntensity={0.5} floatIntensity={1}>
           <mesh
             position={[
               Math.sin(i * Math.PI * 2 / 3) * 3,
               Math.cos(i * Math.PI * 2 / 3) * 0.5,
-              Math.cos(i * Math.PI * 2 / 3) * 3
+              Math.cos(i * Math.PI * 2 / 3) * 3,
             ]}
             scale={0.3}
           >
             <octahedronGeometry args={[1, 0]} />
-            <meshStandardMaterial
-              color="#1d4ed8"
-              emissive="#3b82f6"
-              emissiveIntensity={0.5}
-              metalness={0.9}
-              roughness={0.1}
-            />
+            <meshStandardMaterial color="#1d4ed8" emissive="#3b82f6" emissiveIntensity={0.5} metalness={0.8} roughness={0.15} />
           </mesh>
         </Float>
       ))}
       
-      {/* Contact shadows for depth */}
-      <ContactShadows
-        position={[0, -2, 0]}
-        opacity={0.3}
-        scale={10}
-        blur={2}
-        far={10}
-        color="#1d4ed8"
-      />
-      
-      {/* Particles for atmosphere */}
       <Particles />
     </>
   );
 };
 
-// Particle system component
+// Particle system - kept lightweight
 const Particles = () => {
   const particlesRef = useRef();
-  const particleCount = 100;
+  const particleCount = 40;
   
   // Generate random positions
   const positions = useMemo(() => {

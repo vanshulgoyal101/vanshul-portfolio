@@ -3,7 +3,7 @@ import { useRef, Suspense } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
-import { Preload } from '@react-three/drei';
+
 import FloatingShape from './FloatingShape';
 import { FaLinkedin, FaTwitter, FaInstagram } from 'react-icons/fa';
 import { HiArrowDown } from 'react-icons/hi';
@@ -359,19 +359,18 @@ const Hero = () => {
         <CanvasContainer>
           <Suspense fallback={
             <LoadingContainer>
-              <motion.div
-              // animate={{ rotate: 360 }}
-              // transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-              >
-                Loading 3D...
-              </motion.div>
+              <svg width="80" height="80" viewBox="0 0 80 80" style={{ opacity: 0.25 }}>
+                <circle cx="40" cy="40" r="30" fill="none" stroke="#1d4ed8" strokeWidth="1" strokeDasharray="6 4" />
+                <circle cx="40" cy="40" r="18" fill="none" stroke="#3b82f6" strokeWidth="0.8" />
+                <polygon points="40,20 55,50 25,50" fill="none" stroke="#1d4ed8" strokeWidth="0.8" />
+              </svg>
             </LoadingContainer>
           }>
             <Canvas
               camera={{ position: [-3, -3, 0], fov: 100 }}
-              gl={{ antialias: true, alpha: true }}
+              gl={{ antialias: false, alpha: true, powerPreference: 'high-performance' }}
+              dpr={Math.min(window.devicePixelRatio, 1.5)}
             >
-              <Preload all />
               <FloatingShape />
             </Canvas>
           </Suspense>

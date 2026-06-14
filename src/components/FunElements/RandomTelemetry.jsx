@@ -178,38 +178,6 @@ const ELEMENTS = [
     </div>
   )},
 
-  // Emoji / Fun
-  { id: 'panda', render: () => (
-    <div style={{ fontSize: '1.8rem', filter: 'grayscale(20%)', opacity: 0.45 }}>🐼</div>
-  )},
-  { id: 'leaf', render: () => (
-    <div style={{ fontSize: '1.8rem', opacity: 0.4 }}>🌿</div>
-  )},
-  { id: 'bulb', render: () => (
-    <div style={{ fontSize: '1.8rem', opacity: 0.4 }}>💡</div>
-  )},
-  { id: 'telescope', render: () => (
-    <div style={{ fontSize: '1.8rem', opacity: 0.4 }}>🔭</div>
-  )},
-  { id: 'compass', render: () => (
-    <div style={{ fontSize: '1.8rem', opacity: 0.4 }}>🧭</div>
-  )},
-  { id: 'seedling', render: () => (
-    <div style={{ fontSize: '1.6rem', opacity: 0.4 }}>🌱</div>
-  )},
-  { id: 'origami', render: () => (
-    <div style={{ fontSize: '1.6rem', opacity: 0.4 }}>🦢</div>
-  )},
-  { id: 'prism', render: () => (
-    <div style={{ fontSize: '1.8rem', opacity: 0.35 }}>🔮</div>
-  )},
-  { id: 'dice', render: () => (
-    <div style={{ fontSize: '1.8rem', opacity: 0.4 }}>🎲</div>
-  )},
-  { id: 'chess', render: () => (
-    <div style={{ fontSize: '1.8rem', opacity: 0.4 }}>♟</div>
-  )},
-
   // Minimal text
   { id: 'quote-1', render: () => (
     <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.5rem', color: '#1d4ed8', opacity: 0.22, textAlign: 'center', maxWidth: '100px', lineHeight: 1.6 }}>

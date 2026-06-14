@@ -13,6 +13,26 @@ import { ToastProvider } from './components/Toast';
 import BootLoader from './components/FunElements/BootLoader';
 import { BlogSkeletonCard, ProjectSkeletonCard, WorkSkeletonCard, SkeletonElement } from './components/Skeleton';
 
+// Idle loader — renders children only after browser is idle (post first paint)
+const useIdle = (delay = 1500) => {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    // Use requestIdleCallback if available, else a plain timeout
+    let id;
+    if ('requestIdleCallback' in window) {
+      id = requestIdleCallback(() => setReady(true), { timeout: delay });
+    } else {
+      id = setTimeout(() => setReady(true), delay);
+    }
+    return () => {
+      if ('cancelIdleCallback' in window) cancelIdleCallback(id);
+      else clearTimeout(id);
+    };
+  }, [delay]);
+  return ready;
+};
+
+
 
 
 
@@ -138,10 +158,18 @@ const Work = lazy(() => import('./components/Work/Work'));
 const Blog = lazy(() => import('./components/Blog/Blog'));
 const Contact = lazy(() => import('./components/Contact/Contact'));
 
-
-
-
-
+// IdleBackground: renders decorative elements only after browser idle
+const IdleBackground = () => {
+  const ready = useIdle(1200);
+  if (!ready) return null;
+  return (
+    <Suspense fallback={null}>
+      <FloatingRocket />
+      <RandomTelemetry />
+      <InteractiveSpaceBackground />
+    </Suspense>
+  );
+};
 
 function App() {
   const [isBooting, setIsBooting] = useState(true);
@@ -229,16 +257,8 @@ function App() {
           {/* Background ambient elements */}
           <BackgroundElements />
           
-          
-          {/* Fun Interactive Elements - spread throughout the site */}
-          {/* Lazy load fun elements */}
-          <Suspense fallback={null}>
-            {/* <PandaCursor /> */}
-            <FloatingRocket />
-            {/* <AirplaneTrail /> */}
-            <RandomTelemetry />
-            <InteractiveSpaceBackground />
-          </Suspense>
+          {/* Fun Interactive Elements — deferred until after first paint */}
+          <IdleBackground />
           
           <Routes>
             {/* Main portfolio page */}
