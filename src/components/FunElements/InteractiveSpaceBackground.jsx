@@ -108,14 +108,15 @@ const InteractiveSpaceBackground = () => {
       });
 
       // 2. Draw shooting stars
-      shootingStars.forEach((ss, idx) => {
+      for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const ss = shootingStars[i];
         ss.x += Math.cos(ss.angle) * ss.speed;
         ss.y += Math.sin(ss.angle) * ss.speed;
         ss.alpha -= ss.decay;
 
         if (ss.alpha <= 0 || ss.x > width || ss.y > height) {
-          shootingStars.splice(idx, 1);
-          return;
+          shootingStars.splice(i, 1);
+          continue;
         }
 
         const gradient = ctx.createLinearGradient(
@@ -133,16 +134,17 @@ const InteractiveSpaceBackground = () => {
         ctx.moveTo(ss.x - Math.cos(ss.angle) * ss.length, ss.y - Math.sin(ss.angle) * ss.length);
         ctx.lineTo(ss.x, ss.y);
         ctx.stroke();
-      });
+      }
 
       // 3. Draw radar rings on click
-      radarRings.forEach((ring, idx) => {
+      for (let i = radarRings.length - 1; i >= 0; i--) {
+        const ring = radarRings[i];
         ring.radius += ring.speed;
         ring.alpha -= 0.012;
 
         if (ring.alpha <= 0) {
-          radarRings.splice(idx, 1);
-          return;
+          radarRings.splice(i, 1);
+          continue;
         }
 
         // Circular ring
@@ -173,7 +175,7 @@ const InteractiveSpaceBackground = () => {
         ctx.moveTo(ring.x, ring.y - 3);
         ctx.lineTo(ring.x, ring.y + 3);
         ctx.stroke();
-      });
+      }
 
       animationFrameId = requestAnimationFrame(render);
     };
