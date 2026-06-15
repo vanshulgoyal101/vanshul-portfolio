@@ -219,9 +219,9 @@ const ALL_ELEMENTS = [
 ];
 
 // Max simultaneous elements on screen
-const MAX_ACTIVE = 5;
+const MAX_ACTIVE = 7;
 // Time between spawning each new element (ms)
-const SPAWN_INTERVAL_MS = 1400;
+const SPAWN_INTERVAL_MS = 700;
 
 const pickZone = (usedZoneIndices) => {
   // Avoid the two most recently used zones
@@ -262,8 +262,8 @@ const RandomTelemetry = () => {
       recentZonesRef.current = [zoneIdx, ...recentZonesRef.current].slice(0, 3);
 
       const uid = ++_uidCounter;
-      // Lifespan: 2.2–3.8 seconds — cycles fast and stays fresh
-      const duration = rand(2.2, 3.8);
+      // Lifespan: 3.2–4.8 seconds — cycles fast and stays fresh
+      const duration = rand(3.2, 4.8);
 
       return [...prev, { uid, element, top, left, duration }];
     });
@@ -276,8 +276,8 @@ const RandomTelemetry = () => {
   useEffect(() => {
     // Stagger the very first few spawns so they don't all appear at once
     const staggerTimers = [];
-    for (let i = 0; i < MAX_ACTIVE; i++) {
-      staggerTimers.push(setTimeout(spawnOne, i * 900));
+    for (let i = 0; i < 5; i++) {
+      staggerTimers.push(setTimeout(spawnOne, i * 350));
     }
 
     // Then keep spawning one at a time on an interval
