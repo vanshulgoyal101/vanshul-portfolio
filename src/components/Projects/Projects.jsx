@@ -1,7 +1,7 @@
 // src/components/Projects/Projects.jsx
-import { useRef } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FaRocket, FaExternalLinkAlt } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
@@ -290,19 +290,17 @@ const ProjectImage = ({ src, alt, fallback }) => {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-import { useState } from 'react';
+
 
 const Projects = () => {
-  const sectionRef = useRef(null);
-  const isInView   = useInView(sectionRef, { once: true, amount: 0.15 });
-
   return (
-    <ProjectsSection ref={sectionRef} id="projects">
+    <ProjectsSection id="projects">
       <Container>
         <SectionHeader
           variants={headerVariants}
           initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
         >
           <SectionTitle>Featured Projects</SectionTitle>
           <SectionSubtitle>
@@ -317,7 +315,8 @@ const Projects = () => {
               custom={i}
               variants={cardVariants}
               initial="hidden"
-              animate={isInView ? 'visible' : 'hidden'}
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.15 }}
               whileHover={{ y: -5 }}
             >
               <ProjectImage

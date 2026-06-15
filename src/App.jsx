@@ -65,9 +65,8 @@ const BackgroundElements = styled.div`
     width: 100%;
     height: 100%;
     background: radial-gradient(circle, var(--color-accent-primary) 0%, transparent 70%);
-    opacity: 0.05;
     filter: blur(100px);
-    animation: float 20s ease-in-out infinite;
+    animation: float 25s ease-in-out infinite;
   }
   
   &::after {
@@ -78,20 +77,22 @@ const BackgroundElements = styled.div`
     width: 100%;
     height: 100%;
     background: radial-gradient(circle, var(--color-accent-secondary) 0%, transparent 70%);
-    opacity: 0.05;
     filter: blur(100px);
-    animation: float 20s ease-in-out infinite reverse;
+    animation: float 30s ease-in-out infinite reverse;
   }
   
   @keyframes float {
     0%, 100% {
       transform: translate(0, 0) scale(1);
+      opacity: 0.02;
     }
     33% {
-      transform: translate(30px, -30px) scale(1.1);
+      transform: translate(80px, -80px) scale(1.15);
+      opacity: 0.06;
     }
     66% {
-      transform: translate(-20px, 20px) scale(0.9);
+      transform: translate(-50px, 50px) scale(0.9);
+      opacity: 0.015;
     }
   }
 `;

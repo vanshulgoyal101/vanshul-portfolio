@@ -1,7 +1,7 @@
 // src/components/About/About.jsx
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   FaGraduationCap, FaCode, FaRocket, FaTrophy,
   FaReact, FaServer, FaTools, FaJava,
@@ -330,24 +330,19 @@ const cardVariants = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const About = () => {
-  const sectionRef = useRef(null);
-  const statsRef   = useRef(null);
-  const skillsRef  = useRef(null);
-  const isInView   = useInView(sectionRef,  { once: true, amount: 0.15 });
-  const statsInView  = useInView(statsRef,  { once: true, amount: 0.2 });
-  const skillsInView = useInView(skillsRef, { once: true, amount: 0.2 });
 
   // Start false — set true only on successful load; show placeholder on error
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError]   = useState(false);
 
   return (
-    <AboutSection ref={sectionRef} id="about">
+    <AboutSection id="about">
       <Container>
         <SectionHeader>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: 0.6 }}
           >
             <SectionTitle>About Me</SectionTitle>
@@ -362,7 +357,8 @@ const About = () => {
           <AboutContent>
             <motion.div
               initial={{ opacity: 0, x: -24 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: 0.6, delay: 0.15 }}
             >
               <AboutText>
@@ -400,7 +396,8 @@ const About = () => {
           <AboutImageContainer>
             <motion.div
               initial={{ opacity: 0, x: 24 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: 0.6, delay: 0.25 }}
             >
               <ImageWrapper>
@@ -425,7 +422,7 @@ const About = () => {
         </AboutGrid>
 
         {/* Stats */}
-        <div ref={statsRef}>
+        <div>
           <StatsGrid>
             {statsData.map((stat, i) => (
               <StatCard
@@ -433,7 +430,8 @@ const About = () => {
                 custom={i}
                 variants={cardVariants}
                 initial="hidden"
-                animate={statsInView ? 'visible' : 'hidden'}
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
                 whileHover={{ y: -4 }}
               >
                 <StatIcon>{stat.icon}</StatIcon>
@@ -445,7 +443,7 @@ const About = () => {
         </div>
 
         {/* Skills */}
-        <SkillsContainer ref={skillsRef}>
+        <SkillsContainer>
           <SkillsTitle>Technical Skills</SkillsTitle>
           <SkillsGrid>
             {skills.map(({ category, icon, list }, i) => (
@@ -454,7 +452,8 @@ const About = () => {
                 custom={i}
                 variants={cardVariants}
                 initial="hidden"
-                animate={skillsInView ? 'visible' : 'hidden'}
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
               >
                 <SkillCategoryTitle>
                   {icon}

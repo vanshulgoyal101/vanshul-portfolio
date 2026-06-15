@@ -1,6 +1,6 @@
-import { useRef, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FaPen, FaQuoteLeft } from 'react-icons/fa';
 
 // Component imports
@@ -132,8 +132,6 @@ const QuoteAuthor = styled.cite`
  * Main blog section displaying blog posts with modal functionality
  */
 const Blog = () => {
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
 
   // Load blog posts from markdown files (now synchronous)
   const blogPosts = useMemo(() => {
@@ -152,12 +150,13 @@ const Blog = () => {
   const [isLoading] = useState(false);
 
   return (
-    <BlogSection ref={sectionRef} id="blog">
+    <BlogSection id="blog">
       <Container>
         <SectionHeader
           variants={BLOG_ANIMATION_VARIANTS.container}
           initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
         >
           <motion.div variants={BLOG_ANIMATION_VARIANTS.item}>
             <SectionTitle>{BLOG_CONTENT.sectionTitle}</SectionTitle>
@@ -178,7 +177,6 @@ const Blog = () => {
                 key={blog.id}
                 blog={blog}
                 index={index}
-                isInView={isInView}
                 variants={BLOG_ANIMATION_VARIANTS.item}
               />
             ))}
@@ -194,7 +192,8 @@ const Blog = () => {
         <QuoteSection
           variants={BLOG_ANIMATION_VARIANTS.item}
           initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
         >
           <QuoteIcon>
             <FaQuoteLeft />
