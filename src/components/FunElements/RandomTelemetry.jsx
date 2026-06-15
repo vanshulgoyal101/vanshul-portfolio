@@ -385,6 +385,7 @@ const TelemetryItem = ({ item, onExpired }) => {
       transition={{
         duration: item.duration,
         ease: 'easeInOut',
+        times: [0, 0.1, 0.9, 1],
       }}
     >
       {item.element.render()}
