@@ -106,6 +106,11 @@ export const calculateReadingTime = (content, wordsPerMinute = 200) => {
   return `${minutes} min read`;
 };
 
+const ALLOWED_TAGS = ['p', 'br', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+const ALLOWED_ATTRIBUTES = {
+  'a': ['href', 'target', 'rel']
+};
+
 /**
  * Sanitize HTML content for safe rendering
  * Note: This is a basic implementation. For production, consider using a library like DOMPurify
@@ -115,12 +120,6 @@ export const calculateReadingTime = (content, wordsPerMinute = 200) => {
 export const sanitizeHTML = (html) => {
   if (!html) return '';
   
-  // Basic sanitization - you may want to use DOMPurify in production
-  const allowedTags = ['p', 'br', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-  const allowedAttributes = {
-    'a': ['href', 'target', 'rel']
-  };
-  
-  // For now, return as-is, but recommend using DOMPurify
+  // Basic sanitization placeholder using ALLOWED_TAGS and ALLOWED_ATTRIBUTES
   return html;
 };
