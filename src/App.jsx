@@ -11,7 +11,6 @@ import Navigation from './components/Navigation/Navigation';
 import BlogPost from './pages/BlogPost';
 import { ToastProvider } from './components/Toast';
 import BootLoader from './components/FunElements/BootLoader';
-import { BlogSkeletonCard, ProjectSkeletonCard, WorkSkeletonCard, SkeletonElement } from './components/Skeleton';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Idle loader — renders children only after browser is idle (post first paint)
@@ -110,54 +109,20 @@ const Loading = styled.div`
   min-height: 200px;
 `;
 
-const HeroSkeleton = () => (
-  <div style={{ padding: '100px var(--container-padding)', display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '800px', margin: '0 auto', minHeight: '80vh', justifyContent: 'center' }}>
-    <SkeletonElement $width="200px" $height="24px" />
-    <SkeletonElement $width="80%" $height="64px" />
-    <SkeletonElement $width="95%" $height="40px" />
-    <div style={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
-      <SkeletonElement $width="150px" $height="48px" $radius="8px" />
-      <SkeletonElement $width="150px" $height="48px" $radius="8px" />
-    </div>
-  </div>
-);
 
-const AboutSkeleton = () => (
-  <div style={{ padding: '80px var(--container-padding)', display: 'flex', gap: '60px', maxWidth: '1200px', margin: '0 auto', flexWrap: 'wrap', minHeight: '500px', alignItems: 'center' }}>
-    <div style={{ flex: 1, minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <SkeletonElement $width="250px" $height="40px" />
-      <SkeletonElement $width="100%" $height="180px" />
-      <SkeletonElement $width="70%" $height="28px" />
-    </div>
-    <SkeletonElement $width="300px" $height="300px" $radius="16px" />
-  </div>
-);
-
-const ContactSkeleton = () => (
-  <div style={{ padding: '80px var(--container-padding)', maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px', minHeight: '400px' }}>
-    <div style={{ alignSelf: 'center', width: '100%', display: 'flex', justifyContent: 'center' }}>
-      <SkeletonElement $width="300px" $height="40px" />
-    </div>
-    <SkeletonElement $width="100%" $height="50px" />
-    <SkeletonElement $width="100%" $height="50px" />
-    <SkeletonElement $width="100%" $height="120px" />
-    <SkeletonElement $width="160px" $height="48px" $radius="8px" />
-  </div>
-);
-
+import Hero from './components/Hero/Hero';
+import About from './components/About/About';
+import Work from './components/Work/Work';
+import Projects from './components/Projects/Projects';
+import Blog from './components/Blog/Blog';
+import Contact from './components/Contact/Contact';
 
 // Lazy load heavy components
-const Hero = lazy(() => import('./components/Hero/Hero'));
-const Projects = lazy(() => import('./components/Projects/Projects'));
 const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
 const PandaCursor = lazy(() => import('./components/FunElements/PandaCursor'));
 const AirplaneTrail = lazy(() => import('./components/FunElements/AirplaneTrail'));
 const RandomTelemetry = lazy(() => import('./components/FunElements/RandomTelemetry'));
 const InteractiveSpaceBackground = lazy(() => import('./components/FunElements/InteractiveSpaceBackground'));
-const About = lazy(() => import('./components/About/About'));
-const Work = lazy(() => import('./components/Work/Work'));
-const Blog = lazy(() => import('./components/Blog/Blog'));
-const Contact = lazy(() => import('./components/Contact/Contact'));
 
 // IdleBackground: renders decorative elements only after browser idle
 const IdleBackground = () => {
@@ -270,86 +235,74 @@ function App() {
                 <MainContent>
                   {/* Hero Section */}
                   <ErrorBoundary>
-                    <Suspense fallback={<HeroSkeleton />}>
-                      <SectionWrapper id="home">
-                        <Hero />
-                      </SectionWrapper>
-                    </Suspense>
+                    <SectionWrapper id="home">
+                      <Hero />
+                    </SectionWrapper>
                   </ErrorBoundary>
 
                   {/* About Section */}
                   <ErrorBoundary>
-                    <Suspense fallback={<AboutSkeleton />}>
-                      <SectionWrapper
-                        id="about"
-                        variants={pageVariants}
-                        initial="initial"
-                        whileInView="animate"
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        <About />
-                      </SectionWrapper>
-                    </Suspense>
+                    <SectionWrapper
+                      id="about"
+                      variants={pageVariants}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <About />
+                    </SectionWrapper>
                   </ErrorBoundary>
 
                   {/* Work Experience Section */}
                   <ErrorBoundary>
-                    <Suspense fallback={<div style={{ padding: '80px 0', maxWidth: 'var(--container-xl)', margin: '0 auto' }}><WorkSkeletonCard /></div>}>
-                      <SectionWrapper
-                        id="work"
-                        variants={pageVariants}
-                        initial="initial"
-                        whileInView="animate"
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        <Work />
-                      </SectionWrapper>
-                    </Suspense>
+                    <SectionWrapper
+                      id="work"
+                      variants={pageVariants}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <Work />
+                    </SectionWrapper>
                   </ErrorBoundary>
 
                   {/* Projects Section with horizontal scroll */}
                   <ErrorBoundary>
-                    <Suspense fallback={<div style={{ padding: '80px 0', maxWidth: 'var(--container-xl)', margin: '0 auto' }}><ProjectSkeletonCard /></div>}>
-                      <SectionWrapper
-                        id="projects"
-                        variants={pageVariants}
-                        initial="initial"
-                        whileInView="animate"
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        <Projects />
-                      </SectionWrapper>
-                    </Suspense>
+                    <SectionWrapper
+                      id="projects"
+                      variants={pageVariants}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <Projects />
+                    </SectionWrapper>
                   </ErrorBoundary>
 
                   {/* Blog Section */}
                   <ErrorBoundary>
-                    <Suspense fallback={<div style={{ padding: '80px 0', maxWidth: 'var(--container-xl)', margin: '0 auto' }}><BlogSkeletonCard /></div>}>
-                      <SectionWrapper
-                        id="blog"
-                        variants={pageVariants}
-                        initial="initial"
-                        whileInView="animate"
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        <Blog />
-                      </SectionWrapper>
-                    </Suspense>
+                    <SectionWrapper
+                      id="blog"
+                      variants={pageVariants}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <Blog />
+                    </SectionWrapper>
                   </ErrorBoundary>
 
                   {/* Contact Section */}
                   <ErrorBoundary>
-                    <Suspense fallback={<ContactSkeleton />}>
-                      <SectionWrapper
-                        id="contact"
-                        variants={pageVariants}
-                        initial="initial"
-                        whileInView="animate"
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        <Contact />
-                      </SectionWrapper>
-                    </Suspense>
+                    <SectionWrapper
+                      id="contact"
+                      variants={pageVariants}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <Contact />
+                    </SectionWrapper>
                   </ErrorBoundary>
                 </MainContent>
               </AnimatePresence>
