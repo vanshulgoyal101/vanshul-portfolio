@@ -1,7 +1,6 @@
 // src/components/Work/Work.jsx
-import { useRef } from 'react';
 import styled from 'styled-components';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FaPlane, FaSolarPanel, FaLaptopCode, FaExternalLinkAlt, FaMapMarkerAlt } from 'react-icons/fa';
 
 // ─── Styled Components ────────────────────────────────────────────────────────
@@ -237,15 +236,13 @@ const cardVariants = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const Work = () => {
-  const sectionRef = useRef(null);
-  const isInView   = useInView(sectionRef, { once: true, amount: 0.2 });
-
   return (
-    <WorkSection ref={sectionRef} id="work">
+    <WorkSection id="work">
       <Container>
         <SectionHeader
           initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.6 }}
         >
           <SectionTitle>Work Experience</SectionTitle>
@@ -261,7 +258,8 @@ const Work = () => {
               custom={i}
               variants={cardVariants}
               initial="hidden"
-              animate={isInView ? 'visible' : 'hidden'}
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
               whileHover={{ x: 4 }}
             >
               <CardHeader>

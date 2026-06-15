@@ -121,7 +121,7 @@ const ReadMore = styled.span`
  * @param {boolean} props.isInView - Whether the card is in viewport
  * @param {Object} props.variants - Animation variants
  */
-const BlogCard = ({ blog, index, isInView, variants }) => {
+const BlogCard = ({ blog, index, variants }) => {
   if (!blog) return null;
 
   return (
@@ -129,7 +129,8 @@ const BlogCard = ({ blog, index, isInView, variants }) => {
       <Card
         variants={variants}
         initial="hidden"
-        animate={isInView ? 'visible' : 'hidden'}
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
         transition={{ delay: index * 0.1 }}
         whileHover={{ scale: 1.02 }}
         role="article"
@@ -164,7 +165,6 @@ BlogCard.propTypes = {
     category: PropTypes.string,
   }).isRequired,
   index: PropTypes.number.isRequired,
-  isInView: PropTypes.bool.isRequired,
   variants: PropTypes.object.isRequired,
 };
 

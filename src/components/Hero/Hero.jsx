@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 
 import FloatingShape from './FloatingShape';
-import { FaLinkedin, FaTwitter, FaInstagram } from 'react-icons/fa';
+import { FaLinkedin, FaInstagram } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import { HiChevronDown } from 'react-icons/hi';
 
 // Styled Components
@@ -322,7 +323,7 @@ const Hero = () => {
               whileTap={{ scale: 0.9 }}
               aria-label="Twitter"
             >
-              <FaTwitter />
+              <FaXTwitter />
             </SocialLink>
             <SocialLink
               href="https://www.linkedin.com/in/vanshul-goyal00/"

@@ -1,7 +1,7 @@
-// src/components/FunElements/RandomTelemetry.jsx
 import { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
+import PropTypes from 'prop-types';
 
 const Overlay = styled.div`
   position: fixed;
@@ -293,26 +293,47 @@ const RandomTelemetry = () => {
     <Overlay>
       <AnimatePresence>
         {active.map(item => (
-          <Item
+          <TelemetryItem
             key={item.uid}
-            style={{ top: item.top, left: item.left }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.75 }}
-            transition={{ duration: 0.6, ease: 'easeInOut' }}
-            onAnimationComplete={(def) => {
-              // After appearing, schedule removal after its lifespan
-              if (def === 'animate') {
-                setTimeout(() => removeOne(item.uid), item.duration * 1000);
-              }
-            }}
-          >
-            {item.element.render()}
-          </Item>
+            item={item}
+            onExpired={() => removeOne(item.uid)}
+          />
         ))}
       </AnimatePresence>
     </Overlay>
   );
+};
+
+const TelemetryItem = ({ item, onExpired }) => {
+  useEffect(() => {
+    const timer = setTimeout(onExpired, item.duration * 1000);
+    return () => clearTimeout(timer);
+  }, [item.duration, onExpired]);
+
+  return (
+    <Item
+      style={{ top: item.top, left: item.left }}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.75 }}
+      transition={{ duration: 0.6, ease: 'easeInOut' }}
+    >
+      {item.element.render()}
+    </Item>
+  );
+};
+
+TelemetryItem.propTypes = {
+  item: PropTypes.shape({
+    uid: PropTypes.number.isRequired,
+    top: PropTypes.string.isRequired,
+    left: PropTypes.string.isRequired,
+    duration: PropTypes.number.isRequired,
+    element: PropTypes.shape({
+      render: PropTypes.func.isRequired,
+    }).isRequired,
+  }).isRequired,
+  onExpired: PropTypes.func.isRequired,
 };
 
 export default RandomTelemetry;

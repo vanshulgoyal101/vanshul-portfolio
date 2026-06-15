@@ -1,8 +1,9 @@
 // src/components/Contact/Contact.jsx
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { motion, useInView } from 'framer-motion';
-import { FaLinkedin, FaTwitter, FaInstagram, FaPaperPlane } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { FaLinkedin, FaInstagram, FaPaperPlane } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import { MdLocationOn, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
 import { useToast } from '../Toast';
@@ -309,8 +310,6 @@ const ValidationError = styled.p`
 `;
 
 const Contact = () => {
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
   const { showSuccess, showError } = useToast();
   const [formState, setFormState] = useState({
     name: '',
@@ -411,19 +410,20 @@ const Contact = () => {
   ];
 
 const socialLinks = [
-  { icon: <FaTwitter />, url: 'https://x.com/goyal_vanshul', label: 'Twitter' },
+  { icon: <FaXTwitter />, url: 'https://x.com/goyal_vanshul', label: 'Twitter' },
   { icon: <FaLinkedin />, url: 'https://www.linkedin.com/in/vanshul-goyal00/', label: 'LinkedIn' },
   { icon: <FaInstagram />, url: 'https://www.instagram.com/vanshul_goyal/', label: 'Instagram' },
 ];
 
 
   return (
-    <ContactSection ref={sectionRef}>
+    <ContactSection>
       <Container>
         <SectionHeader
           variants={containerVariants}
           initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
         >
           <motion.div variants={itemVariants}>
             <SectionTitle>Get In Touch</SectionTitle>
@@ -437,7 +437,8 @@ const socialLinks = [
           <ContactInfo
             variants={containerVariants}
             initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
           >
             <motion.div variants={itemVariants}>
               <InfoTitle>Let's Connect</InfoTitle>
@@ -485,7 +486,8 @@ const socialLinks = [
                     <ContactFormWrapper
             variants={itemVariants}
             initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
           >
             <ContactForm onSubmit={handleSubmit}>
               <FormGroup>
