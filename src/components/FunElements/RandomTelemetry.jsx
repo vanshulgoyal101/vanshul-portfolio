@@ -216,6 +216,64 @@ const ALL_ELEMENTS = [
       </svg>
     ),
   },
+  {
+    id: 'saturn',
+    render: () => (
+      <svg width="34" height="24" viewBox="0 0 40 28">
+        <ellipse cx="20" cy="14" rx="14" ry="4" fill="none" stroke="#3b82f6" strokeWidth="0.8" transform="rotate(-15 20 14)" opacity="0.6" />
+        <circle cx="20" cy="14" r="6" fill="none" stroke="#1d4ed8" strokeWidth="1" opacity="0.65" />
+      </svg>
+    ),
+  },
+  {
+    id: 'golden-spiral',
+    render: () => (
+      <svg width="32" height="32" viewBox="0 0 40 40">
+        <path d="M20 20 A 1 1 0 0 1 21 20 A 1 1 0 0 1 21 21 A 2 2 0 0 1 19 21 A 3 3 0 0 1 19 18 A 5 5 0 0 1 24 18 A 8 8 0 0 1 24 26 A 13 13 0 0 1 11 26" fill="none" stroke="#1d4ed8" strokeWidth="0.8" opacity="0.45" />
+      </svg>
+    ),
+  },
+  {
+    id: 'rocket-icon',
+    render: () => (
+      <svg width="24" height="24" viewBox="0 0 24 24">
+        <path d="M12 2C12 2 9 6 9 12C9 15 10.5 17 12 19C13.5 17 15 15 15 12C15 6 12 2 12 2Z" fill="none" stroke="#1d4ed8" strokeWidth="0.8" opacity="0.5" />
+        <path d="M9 14L6 16V18L9 16.5" stroke="#3b82f6" strokeWidth="0.8" opacity="0.4" />
+        <path d="M15 14L18 16V18L15 16.5" stroke="#3b82f6" strokeWidth="0.8" opacity="0.4" />
+      </svg>
+    ),
+  },
+  {
+    id: 'galaxy',
+    render: () => (
+      <svg width="32" height="32" viewBox="0 0 32 32">
+        <path d="M16 16 C 18 12, 22 10, 26 12 C 30 14, 28 20, 22 22 C 18 23, 15 20, 16 16 C 14 20, 10 22, 6 20 C 2 18, 4 12, 10 10 C 14 9, 17 12, 16 16" fill="none" stroke="#1d4ed8" strokeWidth="0.8" opacity="0.45" />
+        <circle cx="16" cy="16" r="1.5" fill="#3b82f6" opacity="0.6" />
+      </svg>
+    ),
+  },
+  {
+    id: 'crosshair-math',
+    render: () => (
+      <svg width="30" height="30" viewBox="0 0 36 36">
+        <line x1="18" y1="2" x2="18" y2="34" stroke="#1d4ed8" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.4" />
+        <line x1="2" y1="18" x2="34" y2="18" stroke="#1d4ed8" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.4" />
+        <circle cx="18" cy="18" r="8" fill="none" stroke="#3b82f6" strokeWidth="0.6" opacity="0.3" />
+        <text x="22" y="14" fontFamily="monospace" fontSize="4.5" fill="#1d4ed8" opacity="0.35">f(x)</text>
+      </svg>
+    ),
+  },
+  {
+    id: 'bohr-atom',
+    render: () => (
+      <svg width="30" height="30" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="3" fill="#1d4ed8" opacity="0.6" />
+        <ellipse cx="16" cy="16" rx="13" ry="4" fill="none" stroke="#3b82f6" strokeWidth="0.6" transform="rotate(30 16 16)" opacity="0.4" />
+        <ellipse cx="16" cy="16" rx="13" ry="4" fill="none" stroke="#3b82f6" strokeWidth="0.6" transform="rotate(90 16 16)" opacity="0.4" />
+        <ellipse cx="16" cy="16" rx="13" ry="4" fill="none" stroke="#3b82f6" strokeWidth="0.6" transform="rotate(150 16 16)" opacity="0.4" />
+      </svg>
+    ),
+  },
 ];
 
 // Max simultaneous elements on screen
