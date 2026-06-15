@@ -59,7 +59,6 @@ const ZzzContainer = styled(motion.div)`
 `;
 
 const PandaCursor = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
   const [moveTimeout, setMoveTimeout] = useState(null);
@@ -73,7 +72,6 @@ const PandaCursor = () => {
   useEffect(() => {
     const handleMouseMove = (e) => {
       const { clientX, clientY } = e;
-      setMousePosition({ x: clientX, y: clientY });
       x.set(clientX);
       y.set(clientY);
       
@@ -102,7 +100,7 @@ const PandaCursor = () => {
     const handleMouseDown = () => setIsClicking(true);
     const handleMouseUp = () => setIsClicking(false);
     const handleMouseLeave = () => {
-      setMousePosition({ x: -100, y: -100 });
+      // Do nothing or handle boundary if needed
     };
 
     window.addEventListener('mousemove', handleMouseMove);

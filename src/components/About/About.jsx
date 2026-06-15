@@ -1,23 +1,24 @@
 // src/components/About/About.jsx
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { motion, useInView, useAnimation } from 'framer-motion';
-import { FaGraduationCap, FaCode, FaRocket, FaTrophy } from 'react-icons/fa';
-import { BiAtom } from 'react-icons/bi';
-import { GiPanda } from 'react-icons/gi';
+import { motion, useInView } from 'framer-motion';
+import {
+  FaGraduationCap, FaCode, FaRocket, FaTrophy,
+  FaReact, FaServer, FaTools, FaJava,
+} from 'react-icons/fa';
 
-// Styled Components
+// ─── Styled Components ────────────────────────────────────────────────────────
+
 const AboutSection = styled.section`
   padding: var(--spacing-2xl) 0;
   position: relative;
   background: transparent;
   overflow: hidden;
-  
+
   @media (max-width: 768px) {
     padding: var(--spacing-xl) 0;
   }
 `;
-
 
 const Container = styled.div`
   max-width: var(--container-xl);
@@ -28,7 +29,7 @@ const Container = styled.div`
 const SectionHeader = styled.div`
   text-align: center;
   margin-bottom: var(--spacing-xl);
-  
+
   @media (max-width: 768px) {
     margin-bottom: var(--spacing-lg);
   }
@@ -41,7 +42,7 @@ const SectionTitle = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  
+
   @media (max-width: 768px) {
     font-size: var(--text-2xl);
   }
@@ -52,7 +53,7 @@ const SectionSubtitle = styled.p`
   color: var(--color-text-secondary);
   max-width: 600px;
   margin: 0 auto;
-  
+
   @media (max-width: 768px) {
     font-size: var(--text-base);
   }
@@ -69,7 +70,7 @@ const AboutGrid = styled.div`
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
   }
-  
+
   @media (max-width: 768px) {
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
@@ -87,13 +88,13 @@ const AboutContent = styled.div`
 const AboutImageContainer = styled.div`
   order: 2;
   position: relative;
-  
+
   @media (max-width: 1024px) {
     order: 1;
     max-width: 500px;
     margin: 0 auto;
   }
-  
+
   @media (max-width: 768px) {
     max-width: 300px;
   }
@@ -106,11 +107,11 @@ const ImageWrapper = styled.div`
   aspect-ratio: 4/5;
   background: var(--color-gradient-1);
   padding: 3px;
-  
+
   @media (max-width: 768px) {
     aspect-ratio: 1/1;
   }
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -129,7 +130,6 @@ const ProfileImage = styled.img`
   object-fit: cover;
   border-radius: 17px;
   display: block;
-  z-index: 10;
 `;
 
 const ImagePlaceholder = styled.div`
@@ -157,6 +157,12 @@ const AboutText = styled.div`
     color: var(--color-text-secondary);
     margin-bottom: var(--spacing-md);
   }
+
+  a {
+    color: var(--color-accent-primary);
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
 `;
 
 const HighlightText = styled.span`
@@ -164,20 +170,21 @@ const HighlightText = styled.span`
   font-weight: 500;
 `;
 
+// ─── Stats ────────────────────────────────────────────────────────────────────
+
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-md);
   margin-top: var(--spacing-xl);
-  
+
   @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-sm);
     margin-top: var(--spacing-lg);
   }
 `;
 
-const StatCard = styled.div`
+const StatCard = styled(motion.div)`
   background: var(--color-bg-card);
   padding: var(--spacing-lg);
   border-radius: 16px;
@@ -185,24 +192,25 @@ const StatCard = styled.div`
   text-align: center;
   position: relative;
   overflow: hidden;
-  
+  cursor: default;
+
   @media (max-width: 768px) {
     padding: var(--spacing-md);
   }
-  
+
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 3px;
     background: var(--color-gradient-1);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.5s ease;
   }
-  
+
   &:hover::before {
     transform: scaleX(1);
   }
@@ -226,6 +234,8 @@ const StatLabel = styled.p`
   color: var(--color-text-secondary);
 `;
 
+// ─── Skills ───────────────────────────────────────────────────────────────────
+
 const SkillsContainer = styled.div`
   margin-top: var(--spacing-2xl);
 `;
@@ -246,11 +256,16 @@ const SkillsGrid = styled.div`
   }
 `;
 
-const SkillCategory = styled.div`
+const SkillCategory = styled(motion.div)`
   background: var(--color-bg-card);
   padding: var(--spacing-lg);
   border-radius: 16px;
   border: 1px solid var(--color-border);
+  transition: border-color 0.3s ease;
+
+  &:hover {
+    border-color: var(--color-accent-primary);
+  }
 `;
 
 const SkillCategoryTitle = styled.h4`
@@ -270,154 +285,184 @@ const SkillsList = styled.ul`
 `;
 
 const SkillTag = styled.li`
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(99, 102, 241, 0.08);
   color: var(--color-text-primary);
-  padding: 6px 16px;
+  padding: 5px 14px;
   border-radius: 20px;
   font-size: var(--text-sm);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  transition: all 0.3s ease;
-  
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  transition: all 0.25s ease;
+
   &:hover {
-    background: rgba(99, 102, 241, 0.2);
+    background: rgba(99, 102, 241, 0.18);
     border-color: var(--color-accent-primary);
     transform: translateY(-2px);
   }
 `;
 
-// Floating Panda Component
-const FloatingPanda = styled(motion.div)`
-  position: absolute;
-  font-size: 3rem;
-  color: var(--color-accent-primary);
-  opacity: 0.1;
-  z-index: 1;
-  pointer-events: none;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+const statsData = [
+  { icon: <FaGraduationCap />, number: '2025',   label: 'B.Tech — Electronics & Communication Engineering' },
+  { icon: <FaTrophy />,        number: 'Sports', label: 'State Level Cricket, Baseball & Softball' },
+  { icon: <FaRocket />,        number: 'Top 20', label: 'NASA HERC 2023 Global Ranking' },
+  { icon: <FaTrophy />,        number: '98.6%',  label: 'JEE Mains Percentile' },
+];
+
+const skills = [
+  { category: 'Languages', icon: <FaJava />,    list: ['Java', 'Python', 'JavaScript', 'SQL'] },
+  { category: 'Frontend',  icon: <FaReact />,   list: ['React', 'HTML/CSS', 'Framer Motion', 'Styled Components'] },
+  { category: 'Backend',   icon: <FaServer />,  list: ['Spring Boot', 'Node.js', 'Express', 'REST APIs'] },
+  { category: 'Tools',     icon: <FaTools />,   list: ['Git', 'Docker', 'MySQL', 'Postman', 'Power BI', 'Tableau'] },
+];
+
+// ─── Animation variants ───────────────────────────────────────────────────────
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, delay: i * 0.1, ease: 'easeOut' },
+  }),
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 const About = () => {
   const sectionRef = useRef(null);
-  const [imageLoaded, setImageLoaded] = useState(true);
+  const statsRef   = useRef(null);
+  const skillsRef  = useRef(null);
+  const isInView   = useInView(sectionRef,  { once: true, amount: 0.15 });
+  const statsInView  = useInView(statsRef,  { once: true, amount: 0.2 });
+  const skillsInView = useInView(skillsRef, { once: true, amount: 0.2 });
 
-  const statsData = [
-    { icon: <FaGraduationCap />, number: '2025', label: 'B.Tech | Electronics and Communication engineering ' },
-    { icon: <FaTrophy />, number: 'Sports', label: 'State Level Cricket, Baseball and Softball' },
-    { icon: <FaRocket />, number: 'Top 20', label: 'NASA HERC 2023' },
-    { icon: <FaTrophy />, number: '98.6%', label: 'JEE Mains' },
-    // { icon: <BiAtom />, number: '30', label: 'Global Space Leaders' },
-  ];
-
-  const skills = {
-    'Languages': ['Java', 'Python', 'JavaScript', 'SQL'],
-    'Frontend': ['React', 'HTML/CSS', 'Framer Motion'],
-    'Backend': ['Spring Boot', 'Node.js', 'Express'],
-    'Tools': ['Git', 'Docker', 'MySQL', 'Postman', 'etc'],
-  };
+  // Start false — set true only on successful load; show placeholder on error
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError]   = useState(false);
 
   return (
     <AboutSection ref={sectionRef} id="about">
-      {/* Floating Panda Easter Egg */}
-      <FloatingPanda
-        animate={{
-          x: [0, 100, 0],
-          y: [0, -50, 0],
-          rotate: [0, 360],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: 'linear',
-        }}
-        style={{ top: '10%', right: '5%' }}
-      >
-        <GiPanda />
-      </FloatingPanda>
-
       <Container>
         <SectionHeader>
-          <SectionTitle>About Me</SectionTitle>
-          <SectionSubtitle>
-            Engineer, entrepreneur, and a passionate learner.
-          </SectionSubtitle>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6 }}
+          >
+            <SectionTitle>About Me</SectionTitle>
+            <SectionSubtitle>
+              Engineer, entrepreneur, and a passionate learner.
+            </SectionSubtitle>
+          </motion.div>
         </SectionHeader>
 
         <AboutGrid>
+          {/* Text content */}
           <AboutContent>
-            <AboutText>
-              <h3>Hey There! </h3>
-              <p>
-                I'm <HighlightText>Vanshul Goyal</HighlightText>, a recent graduate from
-                Punjab Engineering College with a B.Tech in <HighlightText>Electronics and
-                  Communication Engineering</HighlightText> and a minor in Computer Science.
-              </p>
-              <p>
-                Currently, I work as an <HighlightText>Associate Analyst at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">United Airlines</a></HighlightText> in
-                the Air Operations department, while co-founding <a href="https://solaride.in" target="_blank" rel="noopener noreferrer">
-                  <HighlightText>Solaride</HighlightText>
-                </a>, an EPC company accelerating India's transition to sustainable energy.
-              </p>
-              <p>
-                My journey has been shaped by incredible experiences - from leading a team
-                to <HighlightText>NASA's Human Exploration Rover Challenge</HighlightText> to being selected
-                among <HighlightText>30 global space leaders</HighlightText> for NASA Space Apps collective.
-                These experiences taught me that innovation happens at the intersection of
-                technology, teamwork, and purpose.
-              </p>
-              <p>
-                When I'm not coding or optimizing business operations, you'll find me
-                lost in books or playing around in parks.
-              </p>
-            </AboutText>
+            <motion.div
+              initial={{ opacity: 0, x: -24 }}
+              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.15 }}
+            >
+              <AboutText>
+                <h3>Hey There!</h3>
+                <p>
+                  I'm <HighlightText>Vanshul Goyal</HighlightText>, a recent graduate from Punjab
+                  Engineering College with a B.Tech in <HighlightText>Electronics and Communication
+                  Engineering</HighlightText> and a minor in Computer Science.
+                </p>
+                <p>
+                  Currently, I work as an <HighlightText>Associate Analyst at{' '}
+                  <a href="https://www.united.com" target="_blank" rel="noopener noreferrer">
+                    United Airlines
+                  </a></HighlightText> in the Air Operations department, while co-founding{' '}
+                  <a href="https://solaride.in" target="_blank" rel="noopener noreferrer">
+                    <HighlightText>Solaride</HighlightText>
+                  </a>, an EPC company accelerating India's transition to sustainable energy.
+                </p>
+                <p>
+                  My journey has been shaped by incredible experiences — from leading a team to{' '}
+                  <HighlightText>NASA's Human Exploration Rover Challenge</HighlightText> to being
+                  selected among <HighlightText>30 global space leaders</HighlightText> for the
+                  NASA Space Apps Collective. Innovation happens at the intersection of technology,
+                  teamwork, and purpose.
+                </p>
+                <p>
+                  When I'm not coding or optimizing business operations, you'll find me lost in
+                  books or playing cricket in the park.
+                </p>
+              </AboutText>
+            </motion.div>
           </AboutContent>
 
+          {/* Profile image */}
           <AboutImageContainer>
-            <ImageWrapper>
-              <ProfileImage
-                src="/images/projects/profile2.png"
-                alt="Vanshul Goyal"
-                onLoad={() => setImageLoaded(true)}
-                onError={() => setImageLoaded(false)}
-                style={{ display: imageLoaded ? 'block' : 'none' }}
-              />
-              {!imageLoaded && (  // Show placeholder only when image fails
-                <ImagePlaceholder>
-                  <FaCode />
-                </ImagePlaceholder>
-              )}
-            </ImageWrapper>
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.25 }}
+            >
+              <ImageWrapper>
+                {!imageError && (
+                  <ProfileImage
+                    src="/images/projects/profile2.png"
+                    alt="Vanshul Goyal — Associate Analyst, Co-Founder"
+                    loading="lazy"
+                    onLoad={() => setImageLoaded(true)}
+                    onError={() => setImageError(true)}
+                    style={{ opacity: imageLoaded ? 1 : 0, transition: 'opacity 0.4s ease' }}
+                  />
+                )}
+                {(imageError || !imageLoaded) && (
+                  <ImagePlaceholder style={{ position: imageLoaded ? 'absolute' : 'relative', opacity: imageLoaded ? 0 : 1 }}>
+                    <FaCode />
+                  </ImagePlaceholder>
+                )}
+              </ImageWrapper>
+            </motion.div>
           </AboutImageContainer>
         </AboutGrid>
 
-        {/* Stats Grid */}
-        <StatsGrid>
-          {statsData.map((stat, index) => (
-            <StatCard key={index}>
-              <StatIcon>{stat.icon}</StatIcon>
-              <StatNumber>{stat.number}</StatNumber>
-              <StatLabel>{stat.label}</StatLabel>
-            </StatCard>
-          ))}
-        </StatsGrid>
+        {/* Stats */}
+        <div ref={statsRef}>
+          <StatsGrid>
+            {statsData.map((stat, i) => (
+              <StatCard
+                key={i}
+                custom={i}
+                variants={cardVariants}
+                initial="hidden"
+                animate={statsInView ? 'visible' : 'hidden'}
+                whileHover={{ y: -4 }}
+              >
+                <StatIcon>{stat.icon}</StatIcon>
+                <StatNumber>{stat.number}</StatNumber>
+                <StatLabel>{stat.label}</StatLabel>
+              </StatCard>
+            ))}
+          </StatsGrid>
+        </div>
 
-        {/* Skills Section */}
-        <SkillsContainer>
+        {/* Skills */}
+        <SkillsContainer ref={skillsRef}>
           <SkillsTitle>Technical Skills</SkillsTitle>
           <SkillsGrid>
-            {Object.entries(skills).map(([category, skillList]) => (
-              <SkillCategory key={category}>
+            {skills.map(({ category, icon, list }, i) => (
+              <SkillCategory
+                key={category}
+                custom={i}
+                variants={cardVariants}
+                initial="hidden"
+                animate={skillsInView ? 'visible' : 'hidden'}
+              >
                 <SkillCategoryTitle>
-                  <FaCode />
+                  {icon}
                   {category}
                 </SkillCategoryTitle>
                 <SkillsList>
-                  {skillList.map((skill) => (
-                    <SkillTag key={skill}>
-                      {skill}
-                    </SkillTag>
+                  {list.map((skill) => (
+                    <SkillTag key={skill}>{skill}</SkillTag>
                   ))}
                 </SkillsList>
               </SkillCategory>
