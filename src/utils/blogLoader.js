@@ -4,7 +4,7 @@
  */
 
 // Dynamically import all markdown files from the blogs directory
-const blogFiles = import.meta.glob('../blogs/*.md', { as: 'raw', eager: true });
+const blogFiles = import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true });
 
 /**
  * Parse frontmatter from markdown content
@@ -59,6 +59,7 @@ export const loadBlogPosts = () => {
 
   // Process each markdown file
   for (const path in blogFiles) {
+    const filename = path.split('/').pop().replace('.md', '');
     try {
       const markdown = blogFiles[path];
       const { data: frontmatter, content: markdownContent } = parseFrontmatter(markdown);
@@ -66,7 +67,7 @@ export const loadBlogPosts = () => {
       posts.push({
         ...frontmatter,
         content: markdownContent,
-        filename: path.split('/').pop().replace('.md', '')
+        filename
       });
     } catch (error) {
       console.error(`Error loading blog post ${filename}:`, error);

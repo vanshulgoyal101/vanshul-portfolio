@@ -2,7 +2,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import Lenis from '@studio-freight/lenis';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Component imports
@@ -120,8 +119,6 @@ import Contact from './components/Contact/Contact';
 
 // Lazy load heavy components
 const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
-const PandaCursor = lazy(() => import('./components/FunElements/PandaCursor'));
-const AirplaneTrail = lazy(() => import('./components/FunElements/AirplaneTrail'));
 const RandomTelemetry = lazy(() => import('./components/FunElements/RandomTelemetry'));
 const InteractiveSpaceBackground = lazy(() => import('./components/FunElements/InteractiveSpaceBackground'));
 
@@ -140,49 +137,6 @@ const IdleBackground = () => {
 
 function App() {
   const [isBooting, setIsBooting] = useState(true);
-  // const lenisRef = useRef(null);
-  // const rafRef = useRef(null);
-  // Initialize Lenis smooth scroll
-  useEffect(() => {
-
-    // const lenis = new Lenis({
-    //   duration: 1.2,
-    //   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    //   direction: 'vertical',
-    //   gestureDirection: 'vertical',
-    //   smooth: true,
-    //   mouseMultiplier: 1,
-    //   smoothTouch: false,
-    //   touchMultiplier: 2,
-    //   infinite: false,
-    // });
-
-    // lenisRef.current = lenis;
-
-    // function raf(time) {
-    //   lenis.raf(time);
-    //   rafRef.current = requestAnimationFrame(raf);
-    // }
-
-    // rafRef.current = requestAnimationFrame(raf);
-    // document.body.style.cursor = 'none';
-
-    return () => {
-      // document.body.style.cursor = 'auto';
-    //   lenis.destroy();
-    //   if (rafRef.current) {
-    //     cancelAnimationFrame(rafRef.current);
-    //   }
-    };
-  }, []);
-
-  // Scroll to section function for navigation
-  // const scrollToSection = (sectionId) => {
-  //   const element = document.getElementById(sectionId);
-  //   if (element && lenisRef.current) {
-  //     lenisRef.current.scrollTo(element);
-  //   }
-  // };
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
