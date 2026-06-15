@@ -53,9 +53,4 @@ export default defineConfig({
       },
     },
   },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'styled-components'],
-    // Exclude heavy 3D libs from pre-bundling — they're loaded lazily
-    exclude: ['@react-three/fiber', '@react-three/drei', 'three'],
-  },
 })

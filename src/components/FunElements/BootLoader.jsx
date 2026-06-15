@@ -1,15 +1,17 @@
 // src/components/FunElements/BootLoader.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// ─── Styled Components ────────────────────────────────────────────────────────
 
 const LoaderWrapper = styled(motion.div)`
   position: fixed;
   inset: 0;
   background-color: var(--color-bg-primary);
-  background-image: 
-    linear-gradient(to right, rgba(30, 41, 59, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(30, 41, 59, 0.02) 1px, transparent 1px);
+  background-image:
+    linear-gradient(to right, rgba(30, 41, 59, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(30, 41, 59, 0.025) 1px, transparent 1px);
   background-size: 80px 80px;
   z-index: 9999;
   display: flex;
@@ -25,7 +27,8 @@ const GreetingContainer = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: 200px;
+  /* Fixed height prevents layout shift as words change */
+  height: 180px;
 `;
 
 const GreetingWord = styled(motion.h1)`
@@ -33,127 +36,170 @@ const GreetingWord = styled(motion.h1)`
   font-size: clamp(3rem, 10vw, 6rem);
   font-weight: 800;
   color: var(--color-accent-primary);
-  margin-bottom: var(--spacing-md);
   letter-spacing: -0.03em;
   line-height: 1;
+  /* Reserve space so height never jumps */
+  margin: 0;
 `;
 
-const SubtitleText = styled(motion.p)`
+const LangLabel = styled(motion.p)`
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-top: var(--spacing-sm);
+  margin-top: 1.5rem;
+  height: 1.2em; /* fixed height — prevents layout shift */
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 `;
 
-const SpinnerDot = styled(motion.div)`
-  width: 6px;
-  height: 6px;
+const Dot = styled(motion.span)`
+  display: inline-block;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background-color: var(--color-accent-secondary);
+  flex-shrink: 0;
 `;
 
-const GREETINGS = [
-  { word: 'Hello', lang: 'English' },
-  { word: 'Hola', lang: 'Spanish' },
-  { word: 'Bonjour', lang: 'French' },
-  { word: 'नमस्ते', lang: 'Hindi' },
-  { word: 'こんにちは', lang: 'Japanese' },
-  { word: 'Ciao', lang: 'Italian' },
-  { word: '你好', lang: 'Chinese' },
-  { word: 'Hallo', lang: 'German' },
-  { word: 'Hej', lang: 'Swedish' },
-  { word: 'Olá', lang: 'Portuguese' },
-  { word: '안녕하세요', lang: 'Korean' },
-  { word: 'Merhaba', lang: 'Turkish' },
-  { word: 'Shalom', lang: 'Hebrew' },
-  { word: 'Sawatdee', lang: 'Thai' },
-  { word: 'Welcome', lang: 'English' }
+// ─── Greeting data ────────────────────────────────────────────────────────────
+
+const ALL_GREETINGS = [
+  { word: 'Hello',      lang: 'English'    },
+  { word: 'Hola',       lang: 'Spanish'    },
+  { word: 'Bonjour',    lang: 'French'     },
+  { word: 'नमस्ते',      lang: 'Hindi'      },
+  { word: 'こんにちは',  lang: 'Japanese'   },
+  { word: 'Ciao',       lang: 'Italian'    },
+  { word: '你好',        lang: 'Chinese'    },
+  { word: 'Hallo',      lang: 'German'     },
+  { word: 'Olá',        lang: 'Portuguese' },
+  { word: '안녕하세요',  lang: 'Korean'     },
+  { word: 'Merhaba',    lang: 'Turkish'    },
+  { word: 'Shalom',     lang: 'Hebrew'     },
+  { word: 'Sawatdee',   lang: 'Thai'       },
+  { word: 'Hej',        lang: 'Swedish'    },
+  { word: 'Ahoj',       lang: 'Czech'      },
+  { word: 'Привет',     lang: 'Russian'    },
 ];
 
-const BootLoader = ({ onComplete }) => {
-  const [index, setIndex] = useState(0);
-  const [shuffledGreetings, setShuffledGreetings] = useState([]);
-  const [isDone, setIsDone] = useState(false);
+// How long each greeting is visible (word-switch interval in ms)
+const STEP_MS = 220;
+// Number of random greetings to show before the final "Welcome"
+const SHOW_COUNT = 8;
+// The mandatory closing greeting
+const FINAL = { word: 'Welcome', lang: 'English' };
 
-  // Shuffle the greetings list on mount, keeping 'Welcome' as the final word
+// Fisher-Yates shuffle (pure, no mutation of original)
+const shuffle = (arr) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+// Build the sequence once — deterministic after mount
+const buildSequence = () => [
+  ...shuffle(ALL_GREETINGS).slice(0, SHOW_COUNT),
+  FINAL,
+];
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+const BootLoader = ({ onComplete }) => {
+  // Build the sequence synchronously at init time — no async shuffle effect.
+  // useRef so it's stable across renders (never changes identity).
+  const sequenceRef = useRef(buildSequence());
+
+  // Single source of truth: which index are we on.
+  const [index, setIndex] = useState(0);
+
+  // Track whether the wrapper exit animation has started.
+  const [exiting, setExiting] = useState(false);
+
+  // Stable onComplete ref so the interval closure never captures a stale prop.
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+
   useEffect(() => {
-    const pool = GREETINGS.slice(0, -1);
-    // Fisher-Yates Shuffle
-    for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
-    // Limit to 10 random greetings, then append the final 'Welcome'
-    setShuffledGreetings([...pool.slice(0, 10), GREETINGS[GREETINGS.length - 1]]);
+    const sequence = sequenceRef.current;
+
+    const tick = () => {
+      setIndex((prev) => {
+        const next = prev + 1;
+
+        if (next >= sequence.length) {
+          // We've shown the last word — start exit
+          // Use setTimeout(0) to step out of the setState updater
+          setTimeout(() => setExiting(true), STEP_MS);
+          return prev; // don't advance past end
+        }
+
+        return next;
+      });
+    };
+
+    const id = setInterval(tick, STEP_MS);
+    return () => clearInterval(id);
   }, []);
 
+  // When exiting is set, wait for exit animation then call onComplete.
   useEffect(() => {
-    if (shuffledGreetings.length === 0 || isDone) return;
+    if (!exiting) return;
+    // 500ms matches the LoaderWrapper exit transition duration.
+    const id = setTimeout(() => onCompleteRef.current?.(), 500);
+    return () => clearTimeout(id);
+  }, [exiting]);
 
-    // Fast rotation of words (every 180ms)
-    const interval = setInterval(() => {
-      setIndex((prev) => {
-        if (prev >= shuffledGreetings.length - 1) {
-          clearInterval(interval);
-          setIsDone(true);
-          // Complete and trigger page fade out
-          setTimeout(() => {
-            if (onComplete) {
-              onComplete();
-            }
-          }, 600);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 180);
-
-    return () => clearInterval(interval);
-  }, [shuffledGreetings, isDone, onComplete]);
-
-  if (shuffledGreetings.length === 0) return null;
-
-  const currentGreeting = shuffledGreetings[index];
+  const current = sequenceRef.current[index];
 
   return (
     <AnimatePresence>
-      <LoaderWrapper
-        initial={{ opacity: 1 }}
-        exit={{ opacity: 0, scale: 0.98 }}
-        transition={{ duration: 0.5, ease: 'easeInOut' }}
-      >
-        <GreetingContainer>
-          <AnimatePresence mode="wait">
-            <GreetingWord
-              key={currentGreeting.word}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
-            >
-              {currentGreeting.word}
-            </GreetingWord>
-          </AnimatePresence>
+      {!exiting && (
+        <LoaderWrapper
+          key="bootloader"
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0, scale: 0.985 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
+        >
+          <GreetingContainer>
+            {/*
+              FIX for word/lang mismatch:
+              Both the greeting word AND the lang label share the same `key`.
+              AnimatePresence animates the ENTIRE block together, so they
+              always display the same greeting pair — never mismatched.
+            */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current ? current.word : index}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.13, ease: 'easeOut' }}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+              >
+                <GreetingWord>{current.word}</GreetingWord>
 
-          <SubtitleText
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
-            transition={{ delay: 0.2 }}
-          >
-            <span>SYSTEM BOOTING</span>
-            <SpinnerDot
-              animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
-              transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <span>{currentGreeting.lang}</span>
-          </SubtitleText>
-        </GreetingContainer>
-      </LoaderWrapper>
+                <LangLabel>
+                  <Dot
+                    animate={{ scale: [1, 1.6, 1], opacity: [0.4, 1, 0.4] }}
+                    transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                  {current.lang}
+                  <Dot
+                    animate={{ scale: [1, 1.6, 1], opacity: [0.4, 1, 0.4] }}
+                    transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut', delay: 0.55 }}
+                  />
+                </LangLabel>
+              </motion.div>
+            </AnimatePresence>
+          </GreetingContainer>
+        </LoaderWrapper>
+      )}
     </AnimatePresence>
   );
 };

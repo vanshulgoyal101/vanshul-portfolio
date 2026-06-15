@@ -3,14 +3,14 @@ import { useRef } from 'react';
 import styled from 'styled-components';
 import { motion, useInView } from 'framer-motion';
 import { FaPlane, FaSolarPanel, FaLaptopCode, FaExternalLinkAlt, FaMapMarkerAlt } from 'react-icons/fa';
-import { MdWork } from 'react-icons/md';
 
-// Styled Components
+// ─── Styled Components ────────────────────────────────────────────────────────
+
 const WorkSection = styled.section`
   padding: var(--spacing-2xl) 0;
   position: relative;
   background: transparent;
-  
+
   @media (max-width: 768px) {
     padding: var(--spacing-xl) 0;
   }
@@ -35,7 +35,7 @@ const SectionTitle = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  
+
   @media (max-width: 768px) {
     font-size: var(--text-2xl);
   }
@@ -48,7 +48,6 @@ const SectionSubtitle = styled.p`
   margin: 0 auto;
 `;
 
-// Simplified Timeline
 const ExperienceGrid = styled.div`
   display: grid;
   gap: var(--spacing-md);
@@ -59,49 +58,48 @@ const ExperienceGrid = styled.div`
 const ExperienceCard = styled(motion.div)`
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
+  border-left: 3px solid transparent;
   border-radius: 16px;
   padding: var(--spacing-lg);
   position: relative;
-  transition: all 0.3s ease;
-  
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
   &:hover {
     border-color: var(--color-accent-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+    border-left-color: var(--color-accent-primary);
+    box-shadow: 0 8px 28px rgba(99, 102, 241, 0.1);
   }
-  
+
   @media (max-width: 768px) {
-    &:hover {
-      transform: none;
-      box-shadow: none;
-    }
-  }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    left: -20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    background: var(--color-accent-primary);
-    border-radius: 50%;
-    opacity: 0.5;
-    
-    @media (max-width: 768px) {
-      display: none;
-    }
+    padding: var(--spacing-md);
   }
 `;
 
 const CardHeader = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: start;
+  align-items: flex-start;
+  gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+`;
+
+const CardIcon = styled.div`
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent-primary);
+  font-size: 1.1rem;
+  transition: background 0.3s ease;
+
+  ${ExperienceCard}:hover & {
+    background: rgba(99, 102, 241, 0.18);
+  }
 `;
 
 const CardInfo = styled.div`
@@ -127,6 +125,18 @@ const MetaInfo = styled.div`
   flex-wrap: wrap;
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
+  align-items: center;
+
+  svg {
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+`;
+
+const MetaChip = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const Description = styled.p`
@@ -142,12 +152,12 @@ const TechStack = styled.div`
 `;
 
 const TechTag = styled.span`
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(99, 102, 241, 0.08);
   color: var(--color-accent-primary);
   padding: 4px 12px;
   border-radius: 16px;
   font-size: var(--text-xs);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.18);
 `;
 
 const CompanyLink = styled.a`
@@ -160,61 +170,78 @@ const CompanyLink = styled.a`
   margin-top: var(--spacing-sm);
   padding: var(--spacing-xs) 0;
   min-height: 44px;
-  
+  transition: gap 0.2s ease;
+
   &:hover {
     text-decoration: underline;
+    gap: calc(var(--spacing-xs) + 4px);
   }
-  
+
   @media (max-width: 768px) {
     min-height: 48px;
   }
 `;
 
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+const experiences = [
+  {
+    id: 1,
+    icon: <FaPlane />,
+    title: 'Associate Analyst',
+    company: 'United Airlines',
+    department: 'Air Operations',
+    duration: 'Jul 2025 – Present',
+    location: 'Gurugram, India',
+    description: 'Contributing to air operations systems and processes at one of the world\'s leading airlines. Working on optimising critical aviation systems and improving operational efficiency.',
+    tech: ['Power BI', 'MS Excel', 'Tableau', 'Data Analysis'],
+    link: 'https://www.united.com',
+  },
+  {
+    id: 2,
+    icon: <FaSolarPanel />,
+    title: 'Co-Founder',
+    company: 'Solaride',
+    department: 'Operations & Strategy',
+    duration: '2024 – Present',
+    location: 'Chandigarh, India',
+    description: 'Leading business operations and scaling strategies for the EPC company specialising in solar installations. Managing projects under PM Surya Ghar and PM KUSUM Yojana.',
+    tech: ['Operations', 'Project Management', 'Business Development', 'Solar Energy'],
+    link: 'https://solaride.in',
+  },
+  {
+    id: 3,
+    icon: <FaLaptopCode />,
+    title: 'Software Development Engineer Intern',
+    company: 'zHealth',
+    department: 'Engineering',
+    duration: '2023 – 2024',
+    location: 'San Francisco, US (Remote)',
+    description: 'Developed and automated end-to-end sign-up process for healthcare providers. Engineered custom interfaces for 100+ Healthcare Organisations to securely manage Patient Health Records in compliance with healthcare standards.',
+    tech: ['Java', 'Spring Boot', 'JavaScript', 'SQL'],
+    link: 'https://www.zhealthehr.com/',
+  },
+];
+
+// ─── Animation variants ───────────────────────────────────────────────────────
+
+const cardVariants = {
+  hidden: { opacity: 0, x: -24 },
+  visible: (i) => ({
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.5, delay: i * 0.12, ease: 'easeOut' },
+  }),
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 const Work = () => {
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
-
-  const experiences = [
-    {
-      id: 1,
-      icon: <FaPlane />,
-      title: 'Associate Analyst',
-      company: 'United Airlines',
-      department: 'Air Operations',
-      duration: 'Jul 2025 - Present',
-      location: 'Gurugram, India',
-      description: 'Contributing to air operations systems and processes at one of the world\'s leading airlines. Working on optimizing critical aviation systems and improving operational efficiency.',
-      tech: ['Power BI', 'MS Excel', 'Tableau', 'Data Analysis'],
-      link: null,
-    },
-    {
-      id: 2,
-      icon: <FaSolarPanel />,
-      title: 'Co-Founder',
-      company: 'Solaride',
-      department: 'Operations & Strategy',
-      duration: '2024 - Present',
-      location: 'Chandigarh, India',
-      description: 'Leading business operations and scaling strategies for the EPC company specializing in solar installations. Managing projects under PM Surya Ghar and PM KUSUM Yojana.',
-      tech: ['Operations', 'Project Management', 'Business Development', 'Solar Energy'],
-      link: 'https://solaride.in',
-    },
-    {
-      id: 3,
-      icon: <FaLaptopCode />,
-      title: 'Software Development Engineer Intern',
-      company: 'zHealth',
-      department: 'Engineering',
-      duration: '2023 - 2024',
-      location: 'San Francisco, US (Remote)',
-      description: 'Developed and automated end-to-end sign-up process for healthcare providers. Engineered custom interfaces for 100+ Healthcare Organizations to securely manage Patient Health Records in compliance with healthcare standards.',
-      tech: ['Java', 'Spring Boot', 'JavaScript', 'SQL'],
-      link: 'https://www.zhealthehr.com/',
-    },
-  ];
+  const isInView   = useInView(sectionRef, { once: true, amount: 0.2 });
 
   return (
-    <WorkSection ref={sectionRef}>
+    <WorkSection ref={sectionRef} id="work">
       <Container>
         <SectionHeader
           initial={{ opacity: 0, y: 20 }}
@@ -228,14 +255,17 @@ const Work = () => {
         </SectionHeader>
 
         <ExperienceGrid>
-          {experiences.map((exp, index) => (
+          {experiences.map((exp, i) => (
             <ExperienceCard
               key={exp.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              custom={i}
+              variants={cardVariants}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+              whileHover={{ x: 4 }}
             >
               <CardHeader>
+                <CardIcon>{exp.icon}</CardIcon>
                 <CardInfo>
                   <JobTitle>{exp.title}</JobTitle>
                   <CompanyName>
@@ -243,8 +273,11 @@ const Work = () => {
                     {exp.department && ` • ${exp.department}`}
                   </CompanyName>
                   <MetaInfo>
-                    <span>{exp.duration}</span>
-                    <span>{exp.location}</span>
+                    <MetaChip>{exp.duration}</MetaChip>
+                    <MetaChip>
+                      <FaMapMarkerAlt />
+                      {exp.location}
+                    </MetaChip>
                   </MetaInfo>
                 </CardInfo>
               </CardHeader>
@@ -258,13 +291,9 @@ const Work = () => {
               </TechStack>
 
               {exp.link && (
-                <CompanyLink
-                  href={exp.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <CompanyLink href={exp.link} target="_blank" rel="noopener noreferrer">
                   Visit Website
-                  <FaExternalLinkAlt size={12} />
+                  <FaExternalLinkAlt size={11} />
                 </CompanyLink>
               )}
             </ExperienceCard>

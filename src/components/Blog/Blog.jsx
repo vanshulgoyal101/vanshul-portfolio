@@ -1,4 +1,4 @@
-import { useRef, useMemo, useState, useEffect } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { motion, useInView } from 'framer-motion';
 import { FaPen, FaQuoteLeft } from 'react-icons/fa';
@@ -57,10 +57,10 @@ const SectionSubtitle = styled.p`
 
 const BlogGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-2xl);
-  
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: var(--spacing-md);
@@ -92,10 +92,14 @@ const EmptyState = styled.div`
 `;
 
 const QuoteSection = styled(motion.div)`
-  max-width: 800px;
+  max-width: 700px;
   margin: var(--spacing-2xl) auto;
   text-align: center;
   position: relative;
+  padding: var(--spacing-xl);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
 `;
 
 const QuoteIcon = styled.div`
@@ -130,7 +134,6 @@ const QuoteAuthor = styled.cite`
 const Blog = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
-  const [isLoading, setIsLoading] = useState(true);
 
   // Load blog posts from markdown files (now synchronous)
   const blogPosts = useMemo(() => {
@@ -145,13 +148,8 @@ const Blog = () => {
   // Sort blog posts by date (newest first)
   const sortedBlogPosts = useMemo(() => sortBlogsByDate(blogPosts), [blogPosts]);
 
-  // Simulate loading delay for better UX (can be removed if not needed)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+  // Blog posts loaded synchronously — no artificial delay needed
+  const [isLoading] = useState(false);
 
   return (
     <BlogSection ref={sectionRef} id="blog">

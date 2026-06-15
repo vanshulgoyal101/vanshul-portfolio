@@ -6,7 +6,7 @@ import { Canvas } from '@react-three/fiber';
 
 import FloatingShape from './FloatingShape';
 import { FaLinkedin, FaTwitter, FaInstagram } from 'react-icons/fa';
-import { HiArrowDown } from 'react-icons/hi';
+import { HiChevronDown } from 'react-icons/hi';
 
 // Styled Components
 const HeroSection = styled.section`
@@ -201,7 +201,19 @@ const CanvasContainer = styled.div`
   }
 `;
 
-const ScrollIndicator = styled(motion.div)`
+const LoadingContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+`;
+
+const ScrollIndicator = styled(motion.button)`
   position: absolute;
   bottom: 2rem;
   left: 50%;
@@ -209,40 +221,28 @@ const ScrollIndicator = styled(motion.div)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-`;
-
-const ScrollText = styled.span`
-  font-size: var(--text-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-`;
-
-const LoadingContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-`;
-
-const TelemetryMarker = styled.div`
-  position: absolute;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
+  gap: 0.4rem;
   color: var(--color-text-muted);
-  opacity: 0.45;
-  pointer-events: none;
-  z-index: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  z-index: 3;
+
+  &:hover {
+    color: var(--color-accent-primary);
+  }
+
   @media (max-width: 1024px) {
     display: none;
   }
+`;
+
+const ScrollText = styled.span`
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-family: var(--font-mono);
 `;
 
 // Hero Component
@@ -368,16 +368,26 @@ const Hero = () => {
         </CanvasContainer>
       </HeroContainer>
 
-      {/* <ScrollIndicator
-                onClick={scrollToAbout}
-                whileHover={{ y: 5 }}
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-            >
-                <ScrollText>Scroll</ScrollText>
-                <HiArrowDown />
-            </ScrollIndicator> */}
-    </HeroSection>
+        <ScrollIndicator
+          onClick={() => {
+            const el = document.getElementById('about');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2, duration: 0.5 }}
+          whileHover={{ scale: 1.1 }}
+          aria-label="Scroll to About"
+        >
+          <ScrollText>Scroll</ScrollText>
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <HiChevronDown size={20} />
+          </motion.div>
+        </ScrollIndicator>
+      </HeroSection>
   );
 };
 

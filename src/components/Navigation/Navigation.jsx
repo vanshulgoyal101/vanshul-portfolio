@@ -1,5 +1,5 @@
 // src/components/Navigation/Navigation.jsx
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -195,15 +195,18 @@ const Navigation = ({ scrollToSection }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Navigation items
-  const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About' },
-    { id: 'work', label: 'Work' },
+  // Memoized nav items — stable across renders
+  const navItems = useMemo(() => [
+    { id: 'home',     label: 'Home'     },
+    { id: 'about',    label: 'About'    },
+    { id: 'work',     label: 'Work'     },
     { id: 'projects', label: 'Projects' },
-    { id: 'blog', label: 'Blog' },
-    { id: 'contact', label: 'Contact' },
-  ];
+    { id: 'blog',     label: 'Blog'     },
+    { id: 'contact',  label: 'Contact'  },
+  ], []);
+
+  // Treat /blog/:slug pages as "blog" section active
+  const effectiveSection = location.pathname.startsWith('/blog') ? 'blog' : activeSection;
 
   // Handle scroll events
   useEffect(() => {
@@ -229,7 +232,7 @@ const Navigation = ({ scrollToSection }) => {
     handleScroll(); // Initial check
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [navItems]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -340,7 +343,7 @@ const Navigation = ({ scrollToSection }) => {
               >
                 <NavLink
                   onClick={(e) => handleNavClick(e, item.id)}
-                  className={activeSection === item.id ? 'active' : ''}
+                  className={effectiveSection === item.id ? 'active' : ''}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >

@@ -1,18 +1,18 @@
 // src/components/Projects/Projects.jsx
-import { useRef, useState, useEffect } from 'react';
+import { useRef } from 'react';
 import styled from 'styled-components';
 import { motion, useInView } from 'framer-motion';
-import { FaRocket, FaGlobeAfrica, FaStar, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaRocket, FaExternalLinkAlt } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
-import { ProjectSkeletonCard } from '../Skeleton';
 
-// Styled Components
+// ─── Styled Components ────────────────────────────────────────────────────────
+
 const ProjectsSection = styled.section`
   position: relative;
   background: transparent;
   padding: var(--spacing-2xl) 0;
-  
+
   @media (max-width: 768px) {
     padding: var(--spacing-xl) 0;
   }
@@ -24,10 +24,10 @@ const Container = styled.div`
   padding: 0 var(--container-padding);
 `;
 
-const SectionHeader = styled.div`
+const SectionHeader = styled(motion.div)`
   text-align: center;
   margin-bottom: var(--spacing-lg);
-  
+
   @media (max-width: 768px) {
     margin-bottom: var(--spacing-md);
   }
@@ -41,7 +41,7 @@ const SectionTitle = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  
+
   @media (max-width: 768px) {
     font-size: var(--text-2xl);
   }
@@ -52,13 +52,12 @@ const SectionSubtitle = styled.p`
   color: var(--color-text-secondary);
   max-width: 600px;
   margin: 0 auto;
-  
+
   @media (max-width: 768px) {
     font-size: var(--text-base);
   }
 `;
 
-// Simple Grid Layout (No GSAP)
 const ProjectsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -72,42 +71,59 @@ const ProjectsGrid = styled.div`
   }
 `;
 
-const ProjectCard = styled.div`
+const ProjectCard = styled(motion.div)`
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
-    transform: translateY(-5px);
     border-color: var(--color-accent-primary);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
-  }
-  
-  @media (max-width: 768px) {
-    &:hover {
-      transform: none;
-      box-shadow: none;
-    }
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.12);
   }
 `;
 
-const ProjectImage = styled.div`
+const ProjectImageWrapper = styled.div`
   height: 200px;
-  background: ${props => props.$image ? `url(${props.$image})` : 'var(--color-gradient-1)'};
-  background-size: cover;
-  background-position: center;
+  overflow: hidden;
+  background: var(--color-bg-secondary);
   position: relative;
-  
+
   @media (max-width: 768px) {
-    height: 150px;
+    height: 160px;
   }
+`;
+
+const ProjectImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.4s ease;
+
+  ${ProjectCard}:hover & {
+    transform: scale(1.04);
+  }
+`;
+
+/* Fallback gradient shown when image is missing */
+const ProjectImageFallback = styled.div`
+  width: 100%;
+  height: 100%;
+  background: var(--color-gradient-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2.5rem;
+  opacity: 0.7;
 `;
 
 const ProjectContent = styled.div`
   padding: var(--spacing-lg);
-  
+
   @media (max-width: 768px) {
     padding: var(--spacing-md);
   }
@@ -117,7 +133,7 @@ const ProjectTitle = styled.h3`
   font-size: var(--text-xl);
   margin-bottom: var(--spacing-sm);
   color: var(--color-text-primary);
-  
+
   @media (max-width: 768px) {
     font-size: var(--text-lg);
   }
@@ -135,7 +151,7 @@ const ProjectDescription = styled.p`
   line-height: 1.7;
   margin-bottom: var(--spacing-md);
   font-size: var(--text-base);
-  
+
   @media (max-width: 768px) {
     font-size: var(--text-sm);
     margin-bottom: var(--spacing-sm);
@@ -147,7 +163,7 @@ const ProjectStats = styled.div`
   flex-wrap: wrap;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
-  
+
   @media (max-width: 768px) {
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-sm);
@@ -163,8 +179,9 @@ const StatItem = styled.div`
 
   svg {
     color: var(--color-accent-primary);
+    flex-shrink: 0;
   }
-  
+
   @media (max-width: 768px) {
     font-size: var(--text-xs);
   }
@@ -179,167 +196,158 @@ const ProjectLink = styled.a`
   font-weight: 500;
   padding: var(--spacing-xs) 0;
   min-height: 44px;
+  transition: gap 0.2s ease;
 
   &:hover {
     text-decoration: underline;
+    gap: calc(var(--spacing-xs) + 4px);
   }
-  
+
   @media (max-width: 768px) {
     min-height: 48px;
   }
 `;
 
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+const projects = [
+  {
+    id: 1,
+    title: 'Solaride',
+    role: 'Co-Founder',
+    description: 'Powering a greener future with solar energy. Installing solar power plants on houses, malls, factories, and farmland under PM Surya Ghar & PM KUSUM Yojana.',
+    image: '/images/projects/Solaride.png',
+    fallbackIcon: '☀️',
+    stats: [
+      { icon: <MdGroups />, text: 'EPC company' },
+      { icon: <FaRocket />, text: 'Government registered vendor' },
+    ],
+    link: 'https://solaride.in',
+  },
+  {
+    id: 2,
+    title: 'NASA Human Exploration Rover Challenge',
+    role: 'Team Lead',
+    description: 'Led a team of 6 to design and manufacture a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking and engaged 12,000+ students in STEM activities.',
+    image: '/images/projects/nasa-herc.jpg',
+    fallbackIcon: '🚀',
+    stats: [
+      { icon: <MdGroups />, text: '12k+ students reached for STEM' },
+      { icon: <BiMoney />,  text: '$30,000 raised via govt & private sources' },
+    ],
+    link: 'https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge/',
+  },
+  {
+    id: 3,
+    title: 'NASA Space Apps Collective',
+    role: 'Global Community Member',
+    description: 'Selected among 30 global space leaders. Developed weather visualisation tools for Zimbabwean farmers using open-source NASA data.',
+    image: '/images/projects/spaceapps.png',
+    fallbackIcon: '🌍',
+    stats: [
+      { icon: <MdGroups />, text: 'Diverse global team' },
+      { icon: <FaRocket />, text: "NASA open-source data" },
+    ],
+    link: 'https://www.spaceappschallenge.org/collective/',
+  },
+];
+
+// ─── Animation variants ───────────────────────────────────────────────────────
+
+const headerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, delay: i * 0.12, ease: 'easeOut' },
+  }),
+};
+
+// ─── Sub-component: project image with fallback ───────────────────────────────
+
+const ProjectImage = ({ src, alt, fallback }) => {
+  const [errored, setErrored] = useState(false);
+  return (
+    <ProjectImageWrapper>
+      {!errored ? (
+        <ProjectImg
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onError={() => setErrored(true)}
+        />
+      ) : (
+        <ProjectImageFallback>{fallback}</ProjectImageFallback>
+      )}
+    </ProjectImageWrapper>
+  );
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+import { useState } from 'react';
+
 const Projects = () => {
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
-  const [isLoading, setIsLoading] = useState(true);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
-    },
-  };
-
-  // Simulate loading delay for better UX
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const projects = [
-
-        {
-      id: 1,
-      title: 'Solaride',
-      role: 'Co-Founder',
-      description: 'Powering a Greener Future with Solar Energy. Installing solar power plants on houses, malls, factories, farmland, etc .',
-      image: '/images/projects/Solaride.png',
-      stats: [
-        { icon: <MdGroups />, text: 'EPC company' },
-        { icon: <FaRocket />, text: 'Govt. Registered vendor' },
-      ],
-      link: 'https://solaride.in'
-    },
-    {
-      id: 2,
-      title: 'NASA Human Exploration Rover Challenge',
-      role: 'Team Lead',
-      description: 'Led a team of 6 people to design and manufacture a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking.',
-      image: '/images/projects/nasa-herc.jpg',
-      stats: [
-        { icon: <MdGroups />, text: 'Reached out to 12k+ Students for STEM engagement activites' },
-        { icon: <BiMoney />, text: 'Raised $30,000 Funding via government and private sources' },
-      ],
-      link: 'https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge/'
-    },
-    {
-      id: 3,
-      title: 'NASA Space Apps Collective',
-      role: 'Global Community Member',
-      description: 'Selected among 30 global space leaders. Developed weather visualization tools for Zimbabwean farmers using NASA data.',
-      image: '/images/projects/spaceapps.png',
-      stats: [
-        { icon: <MdGroups />, text: 'Worked with a diverse global team' },
-        { icon: <FaRocket />, text: "Used NASA's open-source Data" },
-      ],
-      link: 'https://www.spaceappschallenge.org/collective/'
-    },
-    // {
-    //   id: 3,
-    //   title: 'Astronomy & Space Physics Society',
-    //   role: 'Core Team Member',
-    //   description: 'Organized telescope workshops and educational events to promote space sciences among students.',
-    //   image: '/images/projects/college.jpg',
-    //   stats: [
-    //     { icon: <MdGroups />, text: '500+ Students' },
-    //     { icon: <FaStar />, text: 'Multiple Events' },
-    //   ],
-    //   link: '#'
-    // },
-
-  ];
+  const isInView   = useInView(sectionRef, { once: true, amount: 0.15 });
 
   return (
     <ProjectsSection ref={sectionRef} id="projects">
       <Container>
-
-        {/* <SectionHeader>
-          <SectionTitle>Featured Projects</SectionTitle>
-          <SectionSubtitle>
-            From space sector to sustainable energy - projects that define my journey
-          </SectionSubtitle>
-        </SectionHeader> */}
-
         <SectionHeader
-          variants={containerVariants}
+          variants={headerVariants}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
         >
-          <motion.div variants={itemVariants}>
-            <SectionTitle>Featured Projects</SectionTitle>
-            <SectionSubtitle>
-              From space sector to sustainable energy - projects that define my journey
-            </SectionSubtitle>
-          </motion.div>
+          <SectionTitle>Featured Projects</SectionTitle>
+          <SectionSubtitle>
+            From space sector to sustainable energy — projects that define my journey
+          </SectionSubtitle>
         </SectionHeader>
+
         <ProjectsGrid>
-          {isLoading ? (
-            <>
-              {[...Array(3)].map((_, index) => (
-                <ProjectSkeletonCard key={`skeleton-${index}`} />
-              ))}
-            </>
-          ) : (
-            projects.map((project) => (
-              <ProjectCard key={project.id}>
-                <ProjectImage $image={project.image} />
-                <ProjectContent>
-                  <ProjectTitle>{project.title}</ProjectTitle>
-                  <ProjectRole>{project.role}</ProjectRole>
-                  <ProjectDescription>{project.description}</ProjectDescription>
+          {projects.map((project, i) => (
+            <ProjectCard
+              key={project.id}
+              custom={i}
+              variants={cardVariants}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+              whileHover={{ y: -5 }}
+            >
+              <ProjectImage
+                src={project.image}
+                alt={project.title}
+                fallback={project.fallbackIcon}
+              />
+              <ProjectContent>
+                <ProjectTitle>{project.title}</ProjectTitle>
+                <ProjectRole>{project.role}</ProjectRole>
+                <ProjectDescription>{project.description}</ProjectDescription>
 
-                  <ProjectStats>
-                    {project.stats.map((stat, idx) => (
-                      <StatItem key={idx}>
-                        {stat.icon}
-                        <span>{stat.text}</span>
-                      </StatItem>
-                    ))}
-                  </ProjectStats>
+                <ProjectStats>
+                  {project.stats.map((stat, idx) => (
+                    <StatItem key={idx}>
+                      {stat.icon}
+                      <span>{stat.text}</span>
+                    </StatItem>
+                  ))}
+                </ProjectStats>
 
-                  {project.link && project.link !== '#' && (
-                    <ProjectLink
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Visit Website
-                      <FaExternalLinkAlt size={20} />
-                    </ProjectLink>
-                  )}
-                </ProjectContent>
-              </ProjectCard>
-            ))
-          )}
+                {project.link && project.link !== '#' && (
+                  <ProjectLink href={project.link} target="_blank" rel="noopener noreferrer">
+                    Visit Website
+                    <FaExternalLinkAlt size={12} />
+                  </ProjectLink>
+                )}
+              </ProjectContent>
+            </ProjectCard>
+          ))}
         </ProjectsGrid>
       </Container>
     </ProjectsSection>

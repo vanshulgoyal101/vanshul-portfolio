@@ -2,8 +2,8 @@
 import { useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion, useInView } from 'framer-motion';
-import { FaEnvelope, FaLinkedin, FaTwitter, FaInstagram, FaPaperPlane } from 'react-icons/fa';
-import { MdLocationOn, MdEmail, MdPhone, MdWork } from 'react-icons/md';
+import { FaLinkedin, FaTwitter, FaInstagram, FaPaperPlane } from 'react-icons/fa';
+import { MdLocationOn, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
 import { useToast } from '../Toast';
 
@@ -302,16 +302,10 @@ const SubmitButton = styled(motion.button)`
   }
 `;
 
-// Floating Paper Plane
-const FloatingPlane = styled(motion.div)`
-  position: absolute;
-  font-size: 3rem;
-  color: var(--color-accent-primary);
-  opacity: 0.1;
-  z-index: 1;
-  pointer-events: none;
-  bottom: 10%;
-  right: 5%;
+const ValidationError = styled.p`
+  font-size: var(--text-xs);
+  color: #ef4444;
+  margin-top: 4px;
 `;
 
 const Contact = () => {
@@ -324,6 +318,7 @@ const Contact = () => {
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -349,10 +344,12 @@ const Contact = () => {
   };
 
   const handleChange = (e) => {
-    setFormState({
-      ...formState,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormState({ ...formState, [name]: value });
+    if (name === 'email') {
+      const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      setEmailError(value && !valid ? 'Please enter a valid email address.' : '');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -385,7 +382,7 @@ const Contact = () => {
           'Failed to send your message. Please try again or email me directly.'
         );
       }
-    } catch (error) {
+    } catch {
       showError(
         'Network Error',
         'Unable to send message. Please check your connection and try again.'
@@ -422,22 +419,6 @@ const socialLinks = [
 
   return (
     <ContactSection ref={sectionRef}>
-      {/* Floating Paper Plane */}
-      <FloatingPlane
-        animate={{
-          x: [0, 30, 0],
-          y: [0, -20, 0],
-          rotate: [0, 10, 0],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      >
-        <FaPaperPlane />
-      </FloatingPlane>
-
       <Container>
         <SectionHeader
           variants={containerVariants}
@@ -532,7 +513,9 @@ const socialLinks = [
                   placeholder="john@example.com"
                   required
                   disabled={isSubmitting}
+                  style={emailError ? { borderColor: '#ef4444' } : {}}
                 />
+                {emailError && <ValidationError>{emailError}</ValidationError>}
               </FormGroup>
 
               <FormGroup>
