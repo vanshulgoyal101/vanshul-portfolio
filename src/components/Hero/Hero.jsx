@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 
 import FloatingShape from './FloatingShape';
-import { FaLinkedin, FaInstagram } from 'react-icons/fa';
+import { FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { HiChevronDown } from 'react-icons/hi';
 
@@ -344,6 +344,16 @@ const Hero = () => {
               aria-label="Instagram"
             >
               <FaInstagram />
+            </SocialLink>
+            <SocialLink
+              href="https://github.com/vanshulgoyal101"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              aria-label="GitHub"
+            >
+              <FaGithub />
             </SocialLink>
           </SocialLinks>
         </HeroContent>
