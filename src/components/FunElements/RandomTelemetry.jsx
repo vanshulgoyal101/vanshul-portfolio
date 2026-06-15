@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
@@ -7,7 +7,7 @@ const Overlay = styled.div`
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 3;
   overflow: hidden;
 `;
 
@@ -19,9 +19,9 @@ const Item = styled(motion.div)`
 // ─── Screen divided into a 3×3 grid of zones ─────────────────────────────────
 // Each zone owns a portion of the viewport so elements stay spread out.
 const ZONES = [
-  { top: [5,  28], left: [4,  28]  }, // top-left
-  { top: [5,  28], left: [36, 60]  }, // top-center
-  { top: [5,  28], left: [66, 90]  }, // top-right
+  { top: [12, 28], left: [4,  28]  }, // top-left
+  { top: [12, 28], left: [36, 60]  }, // top-center
+  { top: [12, 28], left: [66, 90]  }, // top-right
   { top: [35, 60], left: [4,  24]  }, // mid-left
   { top: [35, 60], left: [72, 92]  }, // mid-right
   { top: [65, 88], left: [4,  28]  }, // bottom-left
@@ -221,7 +221,7 @@ const ALL_ELEMENTS = [
 // Max simultaneous elements on screen
 const MAX_ACTIVE = 5;
 // Time between spawning each new element (ms)
-const SPAWN_INTERVAL_MS = 2200;
+const SPAWN_INTERVAL_MS = 1400;
 
 const pickZone = (usedZoneIndices) => {
   // Avoid the two most recently used zones
@@ -262,8 +262,8 @@ const RandomTelemetry = () => {
       recentZonesRef.current = [zoneIdx, ...recentZonesRef.current].slice(0, 3);
 
       const uid = ++_uidCounter;
-      // Lifespan: 4–7 seconds — enough to notice, short enough to not linger
-      const duration = rand(4, 7);
+      // Lifespan: 2.2–3.8 seconds — cycles fast and stays fresh
+      const duration = rand(2.2, 3.8);
 
       return [...prev, { uid, element, top, left, duration }];
     });
@@ -305,6 +305,10 @@ const RandomTelemetry = () => {
 };
 
 const TelemetryItem = ({ item, onExpired }) => {
+  // Pre-calculate drift values once on mount so they remain stable during the animation
+  const driftX = useMemo(() => rand(-25, 25), []);
+  const driftY = useMemo(() => rand(-25, 25), []);
+
   useEffect(() => {
     const timer = setTimeout(onExpired, item.duration * 1000);
     return () => clearTimeout(timer);
@@ -313,10 +317,17 @@ const TelemetryItem = ({ item, onExpired }) => {
   return (
     <Item
       style={{ top: item.top, left: item.left }}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.75 }}
-      transition={{ duration: 0.6, ease: 'easeInOut' }}
+      initial={{ opacity: 0, scale: 0.8, x: 0, y: 0 }}
+      animate={{
+        opacity: [0, 0.65, 0.65, 0], // Fades in, holds, and fades out cleanly
+        scale: [0.8, 1, 1, 0.8],
+        x: [0, driftX], // Smoothly drifts horizontally
+        y: [0, driftY], // Smoothly drifts vertically
+      }}
+      transition={{
+        duration: item.duration,
+        ease: 'easeInOut',
+      }}
     >
       {item.element.render()}
     </Item>
