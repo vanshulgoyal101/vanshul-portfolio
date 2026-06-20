@@ -32,15 +32,20 @@ const InteractiveSpaceBackground = () => {
     };
     window.addEventListener('resize', handleResize);
 
-    // Blinking Stars pool
-    const stars = Array.from({ length: 45 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      size: Math.random() * 1.5 + 0.5,
-      alpha: Math.random(),
-      speed: Math.random() * 0.02 + 0.005,
-      direction: Math.random() > 0.5 ? 1 : -1,
-    }));
+    // Blinking Stars pool (increased from 45 to 90 for a richer background)
+    const stars = Array.from({ length: 90 }, () => {
+      const isTwinklyStar = Math.random() > 0.8; // 20% multi-point twinkling stars
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: isTwinklyStar ? Math.random() * 2 + 1.5 : Math.random() * 1.5 + 0.4,
+        alpha: Math.random(),
+        speed: Math.random() * 0.025 + 0.005,
+        direction: Math.random() > 0.5 ? 1 : -1,
+        isTwinkly: isTwinklyStar,
+        points: Math.floor(Math.random() * 2) + 4, // 4 or 5 point stars
+      };
+    });
 
     // Shooting Stars pool
     let shootingStars = [];
@@ -95,16 +100,39 @@ const InteractiveSpaceBackground = () => {
       // 1. Draw static blinking stars
       stars.forEach((star) => {
         star.alpha += star.speed * star.direction;
-        if (star.alpha >= 0.7) {
+        if (star.alpha >= 0.75) {
           star.direction = -1;
         } else if (star.alpha <= 0.05) {
           star.direction = 1;
         }
         
-        ctx.fillStyle = `rgba(29, 78, 216, ${star.alpha * 0.4})`; // Accent blue stars
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.save();
+        if (star.isTwinkly) {
+          // Draw a twinkling multi-pointed cross star
+          ctx.strokeStyle = `rgba(59, 130, 246, ${star.alpha * 0.5})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          // Horizontal line
+          ctx.moveTo(star.x - star.size * 2, star.y);
+          ctx.lineTo(star.x + star.size * 2, star.y);
+          // Vertical line
+          ctx.moveTo(star.x, star.y - star.size * 2);
+          ctx.lineTo(star.x, star.y + star.size * 2);
+          ctx.stroke();
+          
+          // Draw solid core
+          ctx.fillStyle = `rgba(29, 78, 216, ${star.alpha * 0.75})`;
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.size * 0.6, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Standard circular soft star
+          ctx.fillStyle = `rgba(29, 78, 216, ${star.alpha * 0.35})`;
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
       });
 
       // 2. Draw shooting stars
