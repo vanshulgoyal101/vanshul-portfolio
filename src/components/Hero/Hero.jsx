@@ -20,7 +20,8 @@ const HeroSection = styled.section`
   padding: var(--spacing-2xl) var(--container-padding);
   
   @media (max-width: 768px) {
-    padding: var(--spacing-xl) var(--container-padding);
+    min-height: 80vh;
+    padding: 100px var(--container-padding) 40px var(--container-padding);
   }
 `;
 
