@@ -39,6 +39,9 @@ const RocketWrapper = styled.div`
 const RocketContainer = styled(motion.div)`
   cursor: pointer;
   pointer-events: auto;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 `;
 
 const Rocket = styled(motion.div)`
