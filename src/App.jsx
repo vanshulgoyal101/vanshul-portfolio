@@ -202,7 +202,7 @@ function App() {
                       variants={pageVariants}
                       initial="initial"
                       whileInView="animate"
-                      viewport={{ once: true, amount: 0.3 }}
+                      viewport={{ once: true, amount: 0.1 }}
                     >
                       <About />
                     </SectionWrapper>
@@ -215,7 +215,7 @@ function App() {
                       variants={pageVariants}
                       initial="initial"
                       whileInView="animate"
-                      viewport={{ once: true, amount: 0.3 }}
+                      viewport={{ once: true, amount: 0.1 }}
                     >
                       <Work />
                     </SectionWrapper>
@@ -228,7 +228,7 @@ function App() {
                       variants={pageVariants}
                       initial="initial"
                       whileInView="animate"
-                      viewport={{ once: true, amount: 0.3 }}
+                      viewport={{ once: true, amount: 0.1 }}
                     >
                       <Projects />
                     </SectionWrapper>
@@ -241,7 +241,7 @@ function App() {
                       variants={pageVariants}
                       initial="initial"
                       whileInView="animate"
-                      viewport={{ once: true, amount: 0.3 }}
+                      viewport={{ once: true, amount: 0.1 }}
                     >
                       <Blog />
                     </SectionWrapper>
@@ -254,7 +254,7 @@ function App() {
                       variants={pageVariants}
                       initial="initial"
                       whileInView="animate"
-                      viewport={{ once: true, amount: 0.3 }}
+                      viewport={{ once: true, amount: 0.1 }}
                     >
                       <Contact />
                     </SectionWrapper>
