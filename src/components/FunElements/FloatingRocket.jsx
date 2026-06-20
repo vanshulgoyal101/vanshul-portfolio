@@ -176,12 +176,12 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
       // Start tracking
       trackPosition();
 
-      // Launch! (Accelerated to 1.3s for speed and snap)
+      // Launch! (Snappy custom cubic-bezier curve for faster, powerful visual launch)
       await controls.start({
         y: -window.innerHeight - 200,
         transition: { 
-          duration: 1.3,
-          ease: "easeIn"
+          duration: 1.1,
+          ease: [0.25, 0.46, 0.45, 0.94]
         }
       });
       

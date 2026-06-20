@@ -10,15 +10,126 @@ const SmokeCanvas = styled.canvas`
   pointer-events: none;
 `;
 
+// Particle Pool Manager to prevent GC jank during high-frequency emissions
+class ParticlePool {
+  constructor() {
+    this.pool = [];
+    this.active = [];
+  }
+
+  // Retrieve a particle from the pool or instantiate one if empty
+  obtain(x, y) {
+    let p;
+    if (this.pool.length > 0) {
+      p = this.pool.pop();
+      p.reset(x, y);
+    } else {
+      p = new SmokeParticle(x, y);
+    }
+    this.active.push(p);
+    return p;
+  }
+
+  // Recycle active particles back to the pool
+  recycle(index) {
+    const p = this.active[index];
+    this.active.splice(index, 1);
+    this.pool.push(p);
+  }
+
+  clear() {
+    this.active = [];
+  }
+}
+
+// Particle class representing a pooled smoke puff
+class SmokeParticle {
+  constructor(x, y) {
+    this.reset(x, y);
+    this.maxSize = Math.max(window.innerWidth, window.innerHeight) * 0.95;
+    
+    // Target background color #f6f3eb (246, 243, 235)
+    this.targetR = 246;
+    this.targetG = 243;
+    this.targetB = 235;
+  }
+
+  reset(x, y) {
+    this.x = x;
+    this.y = y;
+    this.size = Math.random() * 8 + 4;
+    this.speedX = (Math.random() - 0.5) * 12;
+    this.speedY = Math.random() * 6 + 3;
+    this.opacity = 0.95;
+    this.growth = Math.random() * 16 + 10;
+
+    const rand = Math.random();
+    if (rand < 0.33) {
+      // Neon Cyan
+      this.r = 6; this.g = 182; this.b = 212;
+    } else if (rand < 0.66) {
+      // Hot Magenta
+      this.r = 236; this.g = 72; this.b = 153;
+    } else {
+      // Electric Violet
+      this.r = 139; this.g = 92; this.b = 246;
+    }
+  }
+
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    this.size += this.growth;
+    
+    // Snappy deceleration
+    this.speedX *= 0.92;
+    this.speedY *= 0.92;
+
+    // Shift colors towards background
+    this.r += (this.targetR - this.r) * 0.12;
+    this.g += (this.targetG - this.g) * 0.12;
+    this.b += (this.targetB - this.b) * 0.12;
+    
+    this.opacity -= 0.024;
+  }
+
+  draw(ctx) {
+    if (this.opacity <= 0) return;
+    ctx.save();
+    ctx.beginPath();
+    
+    // Pre-calculated offset radius to keep GPU drawings lightweight
+    const gradient = ctx.createRadialGradient(
+      this.x, this.y, 1,
+      this.x, this.y, this.size
+    );
+    
+    const floorR = Math.floor(this.r);
+    const floorG = Math.floor(this.g);
+    const floorB = Math.floor(this.b);
+    
+    gradient.addColorStop(0, `rgba(${floorR}, ${floorG}, ${floorB}, ${this.opacity})`);
+    gradient.addColorStop(0.25, `rgba(${floorR}, ${floorG}, ${floorB}, ${this.opacity * 0.4})`);
+    gradient.addColorStop(1, `rgba(${this.targetR}, ${this.targetG}, ${this.targetB}, 0)`);
+    
+    ctx.fillStyle = gradient;
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
 const SmokeTransition = () => {
   const canvasRef = useRef(null);
   const [isActive, setIsActive] = useState(false);
-  const particlesRef = useRef([]);
+  const poolRef = useRef(new ParticlePool());
+  const emitThrottleRef = useRef(0);
 
   useEffect(() => {
     const handleLaunch = () => {
       setIsActive(true);
-      particlesRef.current = [];
+      poolRef.current.clear();
+      emitThrottleRef.current = 0;
     };
 
     window.addEventListener('rocket-launch', handleLaunch);
@@ -33,7 +144,7 @@ const SmokeTransition = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
     const resizeCanvas = () => {
@@ -42,89 +153,18 @@ const SmokeTransition = () => {
     };
     resizeCanvas();
 
-    // High fidelity Particle simulation representing expanding exhaust
-    class SmokeParticle {
-      constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.size = Math.random() * 8 + 4;
-        this.maxSize = Math.max(window.innerWidth, window.innerHeight) * 0.95;
-        
-        // Fast initial speed to expand away quickly
-        this.speedX = (Math.random() - 0.5) * 12;
-        this.speedY = Math.random() * 6 + 3; 
-        
-        this.opacity = 0.95;
-        // Faster growth for snappy appearance
-        this.growth = Math.random() * 16 + 10;
-        
-        const rand = Math.random();
-        if (rand < 0.33) {
-          // Neon Cyan
-          this.r = 6; this.g = 182; this.b = 212;
-        } else if (rand < 0.66) {
-          // Hot Magenta
-          this.r = 236; this.g = 72; this.b = 153;
-        } else {
-          // Electric Violet/Purple
-          this.r = 139; this.g = 92; this.b = 246;
-        }
-        
-        this.targetR = 246;
-        this.targetG = 243;
-        this.targetB = 235;
-      }
-
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        this.size += this.growth;
-        
-        // Snappy damping for spread
-        this.speedX *= 0.93;
-        this.speedY *= 0.93;
-
-        // Slow down color morphing so neon tones persist much longer (0.04 instead of 0.12)
-        this.r += (this.targetR - this.r) * 0.04;
-        this.g += (this.targetG - this.g) * 0.04;
-        this.b += (this.targetB - this.b) * 0.04;
-        
-        // Slower decay rate so neon smoke puffs linger longer (0.015 instead of 0.024)
-        this.opacity -= 0.015;
-      }
-
-      draw() {
-        if (this.opacity <= 0) return;
-        ctx.save();
-        ctx.beginPath();
-        
-        const gradient = ctx.createRadialGradient(
-          this.x, this.y, this.size * 0.02,
-          this.x, this.y, this.size
-        );
-        
-        const floorR = Math.floor(this.r);
-        const floorG = Math.floor(this.g);
-        const floorB = Math.floor(this.b);
-        
-        gradient.addColorStop(0, `rgba(${floorR}, ${floorG}, ${floorB}, ${this.opacity})`);
-        gradient.addColorStop(0.3, `rgba(${floorR}, ${floorG}, ${floorB}, ${this.opacity * 0.5})`);
-        gradient.addColorStop(1, `rgba(${this.targetR}, ${this.targetG}, ${this.targetB}, 0)`);
-        
-        ctx.fillStyle = gradient;
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    }
-
     const handleEmitSmoke = (e) => {
+      // Throttle emissions: spawn particles on every 2nd tracking coordinate event
+      emitThrottleRef.current++;
+      if (emitThrottleRef.current % 2 !== 0) return;
+
       const { x, y } = e.detail;
-      for (let i = 0; i < 4; i++) {
-        particlesRef.current.push(new SmokeParticle(
+      // Spawn 3 optimized particles
+      for (let i = 0; i < 3; i++) {
+        poolRef.current.obtain(
           x + (Math.random() - 0.5) * 15,
           y + (Math.random() - 0.5) * 10
-        ));
+        );
       }
     };
     window.addEventListener('rocket-emit-smoke', handleEmitSmoke);
@@ -137,18 +177,19 @@ const SmokeTransition = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const elapsed = Date.now() - startTime;
 
-      const particles = particlesRef.current;
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
+      const pool = poolRef.current;
+      // Loop backwards to allow clean splicing and recycling
+      for (let i = pool.active.length - 1; i >= 0; i--) {
+        const p = pool.active[i];
         p.update();
-        p.draw();
+        p.draw(ctx);
 
         if (p.opacity <= 0 || p.size > p.maxSize) {
-          particles.splice(i, 1);
+          pool.recycle(i);
         }
       }
 
-      // Smoothly initiate scroll during flight (snappy 350ms trigger)
+      // Smoothly scroll down
       if (elapsed > 350 && !scrollTriggered) {
         scrollTriggered = true;
         const aboutEl = document.getElementById('about');
@@ -157,8 +198,8 @@ const SmokeTransition = () => {
         }
       }
 
-      // Prolong transition life to 1800ms to allow lingering smoke to finish fading
-      if (elapsed > 1800 && particles.length === 0) {
+      // Terminate transition loop when all particles are processed
+      if (elapsed > 800 && pool.active.length === 0) {
         setIsActive(false);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       } else {
