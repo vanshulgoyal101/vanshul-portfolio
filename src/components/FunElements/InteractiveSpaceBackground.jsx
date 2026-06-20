@@ -74,7 +74,7 @@ const InteractiveSpaceBackground = () => {
       {
         x: width * 0.15,
         y: height * 0.25,
-        radius: 35,
+        radius: 14,
         baseR: 59, baseG: 130, baseB: 246, // cyan/blue gas giant
         hasRing: true,
         ringR: 59, ringG: 130, ringB: 246,
@@ -85,21 +85,9 @@ const InteractiveSpaceBackground = () => {
         direction: Math.random() > 0.5 ? 1 : -1,
       },
       {
-        x: width * 0.8,
-        y: height * 0.65,
-        radius: 20,
-        baseR: 236, baseG: 72, baseB: 153, // soft pink/magenta planet
-        hasRing: false,
-        vx: -0.03,
-        vy: 0.02,
-        alpha: Math.random() * 0.5 + 0.1,
-        fadeSpeed: Math.random() * 0.0004 + 0.0002,
-        direction: Math.random() > 0.5 ? 1 : -1,
-      },
-      {
         x: width * 0.45,
         y: height * 0.8,
-        radius: 15,
+        radius: 9,
         baseR: 139, baseG: 92, baseB: 246, // soft violet planet
         hasRing: true,
         ringR: 139, ringG: 92, ringB: 246,
@@ -197,14 +185,14 @@ const InteractiveSpaceBackground = () => {
         // Draw rings if applicable
         if (planet.hasRing) {
           ctx.strokeStyle = ringColor;
-          ctx.lineWidth = planet.radius * 0.18;
+          ctx.lineWidth = Math.max(1, planet.radius * 0.15);
           ctx.save();
           // Scale/transform context to draw an oval/rotated ellipse ring
           ctx.translate(planet.x, planet.y);
           ctx.rotate(-Math.PI / 8); // 22.5 deg tilt
           ctx.scale(2, 0.45); // squish into ellipse ring
           ctx.beginPath();
-          ctx.arc(0, 0, planet.radius * 0.8, 0, Math.PI * 2);
+          ctx.arc(0, 0, planet.radius * 1.3, 0, Math.PI * 2);
           ctx.stroke();
           ctx.restore();
         }
