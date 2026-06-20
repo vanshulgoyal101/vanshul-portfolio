@@ -22,7 +22,7 @@ const HeroSection = styled.section`
   @media (max-width: 768px) {
     min-height: 100svh;
     min-height: -webkit-fill-available; /* support mobile browser bottom/top bars */
-    padding: 160px var(--container-padding) 40px var(--container-padding);
+    padding: 170px var(--container-padding) 40px var(--container-padding);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
