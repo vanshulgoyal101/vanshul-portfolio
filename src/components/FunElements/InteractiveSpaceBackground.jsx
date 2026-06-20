@@ -57,7 +57,7 @@ const InteractiveSpaceBackground = () => {
       const side = Math.random() > 0.5;
       const startX = side ? Math.random() * (width * 0.7) : 0;
       const startY = side ? 0 : Math.random() * (height * 0.5);
-      
+
       shootingStars.push({
         x: startX,
         y: startY,
@@ -69,36 +69,45 @@ const InteractiveSpaceBackground = () => {
       });
     };
 
-    // Planets pool (gentle decorative floating bodies)
+    // Planets pool (gentle decorative floating bodies with lifecycle)
     const planets = [
       {
         x: width * 0.15,
         y: height * 0.25,
         radius: 35,
-        color: 'rgba(59, 130, 246, 0.04)', // soft cyan/blue gas giant
+        baseR: 59, baseG: 130, baseB: 246, // cyan/blue gas giant
         hasRing: true,
-        ringColor: 'rgba(59, 130, 246, 0.03)',
+        ringR: 59, ringG: 130, ringB: 246,
         vx: 0.04,
         vy: 0.01,
+        alpha: Math.random() * 0.5 + 0.1,
+        fadeSpeed: Math.random() * 0.0004 + 0.0002,
+        direction: Math.random() > 0.5 ? 1 : -1,
       },
       {
         x: width * 0.8,
         y: height * 0.65,
         radius: 20,
-        color: 'rgba(236, 72, 153, 0.04)', // soft pink/magenta planet
+        baseR: 236, baseG: 72, baseB: 153, // soft pink/magenta planet
         hasRing: false,
         vx: -0.03,
         vy: 0.02,
+        alpha: Math.random() * 0.5 + 0.1,
+        fadeSpeed: Math.random() * 0.0004 + 0.0002,
+        direction: Math.random() > 0.5 ? 1 : -1,
       },
       {
         x: width * 0.45,
         y: height * 0.8,
         radius: 15,
-        color: 'rgba(139, 92, 246, 0.04)', // soft violet planet
+        baseR: 139, baseG: 92, baseB: 246, // soft violet planet
         hasRing: true,
-        ringColor: 'rgba(139, 92, 246, 0.025)',
+        ringR: 139, ringG: 92, ringB: 246,
         vx: 0.02,
         vy: -0.02,
+        alpha: Math.random() * 0.5 + 0.1,
+        fadeSpeed: Math.random() * 0.0004 + 0.0002,
+        direction: Math.random() > 0.5 ? 1 : -1,
       }
     ];
 
@@ -138,6 +147,22 @@ const InteractiveSpaceBackground = () => {
         planet.x += planet.vx;
         planet.y += planet.vy;
 
+        // Apply fade-in and fade-out animation cycle
+        planet.alpha += planet.fadeSpeed * planet.direction;
+
+        // If planet fades out completely, respawn at a random coordinate and trigger fade-in!
+        if (planet.alpha <= 0) {
+          planet.x = Math.random() * width;
+          planet.y = Math.random() * height;
+          planet.alpha = 0.01;
+          planet.direction = 1;
+          // Randomize speeds and trajectory
+          planet.vx = (Math.random() - 0.5) * 0.06;
+          planet.vy = (Math.random() - 0.5) * 0.06;
+        } else if (planet.alpha >= 1) {
+          planet.direction = -1;
+        }
+
         // Screen wrap boundaries for planet sizes
         if (planet.x + planet.radius < 0) planet.x = width + planet.radius;
         if (planet.x - planet.radius > width) planet.x = -planet.radius;
@@ -145,13 +170,18 @@ const InteractiveSpaceBackground = () => {
         if (planet.y - planet.radius > height) planet.y = -planet.radius;
 
         ctx.save();
-        
+
+        // Dynamic alphas (0.04 represents peak design visibility limit to avoid distraction)
+        const activeAlpha = planet.alpha * 0.04;
+        const bodyColor = `rgba(${planet.baseR}, ${planet.baseG}, ${planet.baseB}, ${activeAlpha})`;
+        const ringColor = planet.hasRing ? `rgba(${planet.ringR}, ${planet.ringG}, ${planet.ringB}, ${planet.alpha * 0.03})` : '';
+
         // Draw orbital shadow/glow
         const glowGradient = ctx.createRadialGradient(
           planet.x, planet.y, planet.radius * 0.1,
           planet.x, planet.y, planet.radius * 1.5
         );
-        glowGradient.addColorStop(0, planet.color);
+        glowGradient.addColorStop(0, bodyColor);
         glowGradient.addColorStop(1, 'rgba(246, 243, 235, 0)');
         ctx.fillStyle = glowGradient;
         ctx.beginPath();
@@ -159,14 +189,14 @@ const InteractiveSpaceBackground = () => {
         ctx.fill();
 
         // Draw planet body
-        ctx.fillStyle = planet.color;
+        ctx.fillStyle = bodyColor;
         ctx.beginPath();
         ctx.arc(planet.x, planet.y, planet.radius, 0, Math.PI * 2);
         ctx.fill();
 
         // Draw rings if applicable
         if (planet.hasRing) {
-          ctx.strokeStyle = planet.ringColor;
+          ctx.strokeStyle = ringColor;
           ctx.lineWidth = planet.radius * 0.18;
           ctx.save();
           // Scale/transform context to draw an oval/rotated ellipse ring
@@ -209,7 +239,7 @@ const InteractiveSpaceBackground = () => {
         if (star.x > width) star.x = 0;
         if (star.y < 0) star.y = height;
         if (star.y > height) star.y = 0;
-        
+
         ctx.save();
         if (star.isTwinkly) {
           // Draw a twinkling multi-pointed cross star
@@ -223,7 +253,7 @@ const InteractiveSpaceBackground = () => {
           ctx.moveTo(star.x, star.y - star.size * 2);
           ctx.lineTo(star.x, star.y + star.size * 2);
           ctx.stroke();
-          
+
           // Draw solid core
           ctx.fillStyle = `rgba(29, 78, 216, ${star.alpha * 0.75})`;
           ctx.beginPath();
@@ -242,7 +272,7 @@ const InteractiveSpaceBackground = () => {
       // 1.5 Draw constellations (connect nearby stars with very thin faint lines)
       ctx.save();
       ctx.strokeStyle = 'rgba(29, 78, 216, 0.05)';
-      ctx.lineWidth = 0.5;
+      ctx.lineWidth = 0.6;
       const maxDistance = 100; // max distance to connect stars
 
       for (let i = 0; i < stars.length; i++) {
@@ -323,7 +353,7 @@ const InteractiveSpaceBackground = () => {
         ctx.fillStyle = `rgba(30, 41, 59, ${ring.alpha * 0.8})`;
         ctx.font = '7px monospace';
         ctx.fillText(ring.label, ring.x + ring.radius + 10, ring.y + 3);
-        
+
         // Minor targeting crosshair
         ctx.strokeStyle = `rgba(29, 78, 216, ${ring.alpha * 0.4})`;
         ctx.beginPath();
