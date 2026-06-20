@@ -347,7 +347,7 @@ const About = () => {
           >
             <SectionTitle>About Me</SectionTitle>
             <SectionSubtitle>
-              Engineer, entrepreneur, and a passionate learner.
+              Engineer and a passionate learner.
             </SectionSubtitle>
           </motion.div>
         </SectionHeader>

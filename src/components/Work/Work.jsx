@@ -1,7 +1,7 @@
 // src/components/Work/Work.jsx
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaPlane, FaSolarPanel, FaLaptopCode, FaExternalLinkAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaPlane, FaLaptopCode, FaExternalLinkAlt, FaMapMarkerAlt } from 'react-icons/fa';
 
 // ─── Styled Components ────────────────────────────────────────────────────────
 
