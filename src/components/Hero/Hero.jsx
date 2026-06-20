@@ -20,8 +20,12 @@ const HeroSection = styled.section`
   padding: var(--spacing-2xl) var(--container-padding);
   
   @media (max-width: 768px) {
-    min-height: auto;
-    padding: 130px var(--container-padding) 60px var(--container-padding);
+    min-height: 100svh;
+    min-height: -webkit-fill-available; /* support mobile browser bottom/top bars */
+    padding: 90px var(--container-padding) 40px var(--container-padding);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 `;
 
@@ -66,6 +70,10 @@ const Title = styled(motion.h1)`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+
+  @media (max-width: 768px) {
+    margin-bottom: var(--spacing-xs);
+  }
 `;
 
 const Subtitle = styled(motion.p)`
@@ -73,6 +81,11 @@ const Subtitle = styled(motion.p)`
   color: var(--color-text-secondary);
   margin-bottom: var(--spacing-md);
   line-height: 1.6;
+
+  @media (max-width: 768px) {
+    font-size: var(--text-base);
+    margin-bottom: var(--spacing-xs);
+  }
 `;
 
 const Description = styled(motion.p)`
@@ -80,6 +93,11 @@ const Description = styled(motion.p)`
   color: var(--color-text-secondary);
   margin-bottom: var(--spacing-lg);
   line-height: 1.8;
+
+  @media (max-width: 768px) {
+    font-size: var(--text-sm);
+    margin-bottom: var(--spacing-md);
+  }
 `;
 
 const CTAContainer = styled(motion.div)`
@@ -97,6 +115,8 @@ const CTAContainer = styled(motion.div)`
     flex-direction: column;
     align-items: stretch;
     width: 100%;
+    gap: 0.75rem;
+    margin-bottom: var(--spacing-md);
     
     a {
       width: 100%;
@@ -138,6 +158,11 @@ const CTAButton = styled(motion.a)`
     outline: 3px solid #fff;
     outline-offset: 4px;
   }
+
+  @media (max-width: 768px) {
+    padding: 0.75rem 1.5rem;
+    font-size: var(--text-sm);
+  }
 `;
 
 const SecondaryButton = styled(motion.a)`
@@ -151,6 +176,11 @@ const SecondaryButton = styled(motion.a)`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 768px) {
+    padding: 0.75rem 1.5rem;
+    font-size: var(--text-sm);
+  }
   
   &:hover {
     border-color: var(--color-accent-primary);
