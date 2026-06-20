@@ -174,6 +174,12 @@ const GlobalStyles = createGlobalStyle`
   ::-webkit-scrollbar-thumb:hover {
     background: var(--color-accent-glow);
   }
+  
+  /* Firefox Scrollbar standards */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-primary) var(--color-bg-secondary);
+  }
 
   /* Responsive Container */
   .container {

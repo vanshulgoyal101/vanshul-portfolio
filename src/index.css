@@ -39,29 +39,6 @@ p, h1, h2, h3, h4, h5, h6 {
   isolation: isolate;
 }
 
-/* Scrollbar styles - hidden */
-::-webkit-scrollbar {
-  width: 0px;
-  display: none;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: transparent;
-}
-
-/* Hide scrollbar for Firefox */
-* {
-  scrollbar-width: none;
-}
-
 /* Hide scrollbar for IE and Edge */
 body {
   -ms-overflow-style: none;

@@ -27,7 +27,7 @@ const RocketWrapper = styled.div`
     left: auto;
     right: auto;
     transform: none;
-    margin: 40px auto 0 auto;
+    margin: 60px auto 0 auto;
     display: flex;
     justify-content: center;
     pointer-events: none;
