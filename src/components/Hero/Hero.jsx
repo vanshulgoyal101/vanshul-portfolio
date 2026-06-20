@@ -113,13 +113,14 @@ const CTAContainer = styled(motion.div)`
 
   @media (max-width: 480px) {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
     width: 100%;
     gap: 0.75rem;
     margin-bottom: var(--spacing-md);
     
     a {
-      width: 100%;
+      width: 280px;
+      max-width: 100%;
     }
   }
 `;
