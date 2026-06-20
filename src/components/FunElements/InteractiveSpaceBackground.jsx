@@ -157,6 +157,31 @@ const InteractiveSpaceBackground = () => {
         ctx.restore();
       });
 
+      // 1.5 Draw constellations (connect nearby stars with very thin faint lines)
+      ctx.save();
+      ctx.strokeStyle = 'rgba(29, 78, 216, 0.05)';
+      ctx.lineWidth = 0.5;
+      const maxDistance = 100; // max distance to connect stars
+
+      for (let i = 0; i < stars.length; i++) {
+        for (let j = i + 1; j < stars.length; j++) {
+          const starA = stars[i];
+          const starB = stars[j];
+          const dist = Math.hypot(starA.x - starB.x, starA.y - starB.y);
+
+          if (dist < maxDistance) {
+            // Fade out the link line if either star is dim
+            const lineAlpha = Math.min(starA.alpha, starB.alpha) * 0.04 * (1 - dist / maxDistance);
+            ctx.strokeStyle = `rgba(29, 78, 216, ${lineAlpha})`;
+            ctx.beginPath();
+            ctx.moveTo(starA.x, starA.y);
+            ctx.lineTo(starB.x, starB.y);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.restore();
+
       // 2. Draw shooting stars
       for (let i = shootingStars.length - 1; i >= 0; i--) {
         const ss = shootingStars[i];
