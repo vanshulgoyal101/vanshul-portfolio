@@ -116,6 +116,7 @@ import Work from './components/Work/Work';
 import Projects from './components/Projects/Projects';
 import Blog from './components/Blog/Blog';
 import Contact from './components/Contact/Contact';
+import SmokeTransition from './components/FunElements/SmokeTransition';
 
 // Lazy load heavy components
 const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
@@ -128,7 +129,7 @@ const IdleBackground = () => {
   if (!ready) return null;
   return (
     <Suspense fallback={null}>
-      <FloatingRocket />
+      <FloatingRocket isDesktopOnly />
       <RandomTelemetry />
       <InteractiveSpaceBackground />
     </Suspense>
@@ -180,6 +181,7 @@ function App() {
           
           {/* Fun Interactive Elements — deferred until after first paint */}
           <IdleBackground />
+          <SmokeTransition />
           
           <Routes>
             {/* Main portfolio page */}

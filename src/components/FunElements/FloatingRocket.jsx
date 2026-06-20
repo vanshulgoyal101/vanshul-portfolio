@@ -1,20 +1,44 @@
-// src/components/FunElements/FloatingRocket.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { motion, useAnimation } from 'framer-motion';
 import { FaRocket } from 'react-icons/fa';
 
-const RocketContainer = styled(motion.div)`
+const RocketWrapper = styled.div`
   position: fixed;
   bottom: 50px;
   right: 50px;
   z-index: 100;
-  cursor: pointer;
+  
+  ${({ $isMobileOnly }) => $isMobileOnly && `
+    display: none;
+  `}
   
   @media (max-width: 768px) {
-    bottom: 30px;
-    right: 30px;
+    ${({ $isDesktopOnly }) => $isDesktopOnly && `
+      display: none !important;
+    `}
+    
+    ${({ $isMobileOnly }) => $isMobileOnly && `
+      display: flex !important;
+    `}
+    
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    transform: none;
+    margin: 40px auto 0 auto;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 10;
+    width: fit-content;
   }
+`;
+
+const RocketContainer = styled(motion.div)`
+  cursor: pointer;
+  pointer-events: auto;
 `;
 
 const Rocket = styled(motion.div)`
@@ -77,11 +101,12 @@ const Tooltip = styled(motion.div)`
   }
 `;
 
-const FloatingRocket = () => {
+const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hasLaunched, setHasLaunched] = useState(false);
   const [clickCount, setClickCount] = useState(0);
   const controls = useAnimation();
+  const rocketRef = useRef(null);
 
   const handleClick = async () => {
     if (hasLaunched) return;
@@ -92,27 +117,50 @@ const FloatingRocket = () => {
       // Launch sequence
       setHasLaunched(true);
       
+      // Emit custom launch event
+      window.dispatchEvent(new CustomEvent('rocket-launch'));
+
       // Shake before launch
       await controls.start({
         x: [0, -5, 5, -5, 5, 0],
         transition: { duration: 0.5 }
       });
       
-      // Launch!
-      controls.start({
+      // Setup position tracking frame loop
+      let animFrame;
+      const trackPosition = () => {
+        if (rocketRef.current) {
+          const rect = rocketRef.current.getBoundingClientRect();
+          const nozzleX = rect.left + rect.width / 2;
+          const nozzleY = rect.bottom;
+          window.dispatchEvent(new CustomEvent('rocket-emit-smoke', {
+            detail: { x: nozzleX, y: nozzleY }
+          }));
+        }
+        animFrame = requestAnimationFrame(trackPosition);
+      };
+      
+      // Start tracking
+      trackPosition();
+
+      // Launch! (Accelerated to 1.3s for speed and snap)
+      await controls.start({
         y: -window.innerHeight - 200,
         transition: { 
-          duration: 2,
+          duration: 1.3,
           ease: "easeIn"
         }
       });
       
-      // Reset after launch
+      // Stop tracking frame loop
+      cancelAnimationFrame(animFrame);
+
+      // Reset after launch (quicker reset)
       setTimeout(() => {
         controls.set({ y: 0 });
         setHasLaunched(false);
         setClickCount(0);
-      }, 3000);
+      }, 700);
     } else {
       // Small bounce
       controls.start({
@@ -143,69 +191,72 @@ const FloatingRocket = () => {
     : "Ready for launch!";
 
   return (
-    <RocketContainer
-      animate={controls}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      onClick={handleClick}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      <Rocket
-        animate={{ 
-          rotate: hasLaunched ? -45 : 0,
-        }}
-        transition={{ duration: 0.3 }}
+    <RocketWrapper $isMobileOnly={isMobileOnly} $isDesktopOnly={isDesktopOnly}>
+      <RocketContainer
+        ref={rocketRef}
+        animate={controls}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+        onClick={handleClick}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
       >
-        <FaRocket />
-      </Rocket>
-      
-      <Flame
-        animate={{ 
-          opacity: hasLaunched ? 1 : 0,
-          scaleY: hasLaunched ? [1, 1.5, 1] : 1,
-          rotate: hasLaunched ? 45 : 0,
-          x: hasLaunched ? '-30%' : '-50%'
-        }}
-        transition={{ 
-          duration: 0.2,
-          repeat: hasLaunched ? Infinity : 0,
-          repeatType: "reverse"
-        }}
-      />
-      
-      {hasLaunched && (
-        <>
-          {[...Array(3)].map((_, i) => (
-            <Smoke
-              key={i}
-              initial={{ opacity: 0.5, scale: 0 }}
-              animate={{
-                y: [0, 100],
-                x: [0, (i - 1) * 20],
-                opacity: [0.5, 0],
-                scale: [1, 3]
-              }}
-              transition={{
-                duration: 1,
-                delay: i * 0.1,
-                repeat: Infinity
-              }}
-            />
-          ))}
-        </>
-      )}
-      
-      <Tooltip
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ 
-          opacity: isHovered && !hasLaunched ? 1 : 0,
-          y: isHovered && !hasLaunched ? 0 : 10
-        }}
-      >
-        {tooltipText}
-      </Tooltip>
-    </RocketContainer>
+        <Rocket
+          animate={{ 
+            rotate: hasLaunched ? -45 : 0,
+          }}
+          transition={{ duration: 0.3 }}
+        >
+          <FaRocket />
+        </Rocket>
+        
+        <Flame
+          animate={{ 
+            opacity: hasLaunched ? 1 : 0,
+            scaleY: hasLaunched ? [1, 1.5, 1] : 1,
+            rotate: hasLaunched ? 45 : 0,
+            x: hasLaunched ? '-30%' : '-50%'
+          }}
+          transition={{ 
+            duration: 0.2,
+            repeat: hasLaunched ? Infinity : 0,
+            repeatType: "reverse"
+          }}
+        />
+        
+        {hasLaunched && (
+          <>
+            {[...Array(3)].map((_, i) => (
+              <Smoke
+                key={i}
+                initial={{ opacity: 0.5, scale: 0 }}
+                animate={{
+                  y: [0, 100],
+                  x: [0, (i - 1) * 20],
+                  opacity: [0.5, 0],
+                  scale: [1, 3]
+                }}
+                transition={{
+                  duration: 1,
+                  delay: i * 0.1,
+                  repeat: Infinity
+                }}
+              />
+            ))}
+          </>
+        )}
+        
+        <Tooltip
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ 
+            opacity: isHovered && !hasLaunched ? 1 : 0,
+            y: isHovered && !hasLaunched ? 0 : 10
+          }}
+        >
+          {tooltipText}
+        </Tooltip>
+      </RocketContainer>
+    </RocketWrapper>
   );
 };
 

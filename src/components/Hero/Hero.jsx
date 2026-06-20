@@ -8,6 +8,7 @@ import FloatingShape from './FloatingShape';
 import { FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { HiChevronDown } from 'react-icons/hi';
+import FloatingRocket from '../FunElements/FloatingRocket';
 
 // Styled Components
 const HeroSection = styled.section`
@@ -405,6 +406,7 @@ const Hero = () => {
               <FaGithub />
             </SocialLink>
           </SocialLinks>
+          <FloatingRocket isMobileOnly />
         </HeroContent>
 
         <CanvasContainer>
