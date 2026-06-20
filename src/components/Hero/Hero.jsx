@@ -20,8 +20,8 @@ const HeroSection = styled.section`
   padding: var(--spacing-2xl) var(--container-padding);
   
   @media (max-width: 768px) {
-    min-height: 80vh;
-    padding: 100px var(--container-padding) 40px var(--container-padding);
+    min-height: auto;
+    padding: 130px var(--container-padding) 60px var(--container-padding);
   }
 `;
 
@@ -92,6 +92,16 @@ const CTAContainer = styled(motion.div)`
   @media (max-width: 1024px) {
     justify-content: center;
   }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    
+    a {
+      width: 100%;
+    }
+  }
 `;
 
 const CTAButton = styled(motion.a)`
@@ -105,6 +115,7 @@ const CTAButton = styled(motion.a)`
   overflow: hidden;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   
   &::before {
@@ -137,6 +148,9 @@ const SecondaryButton = styled(motion.a)`
   border-radius: 50px;
   font-size: var(--text-base);
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   
   &:hover {
     border-color: var(--color-accent-primary);
