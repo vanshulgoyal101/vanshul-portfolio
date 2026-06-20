@@ -69,6 +69,39 @@ const InteractiveSpaceBackground = () => {
       });
     };
 
+    // Planets pool (gentle decorative floating bodies)
+    const planets = [
+      {
+        x: width * 0.15,
+        y: height * 0.25,
+        radius: 35,
+        color: 'rgba(59, 130, 246, 0.04)', // soft cyan/blue gas giant
+        hasRing: true,
+        ringColor: 'rgba(59, 130, 246, 0.03)',
+        vx: 0.04,
+        vy: 0.01,
+      },
+      {
+        x: width * 0.8,
+        y: height * 0.65,
+        radius: 20,
+        color: 'rgba(236, 72, 153, 0.04)', // soft pink/magenta planet
+        hasRing: false,
+        vx: -0.03,
+        vy: 0.02,
+      },
+      {
+        x: width * 0.45,
+        y: height * 0.8,
+        radius: 15,
+        color: 'rgba(139, 92, 246, 0.04)', // soft violet planet
+        hasRing: true,
+        ringColor: 'rgba(139, 92, 246, 0.025)',
+        vx: 0.02,
+        vy: -0.02,
+      }
+    ];
+
     // Auto spawn shooting stars occasionally
     const spawnInterval = setInterval(() => {
       if (shootingStars.length < 3 && Math.random() > 0.3) {
@@ -99,6 +132,55 @@ const InteractiveSpaceBackground = () => {
     // Render loop
     const render = () => {
       ctx.clearRect(0, 0, width, height);
+
+      // 0. Draw floating background planets (slow and low-contrast to not distract)
+      planets.forEach((planet) => {
+        planet.x += planet.vx;
+        planet.y += planet.vy;
+
+        // Screen wrap boundaries for planet sizes
+        if (planet.x + planet.radius < 0) planet.x = width + planet.radius;
+        if (planet.x - planet.radius > width) planet.x = -planet.radius;
+        if (planet.y + planet.radius < 0) planet.y = height + planet.radius;
+        if (planet.y - planet.radius > height) planet.y = -planet.radius;
+
+        ctx.save();
+        
+        // Draw orbital shadow/glow
+        const glowGradient = ctx.createRadialGradient(
+          planet.x, planet.y, planet.radius * 0.1,
+          planet.x, planet.y, planet.radius * 1.5
+        );
+        glowGradient.addColorStop(0, planet.color);
+        glowGradient.addColorStop(1, 'rgba(246, 243, 235, 0)');
+        ctx.fillStyle = glowGradient;
+        ctx.beginPath();
+        ctx.arc(planet.x, planet.y, planet.radius * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw planet body
+        ctx.fillStyle = planet.color;
+        ctx.beginPath();
+        ctx.arc(planet.x, planet.y, planet.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw rings if applicable
+        if (planet.hasRing) {
+          ctx.strokeStyle = planet.ringColor;
+          ctx.lineWidth = planet.radius * 0.18;
+          ctx.save();
+          // Scale/transform context to draw an oval/rotated ellipse ring
+          ctx.translate(planet.x, planet.y);
+          ctx.rotate(-Math.PI / 8); // 22.5 deg tilt
+          ctx.scale(2, 0.45); // squish into ellipse ring
+          ctx.beginPath();
+          ctx.arc(0, 0, planet.radius * 0.8, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.restore();
+      });
 
       // 1. Draw static blinking stars
       stars.forEach((star) => {
