@@ -272,8 +272,8 @@ const InteractiveSpaceBackground = () => {
       // 1.5 Draw constellations (connect nearby stars with very thin faint lines)
       ctx.save();
       ctx.strokeStyle = 'rgba(29, 78, 216, 0.05)';
-      ctx.lineWidth = 0.6;
-      const maxDistance = 100; // max distance to connect stars
+      ctx.lineWidth = 5;
+      const maxDistance = 200; // max distance to connect stars
 
       for (let i = 0; i < stars.length; i++) {
         for (let j = i + 1; j < stars.length; j++) {

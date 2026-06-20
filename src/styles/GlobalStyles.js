@@ -159,26 +159,30 @@ const GlobalStyles = createGlobalStyle`
 
   /* Fluid Scrollbar */
   ::-webkit-scrollbar {
-    width: clamp(0.5rem, 1vw, 0.75rem);
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--color-bg-secondary);
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--color-accent-primary);
-    border-radius: 0.25rem;
+    background: rgba(29, 78, 216, 0.2);
+    border-radius: 100px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-accent-glow);
+    background: rgba(29, 78, 216, 0.6);
+    background-clip: padding-box;
   }
   
   /* Firefox Scrollbar standards */
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-accent-primary) var(--color-bg-secondary);
+    scrollbar-color: rgba(29, 78, 216, 0.2) transparent;
   }
 
   /* Responsive Container */
