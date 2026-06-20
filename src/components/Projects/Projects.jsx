@@ -198,9 +198,16 @@ const ProjectLink = styled.a`
   min-height: 44px;
   transition: gap 0.2s ease;
 
+  svg {
+    transition: transform 0.2s ease;
+  }
+
   &:hover {
     text-decoration: underline;
-    gap: calc(var(--spacing-xs) + 4px);
+    
+    svg {
+      transform: translateX(4px);
+    }
   }
 
   @media (max-width: 768px) {

@@ -123,6 +123,7 @@ const ReadMore = styled.span`
  */
 const BlogCard = ({ blog, index, variants }) => {
   if (!blog) return null;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   return (
     <CardLink to={`/blog/${blog.slug}`}>
@@ -132,7 +133,7 @@ const BlogCard = ({ blog, index, variants }) => {
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
         transition={{ delay: index * 0.1 }}
-        whileHover={{ scale: 1.02 }}
+        whileHover={isMobile ? {} : { scale: 1.02 }}
         role="article"
         aria-label={`Blog post: ${blog.title}`}
       >
