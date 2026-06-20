@@ -40,8 +40,11 @@ const InteractiveSpaceBackground = () => {
         y: Math.random() * height,
         size: isTwinklyStar ? Math.random() * 2 + 1.5 : Math.random() * 1.5 + 0.4,
         alpha: Math.random(),
-        speed: Math.random() * 0.025 + 0.005,
+        speed: Math.random() * 0.02 + 0.005,
         direction: Math.random() > 0.5 ? 1 : -1,
+        // Drift speeds for floating effect
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25,
         isTwinkly: isTwinklyStar,
         points: Math.floor(Math.random() * 2) + 4, // 4 or 5 point stars
       };
@@ -99,12 +102,31 @@ const InteractiveSpaceBackground = () => {
 
       // 1. Draw static blinking stars
       stars.forEach((star) => {
+        // Drift/Float position
+        star.x += star.vx;
+        star.y += star.vy;
+
+        // Twinkle/Blink animation
         star.alpha += star.speed * star.direction;
-        if (star.alpha >= 0.75) {
-          star.direction = -1;
-        } else if (star.alpha <= 0.05) {
+
+        // If star fades out completely, respawn it at a brand new random coordinate!
+        if (star.alpha <= 0) {
+          star.x = Math.random() * width;
+          star.y = Math.random() * height;
+          star.alpha = 0.01;
           star.direction = 1;
+          // Assign new gentle drift speeds
+          star.vx = (Math.random() - 0.5) * 0.25;
+          star.vy = (Math.random() - 0.5) * 0.25;
+        } else if (star.alpha >= 0.75) {
+          star.direction = -1;
         }
+
+        // Screen boundary wrapping
+        if (star.x < 0) star.x = width;
+        if (star.x > width) star.x = 0;
+        if (star.y < 0) star.y = height;
+        if (star.y > height) star.y = 0;
         
         ctx.save();
         if (star.isTwinkly) {
