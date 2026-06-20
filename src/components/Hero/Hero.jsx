@@ -21,8 +21,7 @@ const HeroSection = styled.section`
   
   @media (max-width: 768px) {
     min-height: 100svh;
-    min-height: -webkit-fill-available; /* support mobile browser bottom/top bars */
-    padding: 170px var(--container-padding) 40px var(--container-padding);
+    padding: 40px var(--container-padding) 40px var(--container-padding);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -50,6 +49,10 @@ const HeroContent = styled(motion.div)`
 
   @media (max-width: 1024px) {
     margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    margin-top: 40px;
   }
 `;
 
@@ -239,7 +242,7 @@ const CanvasContainer = styled.div`
   @media (max-width: 1024px) {
     height: 400px;
     position: absolute;
-    top: 0;
+    top: 100px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -425,26 +428,26 @@ const Hero = () => {
         </CanvasContainer>
       </HeroContainer>
 
-        <ScrollIndicator
-          onClick={() => {
-            const el = document.getElementById('about');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.5 }}
-          whileHover={{ scale: 1.1 }}
-          aria-label="Scroll to About"
+      <ScrollIndicator
+        onClick={() => {
+          const el = document.getElementById('about');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.2, duration: 0.5 }}
+        whileHover={{ scale: 1.1 }}
+        aria-label="Scroll to About"
+      >
+        <ScrollText>Scroll</ScrollText>
+        <motion.div
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <ScrollText>Scroll</ScrollText>
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <HiChevronDown size={20} />
-          </motion.div>
-        </ScrollIndicator>
-      </HeroSection>
+          <HiChevronDown size={20} />
+        </motion.div>
+      </ScrollIndicator>
+    </HeroSection>
   );
 };
 
