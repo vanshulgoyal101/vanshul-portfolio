@@ -56,6 +56,22 @@ const Logo = styled(motion.a)`
   &:hover::after {
     width: 100%;
   }
+
+  .desktop-logo {
+    display: inline;
+  }
+  .mobile-logo {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .desktop-logo {
+      display: none;
+    }
+    .mobile-logo {
+      display: inline;
+    }
+  }
 `;
 
 const NavLinks = styled(motion.ul)`
@@ -329,7 +345,8 @@ const Navigation = ({ scrollToSection }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Vanshul Goyal
+            <span className="desktop-logo">Vanshul Goyal</span>
+            <span className="mobile-logo">VG</span>
           </Logo>
 
           <NavLinks $isOpen={isMobileMenuOpen}>
