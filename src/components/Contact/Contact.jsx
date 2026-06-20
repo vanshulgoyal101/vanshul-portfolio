@@ -399,8 +399,8 @@ const Contact = () => {
     },
     {
       icon: <MdWork />,
-      label: 'Current Positions',
-      value: 'United Airlines & Solaride',
+      label: 'Current Position',
+      value: 'United Airlines',
     },
     {
       icon: <BiWorld />,

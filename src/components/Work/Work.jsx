@@ -198,18 +198,6 @@ const experiences = [
   },
   {
     id: 2,
-    icon: <FaSolarPanel />,
-    title: 'Co-Founder',
-    company: 'Solaride',
-    department: 'Operations & Strategy',
-    duration: '2024 – Present',
-    location: 'Chandigarh, India',
-    description: 'Leading business operations and scaling strategies for the EPC company specialising in solar installations. Managing projects under PM Surya Ghar and PM KUSUM Yojana.',
-    tech: ['Operations', 'Project Management', 'Business Development', 'Solar Energy'],
-    link: 'https://solaride.in',
-  },
-  {
-    id: 3,
     icon: <FaLaptopCode />,
     title: 'Software Development Engineer Intern',
     company: 'zHealth',
@@ -247,7 +235,7 @@ const Work = () => {
         >
           <SectionTitle>Work Experience</SectionTitle>
           <SectionSubtitle>
-            Building impactful solutions across aviation, renewable energy, and healthcare
+            Building impactful solutions across aviation and healthcare
           </SectionSubtitle>
         </SectionHeader>
 

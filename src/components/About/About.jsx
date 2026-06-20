@@ -372,10 +372,7 @@ const About = () => {
                   Currently, I work as an <HighlightText>Associate Analyst at{' '}
                   <a href="https://www.united.com" target="_blank" rel="noopener noreferrer">
                     United Airlines
-                  </a></HighlightText> in the Air Operations department, while co-founding{' '}
-                  <a href="https://solaride.in" target="_blank" rel="noopener noreferrer">
-                    <HighlightText>Solaride</HighlightText>
-                  </a>, an EPC company accelerating India's transition to sustainable energy.
+                  </a></HighlightText> in the Air Operations department.
                 </p>
                 <p>
                   My journey has been shaped by incredible experiences — from leading a team to{' '}

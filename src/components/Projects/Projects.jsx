@@ -213,19 +213,6 @@ const ProjectLink = styled.a`
 const projects = [
   {
     id: 1,
-    title: 'Solaride',
-    role: 'Co-Founder',
-    description: 'Powering a greener future with solar energy. Installing solar power plants on houses, malls, factories, and farmland under PM Surya Ghar & PM KUSUM Yojana.',
-    image: '/images/projects/Solaride.png',
-    fallbackIcon: '☀️',
-    stats: [
-      { icon: <MdGroups />, text: 'EPC company' },
-      { icon: <FaRocket />, text: 'Government registered vendor' },
-    ],
-    link: 'https://solaride.in',
-  },
-  {
-    id: 2,
     title: 'NASA Human Exploration Rover Challenge',
     role: 'Team Lead',
     description: 'Led a team of 6 to design and manufacture a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking and engaged 12,000+ students in STEM activities.',
@@ -238,7 +225,7 @@ const projects = [
     link: 'https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge/',
   },
   {
-    id: 3,
+    id: 2,
     title: 'NASA Space Apps Collective',
     role: 'Global Community Member',
     description: 'Selected among 30 global space leaders. Developed weather visualisation tools for Zimbabwean farmers using open-source NASA data.',

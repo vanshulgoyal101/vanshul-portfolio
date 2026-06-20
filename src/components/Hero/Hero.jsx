@@ -289,7 +289,7 @@ const Hero = () => {
           </Title>
 
           <Subtitle variants={itemVariants}>
-            Associate Analyst at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">United Airlines</a> | Co-founder at <a href="https://solaride.in" target="_blank" rel="noopener noreferrer">Solaride</a> | NASA <a href='https://www.spaceappschallenge.org/collective/' target='_blank' rel='noopener noreferrer'> SpaceApps Collective</a>, <a href='https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge' target='_blank' rel='noopener noreferrer'> HERC 2023</a>
+            Associate Analyst at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">United Airlines</a> | NASA <a href='https://www.spaceappschallenge.org/collective/' target='_blank' rel='noopener noreferrer'> SpaceApps Collective</a>, <a href='https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge' target='_blank' rel='noopener noreferrer'> HERC 2023</a>
           </Subtitle>
 
           <Description variants={itemVariants}>
