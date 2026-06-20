@@ -291,7 +291,7 @@ const Projects = () => {
         >
           <SectionTitle>Featured Projects</SectionTitle>
           <SectionSubtitle>
-            From space sector to sustainable energy — projects that define my journey
+            From space exploration to software development — projects that define my journey
           </SectionSubtitle>
         </SectionHeader>
 

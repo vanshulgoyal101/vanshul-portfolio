@@ -444,7 +444,7 @@ const socialLinks = [
             <motion.div variants={itemVariants}>
               <InfoTitle>Let's Connect</InfoTitle>
               <InfoText>
-                Whether you want to discuss technology, sustainable energy, or just say hello, 
+                Whether you want to discuss technology, engineering, or just say hello, 
                 I'd love to hear from you. Feel free to reach out through the form or connect 
                 on social media.
               </InfoText>

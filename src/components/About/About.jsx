@@ -372,7 +372,7 @@ const About = () => {
                   Currently, I work as an <HighlightText>Associate Analyst at{' '}
                   <a href="https://www.united.com" target="_blank" rel="noopener noreferrer">
                     United Airlines
-                  </a></HighlightText> in the Air Operations department.
+                  </a></HighlightText> in the Airport Operations department.
                 </p>
                 <p>
                   My journey has been shaped by incredible experiences — from leading a team to{' '}
@@ -401,7 +401,7 @@ const About = () => {
                 {!imageError && (
                   <ProfileImage
                     src="/images/projects/profile2.png"
-                    alt="Vanshul Goyal — Associate Analyst, Co-Founder"
+                    alt="Vanshul Goyal — Associate Analyst"
                     loading="lazy"
                     onLoad={() => setImageLoaded(true)}
                     onError={() => setImageError(true)}
