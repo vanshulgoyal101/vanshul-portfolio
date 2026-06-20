@@ -123,6 +123,27 @@ const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocke
 const RandomTelemetry = lazy(() => import('./components/FunElements/RandomTelemetry'));
 const InteractiveSpaceBackground = lazy(() => import('./components/FunElements/InteractiveSpaceBackground'));
 
+// ScrollToHash: Handles scrolling to sections when returning from subroutes or on direct URL hits containing hashes
+import { useLocation } from 'react-router-dom';
+const ScrollToHash = ({ isBooting }) => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!isBooting && location.hash) {
+      const id = location.hash.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        const timeoutId = setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  }, [location, isBooting]);
+
+  return null;
+};
+
 // IdleBackground: renders decorative elements only after browser idle
 const IdleBackground = () => {
   const ready = useIdle(1200);
@@ -169,6 +190,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToHash isBooting={isBooting} />
       <ToastProvider>
         <GlobalStyles />
         <AnimatePresence mode="wait">
