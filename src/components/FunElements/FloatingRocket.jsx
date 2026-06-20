@@ -82,41 +82,71 @@ const Smoke = styled(motion.div)`
 
 const Tooltip = styled(motion.div)`
   position: absolute;
-  bottom: 100%;
-  right: 0;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%) !important;
   background: var(--color-bg-card);
   color: var(--color-text-primary);
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 0.825rem;
+  font-weight: 500;
   white-space: nowrap;
-  margin-bottom: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--color-border);
   pointer-events: none;
+  z-index: 10;
   
   &::after {
     content: '';
     position: absolute;
     top: 100%;
-    right: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     border: 6px solid transparent;
+    border-top-color: var(--color-bg-card);
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
     border-top-color: var(--color-border);
+    z-index: -1;
   }
 `;
 
 const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [showBubble, setShowBubble] = useState(false);
   const [hasLaunched, setHasLaunched] = useState(false);
   const [clickCount, setClickCount] = useState(0);
   const controls = useAnimation();
   const rocketRef = useRef(null);
 
+  // Auto-temptation pulse helper: triggers a shake occasionally to catch the eye
+  useEffect(() => {
+    if (hasLaunched) return;
+    const interval = setInterval(() => {
+      // Small pulse nudge to tempt the user
+      controls.start({
+        scale: [1, 1.12, 1],
+        transition: { duration: 0.8, ease: "easeInOut" }
+      });
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [hasLaunched, controls]);
+
   const handleClick = async () => {
     if (hasLaunched) return;
     
-    setClickCount(prev => prev + 1);
+    const nextClickCount = clickCount + 1;
+    setClickCount(nextClickCount);
+    setShowBubble(true);
     
-    if (clickCount >= 2) {
+    if (nextClickCount >= 3) {
       // Launch sequence
       setHasLaunched(true);
       
@@ -163,6 +193,7 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
         controls.set({ y: 0 });
         setHasLaunched(false);
         setClickCount(0);
+        setShowBubble(false);
       }, 700);
     } else {
       // Small bounce
@@ -170,6 +201,13 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
         y: [0, -20, 0],
         transition: { duration: 0.3 }
       });
+      
+      // Hide chat bubble after 1.5 seconds if they don't keep tapping
+      const timeoutId = setTimeout(() => {
+        setClickCount(0);
+        setShowBubble(false);
+      }, 2000);
+      return () => clearTimeout(timeoutId);
     }
   };
 
@@ -188,20 +226,20 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   }, [hasLaunched, controls]);
 
   const tooltipText = clickCount === 0 
-    ? "Click me!" 
+    ? "Tap me to test thrusters! 🚀" 
     : clickCount === 1 
-    ? "Click again!" 
-    : "Ready for launch!";
+    ? "Ignition checks OK... Tap again! ⚡️" 
+    : "T-Minus 1s... Ready for launch! 🎆";
 
   return (
     <RocketWrapper $isMobileOnly={isMobileOnly} $isDesktopOnly={isDesktopOnly}>
       <RocketContainer
         ref={rocketRef}
         animate={controls}
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
+        onHoverStart={() => { setIsHovered(true); setShowBubble(true); }}
+        onHoverEnd={() => { setIsHovered(false); if (clickCount === 0) setShowBubble(false); }}
         onClick={handleClick}
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.15 }}
         whileTap={{ scale: 0.95 }}
       >
         <Rocket
@@ -250,10 +288,11 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
         )}
         
         <Tooltip
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 10, x: "-50%" }}
           animate={{ 
-            opacity: isHovered && !hasLaunched ? 1 : 0,
-            y: isHovered && !hasLaunched ? 0 : 10
+            opacity: (showBubble || isHovered) && !hasLaunched ? 1 : 0,
+            y: (showBubble || isHovered) && !hasLaunched ? 0 : 10,
+            x: "-50%"
           }}
         >
           {tooltipText}
