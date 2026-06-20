@@ -80,16 +80,17 @@ const SmokeTransition = () => {
         this.y += this.speedY;
         this.size += this.growth;
         
-        // Faster damping for snappy spread
-        this.speedX *= 0.92;
-        this.speedY *= 0.92;
+        // Snappy damping for spread
+        this.speedX *= 0.93;
+        this.speedY *= 0.93;
 
-        this.r += (this.targetR - this.r) * 0.12;
-        this.g += (this.targetG - this.g) * 0.12;
-        this.b += (this.targetB - this.b) * 0.12;
+        // Slow down color morphing so neon tones persist much longer (0.04 instead of 0.12)
+        this.r += (this.targetR - this.r) * 0.04;
+        this.g += (this.targetG - this.g) * 0.04;
+        this.b += (this.targetB - this.b) * 0.04;
         
-        // Dissipate faster (matching the faster scroll)
-        this.opacity -= 0.024;
+        // Slower decay rate so neon smoke puffs linger longer (0.015 instead of 0.024)
+        this.opacity -= 0.015;
       }
 
       draw() {
@@ -156,7 +157,8 @@ const SmokeTransition = () => {
         }
       }
 
-      if (elapsed > 800 && particles.length === 0) {
+      // Prolong transition life to 1800ms to allow lingering smoke to finish fading
+      if (elapsed > 1800 && particles.length === 0) {
         setIsActive(false);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       } else {
