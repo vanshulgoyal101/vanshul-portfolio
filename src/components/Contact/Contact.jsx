@@ -1,13 +1,11 @@
-// src/components/Contact/Contact.jsx
-import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaLinkedin, FaInstagram, FaPaperPlane, FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { MdLocationOn, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
-import { useToast } from '../Toast';
 import Magnetic from '../FunElements/Magnetic';
+import { useContactForm } from '../../hooks/useContactForm';
 
 
 // Styled Components
@@ -311,14 +309,7 @@ const ValidationError = styled.p`
 `;
 
 const Contact = () => {
-  const { showSuccess, showError } = useToast();
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    message: '',
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [emailError, setEmailError] = useState('');
+  const { formState, isSubmitting, emailError, handleChange, handleSubmit } = useContactForm();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -341,55 +332,6 @@ const Contact = () => {
         ease: 'easeOut',
       },
     },
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormState({ ...formState, [name]: value });
-    if (name === 'email') {
-      const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-      setEmailError(value && !valid ? 'Please enter a valid email address.' : '');
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // Replace with your Formspree endpoint
-      const response = await fetch('https://formspree.io/f/xgvzkqob', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formState,
-          _replyto: formState.email,
-          _subject: `Portfolio Contact: ${formState.name}`,
-        }),
-      });
-
-      if (response.ok) {
-        showSuccess(
-          'Message Sent!', 
-          'Thank you for reaching out. I\'ll get back to you soon!'
-        );
-        setFormState({ name: '', email: '', message: '' });
-      } else {
-        showError(
-          'Oops! Something went wrong',
-          'Failed to send your message. Please try again or email me directly.'
-        );
-      }
-    } catch {
-      showError(
-        'Network Error',
-        'Unable to send message. Please check your connection and try again.'
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   const contactInfo = [
