@@ -396,17 +396,7 @@ const Navigation = ({ scrollToSection }) => {
             <span className="mobile-logo">VG</span>
           </Logo>
 
-          <NavLinks
-            $isOpen={isMobileMenuOpen}
-            drag={isMobile ? "x" : false}
-            dragConstraints={{ left: 0, right: 360 }}
-            dragElastic={{ left: 0.1, right: 0.5 }}
-            onDragEnd={(e, info) => {
-              if (info.offset.x > 80 || info.velocity.x > 300) {
-                setIsMobileMenuOpen(false);
-              }
-            }}
-          >
+          <NavLinks $isOpen={isMobileMenuOpen}>
             {navItems.map((item, index) => (
               <motion.li
                 key={item.id}
