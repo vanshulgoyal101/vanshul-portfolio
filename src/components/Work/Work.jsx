@@ -52,6 +52,50 @@ const ExperienceGrid = styled.div`
   gap: var(--spacing-md);
   max-width: 900px;
   margin: 0 auto;
+  position: relative;
+
+  @media (min-width: 769px) {
+    padding-left: 45px;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 15px;
+      bottom: 15px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--color-accent-primary) 0%, rgba(29, 78, 216, 0.05) 100%);
+    }
+  }
+`;
+
+const TimelineNode = styled.div`
+  display: none;
+  
+  @media (min-width: 769px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: -35px;
+    top: 30px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    border: 2px solid var(--color-accent-primary);
+    z-index: 2;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    &::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-accent-primary);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
 `;
 
 const ExperienceCard = styled(motion.div)`
@@ -71,6 +115,16 @@ const ExperienceCard = styled(motion.div)`
     border-left-color: var(--color-accent-primary);
     box-shadow: 0 20px 40px rgba(29, 78, 216, 0.08);
     transform: translateY(-4px);
+  }
+
+  &:hover ${TimelineNode} {
+    transform: scale(1.2);
+    border-color: var(--color-accent-secondary);
+    
+    &::after {
+      background: var(--color-accent-secondary);
+      transform: scale(1.1);
+    }
   }
 
   @media (max-width: 768px) {
@@ -261,6 +315,7 @@ const Work = () => {
               viewport={{ once: true, amount: 0.2 }}
               whileHover={{ x: 4 }}
             >
+              <TimelineNode />
               <CardHeader>
                 <CardIcon>{exp.icon}</CardIcon>
                 <CardInfo>

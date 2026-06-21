@@ -12,6 +12,8 @@ import { ToastProvider } from './components/Toast';
 import BootLoader from './components/FunElements/BootLoader';
 import ErrorBoundary from './components/ErrorBoundary';
 import CustomCursor from './components/FunElements/CustomCursor';
+import MobileStickyCTA from './components/Navigation/MobileStickyCTA';
+import ScrollToTop from './components/Navigation/ScrollToTop';
 
 // Idle loader — renders children only after browser is idle (post first paint)
 const useIdle = (delay = 1500) => {
@@ -200,6 +202,8 @@ function App() {
         
         <AppWrapper>
           <CustomCursor />
+          <MobileStickyCTA />
+          <ScrollToTop />
           {/* Background ambient elements */}
           <BackgroundElements />
           

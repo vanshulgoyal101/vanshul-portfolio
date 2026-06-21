@@ -239,8 +239,16 @@ const Navigation = ({ scrollToSection }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -382,13 +390,23 @@ const Navigation = ({ scrollToSection }) => {
           <Logo
             onClick={(e) => handleNavClick(e, 'home')}
             whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.92 }}
           >
             <span className="desktop-logo">Vanshul Goyal</span>
             <span className="mobile-logo">VG</span>
           </Logo>
 
-          <NavLinks $isOpen={isMobileMenuOpen}>
+          <NavLinks
+            $isOpen={isMobileMenuOpen}
+            drag={isMobile ? "x" : false}
+            dragConstraints={{ left: 0, right: 360 }}
+            dragElastic={{ left: 0.1, right: 0.5 }}
+            onDragEnd={(e, info) => {
+              if (info.offset.x > 80 || info.velocity.x > 300) {
+                setIsMobileMenuOpen(false);
+              }
+            }}
+          >
             {navItems.map((item, index) => (
               <motion.li
                 key={item.id}
@@ -401,7 +419,7 @@ const Navigation = ({ scrollToSection }) => {
                   onClick={(e) => handleNavClick(e, item.id)}
                   className={effectiveSection === item.id ? 'active' : ''}
                   whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.92 }}
                 >
                   {item.label}
                 </NavLink>

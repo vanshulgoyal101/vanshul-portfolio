@@ -7,6 +7,7 @@ import { FaXTwitter } from 'react-icons/fa6';
 import { MdLocationOn, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
 import { useToast } from '../Toast';
+import Magnetic from '../FunElements/Magnetic';
 
 
 // Styled Components
@@ -468,17 +469,18 @@ const socialLinks = [
               <InfoText>Connect with me on social media:</InfoText>
               <SocialLinks>
                 {socialLinks.map((social, index) => (
-                  <SocialLink
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    {social.icon}
-                  </SocialLink>
+                  <Magnetic key={index} range={35}>
+                    <SocialLink
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.label}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      {social.icon}
+                    </SocialLink>
+                  </Magnetic>
                 ))}
               </SocialLinks>
             </motion.div>

@@ -6,7 +6,7 @@ import { motion, useMotionValue, useSpring } from 'framer-motion';
 const CursorDot = styled(motion.div)`
   width: 8px;
   height: 8px;
-  background-color: var(--color-accent-primary);
+  background-color: #ffffff;
   border-radius: 50%;
   position: fixed;
   top: 0;
@@ -15,12 +15,13 @@ const CursorDot = styled(motion.div)`
   z-index: 9999;
   transform: translate(-50%, -50%);
   will-change: transform;
+  mix-blend-mode: difference;
 `;
 
 const CursorRing = styled(motion.div)`
   width: 36px;
   height: 36px;
-  border: 1.5px solid var(--color-accent-primary);
+  border: 1.5px solid #ffffff;
   border-radius: 50%;
   position: fixed;
   top: 0;
@@ -29,7 +30,8 @@ const CursorRing = styled(motion.div)`
   z-index: 9998;
   transform: translate(-50%, -50%);
   will-change: transform, width, height, background-color;
-  background-color: rgba(29, 78, 216, 0);
+  background-color: rgba(255, 255, 255, 0);
+  mix-blend-mode: difference;
 `;
 
 const CustomCursor = () => {
@@ -125,8 +127,8 @@ const CustomCursor = () => {
         style={{ x: ringX, y: ringY }}
         animate={{
           scale: isHovered ? 1.6 : 1,
-          backgroundColor: isHovered ? 'rgba(29, 78, 216, 0.08)' : 'rgba(29, 78, 216, 0)',
-          borderColor: isHovered ? 'var(--color-accent-primary)' : 'rgba(29, 78, 216, 0.5)',
+          backgroundColor: isHovered ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0)',
+          borderColor: isHovered ? '#ffffff' : 'rgba(255, 255, 255, 0.6)',
         }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
       />
