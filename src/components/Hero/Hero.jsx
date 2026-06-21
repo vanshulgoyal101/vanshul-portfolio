@@ -9,6 +9,7 @@ import { FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { HiChevronDown } from 'react-icons/hi';
 import FloatingRocket from '../FunElements/FloatingRocket';
+import Magnetic from '../FunElements/Magnetic';
 
 // Styled Components
 const HeroSection = styled.section`
@@ -348,63 +349,75 @@ const Hero = () => {
           </Description>
 
           <CTAContainer variants={itemVariants}>
-            <CTAButton
-              href="#work"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Explore My Work
-            </CTAButton>
-            <SecondaryButton
-              href="#contact"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Get In Touch
-            </SecondaryButton>
+            <Magnetic range={80}>
+              <CTAButton
+                href="#work"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Explore My Work
+              </CTAButton>
+            </Magnetic>
+            <Magnetic range={80}>
+              <SecondaryButton
+                href="#contact"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Get In Touch
+              </SecondaryButton>
+            </Magnetic>
           </CTAContainer>
 
           <SocialLinks variants={itemVariants}>
-            <SocialLink
-              href="https://x.com/goyal_vanshul"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="Twitter"
-            >
-              <FaXTwitter />
-            </SocialLink>
-            <SocialLink
-              href="https://www.linkedin.com/in/vanshul-goyal00/"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="LinkedIn"
-            >
-              <FaLinkedin />
-            </SocialLink>
-            <SocialLink
-              href="https://www.instagram.com/vanshul_goyal/"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="Instagram"
-            >
-              <FaInstagram />
-            </SocialLink>
-            <SocialLink
-              href="https://github.com/vanshulgoyal101"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="GitHub"
-            >
-              <FaGithub />
-            </SocialLink>
+            <Magnetic range={35}>
+              <SocialLink
+                href="https://x.com/goyal_vanshul"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Twitter"
+              >
+                <FaXTwitter />
+              </SocialLink>
+            </Magnetic>
+            <Magnetic range={35}>
+              <SocialLink
+                href="https://www.linkedin.com/in/vanshul-goyal00/"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="LinkedIn"
+              >
+                <FaLinkedin />
+              </SocialLink>
+            </Magnetic>
+            <Magnetic range={35}>
+              <SocialLink
+                href="https://www.instagram.com/vanshul_goyal/"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Instagram"
+              >
+                <FaInstagram />
+              </SocialLink>
+            </Magnetic>
+            <Magnetic range={35}>
+              <SocialLink
+                href="https://github.com/vanshulgoyal101"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="GitHub"
+              >
+                <FaGithub />
+              </SocialLink>
+            </Magnetic>
           </SocialLinks>
           <FloatingRocket isMobileOnly />
         </HeroContent>

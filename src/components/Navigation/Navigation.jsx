@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { HiMenuAlt3, HiX } from 'react-icons/hi';
 
 // Styled Components
@@ -103,18 +103,20 @@ const NavLinks = styled(motion.ul)`
     top: 0;
     right: 0;
     height: 100vh;
-    width: min(75vw, 400px);
-    background: rgba(246, 243, 235, 0.98);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    width: min(75vw, 360px);
+    background: rgba(246, 243, 235, 0.85);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     flex-direction: column;
     justify-content: center;
     gap: 2rem;
     padding: 2rem;
     transform: translateX(100%);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
-    border-left: 1px solid var(--color-border);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: -15px 0 40px rgba(30, 41, 59, 0.05);
+    border-left: 1px solid rgba(30, 41, 59, 0.08);
+    border-top-left-radius: 32px;
+    border-bottom-left-radius: 32px;
 
     ${({ $isOpen }) => $isOpen && `
       transform: translateX(0);
@@ -221,6 +223,17 @@ const MobileOverlay = styled(motion.div)`
   }
 `;
 
+const ProgressBar = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-gradient-1);
+  transform-origin: 0%;
+  z-index: var(--z-tooltip); /* Sit above everything, even fixed nav */
+`;
+
 // Navigation Component
 const Navigation = ({ scrollToSection }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -228,6 +241,13 @@ const Navigation = ({ scrollToSection }) => {
   const [activeSection, setActiveSection] = useState('home');
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   // Memoized nav items — stable across renders
   const navItems = useMemo(() => [
@@ -351,6 +371,7 @@ const Navigation = ({ scrollToSection }) => {
 
   return (
     <>
+      <ProgressBar style={{ scaleX }} />
       <Nav
         variants={navVariants}
         initial="hidden"
