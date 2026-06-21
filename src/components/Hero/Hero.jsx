@@ -1,5 +1,5 @@
 // src/components/Hero/Hero.jsx
-import { Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
@@ -8,8 +8,9 @@ import FloatingShape from './FloatingShape';
 import { FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { HiChevronDown } from 'react-icons/hi';
-import FloatingRocket from '../FunElements/FloatingRocket';
 import Magnetic from '../FunElements/Magnetic';
+
+const FloatingRocket = lazy(() => import('../FunElements/FloatingRocket'));
 
 // Styled Components
 const HeroSection = styled.section`
@@ -419,7 +420,9 @@ const Hero = () => {
               </SocialLink>
             </Magnetic>
           </SocialLinks>
-          <FloatingRocket isMobileOnly />
+          <Suspense fallback={null}>
+            <FloatingRocket isMobileOnly />
+          </Suspense>
         </HeroContent>
 
         <CanvasContainer>
