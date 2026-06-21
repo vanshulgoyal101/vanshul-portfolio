@@ -51,17 +51,50 @@ const NavContainer = styled.div`
   }
 `;
 
-const Logo = styled(motion.a)`
-  font-size: var(--text-xl);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--color-text-primary);
+const LogoContainer = styled(motion.a)`
+  display: flex;
+  align-items: center;
+  gap: 12px;
   cursor: pointer;
   position: relative;
   z-index: var(--z-fixed);
-  display: inline-flex;
+  text-decoration: none;
+`;
+
+const LogoBadge = styled.div`
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
   align-items: center;
-  line-height: 1;
+  justify-content: center;
+  background: var(--color-bg-card);
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  box-shadow: 0 4px 10px rgba(30, 41, 59, 0.03);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-accent-primary);
+  font-family: var(--font-display);
+`;
+
+const ProgressRingSvg = styled.svg`
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 40px;
+  height: 40px;
+  transform: rotate(-90deg);
+  pointer-events: none;
+`;
+
+const LogoText = styled.span`
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  position: relative;
 
   &::after {
     content: '';
@@ -74,24 +107,12 @@ const Logo = styled(motion.a)`
     transition: width 0.3s ease;
   }
 
-  &:hover::after {
+  ${LogoContainer}:hover &::after {
     width: 100%;
   }
 
-  .desktop-logo {
-    display: inline;
-  }
-  .mobile-logo {
-    display: none;
-  }
-
   @media (max-width: 768px) {
-    .desktop-logo {
-      display: none;
-    }
-    .mobile-logo {
-      display: inline;
-    }
+    display: none;
   }
 `;
 
@@ -382,7 +403,6 @@ const Navigation = ({ scrollToSection }) => {
 
   return (
     <>
-      <ProgressBar style={{ scaleX }} />
       <Nav
         variants={navVariants}
         initial="hidden"
@@ -390,14 +410,44 @@ const Navigation = ({ scrollToSection }) => {
         $scrolled={isScrolled}
       >
         <NavContainer $scrolled={isScrolled}>
-          <Logo
+          <LogoContainer
             onClick={(e) => handleNavClick(e, 'home')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.92 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <span className="desktop-logo">Vanshul Goyal</span>
-            <span className="mobile-logo">VG</span>
-          </Logo>
+            <LogoBadge>
+              VG
+              <ProgressRingSvg viewBox="0 0 40 40">
+                <defs>
+                  <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="var(--color-accent-primary)" />
+                    <stop offset="100%" stopColor="var(--color-accent-secondary)" />
+                  </linearGradient>
+                </defs>
+                {/* Background track circle */}
+                <circle
+                  cx="20"
+                  cy="20"
+                  r="19"
+                  fill="none"
+                  stroke="rgba(30, 41, 59, 0.05)"
+                  strokeWidth="1.2"
+                />
+                {/* Animated progress circle */}
+                <motion.circle
+                  cx="20"
+                  cy="20"
+                  r="19"
+                  fill="none"
+                  stroke="url(#progress-gradient)"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  style={{ pathLength: scaleX }}
+                />
+              </ProgressRingSvg>
+            </LogoBadge>
+            <LogoText>Vanshul Goyal</LogoText>
+          </LogoContainer>
 
           <NavLinks $isOpen={isMobileMenuOpen}>
             {navItems.map((item, index) => (
