@@ -1,5 +1,5 @@
 // src/components/FunElements/CustomCursor.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
@@ -60,13 +60,21 @@ const CustomCursor = () => {
     };
   }, []);
 
+  const rafRef = useRef(null);
+
   useEffect(() => {
     if (!isSupported) return;
 
     const handleMouseMove = (e) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
-      if (!isVisible) setIsVisible(true);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+      
+      rafRef.current = requestAnimationFrame(() => {
+        mouseX.set(e.clientX);
+        mouseY.set(e.clientY);
+        if (!isVisible) setIsVisible(true);
+      });
     };
 
     const handleMouseLeave = () => {
@@ -102,6 +110,9 @@ const CustomCursor = () => {
     document.body.classList.add('has-custom-cursor');
 
     return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
       window.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseenter', handleMouseEnter);
