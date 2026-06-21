@@ -125,6 +125,7 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   const [clickCount, setClickCount] = useState(0);
   const controls = useAnimation();
   const rocketRef = useRef(null);
+  const clickTimeoutRef = useRef(null);
 
   // Auto-temptation pulse helper: triggers a shake occasionally to catch the eye
   useEffect(() => {
@@ -141,6 +142,10 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
 
   const handleClick = async () => {
     if (hasLaunched) return;
+
+    if (clickTimeoutRef.current) {
+      clearTimeout(clickTimeoutRef.current);
+    }
     
     const nextClickCount = clickCount + 1;
     setClickCount(nextClickCount);
@@ -202,14 +207,19 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
         transition: { duration: 0.3 }
       });
       
-      // Hide chat bubble after 1.5 seconds if they don't keep tapping
-      const timeoutId = setTimeout(() => {
+      // Hide chat bubble and reset count after 3 seconds if they don't keep tapping
+      clickTimeoutRef.current = setTimeout(() => {
         setClickCount(0);
         setShowBubble(false);
-      }, 2000);
-      return () => clearTimeout(timeoutId);
+      }, 3000);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     // Floating animation
