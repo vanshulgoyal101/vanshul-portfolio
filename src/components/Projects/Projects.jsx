@@ -76,11 +76,16 @@ const ProjectCard = styled(motion.div)`
   border: 1px solid var(--color-border);
   border-radius: 16px;
   overflow: hidden;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    border-color: var(--color-accent-primary);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.12);
+    border-color: rgba(29, 78, 216, 0.4);
+    box-shadow: 0 20px 40px rgba(29, 78, 216, 0.08), 
+                0 0 0 1px rgba(29, 78, 216, 0.05);
+    transform: translateY(-6px);
   }
 `;
 

@@ -61,12 +61,16 @@ const ExperienceCard = styled(motion.div)`
   border-radius: 16px;
   padding: var(--spacing-lg);
   position: relative;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-left-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    border-color: var(--color-accent-primary);
+    border-color: rgba(29, 78, 216, 0.4);
     border-left-color: var(--color-accent-primary);
-    box-shadow: 0 8px 28px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 20px 40px rgba(29, 78, 216, 0.08);
+    transform: translateY(-4px);
   }
 
   @media (max-width: 768px) {

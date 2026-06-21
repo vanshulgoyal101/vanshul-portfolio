@@ -12,25 +12,43 @@ const Nav = styled(motion.nav)`
   left: 0;
   right: 0;
   z-index: var(--z-fixed);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: var(--transition-base);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   background: transparent;
 
   ${({ $scrolled }) => $scrolled && `
-    background: rgba(246, 243, 235, 0.95);
-    border-bottom: 1px solid var(--color-border);
-    box-shadow: 0 2px 10px rgba(30, 41, 59, 0.04);
+    top: 1rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    max-width: calc(var(--container-xl) - 3rem);
+    margin: 0 auto;
+    background: rgba(246, 243, 235, 0.75);
+    border: 1px solid rgba(30, 41, 59, 0.06);
+    border-radius: 100px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 12px 30px rgba(30, 41, 59, 0.06);
+    
+    @media (max-width: 768px) {
+      top: 0.5rem;
+      left: 1rem;
+      right: 1rem;
+      max-width: calc(100% - 2rem);
+    }
   `}
 `;
 
 const NavContainer = styled.div`
   max-width: var(--container-xl);
   margin: 0 auto;
-  padding: clamp(1rem, 3vw, 1.5rem) var(--container-padding);
+  padding: ${({ $scrolled }) => $scrolled ? '0.75rem 1.75rem' : 'clamp(1rem, 3vw, 1.5rem) var(--container-padding)'};
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  @media (max-width: 768px) {
+    padding: ${({ $scrolled }) => $scrolled ? '0.6rem 1.2rem' : '1rem var(--container-padding)'};
+  }
 `;
 
 const Logo = styled(motion.a)`
@@ -339,7 +357,7 @@ const Navigation = ({ scrollToSection }) => {
         animate="visible"
         $scrolled={isScrolled}
       >
-        <NavContainer>
+        <NavContainer $scrolled={isScrolled}>
           <Logo
             onClick={(e) => handleNavClick(e, 'home')}
             whileHover={{ scale: 1.05 }}

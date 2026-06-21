@@ -12,15 +12,17 @@ const Card = styled(motion.article)`
   border-radius: 16px;
   padding: var(--spacing-lg);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 320px;
   display: flex;
   flex-direction: column;
   
   &:hover {
-    border-color: var(--color-accent-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+    border-color: rgba(29, 78, 216, 0.4);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(29, 78, 216, 0.08);
   }
   
   @media (max-width: 768px) {
@@ -43,9 +45,9 @@ const CardLink = styled(Link)`
   }
   
   &:focus-visible ${Card} {
-    border-color: var(--color-accent-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+    border-color: rgba(29, 78, 216, 0.4);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(29, 78, 216, 0.08);
   }
 `;
 
