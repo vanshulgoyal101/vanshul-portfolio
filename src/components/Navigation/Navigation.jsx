@@ -70,7 +70,6 @@ const LogoBadge = styled.div`
   justify-content: center;
   background: var(--color-bg-card);
   border-radius: 50%;
-  border: 1.5px solid var(--color-border);
   box-shadow: 0 4px 10px rgba(30, 41, 59, 0.03);
   font-weight: 700;
   font-size: 0.9rem;
@@ -80,40 +79,12 @@ const LogoBadge = styled.div`
 
 const ProgressRingSvg = styled.svg`
   position: absolute;
-  top: -2px;
-  left: -2px;
-  width: 40px;
-  height: 40px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   transform: rotate(-90deg);
   pointer-events: none;
-`;
-
-const LogoText = styled.span`
-  font-size: var(--text-lg);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--color-text-primary);
-  font-family: var(--font-display);
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--color-gradient-1);
-    transition: width 0.3s ease;
-  }
-
-  ${LogoContainer}:hover &::after {
-    width: 100%;
-  }
-
-  @media (max-width: 768px) {
-    display: none;
-  }
 `;
 
 const NavLinks = styled(motion.ul)`
@@ -446,7 +417,6 @@ const Navigation = ({ scrollToSection }) => {
                 />
               </ProgressRingSvg>
             </LogoBadge>
-            <LogoText>Vanshul Goyal</LogoText>
           </LogoContainer>
 
           <NavLinks $isOpen={isMobileMenuOpen}>
