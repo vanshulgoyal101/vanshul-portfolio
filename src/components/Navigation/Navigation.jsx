@@ -59,6 +59,9 @@ const Logo = styled(motion.a)`
   cursor: pointer;
   position: relative;
   z-index: var(--z-fixed);
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 
   &::after {
     content: '';
