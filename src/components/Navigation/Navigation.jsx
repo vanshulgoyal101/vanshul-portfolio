@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
-import { HiMenuAlt3, HiX } from 'react-icons/hi';
+import { HiMenuAlt3, HiX, HiSun, HiMoon } from 'react-icons/hi';
 
 // Styled Components
 const Nav = styled(motion.nav)`
@@ -111,16 +111,10 @@ const NavLinks = styled(motion.ul)`
     justify-content: center;
     gap: 2rem;
     padding: 2rem;
-    transform: translateX(100%);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: -15px 0 40px rgba(30, 41, 59, 0.05);
     border-left: 1px solid rgba(30, 41, 59, 0.08);
     border-top-left-radius: 32px;
     border-bottom-left-radius: 32px;
-
-    ${({ $isOpen }) => $isOpen && `
-      transform: translateX(0);
-    `}
   }
 `;
 
@@ -223,6 +217,42 @@ const MobileOverlay = styled(motion.div)`
   }
 `;
 
+const ButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: var(--z-fixed);
+`;
+
+const ThemeToggleBtn = styled(motion.button)`
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  min-width: 40px;
+  min-height: 40px;
+  background: var(--color-bg-card);
+  transition: border-color 0.3s ease, color 0.3s ease, background-color 0.3s ease;
+  
+  &:hover {
+    border-color: var(--color-accent-primary);
+    color: var(--color-accent-primary);
+  }
+  
+  &:focus-visible {
+    outline: 3px solid var(--color-accent-primary);
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+`;
+
 const ProgressBar = styled(motion.div)`
   position: fixed;
   top: 0;
@@ -242,6 +272,22 @@ const Navigation = ({ scrollToSection }) => {
   const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [isDark, setIsDark] = useState(() => {
+    const stored = localStorage.getItem('theme');
+    if (stored) return stored === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
@@ -377,6 +423,17 @@ const Navigation = ({ scrollToSection }) => {
     },
   };
 
+  const drawerVariants = {
+    open: {
+      x: 0,
+      transition: { type: 'spring', stiffness: 350, damping: 30 }
+    },
+    closed: {
+      x: isMobile ? '100%' : 0,
+      transition: { type: 'spring', stiffness: 350, damping: 30 }
+    }
+  };
+
   return (
     <>
       <ProgressBar style={{ scaleX }} />
@@ -397,6 +454,9 @@ const Navigation = ({ scrollToSection }) => {
           </Logo>
 
           <NavLinks
+            variants={drawerVariants}
+            animate={isMobileMenuOpen ? "open" : "closed"}
+            initial="closed"
             $isOpen={isMobileMenuOpen}
             drag={isMobile ? "x" : false}
             dragConstraints={{ left: 0, right: 360 }}
@@ -427,36 +487,58 @@ const Navigation = ({ scrollToSection }) => {
             ))}
           </NavLinks>
 
-          <MenuButton
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Toggle mobile menu"
-          >
-            <AnimatePresence mode="wait">
-              {isMobileMenuOpen ? (
+          <ButtonGroup>
+            <ThemeToggleBtn
+              onClick={() => setIsDark(!isDark)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Toggle light/dark theme"
+            >
+              <AnimatePresence mode="wait" initial={false}>
                 <motion.div
-                  key="close"
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: 90, opacity: 0 }}
+                  key={isDark ? 'dark' : 'light'}
+                  initial={{ y: -10, opacity: 0, rotate: -45 }}
+                  animate={{ y: 0, opacity: 1, rotate: 0 }}
+                  exit={{ y: 10, opacity: 0, rotate: 45 }}
                   transition={{ duration: 0.2 }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <HiX />
+                  {isDark ? <HiSun /> : <HiMoon />}
                 </motion.div>
-              ) : (
-                <motion.div
-                  key="menu"
-                  initial={{ rotate: 90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: -90, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <HiMenuAlt3 />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </MenuButton>
+              </AnimatePresence>
+            </ThemeToggleBtn>
+
+            <MenuButton
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              aria-label="Toggle mobile menu"
+            >
+              <AnimatePresence mode="wait">
+                {isMobileMenuOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <HiX />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <HiMenuAlt3 />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </MenuButton>
+          </ButtonGroup>
         </NavContainer>
       </Nav>
 

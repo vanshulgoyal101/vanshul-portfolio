@@ -3,6 +3,7 @@ import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
   :root {
+    color-scheme: light;
     /* Color Palette - Deep blacks with electric blue/purple accents */
     --color-bg-primary: #f6f3eb;
     --color-bg-secondary: #f6f3eb;
@@ -22,6 +23,31 @@ const GlobalStyles = createGlobalStyle`
     
     --color-border: rgba(30, 41, 59, 0.08);
     --color-border-hover: rgba(30, 41, 59, 0.15);
+    --color-grid: rgba(30, 41, 59, 0.025);
+  }
+
+  body.dark-mode {
+    color-scheme: dark;
+    --color-bg-primary: #0b0f19;
+    --color-bg-secondary: #0b0f19;
+    --color-bg-tertiary: #0f172a;
+    --color-bg-card: #131b2e;
+    
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #cbd5e1;
+    --color-text-muted: #64748b;
+    
+    --color-accent-primary: #3b82f6;
+    --color-accent-secondary: #60a5fa;
+    --color-accent-glow: rgba(59, 130, 246, 0.12);
+    
+    --color-gradient-1: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    --color-gradient-2: linear-gradient(135deg, #0b0f19 0%, #0f172a 100%);
+    
+    --color-border: rgba(255, 255, 255, 0.08);
+    --color-border-hover: rgba(255, 255, 255, 0.15);
+    --color-grid: rgba(255, 255, 255, 0.018);
+  }
     
     /* Fluid Spacing - scales with viewport */
     --spacing-xs: clamp(0.25rem, 0.5vw, 0.5rem);
@@ -94,13 +120,17 @@ const GlobalStyles = createGlobalStyle`
     -moz-osx-font-smoothing: grayscale;
   }
 
+  body, header, nav, main, footer, section, article, h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea, select, li {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
   body {
     font-family: var(--font-primary);
     font-size: var(--text-base);
     background-color: var(--color-bg-primary);
     background-image: 
-      linear-gradient(to right, rgba(30, 41, 59, 0.025) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(30, 41, 59, 0.025) 1px, transparent 1px);
+      linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
     background-size: 80px 80px;
     background-attachment: fixed;
     color: var(--color-text-primary);
