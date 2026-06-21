@@ -111,7 +111,7 @@ const NavLinks = styled(motion.ul)`
     justify-content: center;
     gap: 2rem;
     padding: 2rem;
-    transform: translateX(100%);
+    transform: translateX(calc(100% + 40px));
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: -15px 0 40px rgba(30, 41, 59, 0.05);
     border-left: 1px solid rgba(30, 41, 59, 0.08);
