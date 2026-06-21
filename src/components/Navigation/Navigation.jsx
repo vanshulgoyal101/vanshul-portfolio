@@ -12,7 +12,17 @@ const Nav = styled(motion.nav)`
   left: 0;
   right: 0;
   z-index: var(--z-fixed);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: 
+    top 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    left 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    right 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    margin 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    border-radius 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   background: transparent;
 
   ${({ $scrolled }) => $scrolled && `
@@ -413,7 +423,7 @@ const Navigation = ({ scrollToSection }) => {
                   stroke="url(#progress-gradient)"
                   strokeWidth="1.8"
                   strokeLinecap="round"
-                  style={{ pathLength: scaleX }}
+                  pathLength={scaleX}
                 />
               </ProgressRingSvg>
             </LogoBadge>
