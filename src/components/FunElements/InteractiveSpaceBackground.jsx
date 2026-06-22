@@ -7,8 +7,8 @@ const CanvasContainer = styled.canvas`
   inset: 0;
   pointer-events: none;
   z-index: 0; /* Below all content, above basic body color */
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 `;
 
 const InteractiveSpaceBackground = () => {
