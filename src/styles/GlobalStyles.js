@@ -209,6 +209,14 @@ const GlobalStyles = createGlobalStyle`
     }
   }
 
+  section {
+    scroll-margin-top: 100px;
+
+    @media (max-width: 768px) {
+      scroll-margin-top: 80px;
+    }
+  }
+
   /* Fluid Section Spacing */
   .section {
     will-change: auto; /* Only use will-change when needed */
