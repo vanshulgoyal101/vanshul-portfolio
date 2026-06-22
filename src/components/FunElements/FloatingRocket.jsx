@@ -42,12 +42,14 @@ const RocketContainer = styled(motion.div)`
   outline: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  will-change: transform;
 `;
 
 const Rocket = styled(motion.div)`
   font-size: 3rem;
   color: var(--color-accent-primary);
   filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5));
+  will-change: transform;
   
   @media (max-width: 768px) {
     font-size: 2.5rem;
@@ -66,6 +68,7 @@ const Flame = styled(motion.div)`
   filter: blur(2px);
   opacity: 0;
   transform-origin: top center;
+  will-change: transform, opacity;
 `;
 
 const Smoke = styled(motion.div)`
@@ -78,6 +81,7 @@ const Smoke = styled(motion.div)`
   background: radial-gradient(circle, rgba(99, 102, 241, 0.6) 0%, rgba(56, 189, 248, 0.3) 50%, transparent 100%);
   border-radius: 50%;
   filter: blur(4px);
+  will-change: transform, opacity;
 `;
 
 const Tooltip = styled(motion.div)`

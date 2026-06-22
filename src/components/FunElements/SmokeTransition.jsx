@@ -42,16 +42,43 @@ class ParticlePool {
   }
 }
 
+// Pre-render a smoke puff gradient to a small offscreen canvas to avoid createRadialGradient calls inside the frame loop.
+const createOffscreenSmokeCanvas = (r, g, b) => {
+  const size = 128; // 128x128 provides crisp quality and fits scaling perfectly
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  
+  const half = size / 2;
+  const gradient = ctx.createRadialGradient(half, half, 1, half, half, half);
+  gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 1)`);
+  gradient.addColorStop(0.25, `rgba(${r}, ${g}, ${b}, 0.4)`);
+  gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+  
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(half, half, half, 0, Math.PI * 2);
+  ctx.fill();
+  
+  return canvas;
+};
+
+const colorDefs = [
+  { r: 6, g: 182, b: 212 },   // Neon Cyan
+  { r: 236, g: 72, b: 153 },  // Hot Magenta
+  { r: 139, g: 92, b: 246 },  // Electric Violet
+  { r: 148, g: 163, b: 184 }, // Soft Smoke Grey
+];
+
+// Cache the canvases statically outside render loop
+const cachedCanvases = colorDefs.map(c => createOffscreenSmokeCanvas(c.r, c.g, c.b));
+
 // Particle class representing a pooled smoke puff
 class SmokeParticle {
   constructor(x, y) {
     this.reset(x, y);
     this.maxSize = Math.max(window.innerWidth, window.innerHeight) * 0.95;
-    
-    // Target background color #f6f3eb (246, 243, 235)
-    this.targetR = 246;
-    this.targetG = 243;
-    this.targetB = 235;
   }
 
   reset(x, y) {
@@ -65,17 +92,13 @@ class SmokeParticle {
 
     const rand = Math.random();
     if (rand < 0.25) {
-      // Neon Cyan
-      this.r = 6; this.g = 182; this.b = 212;
+      this.colorIndex = 0;
     } else if (rand < 0.5) {
-      // Hot Magenta
-      this.r = 236; this.g = 72; this.b = 153;
+      this.colorIndex = 1;
     } else if (rand < 0.75) {
-      // Electric Violet
-      this.r = 139; this.g = 92; this.b = 246;
+      this.colorIndex = 2;
     } else {
-      // Soft Smoke Grey (slate-400)
-      this.r = 148; this.g = 163; this.b = 184;
+      this.colorIndex = 3;
     }
   }
 
@@ -94,25 +117,16 @@ class SmokeParticle {
   draw(ctx) {
     if (this.opacity <= 0) return;
     ctx.save();
-    ctx.beginPath();
+    ctx.globalAlpha = this.opacity;
     
-    // Pre-calculated offset radius to keep GPU drawings lightweight
-    const gradient = ctx.createRadialGradient(
-      this.x, this.y, 1,
-      this.x, this.y, this.size
+    const cachedCanvas = cachedCanvases[this.colorIndex];
+    ctx.drawImage(
+      cachedCanvas,
+      this.x - this.size,
+      this.y - this.size,
+      this.size * 2,
+      this.size * 2
     );
-    
-    const floorR = Math.floor(this.r);
-    const floorG = Math.floor(this.g);
-    const floorB = Math.floor(this.b);
-    
-    gradient.addColorStop(0, `rgba(${floorR}, ${floorG}, ${floorB}, ${this.opacity})`);
-    gradient.addColorStop(0.25, `rgba(${floorR}, ${floorG}, ${floorB}, ${this.opacity * 0.4})`);
-    gradient.addColorStop(1, `rgba(${floorR}, ${floorG}, ${floorB}, 0)`); // fade to transparent particle color
-    
-    ctx.fillStyle = gradient;
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fill();
     ctx.restore();
   }
 }
