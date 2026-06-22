@@ -74,6 +74,9 @@ const colorDefs = [
 // Cache the canvases statically outside render loop
 const cachedCanvases = colorDefs.map(c => createOffscreenSmokeCanvas(c.r, c.g, c.b));
 
+// Background color canvas for blending (246, 243, 235)
+const bgCanvas = createOffscreenSmokeCanvas(246, 243, 235);
+
 // Particle class representing a pooled smoke puff
 class SmokeParticle {
   constructor(x, y) {
@@ -117,9 +120,13 @@ class SmokeParticle {
   draw(ctx) {
     if (this.opacity <= 0) return;
     ctx.save();
-    ctx.globalAlpha = this.opacity;
     
+    // Calculate blending progress (0 = fully colored, 1 = morphed to bg)
+    const progress = Math.min(1, (0.95 - this.opacity) / 0.7);
     const cachedCanvas = cachedCanvases[this.colorIndex];
+    
+    // Draw base color (slightly desaturates towards age)
+    ctx.globalAlpha = this.opacity * (1 - progress * 0.65);
     ctx.drawImage(
       cachedCanvas,
       this.x - this.size,
@@ -127,6 +134,17 @@ class SmokeParticle {
       this.size * 2,
       this.size * 2
     );
+    
+    // Overlay background color to merge seamlessly
+    ctx.globalAlpha = this.opacity * progress * 0.65;
+    ctx.drawImage(
+      bgCanvas,
+      this.x - this.size,
+      this.y - this.size,
+      this.size * 2,
+      this.size * 2
+    );
+    
     ctx.restore();
   }
 }
