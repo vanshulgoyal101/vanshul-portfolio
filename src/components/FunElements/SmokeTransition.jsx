@@ -214,7 +214,7 @@ const SmokeTransition = () => {
       }
 
       // Smoothly scroll down after the rocket has gained significant altitude
-      if (elapsed > 700 && !scrollTriggered) {
+      if (elapsed > 550 && !scrollTriggered) {
         scrollTriggered = true;
         const aboutEl = document.getElementById('about');
         if (aboutEl) {

@@ -162,10 +162,10 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
       // Emit custom launch event
       window.dispatchEvent(new CustomEvent('rocket-launch'));
 
-      // Shake before launch
+      // Shake before launch (shorter, high-frequency engine throttle shake)
       await controls.start({
-        x: [0, -5, 5, -5, 5, 0],
-        transition: { duration: 0.5 }
+        x: [0, -8, 8, -8, 8, 0],
+        transition: { duration: 0.2 }
       });
       
       // Setup position tracking frame loop
@@ -185,12 +185,12 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
       // Start tracking
       trackPosition();
 
-      // Launch! (Accelerating takeoff curve)
+      // Launch! (Snappy accelerating takeoff)
       await controls.start({
         y: -window.innerHeight - 200,
         transition: { 
-          duration: 1.2,
-          ease: [0.7, 0, 0.84, 0] // Accelerates naturally upwards
+          duration: 1.0,
+          ease: [0.6, 0.05, 0.8, 0.05] // Faster, natural acceleration
         }
       });
       
