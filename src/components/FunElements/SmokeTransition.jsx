@@ -87,11 +87,6 @@ class SmokeParticle {
     // Smoother, less abrupt deceleration
     this.speedX *= 0.96;
     this.speedY *= 0.96;
-
-    // Shift colors towards background
-    this.r += (this.targetR - this.r) * 0.1;
-    this.g += (this.targetG - this.g) * 0.1;
-    this.b += (this.targetB - this.b) * 0.1;
     
     this.opacity -= 0.015; // fade out slower and smoother
   }
@@ -113,7 +108,7 @@ class SmokeParticle {
     
     gradient.addColorStop(0, `rgba(${floorR}, ${floorG}, ${floorB}, ${this.opacity})`);
     gradient.addColorStop(0.25, `rgba(${floorR}, ${floorG}, ${floorB}, ${this.opacity * 0.4})`);
-    gradient.addColorStop(1, `rgba(${this.targetR}, ${this.targetG}, ${this.targetB}, 0)`);
+    gradient.addColorStop(1, `rgba(${floorR}, ${floorG}, ${floorB}, 0)`); // fade to transparent particle color
     
     ctx.fillStyle = gradient;
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
