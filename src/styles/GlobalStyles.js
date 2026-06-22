@@ -210,10 +210,10 @@ const GlobalStyles = createGlobalStyle`
   }
 
   section {
-    scroll-margin-top: 100px;
+    scroll-margin-top: 75px;
 
     @media (max-width: 768px) {
-      scroll-margin-top: 80px;
+      scroll-margin-top: 60px;
     }
   }
 
