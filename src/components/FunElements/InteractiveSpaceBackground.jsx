@@ -4,11 +4,14 @@ import styled from 'styled-components';
 
 const CanvasContainer = styled.canvas`
   position: fixed;
-  inset: 0;
+  top: -100px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(100% + 100px);
+  width: 100%;
   pointer-events: none;
   z-index: 0; /* Below all content, above basic body color */
-  width: 100%;
-  height: 100%;
 `;
 
 const InteractiveSpaceBackground = () => {
@@ -23,12 +26,12 @@ const InteractiveSpaceBackground = () => {
 
     let animationFrameId;
     let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let height = (canvas.height = window.innerHeight + 100);
 
     // Dynamic sizing on window resize
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      height = canvas.height = window.innerHeight + 100;
     };
     window.addEventListener('resize', handleResize);
 
@@ -37,7 +40,7 @@ const InteractiveSpaceBackground = () => {
       const isTwinklyStar = Math.random() > 0.8; // 20% multi-point twinkling stars
       return {
         x: Math.random() * width,
-        y: Math.random() * height,
+        y: Math.random() * height - 100, // Allow rendering in the status bar/notch space
         size: isTwinklyStar ? Math.random() * 2 + 1.5 : Math.random() * 1.5 + 0.4,
         alpha: Math.random(),
         speed: Math.random() * 0.02 + 0.005,
@@ -56,7 +59,7 @@ const InteractiveSpaceBackground = () => {
       // Spawn from top-left direction zipping to bottom-right
       const side = Math.random() > 0.5;
       const startX = side ? Math.random() * (width * 0.7) : 0;
-      const startY = side ? 0 : Math.random() * (height * 0.5);
+      const startY = side ? -100 : Math.random() * (height * 0.5) - 100;
 
       shootingStars.push({
         x: startX,
@@ -73,7 +76,7 @@ const InteractiveSpaceBackground = () => {
     const planets = [
       {
         x: width * 0.15,
-        y: height * 0.25,
+        y: height * 0.25 - 100,
         radius: 14,
         baseR: 59, baseG: 130, baseB: 246, // cyan/blue gas giant
         hasRing: true,
@@ -86,7 +89,7 @@ const InteractiveSpaceBackground = () => {
       },
       {
         x: width * 0.45,
-        y: height * 0.8,
+        y: height * 0.8 - 100,
         radius: 9,
         baseR: 139, baseG: 92, baseB: 246, // soft violet planet
         hasRing: true,
@@ -110,9 +113,9 @@ const InteractiveSpaceBackground = () => {
     let radarRings = [];
     const handleGlobalClick = (e) => {
       const x = e.clientX;
-      const y = e.clientY;
+      const y = e.clientY + 100; // Account for the offset
       const xPercent = ((x / window.innerWidth) * 100).toFixed(0);
-      const yPercent = ((y / window.innerHeight) * 100).toFixed(0);
+      const yPercent = ((y / (window.innerHeight + 100)) * 100).toFixed(0);
 
       radarRings.push({
         x,
@@ -141,7 +144,7 @@ const InteractiveSpaceBackground = () => {
         // If planet fades out completely, respawn at a random coordinate and trigger fade-in!
         if (planet.alpha <= 0) {
           planet.x = Math.random() * width;
-          planet.y = Math.random() * height;
+          planet.y = Math.random() * height - 100;
           planet.alpha = 0.01;
           planet.direction = 1;
           // Randomize speeds and trajectory
@@ -154,8 +157,8 @@ const InteractiveSpaceBackground = () => {
         // Screen wrap boundaries for planet sizes
         if (planet.x + planet.radius < 0) planet.x = width + planet.radius;
         if (planet.x - planet.radius > width) planet.x = -planet.radius;
-        if (planet.y + planet.radius < 0) planet.y = height + planet.radius;
-        if (planet.y - planet.radius > height) planet.y = -planet.radius;
+        if (planet.y + planet.radius < -100) planet.y = height + planet.radius;
+        if (planet.y - planet.radius > height) planet.y = -100 - planet.radius;
 
         ctx.save();
 
@@ -212,7 +215,7 @@ const InteractiveSpaceBackground = () => {
         // If star fades out completely, respawn it at a brand new random coordinate!
         if (star.alpha <= 0) {
           star.x = Math.random() * width;
-          star.y = Math.random() * height;
+          star.y = Math.random() * height - 100;
           star.alpha = 0.01;
           star.direction = 1;
           // Assign new gentle drift speeds
@@ -225,8 +228,8 @@ const InteractiveSpaceBackground = () => {
         // Screen boundary wrapping
         if (star.x < 0) star.x = width;
         if (star.x > width) star.x = 0;
-        if (star.y < 0) star.y = height;
-        if (star.y > height) star.y = 0;
+        if (star.y < -100) star.y = height;
+        if (star.y > height) star.y = -100;
 
         ctx.save();
         if (star.isTwinkly) {
