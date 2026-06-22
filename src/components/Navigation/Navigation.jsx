@@ -39,7 +39,7 @@ const Nav = styled(motion.nav)`
     box-shadow: 0 12px 30px rgba(30, 41, 59, 0.06);
     
     @media (max-width: 768px) {
-      top: 0.5rem;
+      top: calc(0.5rem + env(safe-area-inset-top, 0px));
       left: 1rem;
       right: 1rem;
       max-width: calc(100% - 2rem);
@@ -57,7 +57,7 @@ const NavContainer = styled.div`
   transition: padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   
   @media (max-width: 768px) {
-    padding: ${({ $scrolled }) => $scrolled ? '0.6rem 1.2rem' : '1rem var(--container-padding)'};
+    padding: ${({ $scrolled }) => $scrolled ? '0.6rem 1.2rem' : 'calc(1rem + env(safe-area-inset-top, 0px)) var(--container-padding) 1rem var(--container-padding)'};
   }
 `;
 
