@@ -92,6 +92,7 @@ const GlobalStyles = createGlobalStyle`
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: var(--color-bg-primary);
   }
 
   body {
