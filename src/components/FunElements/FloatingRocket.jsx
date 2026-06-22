@@ -73,11 +73,11 @@ const Smoke = styled(motion.div)`
   bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 10px;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.3);
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.6) 0%, rgba(56, 189, 248, 0.3) 50%, transparent 100%);
   border-radius: 50%;
-  filter: blur(5px);
+  filter: blur(4px);
 `;
 
 const Tooltip = styled(motion.div)`
@@ -181,12 +181,12 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
       // Start tracking
       trackPosition();
 
-      // Launch! (Snappy custom cubic-bezier curve for faster, powerful visual launch)
+      // Launch! (Accelerating takeoff curve)
       await controls.start({
         y: -window.innerHeight - 200,
         transition: { 
-          duration: 1.1,
-          ease: [0.25, 0.46, 0.45, 0.94]
+          duration: 1.2,
+          ease: [0.7, 0, 0.84, 0] // Accelerates naturally upwards
         }
       });
       
@@ -280,17 +280,18 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
             {[...Array(3)].map((_, i) => (
               <Smoke
                 key={i}
-                initial={{ opacity: 0.5, scale: 0 }}
+                initial={{ opacity: 0.6, scale: 0 }}
                 animate={{
-                  y: [0, 100],
-                  x: [0, (i - 1) * 20],
-                  opacity: [0.5, 0],
-                  scale: [1, 3]
+                  y: [0, 60],
+                  x: [0, (i - 1) * 12],
+                  opacity: [0.6, 0],
+                  scale: [1, 2.5]
                 }}
                 transition={{
-                  duration: 1,
-                  delay: i * 0.1,
-                  repeat: Infinity
+                  duration: 0.6,
+                  delay: i * 0.08,
+                  repeat: Infinity,
+                  ease: "easeOut"
                 }}
               />
             ))}

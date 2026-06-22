@@ -400,7 +400,7 @@ const About = () => {
               <ImageWrapper>
                 {!imageError && (
                   <ProfileImage
-                    src="/images/projects/profile2.png"
+                    src="/images/projects/profile2.webp"
                     alt="Vanshul Goyal — Associate Analyst"
                     loading="lazy"
                     onLoad={() => setImageLoaded(true)}

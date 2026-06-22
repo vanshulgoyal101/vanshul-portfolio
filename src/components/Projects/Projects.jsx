@@ -228,7 +228,7 @@ const projects = [
     title: 'NASA Human Exploration Rover Challenge',
     role: 'Team Lead',
     description: 'Led a team of 6 to design and manufacture a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking and engaged 12,000+ students in STEM activities.',
-    image: '/images/projects/nasa-herc.jpg',
+    image: '/images/projects/nasa-herc.webp',
     fallbackIcon: '🚀',
     stats: [
       { icon: <MdGroups />, text: '12k+ students reached for STEM' },
@@ -241,7 +241,7 @@ const projects = [
     title: 'NASA Space Apps Collective',
     role: 'Global Community Member',
     description: 'Selected among 30 global space leaders. Developed weather visualisation tools for Zimbabwean farmers using open-source NASA data.',
-    image: '/images/projects/spaceapps.png',
+    image: '/images/projects/spaceapps.webp',
     fallbackIcon: '🌍',
     stats: [
       { icon: <MdGroups />, text: 'Diverse global team' },

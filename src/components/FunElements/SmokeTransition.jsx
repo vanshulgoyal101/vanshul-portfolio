@@ -57,11 +57,11 @@ class SmokeParticle {
   reset(x, y) {
     this.x = x;
     this.y = y;
-    this.size = Math.random() * 8 + 4;
-    this.speedX = (Math.random() - 0.5) * 12;
-    this.speedY = Math.random() * 6 + 3;
+    this.size = Math.random() * 6 + 3;
+    this.speedX = (Math.random() - 0.5) * 6;
+    this.speedY = Math.random() * 3 + 1.5;
     this.opacity = 0.95;
-    this.growth = Math.random() * 16 + 10;
+    this.growth = Math.random() * 5 + 4; // slower growth for smoother expansion
 
     const rand = Math.random();
     if (rand < 0.33) {
@@ -81,16 +81,16 @@ class SmokeParticle {
     this.y += this.speedY;
     this.size += this.growth;
     
-    // Snappy deceleration
-    this.speedX *= 0.92;
-    this.speedY *= 0.92;
+    // Smoother, less abrupt deceleration
+    this.speedX *= 0.96;
+    this.speedY *= 0.96;
 
     // Shift colors towards background
-    this.r += (this.targetR - this.r) * 0.12;
-    this.g += (this.targetG - this.g) * 0.12;
-    this.b += (this.targetB - this.b) * 0.12;
+    this.r += (this.targetR - this.r) * 0.1;
+    this.g += (this.targetG - this.g) * 0.1;
+    this.b += (this.targetB - this.b) * 0.1;
     
-    this.opacity -= 0.024;
+    this.opacity -= 0.015; // fade out slower and smoother
   }
 
   draw(ctx) {
@@ -123,13 +123,11 @@ const SmokeTransition = () => {
   const canvasRef = useRef(null);
   const [isActive, setIsActive] = useState(false);
   const poolRef = useRef(new ParticlePool());
-  const emitThrottleRef = useRef(0);
 
   useEffect(() => {
     const handleLaunch = () => {
       setIsActive(true);
       poolRef.current.clear();
-      emitThrottleRef.current = 0;
     };
 
     window.addEventListener('rocket-launch', handleLaunch);
@@ -154,16 +152,12 @@ const SmokeTransition = () => {
     resizeCanvas();
 
     const handleEmitSmoke = (e) => {
-      // Throttle emissions: spawn particles on every 2nd tracking coordinate event
-      emitThrottleRef.current++;
-      if (emitThrottleRef.current % 2 !== 0) return;
-
       const { x, y } = e.detail;
-      // Spawn 3 optimized particles
-      for (let i = 0; i < 3; i++) {
+      // Spawn 2 optimized particles every frame for a continuous dense trail
+      for (let i = 0; i < 2; i++) {
         poolRef.current.obtain(
-          x + (Math.random() - 0.5) * 15,
-          y + (Math.random() - 0.5) * 10
+          x + (Math.random() - 0.5) * 10,
+          y + (Math.random() - 0.5) * 6
         );
       }
     };
