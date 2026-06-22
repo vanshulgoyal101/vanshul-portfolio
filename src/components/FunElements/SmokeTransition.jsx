@@ -64,15 +64,18 @@ class SmokeParticle {
     this.growth = Math.random() * 5 + 4; // slower growth for smoother expansion
 
     const rand = Math.random();
-    if (rand < 0.33) {
+    if (rand < 0.25) {
       // Neon Cyan
       this.r = 6; this.g = 182; this.b = 212;
-    } else if (rand < 0.66) {
+    } else if (rand < 0.5) {
       // Hot Magenta
       this.r = 236; this.g = 72; this.b = 153;
-    } else {
+    } else if (rand < 0.75) {
       // Electric Violet
       this.r = 139; this.g = 92; this.b = 246;
+    } else {
+      // Soft Smoke Grey (slate-400)
+      this.r = 148; this.g = 163; this.b = 184;
     }
   }
 
