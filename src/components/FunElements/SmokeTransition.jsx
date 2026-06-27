@@ -151,24 +151,13 @@ class SmokeParticle {
 
 const SmokeTransition = () => {
   const canvasRef = useRef(null);
-  const [isActive, setIsActive] = useState(false);
   const poolRef = useRef(new ParticlePool());
+  const animationFrameRef = useRef(null);
+  const startTimeRef = useRef(0);
+  const isAnimatingRef = useRef(false);
+  const scrollTriggeredRef = useRef(false);
 
   useEffect(() => {
-    const handleLaunch = () => {
-      setIsActive(true);
-      poolRef.current.clear();
-    };
-
-    window.addEventListener('rocket-launch', handleLaunch);
-    return () => {
-      window.removeEventListener('rocket-launch', handleLaunch);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isActive) return;
-
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -180,8 +169,10 @@ const SmokeTransition = () => {
       canvas.height = window.innerHeight;
     };
     resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
     const handleEmitSmoke = (e) => {
+      if (!isAnimatingRef.current) return;
       const { x, y } = e.detail;
       // Spawn 2 optimized particles every frame for a continuous dense trail
       for (let i = 0; i < 2; i++) {
@@ -193,13 +184,11 @@ const SmokeTransition = () => {
     };
     window.addEventListener('rocket-emit-smoke', handleEmitSmoke);
 
-    let frameId;
-    let startTime = Date.now();
-    let scrollTriggered = false;
-
     const animate = () => {
+      if (!isAnimatingRef.current) return;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const elapsed = Date.now() - startTime;
+      const elapsed = Date.now() - startTimeRef.current;
 
       const pool = poolRef.current;
       // Loop backwards to allow clean splicing and recycling
@@ -214,8 +203,8 @@ const SmokeTransition = () => {
       }
 
       // Smoothly scroll down after the rocket has gained significant altitude
-      if (elapsed > 550 && !scrollTriggered) {
-        scrollTriggered = true;
+      if (elapsed > 550 && !scrollTriggeredRef.current) {
+        scrollTriggeredRef.current = true;
         const aboutEl = document.getElementById('about');
         if (aboutEl) {
           aboutEl.scrollIntoView({ behavior: 'smooth' });
@@ -224,20 +213,35 @@ const SmokeTransition = () => {
 
       // Terminate transition loop when all particles are processed
       if (elapsed > 800 && pool.active.length === 0) {
-        setIsActive(false);
+        isAnimatingRef.current = false;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       } else {
-        frameId = requestAnimationFrame(animate);
+        animationFrameRef.current = requestAnimationFrame(animate);
       }
     };
 
-    frameId = requestAnimationFrame(animate);
+    const handleLaunch = () => {
+      poolRef.current.clear();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      startTimeRef.current = Date.now();
+      scrollTriggeredRef.current = false;
+
+      if (!isAnimatingRef.current) {
+        isAnimatingRef.current = true;
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    window.addEventListener('rocket-launch', handleLaunch);
 
     return () => {
-      cancelAnimationFrame(frameId);
+      window.removeEventListener('resize', resizeCanvas);
       window.removeEventListener('rocket-emit-smoke', handleEmitSmoke);
+      window.removeEventListener('rocket-launch', handleLaunch);
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [isActive]);
+  }, []);
 
   return <SmokeCanvas ref={canvasRef} />;
 };
