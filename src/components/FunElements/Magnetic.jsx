@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
-const Magnetic = ({ children, range = 60 }) => {
+const Magnetic = ({ children }) => {
   const ref = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isSupported, setIsSupported] = useState(false);
@@ -51,7 +51,6 @@ const Magnetic = ({ children, range = 60 }) => {
 
 Magnetic.propTypes = {
   children: PropTypes.node.isRequired,
-  range: PropTypes.number,
 };
 
 export default Magnetic;
