@@ -338,24 +338,38 @@ const BlogPost = () => {
       ? new Date(blog.date).toISOString()
       : undefined;
     const canonical = `https://vanshul.com/blog/${blog.slug}`;
-    return JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: blog.title,
-      description: blog.summary,
-      ...(publishedISO ? { datePublished: publishedISO } : {}),
-      ...(blog.category ? { articleSection: blog.category } : {}),
-      author: { '@type': 'Person', name: 'Vanshul Goyal', url: 'https://vanshul.com' },
-      publisher: { '@type': 'Person', name: 'Vanshul Goyal' },
-      mainEntityOfPage: canonical,
-      url: canonical,
-    });
+    const ogImage = `https://vanshul.com/og/${blog.slug}.png`;
+    return JSON.stringify([
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: blog.title,
+        description: blog.summary,
+        image: [ogImage],
+        ...(publishedISO ? { datePublished: publishedISO } : {}),
+        ...(blog.category ? { articleSection: blog.category } : {}),
+        author: { '@type': 'Person', name: 'Vanshul Goyal', url: 'https://vanshul.com' },
+        publisher: { '@type': 'Person', name: 'Vanshul Goyal' },
+        mainEntityOfPage: canonical,
+        url: canonical,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://vanshul.com/' },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://vanshul.com/#blog' },
+          { '@type': 'ListItem', position: 3, name: blog.title, item: canonical },
+        ],
+      },
+    ]);
   }, [blog]);
 
   useSeo({
     title: blog ? `${blog.title} — Vanshul Goyal` : 'Post not found — Vanshul Goyal',
     description: blog?.summary,
     path: blog ? `/blog/${blog.slug}` : `/blog/${slug ?? ''}`,
+    image: blog ? `https://vanshul.com/og/${blog.slug}.png` : undefined,
     type: 'article',
     jsonLd,
   });

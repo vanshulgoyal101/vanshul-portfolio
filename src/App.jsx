@@ -24,6 +24,7 @@ import Contact from './components/Contact/Contact';
 import BootLoader from './components/FunElements/BootLoader';
 import CustomCursor from './components/FunElements/CustomCursor';
 import SmokeTransition from './components/FunElements/SmokeTransition';
+import Analytics from './components/Analytics';
 
 // Heavy decorative elements — lazy loaded after first paint
 const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
@@ -176,6 +177,7 @@ function App() {
   return (
     <Router>
       <ScrollToHash isBooting={isBooting} />
+      <Analytics />
       <ToastProvider>
         <GlobalStyles />
         <AnimatePresence mode="wait">

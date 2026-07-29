@@ -78,6 +78,9 @@ export const useSeo = ({
     cleanups.push(upsertMeta('property', 'og:type', type));
     cleanups.push(upsertMeta('property', 'og:url', url));
     cleanups.push(upsertMeta('property', 'og:image', image));
+    cleanups.push(upsertMeta('property', 'og:image:width', '1200'));
+    cleanups.push(upsertMeta('property', 'og:image:height', '630'));
+    if (title) cleanups.push(upsertMeta('property', 'og:image:alt', title));
     cleanups.push(upsertMeta('name', 'twitter:image', image));
     cleanups.push(upsertLink('canonical', url));
 

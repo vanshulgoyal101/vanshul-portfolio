@@ -12,6 +12,9 @@ dist
 dist-ssr
 coverage
 *.local
+
+# Generated per-post OG images (rebuilt by prebuild)
+public/og/
 .env
 .env.*
 !.env.example
