@@ -90,29 +90,26 @@ dist/
 ├── assets/
 │   ├── index-[hash].js     # Main application bundle
 │   ├── index-[hash].css    # Compiled styles
-│   ├── react-vendor-[hash].js        # React dependencies
-│   ├── animation-vendor-[hash].js    # Animation libraries
-│   └── three-vendor-[hash].js        # 3D graphics libraries
+│   ├── react-vendor-[hash].js        # react-dom + router
+│   ├── framer-[hash].js              # framer-motion
+│   ├── three-core-[hash].js          # three.js core
+│   └── three-react-[hash].js         # react-three-fiber / drei
 └── images/
     └── projects/           # Project images
 ```
 
 ### Code Splitting
-Optimized vendor bundles for better caching:
+Optimized vendor bundles for better caching (see `manualChunks` in
+`vite.config.js`):
 
-**react-vendor.js**:
-- `react`
-- `react-dom`
-- `react-router-dom`
+**react-vendor** — `react-dom`, `react-router-dom`; **react-core** — `react`.
 
-**animation-vendor.js**:
-- `framer-motion`
-- `gsap`
+**framer** — `framer-motion`; **styled** — `styled-components`;
+**icons** — `react-icons`; **markdown** — `react-markdown` and its transitive
+markdown libraries.
 
-**three-vendor.js**:
-- `three`
-- `@react-three/fiber`
-- `@react-three/drei`
+**three-core** — `three`; **three-react** — `@react-three/fiber`,
+`@react-three/drei`.
 
 **Benefits**:
 - Smaller main bundle size

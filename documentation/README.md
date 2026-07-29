@@ -1,38 +1,29 @@
-# Vanshul Portfolio Documentation
+# Vanshul Portfolio — Documentation
 
-This folder contains comprehensive documentation for the entire codebase, including architecture, components, hooks, styles, assets, configuration, deployment, and accessibility. Use these documents for context engineering, onboarding, and future development.
+In-depth documentation for the codebase. Each document is self-contained and
+focused on a single topic. Start with **architecture.md** for the big picture,
+then dive into specific areas.
 
-## Structure
-- **`architecture.md`**: High-level overview of project structure, routing (react-router-dom), GitHub Pages SPA setup, state management (Context API), data flow, and technologies.
-- **`components.md`**: Detailed documentation of all React components including Toast system, Skeleton loaders, Blog components (BlogCard with text clamping, BlogModal), Navigation (cross-page routing), Contact (loading states), and all section components.
-- **`hooks.md`**: Custom hooks including useSmoothScroll (Lenis integration), useToast (notification system), and React Router hooks (useNavigate, useLocation) with navigation patterns.
-- **`styles.md`**: Design system (spacing tokens, typography scale, color palette), accessibility features (focus-visible states, WCAG compliance), text clamping patterns, animation patterns (shimmer, slide-in), responsive breakpoints, and styled-components usage.
-- **`config.md`**: Configuration files (package.json, vite.config.js, eslint.config.js, Makefile), GitHub Pages setup (404.html, CNAME, robots.txt, sitemap.xml), build optimization, and deployment scripts.
-- **`deployment.md`**: GitHub Pages deployment workflow, SPA routing workaround (404.html redirect system), build process, code splitting, SEO configuration, troubleshooting, and rollback procedures.
-- **`accessibility.md`**: WCAG 2.1 Level AA compliance, keyboard navigation, focus management, touch targets (44-48px minimum), color contrast, screen reader optimization, ARIA patterns, and testing procedures.
-- **`assets.md`**: Images, public assets, and file organization.
-- **`data.md`**: Static data, JSON files, and blog post structure.
-- **`blog-refactor.md`**: Blog system refactoring history and markdown integration.
+## Index
 
-## Recent Updates
-All documentation has been updated to reflect:
-- **Routing**: react-router-dom v7.9.6 with GitHub Pages SPA workaround (404.html redirect system)
-- **State Management**: Context API for global Toast notification system
-- **Components**: Toast notifications, Skeleton loaders (BlogSkeletonCard, ProjectSkeletonCard, WorkSkeletonCard), BlogCard with uniform heights (text clamping), Navigation with cross-page routing logic
-- **Accessibility**: WCAG 2.1 Level AA compliance with focus-visible states (3px outline), touch targets (44-48px), keyboard navigation, screen reader optimization
-- **Design System**: Spacing tokens (2xl, xl, lg, md), fluid typography with clamp(), text clamping patterns (-webkit-line-clamp), animation patterns (shimmer, slide-in)
-- **Deployment**: GitHub Pages with custom domain (vanshul.com), automated deployment via gh-pages package, code splitting for optimal loading
-
-## Usage
-Each document is designed to be self-contained and exhaustive for its topic. Start with `architecture.md` for project overview, then dive into specific areas as needed.
+| Document | Contents |
+| -------- | -------- |
+| [architecture.md](architecture.md) | Project structure, routing, SPA/GitHub Pages setup, state management, data flow, tech stack, performance strategy. |
+| [components.md](components.md) | Every React component: sections, Blog system, Toast, Skeleton loaders, Navigation, Contact, ErrorBoundary, FunElements. |
+| [hooks.md](hooks.md) | Custom hooks (`useContactForm`, `useIdle`), the `useToast` context hook, and the react-router hooks used in navigation. |
+| [data.md](data.md) | The markdown blog system: frontmatter schema, loading/parsing, sorting, and how to add posts. |
+| [styles.md](styles.md) | Design system: tokens, typography, colour, animation patterns, responsive breakpoints, styled-components usage. |
+| [assets.md](assets.md) | Images, public assets, and file organisation. |
+| [testing.md](testing.md) | Vitest + React Testing Library setup, conventions, mocks, and how to run/extend tests. |
+| [config.md](config.md) | `package.json`, `vite.config.js`, `eslint.config.js`, `Makefile`, and SEO/hosting files. |
+| [deployment.md](deployment.md) | GitHub Pages deployment, the SPA routing workaround, build process, and troubleshooting. |
+| [accessibility.md](accessibility.md) | WCAG 2.1 AA practices: keyboard navigation, focus management, touch targets, contrast, ARIA. |
 
 ## Maintenance
-Update documentation when:
-- Adding new components or features
-- Modifying routing or state management
-- Changing build or deployment process
-- Updating accessibility patterns
-- Refactoring existing code
 
-Keep documentation in sync with code to ensure accuracy and usefulness for future development.
+Keep these documents in sync with the code. Update them when you:
 
+- add or restructure components, routes, or hooks,
+- change the build, test, or deployment pipeline,
+- add or remove dependencies,
+- change the blog frontmatter schema or design tokens.

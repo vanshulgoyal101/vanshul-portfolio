@@ -1,12 +1,72 @@
-# React + Vite
+# Vanshul Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, animated personal portfolio and blog built with React 19 and Vite. It
+features a 3D space-themed hero, smooth section navigation, a markdown-powered
+blog, and a fully accessible, responsive design. Deployed as a static SPA to
+GitHub Pages at [vanshul.com](https://vanshul.com).
 
-Currently, two official plugins are available:
+## Tech stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+| Area        | Technology |
+| ----------- | ---------- |
+| Framework   | React 19 |
+| Build tool  | Vite 7 |
+| Routing     | react-router-dom 7 |
+| Styling     | styled-components 6 (CSS-in-JS) + CSS custom properties |
+| Animation   | Framer Motion 12 |
+| 3D graphics | three.js, @react-three/fiber, @react-three/drei |
+| Markdown    | react-markdown (frontmatter parsed by a small in-house parser) |
+| Icons       | react-icons |
+| Testing     | Vitest + React Testing Library + jsdom |
+| Deployment  | gh-pages → GitHub Pages |
 
-## Expanding the ESLint configuration
+## Getting started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install       # install dependencies
+npm run dev       # start the dev server (http://localhost:5173)
+npm run build     # production build → dist/
+npm run preview   # preview the production build locally
+npm run lint      # run ESLint
+npm test          # run the test suite once
+npm run test:watch     # run tests in watch mode
+npm run test:coverage  # run tests with a coverage report
+npm run deploy    # build and publish dist/ to GitHub Pages
+```
+
+A `Makefile` provides shortcuts (`make dev`, `make build`, `make preview`,
+`make clean`, `make install`, `make setup`).
+
+## Project structure
+
+```
+src/
+  App.jsx              # Routing + page layout
+  main.jsx             # React entry point
+  index.css            # Base CSS + design tokens (CSS custom properties)
+  blogs/               # Markdown blog posts (one file per post)
+  components/          # Feature-grouped React components
+    Blog/  Contact/  Hero/  Navigation/  Projects/  Timeline/
+    Work/  About/  Toast/  Skeleton/  FunElements/
+    ErrorBoundary.jsx
+  constants/           # Static config (blog constants)
+  hooks/               # Custom hooks (useContactForm, useIdle)
+  pages/               # Route-level pages (BlogPost)
+  styles/              # GlobalStyles (styled-components)
+  test/                # Vitest setup
+  utils/               # blogLoader, blogUtils
+public/                # Static assets, 404.html SPA shim, SEO files
+documentation/         # In-depth documentation (see below)
+```
+
+## Documentation
+
+Comprehensive documentation lives in [`documentation/`](documentation/README.md):
+architecture, components, hooks, data/blog system, styling, assets, testing,
+configuration, deployment, and accessibility.
+
+## Adding a blog post
+
+Create a new `.md` file in `src/blogs/`. The filename (without `.md`) becomes the
+slug and must match the `slug` frontmatter field. See
+[documentation/data.md](documentation/data.md) for the frontmatter schema.

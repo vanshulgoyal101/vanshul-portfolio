@@ -30,14 +30,15 @@ All UI and logic are organized into feature-based React components under `src/co
 
 **Features**:
 - Dynamically loads Markdown files from `src/blogs/` using `import.meta.glob`
-- Parses frontmatter metadata (title, date, summary, author) with `gray-matter`
+- Parses frontmatter metadata (title, slug, summary, date, readTime, category)
+  with the in-house parser in `utils/blogLoader.js`
 - Renders `BlogCard` components in responsive grid
 - Skeleton loaders during async loading
-- Filters and sorts posts by date
+- Sorts posts by date (newest first) via `sortBlogsByDate`
 
 **Data Flow**: 
-1. `import.meta.glob('../../blogs/*.md', { eager: true })` loads all `.md` files
-2. `gray-matter` extracts frontmatter
+1. `import.meta.glob('../blogs/*.md', { query: '?raw', eager: true })` loads raw markdown
+2. `parseFrontmatter` (in `blogLoader.js`) extracts frontmatter
 3. Posts sorted by date (newest first)
 4. Maps to `BlogCard` components
 
@@ -109,13 +110,6 @@ All UI and logic are organized into feature-based React components under `src/co
 
 ## FunElements
 
-### AirplaneTrail.jsx
-**Location**: `src/components/FunElements/AirplaneTrail.jsx`
-
-**Purpose**: Animated airplane SVG that follows a path across the screen.
-
-**Features**: GSAP timeline animation, decorative effect
-
 ### FloatingRocket.jsx
 **Location**: `src/components/FunElements/FloatingRocket.jsx`
 
@@ -182,7 +176,7 @@ All UI and logic are organized into feature-based React components under `src/co
   - Prevents premature scrolling before DOM renders
 - Sticky positioning on scroll
 - Active link highlighting
-- Smooth scroll using `useSmoothScroll` hook
+- Smooth scroll via native `scrollIntoView`
 - Close mobile menu on link click
 - Focus-visible states for accessibility
 
@@ -281,18 +275,17 @@ import { BlogSkeletonCard } from '../Skeleton';
 
 **API**:
 ```jsx
-const { addToast } = useToast();
+const { showSuccess, showError, showInfo, removeToast } = useToast();
 
-addToast({
-  message: 'Form submitted successfully!',
-  type: 'success'
-});
+showSuccess('Message Sent!', 'I will get back to you soon.');
+showError('Network Error', 'Please try again.');
+showInfo('Heads up', 'Something informational', 0); // duration 0 = no auto-dismiss
 ```
 
 **Implementation**:
-- Context: `ToastContext` provides `addToast` function
-- State: Array of toast objects `{ id, message, type }`
-- Auto-remove: `setTimeout` clears toast after 5s
+- Context: `ToastContext` provides `showSuccess`, `showError`, `showInfo`, and `removeToast`
+- State: Array of toast objects `{ id, type, title, message }`
+- Auto-remove: `setTimeout` clears each toast after its `duration` (default 5s; `0` disables)
 - Styling: Fixed positioning, z-index 9999, slide-in animation
 
 **Usage**: Wrap `App.jsx` with `<ToastProvider>`, consume with `useToast()` hook
@@ -325,10 +318,9 @@ addToast({
 
 **Features**:
 - Reads `:slug` param from URL using `useParams()`
-- Loads corresponding `.md` file from `src/blogs/`
-- Parses frontmatter and content with `gray-matter`
+- Loads the corresponding post via `loadBlogBySlug` from `utils/blogLoader.js`
 - Renders Markdown with `react-markdown`
-- Displays metadata: title, date, author
+- Displays metadata: title, date, read time
 - Back to blog list link
 - Reading time estimate
 - Responsive typography

@@ -42,10 +42,6 @@ export default defineConfig({
           if (id.includes('framer-motion')) {
             return 'framer';
           }
-          // GSAP — not critical, defer
-          if (id.includes('gsap')) {
-            return 'gsap';
-          }
           // styled-components
           if (id.includes('styled-components')) {
             return 'styled';

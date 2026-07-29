@@ -1,125 +1,113 @@
-# Project Architecture
+# Architecture
 
 ## Overview
-This is a modern React portfolio website built with Vite, using styled-components for styling and Framer Motion for animations. The project is a Single Page Application (SPA) with client-side routing, optimized for GitHub Pages deployment. The architecture prioritizes accessibility (WCAG 2.1 Level AA), responsive design, and perceived performance through skeleton loading states.
 
-## Main Folders
-- **src/**: Source code for the application
-  - **components/**: All React components, grouped by feature
-    - **Blog/**: Blog listing, cards, and modal
-    - **Toast/**: Global toast notification system
-    - **Skeleton/**: Loading state placeholders
-    - **Navigation/**: Site navigation with scroll-to-section
-    - **Contact/**: Contact form with validation
-    - **Hero/**: Landing section with 3D canvas
-    - **About/**, **Work/**, **Projects/**, **Timeline/**: Content sections
-    - **FunElements/**: Decorative animations (airplane trail, rocket, panda cursor)
-  - **pages/**: Route-based page components
-    - **BlogPost.jsx**: Individual blog post view
-  - **blogs/**: Markdown blog post files with frontmatter
-  - **hooks/**: Custom React hooks
-  - **utils/**: Utility functions (blog loading, markdown parsing)
-  - **constants/**: Static data and configuration
-  - **styles/**: Global and shared styles
-  - **index.css**: Base CSS with global variables
-  - **App.jsx**: Main app component with routing
-  - **main.jsx**: Entry point
-- **public/**: Static assets
-  - **404.html**: GitHub Pages SPA routing fallback
-  - **images/**: Project images and assets
-  - **robots.txt**, **sitemap.xml**: SEO configuration
-  - **CNAME**: Custom domain configuration
-- **documentation/**: Comprehensive code documentation
-- **dist/**: Production build output (generated)
+A single-page React application built with Vite. It renders a one-page portfolio
+(hero, about, work, projects, blog, contact) plus standalone blog-post routes.
+Styling is CSS-in-JS via styled-components on top of CSS custom properties;
+animation is handled by Framer Motion; the hero and background use three.js via
+`@react-three/fiber`. The app is a static SPA optimised for GitHub Pages, with
+an emphasis on accessibility (WCAG 2.1 AA), responsiveness, and perceived
+performance (deferred decorative work + skeleton loaders).
 
-## Routing & Navigation
-- **Client-Side Routing**: Uses `react-router-dom` v7.9.6
-  - Routes:
-    - `/` - Home page (all sections)
-    - `/blog/:slug` - Individual blog posts
-- **GitHub Pages SPA Workaround**:
-  - `public/404.html`: Intercepts 404 errors, converts path to query string, redirects to `index.html`
-  - `index.html`: Script detects query string, restores proper URL before React loads
-  - Enables direct blog post URLs (e.g., `vanshul.com/blog/health-post-agi`) without 404 errors
-- **Scroll Navigation**: 
-  - Same-page: Uses `useSmoothScroll` hook with smooth scrolling
-  - Cross-page: `Navigation.jsx` uses `useNavigate` + `useLocation` with 500ms delay for DOM rendering
-  - Prevents scroll timing issues and double-click requirements
+## Directory layout
 
-## State Management
-- **Local State**: Component-level state with `useState`, `useEffect`, `useCallback`
-- **Context API**: 
-  - **ToastProvider**: Global toast notification system
-    - Manages notification queue, auto-dismiss (5s), manual close
-    - Consumed via `useToast` hook in components (e.g., Contact form)
-- **URL State**: Route parameters managed by `react-router-dom`
+```
+src/
+  App.jsx              # Router + page composition (imports at top, then styles, then helpers)
+  main.jsx             # ReactDOM.createRoot entry point (StrictMode)
+  index.css            # Base CSS + design tokens (CSS custom properties)
+  blogs/               # One markdown file per blog post (frontmatter + body)
+  components/          # Feature-grouped components
+    About/ Work/ Projects/ Timeline/ Hero/ Contact/   # content sections
+    Blog/                                              # Blog, BlogCard, BlogModal
+    Navigation/                                        # top nav + scroll spy
+    Toast/                                             # global notification context
+    Skeleton/                                          # loading placeholders
+    FunElements/                                       # decorative animations
+    ErrorBoundary.jsx                                  # section-level error boundary
+  constants/           # blogConstants.js (animation variants, copy, config)
+  hooks/               # useContactForm.js, useIdle.js
+  pages/               # BlogPost.jsx (route-level)
+  styles/              # GlobalStyles.js
+  test/                # setup.js (Vitest global setup)
+  utils/               # blogLoader.js, blogUtils.js
+public/                # 404.html SPA shim, CNAME, robots.txt, sitemap.xml, images/
+documentation/         # this documentation
+```
 
-## Technologies
-- **Framework**: React 19.1.0
-- **Build Tool**: Vite 7.0.4
-- **Routing**: react-router-dom 7.9.6
-- **Styling**: styled-components 6.1.19 (CSS-in-JS)
-- **Animation**: Framer Motion 12.23.9, GSAP 3.13.0
-- **3D Graphics**: Three.js 0.178.0, @react-three/fiber 9.2.0, @react-three/drei 10.6.1
-- **Markdown**: gray-matter 4.0.3, react-markdown 10.1.0
-- **Smooth Scrolling**: @studio-freight/lenis 1.0.42
-- **Icons**: react-icons 5.5.0
-- **Deployment**: gh-pages 6.3.0
-- **Linting**: ESLint 9.30.1
+## Routing & navigation
 
-## Data Flow
-1. **App Load**: `main.jsx` → `App.jsx` (wrapped with `ToastProvider`)
-2. **Routing**: `react-router-dom` determines active route
-3. **Blog Posts**: 
-   - `import.meta.glob` loads `.md` files from `src/blogs/`
-   - `gray-matter` parses frontmatter (title, date, summary, author)
-   - `react-markdown` renders blog content
-4. **Navigation**:
-   - Home page: Scroll to section using `useSmoothScroll`
-   - Blog posts: Navigate to `/blog/:slug` route
-   - Cross-page: 500ms delay ensures DOM renders before scrolling
-5. **Loading States**:
-   - Skeleton loaders show during async operations
-   - Contact form: Disabled inputs + CSS spinner during submission
-6. **Notifications**: Toast system provides non-intrusive feedback
+- **Client-side routing** with `react-router-dom` v7:
+  - `/` — the full one-page portfolio (all sections).
+  - `/blog/:slug` — an individual blog post ([`pages/BlogPost.jsx`](../src/pages/BlogPost.jsx)).
+- **GitHub Pages SPA workaround** (see [deployment.md](deployment.md)):
+  - `public/404.html` captures deep links, encodes the path into a query string,
+    and redirects to `index.html`.
+  - A snippet in `index.html` restores the real URL before React boots.
+- **Section navigation**:
+  - `Navigation.jsx` renders anchor links and a scroll-spy that highlights the
+    active section.
+  - Same page: it calls `scrollToSection(id)` (native `scrollIntoView`).
+  - From a blog route: it navigates to `/` first, then scrolls after the DOM
+    settles.
+  - `ScrollToHash` in `App.jsx` scrolls to `location.hash` on direct hits once
+    the boot loader has finished.
 
-## Build & Dev
-- **Development**: `npm run dev` (Vite dev server with hot reload)
-- **Production Build**: `npm run build` (outputs to `dist/`)
-- **Preview**: `npm run preview` (preview production build locally)
-- **Deploy**: `npm run deploy` (builds and deploys to GitHub Pages)
-- **Makefile Shortcuts**:
-  - `make dev`, `make build`, `make preview`, `make clean`, `make install`, `make setup`
+## State management
 
-## Deployment Architecture
-- **Platform**: GitHub Pages (static hosting)
-- **Custom Domain**: `vanshul.com` (configured via CNAME)
-- **Build Process**:
-  1. `npm run build` generates optimized production bundle
-  2. `gh-pages` package pushes `dist/` to `gh-pages` branch
-  3. GitHub Pages serves from `gh-pages` branch
-- **SPA Routing**: See "Routing & Navigation" section above
-- **SEO**: `sitemap.xml`, `robots.txt`, meta tags in `index.html`
+- **Local state** via `useState` / `useEffect` / `useCallback` within components.
+- **Context** — `ToastProvider` ([`components/Toast`](../src/components/Toast/ToastProvider.jsx))
+  exposes `showSuccess`, `showError`, `showInfo`, and `removeToast` through the
+  `useToast()` hook. Toasts auto-dismiss after a configurable duration
+  (default 5s).
+- **URL state** — route params via react-router.
 
-## Accessibility & Design System
-- **WCAG 2.1 Level AA Compliance**:
-  - Focus-visible states: 3px outline offset for keyboard navigation
-  - Touch targets: Minimum 44-48px for mobile
-  - Semantic HTML and ARIA labels where needed
-- **Design System**:
-  - Spacing tokens: `2xl`, `xl`, `lg`, `md` (consistent across sections)
-  - Typography scale: Responsive font sizes with mobile breakpoints
-  - Color variables: CSS custom properties for theming
-- **Text Clamping**: `-webkit-line-clamp` for uniform card heights
-- **Animations**: 
-  - Hover effects: `translateY(-5px)` with 0.3s transition
-  - Skeleton shimmer: Linear gradient animation
-  - Toast slide-in: Framer Motion animations
+## Data flow
 
-## Extensibility
-- **New Components**: Create folder in `src/components/` with feature-based structure
-- **New Routes**: Add route in `App.jsx`, create page component in `src/pages/`
-- **New Blog Posts**: Add `.md` file to `src/blogs/` with frontmatter
-- **Global Styles**: Update `src/styles/GlobalStyles.js` or `src/index.css`
-- **Toast Notifications**: Use `useToast()` hook in any component
-- **Skeleton Loaders**: Import from `src/components/Skeleton/`
+1. `main.jsx` mounts `App` in `React.StrictMode`.
+2. `App` wraps everything in `ToastProvider`, renders `GlobalStyles`, the boot
+   loader, decorative background, and the routes.
+3. Blog data is loaded synchronously at import time:
+   - `utils/blogLoader.js` uses `import.meta.glob('../blogs/*.md', { query: '?raw', eager: true })`
+     to inline every post's raw markdown at build time.
+   - A small in-house parser extracts YAML-style frontmatter (no `gray-matter`
+     dependency); the body is kept as a markdown string.
+   - `utils/blogUtils.js` → `sortBlogsByDate` orders posts newest-first.
+   - `react-markdown` renders the body in `BlogModal` and `BlogPost`.
+4. Decorative 3D/telemetry elements are deferred until the browser is idle via
+   the `useIdle` hook and `React.lazy`, keeping them off the critical path.
+
+## Performance strategy
+
+- **Deferred decorative work**: `useIdle` + `Suspense`/`lazy` load
+  `FloatingRocket`, `RandomTelemetry`, and `InteractiveSpaceBackground` only
+  after first paint.
+- **Manual chunking**: `vite.config.js` splits vendors (react, framer-motion,
+  styled-components, three core, three-react, icons, markdown) for better
+  caching. three.js is unavoidably the largest chunk and is isolated.
+- **Skeleton loaders** provide perceived performance for async-feeling UI.
+- **Error boundaries** wrap each section so a failure in one does not blank the
+  page.
+
+## Tech stack
+
+- **Framework**: React 19
+- **Build**: Vite 7 (`@vitejs/plugin-react`)
+- **Routing**: react-router-dom 7
+- **Styling**: styled-components 6 + CSS custom properties
+- **Animation**: Framer Motion 12
+- **3D**: three.js, @react-three/fiber, @react-three/drei
+- **Markdown**: react-markdown (in-house frontmatter parser)
+- **Icons**: react-icons
+- **Testing**: Vitest, @testing-library/react, jsdom
+- **Linting**: ESLint 9 (flat config) with react, react-hooks, react-refresh
+- **Deploy**: gh-pages → GitHub Pages (custom domain `vanshul.com`)
+
+## Extending
+
+- **New section**: add a component folder under `src/components/`, import it in
+  `App.jsx`, and wrap it in `<ErrorBoundary><SectionWrapper id="…">`.
+- **New route**: add a `<Route>` in `App.jsx` and a component in `src/pages/`.
+- **New blog post**: drop a `.md` file into `src/blogs/` (see [data.md](data.md)).
+- **Global styles/tokens**: edit `src/index.css` or `src/styles/GlobalStyles.js`.

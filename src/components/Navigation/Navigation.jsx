@@ -228,17 +228,6 @@ const MobileOverlay = styled(motion.div)`
   }
 `;
 
-const ProgressBar = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--color-gradient-1);
-  transform-origin: 0%;
-  z-index: var(--z-tooltip); /* Sit above everything, even fixed nav */
-`;
-
 // Navigation Component
 const Navigation = ({ scrollToSection }) => {
   const [isScrolled, setIsScrolled] = useState(false);

@@ -1,36 +1,34 @@
 // src/App.jsx
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
+import PropTypes from 'prop-types';
 
-// Component imports
 import GlobalStyles from './styles/GlobalStyles';
+import { useIdle } from './hooks/useIdle';
 import Navigation from './components/Navigation/Navigation';
-import BlogPost from './pages/BlogPost';
-import { ToastProvider } from './components/Toast';
-import BootLoader from './components/FunElements/BootLoader';
 import ErrorBoundary from './components/ErrorBoundary';
-import CustomCursor from './components/FunElements/CustomCursor';
+import { ToastProvider } from './components/Toast';
+import BlogPost from './pages/BlogPost';
 
-// Idle loader — renders children only after browser is idle (post first paint)
-const useIdle = (delay = 1500) => {
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    // Use requestIdleCallback if available, else a plain timeout
-    let id;
-    if ('requestIdleCallback' in window) {
-      id = requestIdleCallback(() => setReady(true), { timeout: delay });
-    } else {
-      id = setTimeout(() => setReady(true), delay);
-    }
-    return () => {
-      if ('cancelIdleCallback' in window) cancelIdleCallback(id);
-      else clearTimeout(id);
-    };
-  }, [delay]);
-  return ready;
-};
+// Sections (critical path)
+import Hero from './components/Hero/Hero';
+import About from './components/About/About';
+import Work from './components/Work/Work';
+import Projects from './components/Projects/Projects';
+import Blog from './components/Blog/Blog';
+import Contact from './components/Contact/Contact';
+
+// Decorative elements
+import BootLoader from './components/FunElements/BootLoader';
+import CustomCursor from './components/FunElements/CustomCursor';
+import SmokeTransition from './components/FunElements/SmokeTransition';
+
+// Heavy decorative elements — lazy loaded after first paint
+const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
+const RandomTelemetry = lazy(() => import('./components/FunElements/RandomTelemetry'));
+const InteractiveSpaceBackground = lazy(() => import('./components/FunElements/InteractiveSpaceBackground'));
 
 
 
@@ -102,30 +100,12 @@ const SectionWrapper = styled(motion.section)`
   position: relative;
 `;
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
-
-
-// Loading fallback spacers
-const Loading = styled.div`
-  min-height: 200px;
-`;
-
-
-import Hero from './components/Hero/Hero';
-import About from './components/About/About';
-import Work from './components/Work/Work';
-import Projects from './components/Projects/Projects';
-import Blog from './components/Blog/Blog';
-import Contact from './components/Contact/Contact';
-import SmokeTransition from './components/FunElements/SmokeTransition';
-
-// Lazy load heavy components
-const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
-const RandomTelemetry = lazy(() => import('./components/FunElements/RandomTelemetry'));
-const InteractiveSpaceBackground = lazy(() => import('./components/FunElements/InteractiveSpaceBackground'));
-
-// ScrollToHash: Handles scrolling to sections when returning from subroutes or on direct URL hits containing hashes
-import { useLocation } from 'react-router-dom';
+// ScrollToHash: scrolls to a section when returning from a subroute, or when
+// the URL contains a hash on a direct hit.
 const ScrollToHash = ({ isBooting }) => {
   const location = useLocation();
 
@@ -143,6 +123,10 @@ const ScrollToHash = ({ isBooting }) => {
   }, [location, isBooting]);
 
   return null;
+};
+
+ScrollToHash.propTypes = {
+  isBooting: PropTypes.bool.isRequired,
 };
 
 // IdleBackground: renders decorative elements only after browser idle

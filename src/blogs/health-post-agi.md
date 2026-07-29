@@ -2,43 +2,43 @@
 id: 3
 title: "Health in a Post-AGI World"
 slug: "health-post-agi"
-summary: "In a post-AGI world of abundance, humanity's focus must shifts from work to the holistic pursuit of health and well-being..."
+summary: "In a post-AGI world of abundance, humanity's focus shifts from work to the holistic pursuit of health and well-being."
 date: "25 Sep, 2024"
 readTime: "3 min read"
 category: "AI"
 ---
 
-For all of human history, our lives have been shaped by a single, powerful force: the need to work. We work for food, for shelter, for a living. Our days, our years, and even our societies are built around this central pillar.
+For all of history, one force has shaped our lives: the need to work. We work for food, for shelter, for a living. Our days, our years, and our societies are all built around it.
 
-But what if that pillar was removed?
+Remove that pillar. What happens?
 
-Let's try a thought experiment. Imagine a world a few decades from now, where Artificial General Intelligence (AGI), and perhaps even Superintelligence (ASI), has arrived. Imagine it has solved our biggest logistical challenges—energy, production, resource distribution. True abundance becomes the reality. The need to work for survival simply disappears.
+A thought experiment. It's a few decades from now. Artificial general intelligence — perhaps superintelligence — has arrived. It has solved our hardest logistical problems: energy, production, distribution. Abundance is real, and the need to work to survive simply disappears.
 
-When you no longer have to spend eight hours a day earning a living, how do you spend those eight hours? When the primary question of 'How do I survive?' is answered for everyone, what becomes the next question?
+When you no longer owe eight hours a day to earning a living, what do you do with them? Once "How do I survive?" is answered for everyone, what is the next question?
 
-It seems plausible that our focus would shift from the external world of tasks and jobs to the internal world of our own being. If this happens, then the pursuit of **Health** might become one of the most important projects of humanity, if not the most important.
+I think the focus turns inward — from the world of tasks and jobs to the state of our own being. If it does, the pursuit of **health** becomes humanity's central project. Maybe the most important one we've ever had.
 
-But what does 'health' even mean in a world like this? It would likely expand far beyond just the absence of disease. It would become an active, lifelong pursuit of cultivating human potential. We can probably think about it in a few key layers.
+But health would mean far more than the absence of disease. It becomes the active, lifelong cultivation of human potential. Think of it in three layers.
 
-## 1. Physical Health: Mastering the Vessel
+## Physical: mastering the vessel
 
-Without jobs that break our bodies or keep us sedentary, we would have the time and energy to focus on our physical selves. The goal wouldn't just be to live long, but to live well.
+No job breaks your body or chains you to a chair. You have the time and energy to build:
 
-- **Strength:** Not just for manual labor, but as a foundation for vitality and resilience.
-- **Mobility:** The freedom to move without pain or restriction.
-- **Endurance:** The ability to explore, play, and experience the world for longer without tiring.
-- **Longevity:** AGI would surely unlock a longer lifespan, but the real goal would become **healthspan**—the number of years we live in a state of high vitality.
+- **Strength** — the foundation of vitality, not just a tool for labor.
+- **Mobility** — the freedom to move without pain.
+- **Endurance** — the capacity to explore and play for longer.
+- **Longevity** — and beyond lifespan, *healthspan*: the years lived in a state of real vitality.
 
-## 2. Mental and Emotional Health: Tending the Garden Within
+## Mental: tending the garden within
 
-A lot of our modern anxiety comes from work-related stress, deadlines, and financial pressure. When these pressures fade, what do we do with our minds?
+Most modern anxiety comes from work — deadlines, money, status. Take those away and the mind is free, but idle. What fills it?
 
-The focus might shift to cultivating a state of inner clarity and stability. It would mean developing emotional regulation not as a way to cope with a stressful job, but as a skill for deeper relationships and personal peace. We would have the time to learn for the sake of pure curiosity and to build genuine resilience against life's inherent uncertainties.
+Inner clarity and stability. Emotional regulation not as a way to survive a stressful job, but as a skill for deeper relationships and personal peace. You learn for the sake of curiosity. You build resilience against the uncertainty that never fully leaves.
 
-## 3. Spiritual Health: The Search for Why
+## Spiritual: the search for why
 
-This might be the most interesting layer. When the 'what' (what we do for a living) is no longer our identity, we are left with the 'why.' Why are we here? What gives us a sense of purpose and connection?
+This may be the interesting one. When what you do for a living no longer defines you, you are left with *why*. Why are we here? What gives us purpose and connection?
 
-For many, this could become the central pursuit of their lives. Whether through philosophy, community, art, nature, or traditional spiritual paths, the search for meaning would no longer be a luxury squeezed in on weekends. It could become the main event.
+For many, that becomes the main pursuit — through philosophy, community, art, nature, or older spiritual paths. The search for meaning stops being a luxury squeezed into weekends and becomes the main event.
 
-In a world where AGI provides all the answers to our external problems, we would be left with the freedom—and the challenge—of asking the most fundamental questions about ourselves. For millennia, humanity's project has been to master the world around us. In a post-AGI world, the only project left might be to master ourselves.
+For millennia, our project has been to master the world around us. In a post-AGI world, the only project left might be to master ourselves.
