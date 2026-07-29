@@ -54,21 +54,24 @@ const CardLink = styled(Link)`
 `;
 
 const Meta = styled.div`
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 6px 14px;
   margin-bottom: var(--spacing-sm);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
 
-  svg {
-    display: inline-block;
-    vertical-align: middle;
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
   }
 
-  @media (max-width: 480px) {
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
+  svg {
+    flex-shrink: 0;
+    vertical-align: middle;
   }
 `;
 
@@ -144,16 +147,16 @@ const BlogCard = ({ blog, index, variants, views }) => {
         <Meta>
           <span>
             <MdDateRange aria-label="Publication date" /> {blog.date}
-        </span>
-        <span>
-          <BiTime aria-label="Reading time" /> {blog.readTime}
-        </span>
-        {views != null && (
-          <span>
-            <AiOutlineEye aria-label="Views" /> {formatViews(views)}
           </span>
-        )}
-      </Meta>
+          <span>
+            <BiTime aria-label="Reading time" /> {blog.readTime}
+          </span>
+          {views != null && (
+            <span>
+              <AiOutlineEye aria-label="Views" /> {formatViews(views)}
+            </span>
+          )}
+        </Meta>
       <Title>{blog.title}</Title>
       <Summary>{blog.summary}</Summary>
       <ReadMore>
