@@ -31,7 +31,10 @@ const parseFrontmatter = (md) => {
 
 const isoDate = (value) => {
   const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+  if (Number.isNaN(d.getTime())) return null;
+  // Use local date parts so the output matches the human-written date regardless
+  // of the runner's timezone (avoids a UTC off-by-one between local and CI).
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
 const posts = readdirSync(blogsDir)
