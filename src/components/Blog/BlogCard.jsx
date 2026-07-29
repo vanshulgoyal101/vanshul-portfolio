@@ -57,21 +57,28 @@ const Meta = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 14px;
+  gap: 4px 10px;
   margin-bottom: var(--spacing-sm);
-  font-size: var(--text-sm);
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
   color: var(--color-text-secondary);
 
   span {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     white-space: nowrap;
+  }
+
+  /* Views read as secondary, quieter than date/read-time */
+  span.views {
+    opacity: 0.7;
   }
 
   svg {
     flex-shrink: 0;
-    vertical-align: middle;
+    font-size: 0.95em;
+    opacity: 0.7;
   }
 `;
 
@@ -152,7 +159,7 @@ const BlogCard = ({ blog, index, variants, views }) => {
             <BiTime aria-label="Reading time" /> {blog.readTime}
           </span>
           {views != null && (
-            <span>
+            <span className="views">
               <AiOutlineEye aria-label="Views" /> {formatViews(views)}
             </span>
           )}
