@@ -74,3 +74,82 @@ Body content in Markdown…
 
 That's it — the glob import picks it up automatically on the next build/dev
 reload. Run `npm test` to confirm the content-integrity checks still pass.
+
+## View counts (Supabase)
+
+Blog view counts are stored in [Supabase](https://supabase.com). The feature is
+**optional and fully self-disabling**: if the env vars below are absent, the
+Supabase client is `null`, every counter call becomes a no-op, and no counts are
+shown — the site builds and runs exactly as before.
+
+### Client code
+
+- [`src/lib/supabaseClient.js`](../src/lib/supabaseClient.js) — creates the client
+  from env vars, or exports `null` when unconfigured.
+- [`src/utils/blogViews.js`](../src/utils/blogViews.js) — `incrementBlogView(slug)`,
+  `getAllBlogViews()`, and a `formatViews()` display helper.
+- [`src/hooks/useBlogViews.js`](../src/hooks/useBlogViews.js) — `useBlogViews()`
+  returns a `{ slug: views }` map for the listing; `useBlogView(slug)` records one
+  view on the post page and returns the current count.
+
+The listing (`Blog.jsx`) fetches all counts once and passes each to `BlogCard`;
+`BlogPost.jsx` increments and displays the count in the header.
+
+### Environment variables
+
+Copy `.env.example` to `.env` and fill in the two values from your Supabase
+project (Project Settings → API). They are also needed at build time for
+`npm run deploy`.
+
+```
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key
+```
+
+The anon key is a **public** key — safe to ship in the bundle. Security is
+enforced by Row Level Security in the database, not by hiding the key.
+
+### Database setup (run once in the Supabase SQL editor)
+
+```sql
+-- 1. Counts table
+create table if not exists public.blog_views (
+  slug  text primary key,
+  views integer not null default 0
+);
+
+-- 2. Lock it down, then allow anonymous *reads* only
+alter table public.blog_views enable row level security;
+
+drop policy if exists "Public can read view counts" on public.blog_views;
+create policy "Public can read view counts"
+  on public.blog_views for select
+  to anon
+  using (true);
+
+-- 3. The only way anon can write is through this controlled function.
+--    SECURITY DEFINER lets it upsert without granting anon direct write access.
+create or replace function public.increment_blog_view(post_slug text)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  new_count integer;
+begin
+  insert into public.blog_views (slug, views)
+    values (post_slug, 1)
+  on conflict (slug)
+    do update set views = public.blog_views.views + 1
+  returning views into new_count;
+  return new_count;
+end;
+$$;
+
+grant execute on function public.increment_blog_view(text) to anon;
+```
+
+With that in place, visiting a post calls `increment_blog_view` and the count
+appears on both the post page and its card in the listing.
+

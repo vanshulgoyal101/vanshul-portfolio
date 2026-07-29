@@ -3,7 +3,9 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { BiTime } from 'react-icons/bi';
 import { MdArrowForward, MdDateRange } from 'react-icons/md';
+import { AiOutlineEye } from 'react-icons/ai';
 import PropTypes from 'prop-types';
+import { formatViews } from '../../utils/blogViews';
 
 // Styled Components
 const Card = styled(motion.article)`
@@ -123,7 +125,7 @@ const ReadMore = styled.span`
  * @param {boolean} props.isInView - Whether the card is in viewport
  * @param {Object} props.variants - Animation variants
  */
-const BlogCard = ({ blog, index, variants }) => {
+const BlogCard = ({ blog, index, variants, views }) => {
   if (!blog) return null;
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
@@ -146,6 +148,11 @@ const BlogCard = ({ blog, index, variants }) => {
         <span>
           <BiTime aria-label="Reading time" /> {blog.readTime}
         </span>
+        {views != null && (
+          <span>
+            <AiOutlineEye aria-label="Views" /> {formatViews(views)}
+          </span>
+        )}
       </Meta>
       <Title>{blog.title}</Title>
       <Summary>{blog.summary}</Summary>
@@ -169,6 +176,7 @@ BlogCard.propTypes = {
   }).isRequired,
   index: PropTypes.number.isRequired,
   variants: PropTypes.object.isRequired,
+  views: PropTypes.number,
 };
 
 export default BlogCard;

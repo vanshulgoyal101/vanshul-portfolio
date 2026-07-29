@@ -10,6 +10,12 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
     css: true,
+    // Keep tests hermetic: force Supabase "unconfigured" so nothing hits the
+    // network, regardless of whether a local .env exists.
+    env: {
+      VITE_SUPABASE_URL: '',
+      VITE_SUPABASE_ANON_KEY: '',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

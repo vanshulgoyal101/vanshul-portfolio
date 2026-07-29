@@ -10,6 +10,7 @@ import { BlogSkeletonCard } from '../Skeleton';
 // Utility imports
 import { sortBlogsByDate } from '../../utils/blogUtils';
 import { loadBlogPosts } from '../../utils/blogLoader';
+import { useBlogViews } from '../../hooks/useBlogViews';
 import { BLOG_ANIMATION_VARIANTS, BLOG_CONTENT } from '../../constants/blogConstants';
 
 // Styled Components
@@ -146,6 +147,9 @@ const Blog = () => {
   // Sort blog posts by date (newest first)
   const sortedBlogPosts = useMemo(() => sortBlogsByDate(blogPosts), [blogPosts]);
 
+  // View counts keyed by slug (empty until loaded / when Supabase is unconfigured)
+  const views = useBlogViews();
+
   // Blog posts loaded synchronously — no artificial delay needed
   const [isLoading] = useState(false);
 
@@ -178,6 +182,7 @@ const Blog = () => {
                 blog={blog}
                 index={index}
                 variants={BLOG_ANIMATION_VARIANTS.item}
+                views={views[blog.slug]}
               />
             ))}
           </BlogGrid>

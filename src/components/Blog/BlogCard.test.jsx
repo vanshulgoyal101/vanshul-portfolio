@@ -75,4 +75,20 @@ describe('BlogCard', () => {
     expect(screen.getByText('Two Worlds')).toBeInTheDocument();
     expect(screen.getByRole('link')).toHaveAttribute('href', '/blog/the-two-worlds');
   });
+
+  it('does not render a view count when views is undefined', () => {
+    renderCard();
+    expect(screen.queryByLabelText('Views')).not.toBeInTheDocument();
+  });
+
+  it('renders a formatted view count when views is provided', () => {
+    renderCard(baseBlog, { views: 1200 });
+    expect(screen.getByLabelText('Views')).toBeInTheDocument();
+    expect(screen.getByText(/1\.2k/)).toBeInTheDocument();
+  });
+
+  it('renders a zero view count', () => {
+    renderCard(baseBlog, { views: 0 });
+    expect(screen.getByText(/^0$/)).toBeInTheDocument();
+  });
 });

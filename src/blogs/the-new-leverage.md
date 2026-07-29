@@ -30,9 +30,11 @@ The interesting part is the feedback loop. An agent can learn, improve, and even
 
 For centuries, "labor" meant humans. A thousand houses needed thousands of people. Not for much longer.
 
-Don't picture a factory arm. Picture the agile, learning machines from a company like [**Boston Dynamics**](https://bostondynamics.com/) — robots that handle messy physical work in the real world, not just a controlled assembly line.
+Don't picture a factory arm. Picture the agile, learning machines from [**Boston Dynamics**](https://bostondynamics.com/), or Tesla's **Optimus** — general-purpose humanoids designed to walk into a space built for people and do the work, instead of sitting bolted to an assembly line.
 
-Hand them the repetitive, dangerous, draining tasks and what's left is the interesting part: the creative, the strategic, the human. You stop managing people doing simple things and start directing tireless machines. Physical leverage approaches infinity.
+The reason this matters is economics. A human hour of labor costs roughly $20, and more once you add benefits, training, and overhead. Tesla is targeting a production cost of around $20,000–$30,000 per Optimus at scale. Amortize that over a few years of near-continuous work, add electricity and maintenance, and a robot-hour drops to a few dollars — plausibly around $2. These are projections, not receipts, and robotics has a long history of optimistic timelines. But even if the estimate is off by half, the direction is unmistakable: the price of physical labor is sliding from about $20 an hour toward about $2.
+
+Hand these machines the repetitive, dangerous, draining tasks and what's left is the interesting part: the creative, the strategic, the human. You stop managing people doing simple things and start directing tireless machines. Physical leverage approaches infinity.
 
 ## The bottleneck moves
 

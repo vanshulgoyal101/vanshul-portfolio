@@ -1,12 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaArrowLeft, FaShare } from 'react-icons/fa';
 import { BiTime } from 'react-icons/bi';
 import { MdDateRange } from 'react-icons/md';
+import { AiOutlineEye } from 'react-icons/ai';
 import ReactMarkdown from 'react-markdown';
 import { loadBlogBySlug } from '../utils/blogLoader';
+import { formatViews } from '../utils/blogViews';
+import { useBlogView } from '../hooks/useBlogViews';
+import { useSeo } from '../hooks/useSeo';
 import Navigation from '../components/Navigation/Navigation';
 
 // Styled Components
@@ -325,6 +329,36 @@ const BlogPost = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const blog = loadBlogBySlug(slug);
+  const views = useBlogView(blog ? slug : null);
+
+  // Per-post SEO: unique title/description/canonical + BlogPosting structured data.
+  const jsonLd = useMemo(() => {
+    if (!blog) return undefined;
+    const publishedISO = !Number.isNaN(new Date(blog.date).getTime())
+      ? new Date(blog.date).toISOString()
+      : undefined;
+    const canonical = `https://vanshul.com/blog/${blog.slug}`;
+    return JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: blog.title,
+      description: blog.summary,
+      ...(publishedISO ? { datePublished: publishedISO } : {}),
+      ...(blog.category ? { articleSection: blog.category } : {}),
+      author: { '@type': 'Person', name: 'Vanshul Goyal', url: 'https://vanshul.com' },
+      publisher: { '@type': 'Person', name: 'Vanshul Goyal' },
+      mainEntityOfPage: canonical,
+      url: canonical,
+    });
+  }, [blog]);
+
+  useSeo({
+    title: blog ? `${blog.title} — Vanshul Goyal` : 'Post not found — Vanshul Goyal',
+    description: blog?.summary,
+    path: blog ? `/blog/${blog.slug}` : `/blog/${slug ?? ''}`,
+    type: 'article',
+    jsonLd,
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -409,6 +443,11 @@ const BlogPost = () => {
                 <span>
                   <BiTime /> {blog.readTime}
                 </span>
+                {views != null && (
+                  <span>
+                    <AiOutlineEye /> {formatViews(views)} views
+                  </span>
+                )}
               </Meta>
             </Header>
             

@@ -243,31 +243,42 @@ export default defineConfig({
 ## SEO Configuration
 
 ### sitemap.xml
-**Location**: `public/sitemap.xml`
+**Location**: `public/sitemap.xml` (generated — do not edit by hand)
 
 **Purpose**: Help search engines discover and index all pages.
 
-**Example**:
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://vanshul.com/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://vanshul.com/blog/health-post-agi</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- Additional blog posts -->
-</urlset>
-```
-
-**Maintenance**: Update manually when adding new blog posts or pages.
+**Generation**: Built from the blog markdown files by
+[`scripts/generate-sitemap.mjs`](../scripts/generate-sitemap.mjs), which runs
+automatically via the `prebuild` npm script before every `npm run build` (and
+therefore before `npm run deploy`). It emits the home URL plus one entry per
+post, with `lastmod` taken from each post's `date`. Adding a new post and
+building regenerates the sitemap — no manual edits needed.
 
 **Submission**: Submit to Google Search Console for faster indexing.
+
+---
+
+### Per-page metadata (client-rendered)
+
+This is a client-rendered SPA, so a single static `index.html` is served for
+every route. To give each blog post its own SEO identity, the
+[`useSeo`](../src/hooks/useSeo.js) hook (used in
+[`pages/BlogPost.jsx`](../src/pages/BlogPost.jsx)) updates the document head at
+runtime and restores the defaults on navigation away. Per post it sets:
+
+- a unique `<title>` and `<meta name="description">`,
+- `<link rel="canonical">` to the post URL,
+- Open Graph + Twitter tags (title/description/url/image/type=article),
+- a `BlogPosting` **JSON-LD** structured-data block (headline, description,
+  `datePublished`, author, publisher) for rich results.
+
+It mutates the existing tags from `index.html` in place, so there are never
+duplicate `<title>`/description tags.
+
+> **Limitation**: Googlebot executes JS and picks up these runtime tags, but
+> non-JS social scrapers (older Slack/Facebook/LinkedIn crawlers) only see the
+> static `index.html` defaults. Full per-post social previews would require
+> prerendering/SSR — a possible future enhancement.
 
 ---
 
@@ -290,27 +301,13 @@ Sitemap: https://vanshul.com/sitemap.xml
 
 ---
 
-### Meta Tags
+### Base meta tags
 **Location**: `index.html`
 
-**SEO Optimization**:
-```html
-<meta name="description" content="Vanshul Goyal's portfolio - Software Engineer specializing in React, Web3, and AI">
-<meta name="keywords" content="Vanshul Goyal, Portfolio, React, Web Development, AI">
-<meta name="author" content="Vanshul Goyal">
-
-<!-- Open Graph (Social Sharing) -->
-<meta property="og:title" content="Vanshul Goyal - Portfolio">
-<meta property="og:description" content="Software Engineer Portfolio">
-<meta property="og:image" content="https://vanshul.com/images/og-image.png">
-<meta property="og:url" content="https://vanshul.com">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Vanshul Goyal - Portfolio">
-<meta name="twitter:description" content="Software Engineer Portfolio">
-<meta name="twitter:image" content="https://vanshul.com/images/twitter-card.png">
-```
+Defaults for the home page (and the fallback for non-JS crawlers): title,
+description, keywords, author, canonical, Open Graph, and Twitter Card tags.
+Open Graph/Twitter image URLs are **absolute** (`https://vanshul.com/...`), which
+social scrapers require.
 
 ---
 
