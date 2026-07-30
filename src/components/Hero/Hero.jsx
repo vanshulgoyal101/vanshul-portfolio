@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 
 import FloatingShape from './FloatingShape';
-import { FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
+import { FaLinkedin, FaInstagram, FaGithub, FaGamepad } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { HiChevronDown } from 'react-icons/hi';
 import Magnetic from '../FunElements/Magnetic';
@@ -417,6 +417,18 @@ const Hero = () => {
                 aria-label="GitHub"
               >
                 <FaGithub />
+              </SocialLink>
+            </Magnetic>
+            <Magnetic range={35}>
+              <SocialLink
+                href="https://games.vanshul.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Games"
+              >
+                <FaGamepad />
               </SocialLink>
             </Magnetic>
           </SocialLinks>

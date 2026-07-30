@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaLinkedin, FaInstagram, FaPaperPlane, FaGithub } from 'react-icons/fa';
+import { FaLinkedin, FaInstagram, FaPaperPlane, FaGithub, FaGamepad } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { MdLocationOn, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
@@ -335,6 +335,7 @@ const socialLinks = [
   { icon: <FaLinkedin />, url: 'https://www.linkedin.com/in/vanshul-goyal00/', label: 'LinkedIn' },
   { icon: <FaInstagram />, url: 'https://www.instagram.com/vanshul_goyal/', label: 'Instagram' },
   { icon: <FaGithub />, url: 'https://github.com/vanshulgoyal101', label: 'GitHub' },
+  { icon: <FaGamepad />, url: 'https://games.vanshul.com', label: 'Games' },
 ];
 
 
