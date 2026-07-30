@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 
 import GlobalStyles from './styles/GlobalStyles';
 import { useIdle } from './hooks/useIdle';
+import { pageVariants } from './constants/motionVariants';
 import Navigation from './components/Navigation/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
@@ -30,12 +31,6 @@ import Analytics from './components/Analytics';
 const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
 const RandomTelemetry = lazy(() => import('./components/FunElements/RandomTelemetry'));
 const InteractiveSpaceBackground = lazy(() => import('./components/FunElements/InteractiveSpaceBackground'));
-
-
-
-
-
-
 
 // Styled Components
 const AppWrapper = styled.div`
@@ -186,27 +181,6 @@ function App() {
     }
   };
 
-
-  // Page transition variants
-  const pageVariants = {
-    initial: {
-      opacity: 0,
-    },
-    animate: {
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
-    },
-    exit: {
-      opacity: 0,
-      transition: {
-        duration: 0.3,
-      },
-    },
-  };
-
   return (
     <Router>
       <ScrollToHash isBooting={isBooting} />
@@ -231,8 +205,7 @@ function App() {
             <Route path="/" element={
             <>
               <Navigation scrollToSection={scrollToSection} />
-              <AnimatePresence mode="wait">
-                <MainContent>
+              <MainContent>
                   {/* Hero Section */}
                   <ErrorBoundary>
                     <SectionWrapper id="home">
@@ -305,7 +278,6 @@ function App() {
                     </SectionWrapper>
                   </ErrorBoundary>
                 </MainContent>
-              </AnimatePresence>
 
               <SiteFooter>
                 <FooterLinks aria-label="Vanshul Goyal network">
@@ -327,4 +299,6 @@ function App() {
       </ToastProvider>
     </Router>
   );
-}export default App;
+}
+
+export default App;

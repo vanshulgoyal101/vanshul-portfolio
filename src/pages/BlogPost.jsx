@@ -11,6 +11,7 @@ import { loadBlogBySlug } from '../utils/blogLoader';
 import { formatViews } from '../utils/blogViews';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
+import { useToast } from '../components/Toast';
 import Navigation from '../components/Navigation/Navigation';
 
 // Styled Components
@@ -328,6 +329,7 @@ const NotFound = styled.div`
 const BlogPost = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const blog = loadBlogBySlug(slug);
   const views = useBlogView(blog ? slug : null);
 
@@ -389,15 +391,19 @@ const BlogPost = () => {
         await navigator.share({
           title: blog?.title || 'Blog Post',
           text: blog?.summary || '',
-          url: url,
+          url,
         });
       } catch (err) {
-        console.error('Error sharing:', err);
+        if (err?.name !== 'AbortError') console.error('Error sharing:', err);
       }
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      showSuccess('Link copied', 'The post link is now on your clipboard.');
+    } catch {
+      showError('Could not copy link', 'Copy the URL from your browser address bar instead.');
     }
   };
 

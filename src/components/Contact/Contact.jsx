@@ -6,6 +6,7 @@ import { MdLocationOn, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
 import Magnetic from '../FunElements/Magnetic';
 import { useContactForm } from '../../hooks/useContactForm';
+import { containerVariants, itemVariants } from '../../constants/motionVariants';
 
 
 // Styled Components
@@ -311,29 +312,6 @@ const ValidationError = styled.p`
 const Contact = () => {
   const { formState, isSubmitting, emailError, handleChange, handleSubmit } = useContactForm();
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
-    },
-  };
-
   const contactInfo = [
     {
       icon: <MdLocationOn />,
@@ -393,9 +371,9 @@ const socialLinks = [
               </InfoText>
             </motion.div>
 
-            {contactInfo.map((info, index) => (
+            {contactInfo.map((info) => (
               <InfoItem
-                key={index}
+                key={info.label}
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
               >
@@ -410,8 +388,8 @@ const socialLinks = [
             <motion.div variants={itemVariants}>
               <InfoText>Connect with me on social media:</InfoText>
               <SocialLinks>
-                {socialLinks.map((social, index) => (
-                  <Magnetic key={index} range={35}>
+                {socialLinks.map((social) => (
+                  <Magnetic key={social.label} range={35}>
                     <SocialLink
                       href={social.url}
                       target="_blank"

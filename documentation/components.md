@@ -140,17 +140,6 @@ All UI and logic are organized into feature-based React components under `src/co
 - Responsive typography
 - Scroll-down indicator
 
-### HeroCanvas.jsx
-**Location**: `src/components/Hero/HeroCanvas.jsx`
-
-**Purpose**: Three.js 3D canvas background for hero section.
-
-**Features**:
-- WebGL rendering with `@react-three/fiber`
-- 3D objects and lighting
-- Interactive camera controls
-- Responsive canvas sizing
-
 ### FloatingShape.jsx
 **Location**: `src/components/Hero/FloatingShape.jsx`
 

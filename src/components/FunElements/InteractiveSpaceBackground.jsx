@@ -24,6 +24,9 @@ const InteractiveSpaceBackground = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Honor reduced-motion: skip the animated starfield entirely.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
     let animationFrameId;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight + 100);
@@ -358,10 +361,21 @@ const InteractiveSpaceBackground = () => {
       animationFrameId = requestAnimationFrame(render);
     };
 
+    // Pause the loop when the tab is backgrounded to save CPU/battery.
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationFrameId);
+      } else {
+        animationFrameId = requestAnimationFrame(render);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     render();
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('click', handleGlobalClick);
       clearInterval(spawnInterval);

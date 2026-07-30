@@ -12,11 +12,12 @@ const blogFiles = import.meta.glob('../blogs/*.md', { query: '?raw', import: 'de
  * @returns {Object} Object with frontmatter data and content
  */
 const parseFrontmatter = (markdown) => {
+  const normalized = markdown.replace(/\r\n/g, '\n');
   const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
-  const match = markdown.match(frontmatterRegex);
-  
+  const match = normalized.match(frontmatterRegex);
+
   if (!match) {
-    return { data: {}, content: markdown };
+    return { data: {}, content: normalized };
   }
   
   const frontmatterText = match[1];
@@ -54,7 +55,12 @@ const parseFrontmatter = (markdown) => {
  * Load all blog posts from markdown files
  * @returns {Array} Array of blog post objects with parsed frontmatter and content
  */
+let cachedPosts = null;
+
 export const loadBlogPosts = () => {
+  // The markdown is bundled eagerly, so parse once and reuse the result.
+  if (cachedPosts) return cachedPosts;
+
   const posts = [];
 
   // Process each markdown file
@@ -63,7 +69,7 @@ export const loadBlogPosts = () => {
     try {
       const markdown = blogFiles[path];
       const { data: frontmatter, content: markdownContent } = parseFrontmatter(markdown);
-      
+
       posts.push({
         ...frontmatter,
         content: markdownContent,
@@ -74,6 +80,7 @@ export const loadBlogPosts = () => {
     }
   }
 
+  cachedPosts = posts;
   return posts;
 };
 

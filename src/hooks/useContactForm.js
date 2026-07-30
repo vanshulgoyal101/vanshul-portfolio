@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useToast } from '../components/Toast';
 
+// Formspree endpoint for the contact form. Override with VITE_CONTACT_ENDPOINT.
+const CONTACT_ENDPOINT =
+  import.meta.env.VITE_CONTACT_ENDPOINT || 'https://formspree.io/f/xgvzkqob';
+
 export const useContactForm = (initialState = { name: '', email: '', message: '' }) => {
   const { showSuccess, showError } = useToast();
   const [formState, setFormState] = useState(initialState);
@@ -23,7 +27,7 @@ export const useContactForm = (initialState = { name: '', email: '', message: ''
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://formspree.io/f/xgvzkqob', {
+      const response = await fetch(CONTACT_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

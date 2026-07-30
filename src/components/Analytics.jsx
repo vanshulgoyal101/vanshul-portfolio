@@ -22,6 +22,8 @@ const Analytics = () => {
   }, []);
 
   // Count client-side route changes (the script auto-counts the first load).
+  // Keyed on pathname only so in-page hash navigation (#about, #work, …)
+  // doesn't inflate the pageview count.
   useEffect(() => {
     if (!CODE) return;
     if (initial.current) {
@@ -29,9 +31,9 @@ const Analytics = () => {
       return;
     }
     window.goatcounter?.count?.({
-      path: location.pathname + location.hash,
+      path: location.pathname,
     });
-  }, [location]);
+  }, [location.pathname]);
 
   return null;
 };

@@ -62,7 +62,7 @@ container.querySelector('button[aria-label="Toggle mobile menu"]');
 | Magnetic wrapper | `src/components/FunElements/Magnetic.test.jsx` |
 | Blog constants | `src/constants/blogConstants.test.js` |
 
-Heavy 3D/canvas components (Hero, `HeroCanvas`, `InteractiveSpaceBackground`,
+Heavy 3D/canvas components (Hero, `InteractiveSpaceBackground`,
 etc.) are intentionally not deep-tested — they render WebGL and contain little
 testable logic.
 

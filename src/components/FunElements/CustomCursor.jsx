@@ -46,17 +46,18 @@ const CustomCursor = () => {
   const ringY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
-    // Check if the device has hover capabilities (i.e. not a touch device)
-    const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
-    setIsSupported(mediaQuery.matches);
+    // Only show the custom cursor on hover-capable, fine-pointer devices, and
+    // never when the user has requested reduced motion.
+    const hoverQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const evaluate = () => setIsSupported(hoverQuery.matches && !motionQuery.matches);
+    evaluate();
 
-    const handleMediaChange = (e) => {
-      setIsSupported(e.matches);
-    };
-
-    mediaQuery.addEventListener('change', handleMediaChange);
+    hoverQuery.addEventListener('change', evaluate);
+    motionQuery.addEventListener('change', evaluate);
     return () => {
-      mediaQuery.removeEventListener('change', handleMediaChange);
+      hoverQuery.removeEventListener('change', evaluate);
+      motionQuery.removeEventListener('change', evaluate);
     };
   }, []);
 
@@ -73,7 +74,7 @@ const CustomCursor = () => {
       rafRef.current = requestAnimationFrame(() => {
         mouseX.set(e.clientX);
         mouseY.set(e.clientY);
-        if (!isVisible) setIsVisible(true);
+        setIsVisible(true);
       });
     };
 
@@ -119,7 +120,7 @@ const CustomCursor = () => {
       window.removeEventListener('mouseover', handleMouseOver);
       document.body.classList.remove('has-custom-cursor');
     };
-  }, [isSupported, mouseX, mouseY, isVisible]);
+  }, [isSupported, mouseX, mouseY]);
 
   if (!isSupported || !isVisible) return null;
 
