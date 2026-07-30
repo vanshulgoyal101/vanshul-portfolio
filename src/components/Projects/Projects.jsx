@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaRocket, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaRocket, FaExternalLinkAlt, FaCode } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
 
@@ -253,12 +253,12 @@ const projects = [
     id: 3,
     title: 'Tiny Arcade — 9 Browser Games',
     role: 'Solo Developer',
-    description: 'Designed and built a suite of nine instant-play browser games — reflex, memory, typing, mental maths, ear training and more — in TypeScript + Vite with a shared model/view architecture, unit tests and full SEO. No frameworks, no backend.',
+    description: 'Nine instant-play browser games — reflex, memory, typing, mental maths, ear training and more — built in TypeScript + Vite with a shared model/view architecture and full SEO. No frameworks, no backend.',
     image: '/images/projects/tiny-arcade.webp',
     fallbackIcon: '🎮',
     stats: [
-      { icon: <FaRocket />, text: '9 games · 59 unit tests' },
-      { icon: <FaExternalLinkAlt />, text: 'Live at games.vanshul.com' },
+      { icon: <FaRocket />, text: '9 instant-play games' },
+      { icon: <FaCode />, text: 'TypeScript + Vite' },
     ],
     link: 'https://games.vanshul.com',
   },
