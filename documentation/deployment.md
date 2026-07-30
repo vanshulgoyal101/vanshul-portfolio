@@ -405,7 +405,7 @@ Google), a `robots` directive with `max-image-preview:large`, and
 **Symptom**: `npm run build` errors out.
 
 **Solutions**:
-1. Check Node.js version (requires 16+)
+1. Check Node.js version (requires 20.9+; the `sharp` OG-image step in `prebuild` needs it)
 2. Clear cache: `rm -rf node_modules dist && npm install`
 3. Fix ESLint errors: `npm run lint`
 4. Check for missing dependencies
@@ -456,12 +456,12 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 'lts/*'
           cache: 'npm'
       
       - name: Install dependencies
