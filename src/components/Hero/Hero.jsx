@@ -5,8 +5,9 @@ import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 
 import FloatingShape from './FloatingShape';
-import { FaLinkedin, FaInstagram, FaGithub, FaGamepad } from 'react-icons/fa';
+import { FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
+import { IoGameController } from 'react-icons/io5';
 import { HiChevronDown } from 'react-icons/hi';
 import Magnetic from '../FunElements/Magnetic';
 
@@ -428,7 +429,7 @@ const Hero = () => {
                 whileTap={{ scale: 0.9 }}
                 aria-label="Games"
               >
-                <FaGamepad />
+                <IoGameController />
               </SocialLink>
             </Magnetic>
           </SocialLinks>
