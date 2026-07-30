@@ -331,10 +331,10 @@ Google), a `robots` directive with `max-image-preview:large`, and
 
 ### Icons & manifest
 
-- [`public/favicon.svg`](../public/favicon.svg) is the source of truth for the
+- [`public/panda.svg`](../public/panda.svg) is the source of truth for the
   brand mark. [`scripts/generate-icons.mjs`](../scripts/generate-icons.mjs)
-  renders the raster set (`favicon-32.png`, `apple-touch-icon.png`,
-  `icon-192.png`, `icon-512.png`) from it via `sharp` — rerun after changing the
+  renders the raster set (`panda-32.png`, `panda-apple-touch.png`,
+  `panda-192.png`, `panda-512.png`) from it via `sharp` — rerun after changing the
   SVG.
 - [`public/site.webmanifest`](../public/site.webmanifest) wires those icons plus
   name/theme for installable/PWA and richer mobile results.

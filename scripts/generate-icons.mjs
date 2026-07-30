@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Generates the raster icon set (favicon PNGs, Apple touch icon) from
- * public/favicon.svg. Run once (or after changing the favicon):
+ * public/panda.svg. Run once (or after changing the favicon):
  *   node scripts/generate-icons.mjs
  */
 import { readFileSync } from 'node:fs';
@@ -10,13 +10,13 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const publicDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
-const svg = readFileSync(join(publicDir, 'favicon.svg'));
+const svg = readFileSync(join(publicDir, 'panda.svg'));
 
 const targets = [
-  { name: 'apple-touch-icon.png', size: 180 },
-  { name: 'icon-192.png', size: 192 },
-  { name: 'icon-512.png', size: 512 },
-  { name: 'favicon-32.png', size: 32 },
+  { name: 'panda-apple-touch.png', size: 180 },
+  { name: 'panda-192.png', size: 192 },
+  { name: 'panda-512.png', size: 512 },
+  { name: 'panda-32.png', size: 32 },
 ];
 
 for (const { name, size } of targets) {
