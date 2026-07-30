@@ -18,6 +18,7 @@ then dive into specific areas.
 | [config.md](config.md) | `package.json`, `vite.config.js`, `eslint.config.js`, `Makefile`, and SEO/hosting files. |
 | [deployment.md](deployment.md) | GitHub Pages deployment, the SPA routing workaround, build process, and troubleshooting. |
 | [accessibility.md](accessibility.md) | WCAG 2.1 AA practices: keyboard navigation, focus management, touch targets, contrast, ARIA. |
+| [seo.md](seo.md) | Runtime meta (`useSeo`), build-time generation (sitemap, OG images, RSS feed, blog pre-rendering), JSON-LD, and static SEO files. |
 
 ## Maintenance
 
