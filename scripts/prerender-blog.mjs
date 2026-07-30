@@ -55,6 +55,13 @@ const buildShell = (post) => {
   const publishedISO = Number.isNaN(new Date(post.date).getTime())
     ? undefined
     : new Date(post.date).toISOString();
+  const readMinutes = parseInt(post.readTime, 10);
+  const authorSameAs = [
+    'https://github.com/vanshulgoyal101',
+    'https://www.linkedin.com/in/vanshul-goyal00/',
+    'https://x.com/goyal_vanshul',
+    'https://www.instagram.com/vanshul_goyal/',
+  ];
 
   let html = template;
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escText(title)}</title>`);
@@ -71,6 +78,16 @@ const buildShell = (post) => {
   html = setMeta(html, 'name', 'twitter:image', ogImage);
   html = html.replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/i, `$1${canonical}$2`);
 
+  // Article-specific Open Graph tags (not present in the base template).
+  const articleTags = [
+    publishedISO && `<meta property="article:published_time" content="${escAttr(publishedISO)}" />`,
+    publishedISO && `<meta property="article:modified_time" content="${escAttr(publishedISO)}" />`,
+    `<meta property="article:author" content="Vanshul Goyal" />`,
+    post.category && `<meta property="article:section" content="${escAttr(post.category)}" />`,
+  ]
+    .filter(Boolean)
+    .join('\n  ');
+
   const jsonLd = JSON.stringify([
     {
       '@context': 'https://schema.org',
@@ -78,10 +95,23 @@ const buildShell = (post) => {
       headline: post.title,
       description: desc,
       image: [ogImage],
-      ...(publishedISO ? { datePublished: publishedISO } : {}),
-      ...(post.category ? { articleSection: post.category } : {}),
-      author: { '@type': 'Person', name: 'Vanshul Goyal', url: SITE },
-      publisher: { '@type': 'Person', name: 'Vanshul Goyal' },
+      inLanguage: 'en',
+      ...(publishedISO ? { datePublished: publishedISO, dateModified: publishedISO } : {}),
+      ...(Number.isFinite(readMinutes) ? { timeRequired: `PT${readMinutes}M` } : {}),
+      ...(post.wordCount ? { wordCount: post.wordCount } : {}),
+      ...(post.category ? { articleSection: post.category, keywords: post.category } : {}),
+      author: {
+        '@type': 'Person',
+        name: 'Vanshul Goyal',
+        url: SITE,
+        sameAs: authorSameAs,
+      },
+      publisher: {
+        '@type': 'Person',
+        name: 'Vanshul Goyal',
+        url: SITE,
+        image: `${SITE}/og-image.png`,
+      },
       mainEntityOfPage: canonical,
       url: canonical,
     },
@@ -98,14 +128,19 @@ const buildShell = (post) => {
 
   html = html.replace(
     '</head>',
-    `<script type="application/ld+json">${jsonLd}</script></head>`
+    `  ${articleTags}\n  <script type="application/ld+json">${jsonLd}</script></head>`
   );
   return html;
 };
 
 const posts = readdirSync(blogsDir)
   .filter((f) => f.endsWith('.md'))
-  .map((f) => parseFrontmatter(readFileSync(join(blogsDir, f), 'utf8')))
+  .map((f) => {
+    const raw = readFileSync(join(blogsDir, f), 'utf8');
+    const body = raw.replace(/^---\n[\s\S]*?\n---/, '').trim();
+    const wordCount = body ? body.split(/\s+/).length : undefined;
+    return { ...parseFrontmatter(raw), wordCount };
+  })
   .filter((p) => p.slug && p.title);
 
 for (const post of posts) {

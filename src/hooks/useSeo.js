@@ -51,6 +51,11 @@ const upsertLink = (rel, href) => {
  * @param {string} [opts.image] - Absolute Open Graph image URL
  * @param {string} [opts.type]  - Open Graph type ('website' | 'article')
  * @param {string} [opts.jsonLd] - Pre-serialized JSON-LD string
+ * @param {Object} [opts.article] - Article OG metadata (used when type==='article')
+ * @param {string} [opts.article.publishedTime] - ISO 8601 publish date
+ * @param {string} [opts.article.modifiedTime]  - ISO 8601 last-modified date
+ * @param {string} [opts.article.author]  - Author name or profile URL
+ * @param {string} [opts.article.section] - Article category/section
  */
 export const useSeo = ({
   title,
@@ -59,6 +64,7 @@ export const useSeo = ({
   image = DEFAULT_IMAGE,
   type = 'website',
   jsonLd,
+  article,
 } = {}) => {
   useEffect(() => {
     const url = `${SITE_URL}${path}`;
@@ -84,6 +90,17 @@ export const useSeo = ({
     cleanups.push(upsertMeta('name', 'twitter:image', image));
     cleanups.push(upsertLink('canonical', url));
 
+    if (type === 'article' && article) {
+      if (article.publishedTime)
+        cleanups.push(upsertMeta('property', 'article:published_time', article.publishedTime));
+      if (article.modifiedTime)
+        cleanups.push(upsertMeta('property', 'article:modified_time', article.modifiedTime));
+      if (article.author)
+        cleanups.push(upsertMeta('property', 'article:author', article.author));
+      if (article.section)
+        cleanups.push(upsertMeta('property', 'article:section', article.section));
+    }
+
     let script;
     if (jsonLd) {
       script = document.createElement('script');
@@ -97,7 +114,7 @@ export const useSeo = ({
       cleanups.forEach((fn) => fn());
       if (script) script.remove();
     };
-  }, [title, description, path, image, type, jsonLd]);
+  }, [title, description, path, image, type, jsonLd, article]);
 };
 
 export default useSeo;

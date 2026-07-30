@@ -341,6 +341,14 @@ const BlogPost = () => {
       : undefined;
     const canonical = `https://vanshul.com/blog/${blog.slug}`;
     const ogImage = `https://vanshul.com/og/${blog.slug}.png`;
+    const readMinutes = parseInt(blog.readTime, 10);
+    const wordCount = blog.content ? blog.content.trim().split(/\s+/).length : undefined;
+    const authorSameAs = [
+      'https://github.com/vanshulgoyal101',
+      'https://www.linkedin.com/in/vanshul-goyal00/',
+      'https://x.com/goyal_vanshul',
+      'https://www.instagram.com/vanshul_goyal/',
+    ];
     return JSON.stringify([
       {
         '@context': 'https://schema.org',
@@ -348,10 +356,23 @@ const BlogPost = () => {
         headline: blog.title,
         description: blog.summary,
         image: [ogImage],
-        ...(publishedISO ? { datePublished: publishedISO } : {}),
-        ...(blog.category ? { articleSection: blog.category } : {}),
-        author: { '@type': 'Person', name: 'Vanshul Goyal', url: 'https://vanshul.com' },
-        publisher: { '@type': 'Person', name: 'Vanshul Goyal' },
+        inLanguage: 'en',
+        ...(publishedISO ? { datePublished: publishedISO, dateModified: publishedISO } : {}),
+        ...(Number.isFinite(readMinutes) ? { timeRequired: `PT${readMinutes}M` } : {}),
+        ...(wordCount ? { wordCount } : {}),
+        ...(blog.category ? { articleSection: blog.category, keywords: blog.category } : {}),
+        author: {
+          '@type': 'Person',
+          name: 'Vanshul Goyal',
+          url: 'https://vanshul.com',
+          sameAs: authorSameAs,
+        },
+        publisher: {
+          '@type': 'Person',
+          name: 'Vanshul Goyal',
+          url: 'https://vanshul.com',
+          image: 'https://vanshul.com/og-image.png',
+        },
         mainEntityOfPage: canonical,
         url: canonical,
       },
@@ -367,6 +388,19 @@ const BlogPost = () => {
     ]);
   }, [blog]);
 
+  const articleMeta = useMemo(() => {
+    if (!blog) return undefined;
+    const publishedISO = !Number.isNaN(new Date(blog.date).getTime())
+      ? new Date(blog.date).toISOString()
+      : undefined;
+    return {
+      publishedTime: publishedISO,
+      modifiedTime: publishedISO,
+      author: 'Vanshul Goyal',
+      section: blog.category,
+    };
+  }, [blog]);
+
   useSeo({
     title: blog ? `${blog.title} — Vanshul Goyal` : 'Post not found — Vanshul Goyal',
     description: blog?.summary,
@@ -374,6 +408,7 @@ const BlogPost = () => {
     image: blog ? `https://vanshul.com/og/${blog.slug}.png` : undefined,
     type: 'article',
     jsonLd,
+    article: articleMeta,
   });
 
   useEffect(() => {

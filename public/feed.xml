@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Vanshul Goyal — Blog</title>
+    <link>https://vanshul.com/#blog</link>
+    <atom:link href="https://vanshul.com/feed.xml" rel="self" type="application/rss+xml" />
+    <description>Writing on AI, the future of work, technology and space by Vanshul Goyal.</description>
+    <language>en</language>
+    <lastBuildDate>Tue, 28 Jul 2026 18:30:00 GMT</lastBuildDate>
+    <item>
+      <title>Taste Is the Last Moat</title>
+      <link>https://vanshul.com/blog/taste-is-the-last-moat</link>
+      <guid isPermaLink="true">https://vanshul.com/blog/taste-is-the-last-moat</guid>
+      <pubDate>Tue, 28 Jul 2026 18:30:00 GMT</pubDate>
+      <category>Future of Work</category>
+      <description>When anyone can generate code, art, and writing for free, producing stops being rare. The scarce skill becomes taste and judgment — knowing what's worth making, and what's true.</description>
+    </item>
+    <item>
+      <title>The Two Worlds</title>
+      <link>https://vanshul.com/blog/the-two-worlds</link>
+      <guid isPermaLink="true">https://vanshul.com/blog/the-two-worlds</guid>
+      <pubDate>Sat, 11 Oct 2025 18:30:00 GMT</pubDate>
+      <category>Infrastructure</category>
+      <description>Developing nations are fighting for clean water and reliable roads. Developed nations are building AI and racing to Mars. Are we living in two different worlds?</description>
+    </item>
+    <item>
+      <title>The New Leverage</title>
+      <link>https://vanshul.com/blog/the-new-leverage</link>
+      <guid isPermaLink="true">https://vanshul.com/blog/the-new-leverage</guid>
+      <pubDate>Tue, 26 Aug 2025 18:30:00 GMT</pubDate>
+      <category>Future of Work</category>
+      <description>Work feels meaningful when we create value. Historically, this required leverage like capital or labor. Today, Agentic AI and Robotics offer new, exponential leverage to everyone.</description>
+    </item>
+    <item>
+      <title>Can we create a silicon valley in India?</title>
+      <link>https://vanshul.com/blog/silicon-valley-india</link>
+      <guid isPermaLink="true">https://vanshul.com/blog/silicon-valley-india</guid>
+      <pubDate>Wed, 09 Jul 2025 18:30:00 GMT</pubDate>
+      <category>Tech Industry</category>
+      <description>Should India copy America's Silicon Valley model or build a unique tech culture rooted in its own traditions...</description>
+    </item>
+    <item>
+      <title>Preserving Stories</title>
+      <link>https://vanshul.com/blog/preserving-stories</link>
+      <guid isPermaLink="true">https://vanshul.com/blog/preserving-stories</guid>
+      <pubDate>Wed, 25 Dec 2024 18:30:00 GMT</pubDate>
+      <category>AI</category>
+      <description>Using AI to preserve personal stories, while also considering immense privacy challenges...</description>
+    </item>
+    <item>
+      <title>Health in a Post-AGI World</title>
+      <link>https://vanshul.com/blog/health-post-agi</link>
+      <guid isPermaLink="true">https://vanshul.com/blog/health-post-agi</guid>
+      <pubDate>Tue, 24 Sep 2024 18:30:00 GMT</pubDate>
+      <category>AI</category>
+      <description>In a post-AGI world of abundance, humanity's focus shifts from work to the holistic pursuit of health and well-being.</description>
+    </item>
+    <item>
+      <title>Meat Without The Animal</title>
+      <link>https://vanshul.com/blog/meat-without-the-animal</link>
+      <guid isPermaLink="true">https://vanshul.com/blog/meat-without-the-animal</guid>
+      <pubDate>Wed, 15 Nov 2023 18:30:00 GMT</pubDate>
+      <category>Future of Food</category>
+      <description>What if meat wasn't something we harvested, but something we designed? Exploring the world of cultivated meat and how it could change our relationship with food itself.</description>
+    </item>
+  </channel>
+</rss>
