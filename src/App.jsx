@@ -101,6 +101,39 @@ const SectionWrapper = styled(motion.section)`
   position: relative;
 `;
 
+const SiteFooter = styled.footer`
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid var(--color-border);
+  padding: var(--spacing-xl) var(--container-padding);
+  text-align: center;
+  color: var(--color-text-secondary);
+`;
+
+const FooterLinks = styled.nav`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+
+  a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--color-accent-primary);
+    }
+  }
+`;
+
+const FooterNote = styled.p`
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+`;
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -273,6 +306,16 @@ function App() {
                   </ErrorBoundary>
                 </MainContent>
               </AnimatePresence>
+
+              <SiteFooter>
+                <FooterLinks aria-label="Vanshul Goyal network">
+                  <a href="/#blog">Blog</a>
+                  <a href="https://games.vanshul.com" target="_blank" rel="noopener noreferrer">Games</a>
+                  <a href="https://links.vanshul.com" target="_blank" rel="noopener noreferrer">Links</a>
+                  <a href="https://github.com/vanshulgoyal101" target="_blank" rel="noopener noreferrer">GitHub</a>
+                </FooterLinks>
+                <FooterNote>© {new Date().getFullYear()} Vanshul Goyal · vanshul.com</FooterNote>
+              </SiteFooter>
             </>
           } />
           
