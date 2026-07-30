@@ -1,4 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#1d4ed8"/>
-  <polyline points="150,158 256,360 362,158" fill="none" stroke="#ffffff" stroke-width="54" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="512" height="512" rx="112" fill="#3ddc97"/>
+  <!-- ears -->
+  <circle cx="156" cy="170" r="60" fill="#1b1b1b"/>
+  <circle cx="356" cy="170" r="60" fill="#1b1b1b"/>
+  <circle cx="156" cy="170" r="28" fill="#3a3a3a"/>
+  <circle cx="356" cy="170" r="28" fill="#3a3a3a"/>
+  <!-- face -->
+  <circle cx="256" cy="292" r="168" fill="#ffffff"/>
+  <!-- eye patches -->
+  <ellipse cx="198" cy="280" rx="48" ry="62" fill="#1b1b1b" transform="rotate(-18 198 280)"/>
+  <ellipse cx="314" cy="280" rx="48" ry="62" fill="#1b1b1b" transform="rotate(18 314 280)"/>
+  <!-- eyes -->
+  <circle cx="205" cy="290" r="18" fill="#ffffff"/>
+  <circle cx="307" cy="290" r="18" fill="#ffffff"/>
+  <circle cx="208" cy="293" r="8" fill="#1b1b1b"/>
+  <circle cx="304" cy="293" r="8" fill="#1b1b1b"/>
+  <!-- nose -->
+  <ellipse cx="256" cy="360" rx="22" ry="15" fill="#1b1b1b"/>
+  <!-- mouth -->
+  <path d="M256 375 v12 M256 387 q-20 16 -40 4 M256 387 q20 16 40 4" fill="none" stroke="#1b1b1b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
