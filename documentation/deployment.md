@@ -334,8 +334,10 @@ Google), a `robots` directive with `max-image-preview:large`, and
 - [`public/panda.svg`](../public/panda.svg) is the source of truth for the
   brand mark. [`scripts/generate-icons.mjs`](../scripts/generate-icons.mjs)
   renders the raster set (`panda-32.png`, `panda-apple-touch.png`,
-  `panda-192.png`, `panda-512.png`) from it via `sharp` — rerun after changing the
-  SVG.
+  `panda-192.png`, `panda-512.png`) plus a multi-size `favicon.ico` (16/32/48)
+  from it via `sharp` — rerun after changing the SVG. The `.ico` is important:
+  browsers, bookmarks and Google fetch `/favicon.ico` directly and otherwise
+  synthesise a letter tile ("V"), ignoring the `<link>` tags.
 - [`public/site.webmanifest`](../public/site.webmanifest) wires those icons plus
   name/theme for installable/PWA and richer mobile results.
 - The social preview card [`public/og-image.png`](../public/og-image.png) is
