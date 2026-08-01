@@ -1,5 +1,5 @@
 ---
-id: 4
+id: 5
 title: "The New Leverage"
 slug: "the-new-leverage"
 summary: "Work feels meaningful when we create value. Historically, this required leverage like capital or labor. Today, Agentic AI and Robotics offer new, exponential leverage to everyone."

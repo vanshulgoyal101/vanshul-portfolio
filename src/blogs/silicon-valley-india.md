@@ -1,5 +1,5 @@
 ---
-id: 1
+id: 4
 title: "Can we create a silicon valley in India?"
 slug: "silicon-valley-india"
 summary: "Should India copy America's Silicon Valley model or build a unique tech culture rooted in its own traditions..."

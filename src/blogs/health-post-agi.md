@@ -1,5 +1,5 @@
 ---
-id: 3
+id: 2
 title: "Health in a Post-AGI World"
 slug: "health-post-agi"
 summary: "In a post-AGI world of abundance, humanity's focus shifts from work to the holistic pursuit of health and well-being."
