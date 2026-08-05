@@ -33,6 +33,9 @@ const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocke
 const RandomTelemetry = lazy(() => import('./components/FunElements/RandomTelemetry'));
 const InteractiveSpaceBackground = lazy(() => import('./components/FunElements/InteractiveSpaceBackground'));
 
+// Private analytics dashboard — off the critical path.
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+
 // Styled Components
 const AppWrapper = styled.div`
   position: relative;
@@ -248,6 +251,16 @@ function App() {
             
             {/* Individual blog post page */}
             <Route path="/blog/:slug" element={<BlogPost />} />
+
+            {/* Private analytics dashboard (owner-only, server-gated) */}
+            <Route
+              path="/dashboard"
+              element={
+                <Suspense fallback={null}>
+                  <Dashboard />
+                </Suspense>
+              }
+            />
           </Routes>
         </AppWrapper>
       </ToastProvider>
