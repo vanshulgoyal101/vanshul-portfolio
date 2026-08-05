@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { analytics, OWNER_EMAIL } from '../lib/analyticsClient';
+import { SOCIAL_LINKS } from '../constants/siteConfig';
 import {
   formatNumber,
   fillDailySeries,
@@ -165,6 +166,43 @@ const Foot = styled.p`
   margin-top: var(--spacing-xl);
 `;
 
+const SiteFooter = styled.footer`
+  margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+`;
+
+const FooterLinks = styled.nav`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-lg);
+
+  a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+
+    &:hover { color: var(--color-accent-primary); }
+  }
+`;
+
+// Network links shown at the bottom of every dashboard state.
+const DashboardFooter = () => (
+  <SiteFooter>
+    <FooterLinks aria-label="Vanshul Goyal network">
+      <a href="/">Home</a>
+      <a href="/#blog">Blog</a>
+      <a href={SOCIAL_LINKS.games} target="_blank" rel="noopener noreferrer">Games</a>
+      <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://links.vanshul.com" target="_blank" rel="noopener noreferrer">Links</a>
+    </FooterLinks>
+  </SiteFooter>
+);
+
 // ---------------------------------------------------------------------------
 // Small presentational helpers
 // ---------------------------------------------------------------------------
@@ -274,6 +312,7 @@ const Dashboard = () => {
           <p>This dashboard is private. Sign in with the owner Google account to continue.</p>
           <Button onClick={signIn}>Sign in with Google</Button>
         </Message>
+        <DashboardFooter />
       </Page>
     );
   }
@@ -289,6 +328,7 @@ const Dashboard = () => {
           <h2>Not authorized</h2>
           <p>{email} does not have access to this dashboard.</p>
         </Message>
+        <DashboardFooter />
       </Page>
     );
   }
@@ -367,6 +407,7 @@ const Dashboard = () => {
           <Foot>Private · anonymous analytics · times in IST (Asia/Kolkata). Signed in as {email}.</Foot>
         </>
       )}
+      <DashboardFooter />
     </Page>
   );
 };
