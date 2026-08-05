@@ -1,0 +1,10 @@
+{
+  "baseUrl": "https://vanshul.com",
+  "scanDir": "dist",
+  "outFile": "sitemap.xml",
+  "include": ["index.html", "blog/**/index.html"],
+  "exclude": ["404.html"],
+  "extraRoutes": [],
+  "defaultChangefreq": "weekly",
+  "updateRobots": false
+}

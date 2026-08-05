@@ -2,3 +2,4 @@
 User-agent: *
 Allow: /
 Sitemap: https://vanshul.com/sitemap.xml
+Sitemap: https://vanshul.com/sitemap-index.xml
