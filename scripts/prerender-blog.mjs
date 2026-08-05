@@ -9,34 +9,13 @@ import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
+import { parseFrontmatter, escapeXml as escAttr, escapeText as escText } from './lib/seo.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const blogsDir = join(root, 'src', 'blogs');
 const distDir = join(root, 'dist');
 
 const template = readFileSync(join(distDir, 'index.html'), 'utf8');
-
-const parseFrontmatter = (md) => {
-  const match = md.match(/^---\n([\s\S]*?)\n---/);
-  const data = {};
-  if (match) {
-    for (const line of match[1].split('\n')) {
-      const i = line.indexOf(':');
-      if (i > 0) {
-        data[line.slice(0, i).trim()] = line
-          .slice(i + 1)
-          .trim()
-          .replace(/^["']|["']$/g, '');
-      }
-    }
-  }
-  return data;
-};
-
-const escAttr = (s) =>
-  String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-const escText = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // Replace a <meta ... content="..."> value, tolerant of attribute order.
 const setMeta = (html, attr, key, value) => {

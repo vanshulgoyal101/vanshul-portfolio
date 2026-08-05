@@ -8,30 +8,11 @@ import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
+import { parseFrontmatter, escapeXml } from './lib/seo.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const blogsDir = join(root, 'src', 'blogs');
 const outDir = join(root, 'public', 'og');
-
-const parseFrontmatter = (md) => {
-  const match = md.match(/^---\n([\s\S]*?)\n---/);
-  const data = {};
-  if (match) {
-    for (const line of match[1].split('\n')) {
-      const i = line.indexOf(':');
-      if (i > 0) {
-        data[line.slice(0, i).trim()] = line
-          .slice(i + 1)
-          .trim()
-          .replace(/^["']|["']$/g, '');
-      }
-    }
-  }
-  return data;
-};
-
-const escapeXml = (s) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const wrapText = (text, maxChars) => {
   const lines = [];
