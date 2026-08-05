@@ -44,20 +44,38 @@ const posts = readdirSync(blogsDir)
   .sort((a, b) => new Date(b.date) - new Date(a.date));
 
 const urls = [
-  { loc: `${SITE}/`, priority: '1.0' },
+  { loc: `${SITE}/`, priority: '1.0', changefreq: 'weekly' },
   ...posts.map((p) => ({
     loc: `${SITE}/blog/${p.slug}`,
     lastmod: isoDate(p.date),
     priority: '0.8',
+    changefreq: 'monthly',
+    // Per-post Open Graph image, surfaced to Google Images via the image sitemap.
+    image: `${SITE}/og/${p.slug}.png`,
+    title: p.title,
   })),
 ];
 
+const escXml = (s) =>
+  String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls
   .map(
     (u) =>
-      `  <url><loc>${u.loc}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ''}<priority>${u.priority}</priority></url>`
+      `  <url><loc>${u.loc}</loc>` +
+      (u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : '') +
+      (u.changefreq ? `<changefreq>${u.changefreq}</changefreq>` : '') +
+      `<priority>${u.priority}</priority>` +
+      (u.image
+        ? `<image:image><image:loc>${u.image}</image:loc><image:title>${escXml(u.title)}</image:title></image:image>`
+        : '') +
+      `</url>`
   )
   .join('\n')}
 </urlset>
