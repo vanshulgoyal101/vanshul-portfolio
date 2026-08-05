@@ -1,6 +1,6 @@
 // src/App.jsx
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
@@ -149,6 +149,12 @@ const IdleBackground = () => {
   );
 };
 
+// Redirect legacy/plural blog URLs (/blogs, /blogs/:slug) to the canonical /blog.
+const RedirectBlogSlug = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/blog/${slug}`} replace />;
+};
+
 function App() {
   const [isBooting, setIsBooting] = useState(true);
 
@@ -276,6 +282,10 @@ function App() {
 
             {/* Blog index / listing page */}
             <Route path="/blog" element={<BlogIndex />} />
+
+            {/* Plural/legacy aliases → canonical /blog */}
+            <Route path="/blogs" element={<Navigate to="/blog" replace />} />
+            <Route path="/blogs/:slug" element={<RedirectBlogSlug />} />
 
             {/* Private analytics dashboard (owner-only, server-gated) */}
             <Route
