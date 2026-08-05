@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaArrowLeft, FaShare } from 'react-icons/fa';
@@ -7,7 +7,8 @@ import { BiTime } from 'react-icons/bi';
 import { MdDateRange } from 'react-icons/md';
 import { AiOutlineEye } from 'react-icons/ai';
 import ReactMarkdown from 'react-markdown';
-import { loadBlogBySlug } from '../utils/blogLoader';
+import { loadBlogBySlug, loadBlogPosts } from '../utils/blogLoader';
+import { getRelatedPosts } from '../utils/blogUtils';
 import { formatViews } from '../utils/blogViews';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
@@ -297,12 +298,65 @@ const NotFound = styled.div`
   }
 `;
 
+const RelatedSection = styled.section`
+  margin-top: var(--spacing-xl);
+`;
+
+const RelatedHeading = styled.h2`
+  font-size: var(--text-xl);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-md);
+`;
+
+const RelatedGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spacing-md);
+`;
+
+const RelatedCard = styled(Link)`
+  display: block;
+  text-decoration: none;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: var(--spacing-md);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-accent-primary);
+    transform: translateY(-3px);
+  }
+`;
+
+const RelatedCategory = styled.span`
+  display: inline-block;
+  font-size: var(--text-sm);
+  color: var(--color-accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-xs);
+`;
+
+const RelatedCardTitle = styled.h3`
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs);
+  line-height: 1.3;
+`;
+
+const RelatedMeta = styled.span`
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+`;
+
 const BlogPost = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const blog = loadBlogBySlug(slug);
   const views = useBlogView(blog ? slug : null);
+  const related = useMemo(() => (blog ? getRelatedPosts(loadBlogPosts(), blog, 3) : []), [blog]);
 
   // Per-post SEO: unique title/description/canonical + BlogPosting structured data.
   const jsonLd = useMemo(() => {
@@ -483,6 +537,21 @@ const BlogPost = () => {
               </ReactMarkdown>
             </Body>
           </Article>
+
+          {related.length > 0 && (
+            <RelatedSection aria-label="More writing">
+              <RelatedHeading>More writing</RelatedHeading>
+              <RelatedGrid>
+                {related.map((post) => (
+                  <RelatedCard key={post.slug} to={`/blog/${post.slug}`}>
+                    {post.category && <RelatedCategory>{post.category}</RelatedCategory>}
+                    <RelatedCardTitle>{post.title}</RelatedCardTitle>
+                    {post.readTime && <RelatedMeta>{post.readTime}</RelatedMeta>}
+                  </RelatedCard>
+                ))}
+              </RelatedGrid>
+            </RelatedSection>
+          )}
         </Container>
       </ContentWrapper>
     </PageWrapper>

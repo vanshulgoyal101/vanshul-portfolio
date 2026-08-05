@@ -33,7 +33,7 @@ describe('BlogPost', () => {
 
   it('renders the read time and (when present) the category', () => {
     renderAt(`/blog/${sample.slug}`);
-    expect(screen.getByText(sample.readTime, { exact: false })).toBeInTheDocument();
+    expect(screen.getAllByText(sample.readTime, { exact: false }).length).toBeGreaterThan(0);
     if (sample.category) {
       expect(screen.getAllByText(sample.category, { exact: false }).length).toBeGreaterThan(0);
     }
@@ -52,6 +52,15 @@ describe('BlogPost', () => {
       .join('');
     expect(combined).toContain('BlogPosting');
     expect(combined).toContain('BreadcrumbList');
+  });
+
+  it('renders a "More writing" section linking to other posts', () => {
+    renderAt(`/blog/${sample.slug}`);
+    expect(screen.getByText('More writing')).toBeInTheDocument();
+    const otherLinks = [...document.querySelectorAll('a[href^="/blog/"]')].filter(
+      (a) => a.getAttribute('href') !== `/blog/${sample.slug}`
+    );
+    expect(otherLinks.length).toBeGreaterThan(0);
   });
 
   it('shows a not-found state for an unknown slug', () => {
