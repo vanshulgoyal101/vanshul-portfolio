@@ -11,7 +11,7 @@ const blogFiles = import.meta.glob('../blogs/*.md', { query: '?raw', import: 'de
  * @param {string} markdown - Raw markdown content with YAML frontmatter
  * @returns {Object} Object with frontmatter data and content
  */
-const parseFrontmatter = (markdown) => {
+export const parseFrontmatter = (markdown) => {
   const normalized = markdown.replace(/\r\n/g, '\n');
   const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
   const match = normalized.match(frontmatterRegex);
