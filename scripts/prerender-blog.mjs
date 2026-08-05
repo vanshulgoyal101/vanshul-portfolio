@@ -106,6 +106,66 @@ const buildShell = (post) => {
   return html;
 };
 
+// The /blog listing shell: index metadata + Blog/ItemList structured data so
+// crawlers see a real content hub, not just the SPA fallback.
+const buildIndexShell = (allPosts) => {
+  const canonical = `${SITE}/blog`;
+  const title = `Blog — ${AUTHOR_NAME}`;
+  const desc =
+    'Essays on AI, robotics, the future of work, and technology by Vanshul Goyal — engineer at United Airlines.';
+  const ogImage = `${SITE}/og-image.png`;
+
+  let html = template;
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escText(title)}</title>`);
+  html = setMeta(html, 'name', 'description', desc);
+  html = setMeta(html, 'property', 'og:type', 'website');
+  html = setMeta(html, 'property', 'og:title', title);
+  html = setMeta(html, 'property', 'og:description', desc);
+  html = setMeta(html, 'property', 'og:url', canonical);
+  html = setMeta(html, 'property', 'og:image', ogImage);
+  html = setMeta(html, 'name', 'twitter:title', title);
+  html = setMeta(html, 'name', 'twitter:description', desc);
+  html = setMeta(html, 'name', 'twitter:url', canonical);
+  html = setMeta(html, 'name', 'twitter:image', ogImage);
+  html = html.replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/i, `$1${canonical}$2`);
+
+  const ordered = [...allPosts].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const jsonLd = JSON.stringify([
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Blog',
+      name: title,
+      url: canonical,
+      description: desc,
+      inLanguage: 'en',
+      author: { '@type': 'Person', name: AUTHOR_NAME, url: SITE },
+      blogPost: ordered.map((p) => ({
+        '@type': 'BlogPosting',
+        headline: p.title,
+        url: `${SITE}/blog/${p.slug}`,
+        ...(Number.isNaN(new Date(p.date).getTime())
+          ? {}
+          : { datePublished: new Date(p.date).toISOString() }),
+        ...(p.category ? { articleSection: p.category } : {}),
+      })),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: canonical },
+      ],
+    },
+  ]).replace(/</g, '\\u003c');
+
+  html = html.replace(
+    '</head>',
+    `  <script type="application/ld+json">${jsonLd}</script></head>`
+  );
+  return html;
+};
+
 const posts = readdirSync(blogsDir)
   .filter((f) => f.endsWith('.md'))
   .map((f) => {
@@ -122,4 +182,9 @@ for (const post of posts) {
   writeFileSync(join(dir, 'index.html'), buildShell(post));
 }
 
-console.log(`Prerendered ${posts.length} blog meta shells into dist/blog/.`);
+// The /blog listing shell (dist/blog/index.html) — a real file, so GitHub Pages
+// serves it directly instead of the SPA 404 fallback.
+mkdirSync(join(distDir, 'blog'), { recursive: true });
+writeFileSync(join(distDir, 'blog', 'index.html'), buildIndexShell(posts));
+
+console.log(`Prerendered ${posts.length} blog meta shells + /blog index into dist/blog/.`);

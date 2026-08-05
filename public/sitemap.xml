@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url><loc>https://vanshul.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://vanshul.com/blog</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://vanshul.com/blog/taste-is-the-last-moat</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.8</priority><image:image><image:loc>https://vanshul.com/og/taste-is-the-last-moat.png</image:loc><image:title>Taste Is the Last Moat</image:title></image:image></url>
   <url><loc>https://vanshul.com/blog/will-money-become-obsolete</loc><lastmod>2026-02-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority><image:image><image:loc>https://vanshul.com/og/will-money-become-obsolete.png</image:loc><image:title>Will Money Ever Become Obsolete?</image:title></image:image></url>
   <url><loc>https://vanshul.com/blog/the-two-worlds</loc><lastmod>2025-10-12</lastmod><changefreq>monthly</changefreq><priority>0.8</priority><image:image><image:loc>https://vanshul.com/og/the-two-worlds.png</image:loc><image:title>The Two Worlds</image:title></image:image></url>

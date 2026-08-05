@@ -13,6 +13,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
 import BackgroundElements from './components/BackgroundElements';
 import BlogPost from './pages/BlogPost';
+import BlogIndex from './pages/BlogIndex';
 
 // Sections (critical path)
 import Hero from './components/Hero/Hero';
@@ -272,6 +273,9 @@ function App() {
             
             {/* Individual blog post page */}
             <Route path="/blog/:slug" element={<BlogPost />} />
+
+            {/* Blog index / listing page */}
+            <Route path="/blog" element={<BlogIndex />} />
 
             {/* Private analytics dashboard (owner-only, server-gated) */}
             <Route
