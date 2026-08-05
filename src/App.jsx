@@ -48,6 +48,24 @@ const MainContent = styled.main`
   z-index: 2;
 `;
 
+// Keyboard/screen-reader affordance: hidden until focused, then jumps to content.
+const SkipLink = styled.a`
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 1000;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-accent-primary);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0 0 8px 8px;
+  transition: top 0.15s ease;
+
+  &:focus {
+    top: 0;
+  }
+`;
+
 const SectionWrapper = styled(motion.section)`
   width: 100%;
   position: relative;
@@ -149,6 +167,7 @@ function App() {
         </AnimatePresence>
         
         <AppWrapper>
+          <SkipLink href="#main-content">Skip to content</SkipLink>
           <CustomCursor />
           {/* Background ambient elements */}
           <BackgroundElements $animated />
@@ -162,7 +181,7 @@ function App() {
             <Route path="/" element={
             <>
               <Navigation scrollToSection={scrollToSection} />
-              <MainContent>
+              <MainContent id="main-content" tabIndex={-1}>
                   {/* Hero Section */}
                   <ErrorBoundary>
                     <SectionWrapper id="home">

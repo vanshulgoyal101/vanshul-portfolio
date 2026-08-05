@@ -128,6 +128,17 @@ const BootLoader = ({ onComplete }) => {
   useEffect(() => {
     const sequence = sequenceRef.current;
 
+    // Respect reduced-motion: skip the animated greeting cycle and reveal the
+    // page immediately instead of holding it behind a loader.
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      onCompleteRef.current?.();
+      return;
+    }
+
     const tick = () => {
       setIndex((prev) => {
         const next = prev + 1;
