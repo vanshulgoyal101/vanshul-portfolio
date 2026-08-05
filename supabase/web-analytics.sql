@@ -48,11 +48,13 @@ create policy web_events_insert
 -- reads aggregates through web_stats() below.
 
 -- ---------------------------------------------------------------------------
--- Owner-only aggregate stats. Times in Asia/Kolkata. `days` bounds the
--- per-day / referrer / breakdown windows (default 30). Also folds in the
--- existing arcade_events log so the dashboard shows games in one place.
+-- Owner-only aggregate stats. Times in Asia/Kolkata. `window_hours` bounds
+-- EVERY breakdown (per-site/tool/link/referrer/hour/day and the range counts),
+-- so the range selector — including "last 24 hours" — is meaningful. Lifetime
+-- totals are returned separately. Also folds in the arcade_events game log.
 -- ---------------------------------------------------------------------------
-create or replace function public.web_stats(days int default 30)
+drop function if exists public.web_stats(int);
+create or replace function public.web_stats(window_hours int default 720)
 returns jsonb
 language plpgsql
 security definer
@@ -60,8 +62,8 @@ set search_path = public
 as $$
 declare
   v jsonb;
-  d int := greatest(1, least(coalesce(days, 30), 365));
-  since timestamptz := now() - make_interval(days => d);
+  wh int := greatest(1, least(coalesce(window_hours, 720), 8760)); -- 1 hour … 365 days
+  since timestamptz := now() - make_interval(hours => wh);
 begin
   -- `is distinct from` (not `<>`) so an anonymous NULL uid is correctly rejected.
   if auth.uid() is distinct from 'a0c64b9b-7d84-45d4-8ef7-522a6b294b42'::uuid then
@@ -69,51 +71,55 @@ begin
   end if;
 
   select jsonb_build_object(
-    'range_days', d,
+    'window_hours', wh,
+    -- Lifetime totals (unaffected by the window).
     'total_pageviews', (select count(*) from web_events where kind = 'pageview'),
-    'total_events',    (select count(*) from web_events),
     'unique_visitors', (select count(distinct visitor) from web_events),
+    -- Windowed totals.
+    'range_pageviews', (select count(*) from web_events where kind = 'pageview' and ts >= since),
+    'range_visitors',  (select count(distinct visitor) from web_events where ts >= since),
+    'range_events',    (select count(*) from web_events where ts >= since),
     'pageviews_today', (select count(*) from web_events
                         where kind = 'pageview'
                           and (ts at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date),
     'events_today',    (select count(*) from web_events
                         where (ts at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date),
 
-    -- Per-site: pageviews + unique visitors.
+    -- Per-site: pageviews + unique visitors (within window).
     'per_site', (select coalesce(jsonb_agg(jsonb_build_object(
                     'site', site, 'pageviews', pv, 'visitors', uv) order by pv desc), '[]')
                  from (select site,
                               count(*) filter (where kind = 'pageview') pv,
                               count(distinct visitor) uv
-                       from web_events group by site) t),
+                       from web_events where ts >= since group by site) t),
 
-    -- Top tools used, per site.
+    -- Top tools used, per site (within window).
     'per_tool', (select coalesce(jsonb_agg(jsonb_build_object(
                     'site', site, 'name', name, 'uses', c) order by c desc), '[]')
                  from (select site, name, count(*) c from web_events
-                       where kind = 'tool' and name is not null
+                       where kind = 'tool' and name is not null and ts >= since
                        group by site, name order by c desc limit 100) t),
 
-    -- Top outbound links clicked.
+    -- Top outbound links clicked (within window).
     'per_link', (select coalesce(jsonb_agg(jsonb_build_object(
                     'name', name, 'site', site, 'clicks', c) order by c desc), '[]')
                  from (select name, site, count(*) c from web_events
-                       where kind = 'link' and name is not null
+                       where kind = 'link' and name is not null and ts >= since
                        group by name, site order by c desc limit 100) t),
 
-    -- Where visitors come from.
+    -- Where visitors come from (within window).
     'top_referrers', (select coalesce(jsonb_agg(jsonb_build_object(
                         'referrer', referrer, 'count', c) order by c desc), '[]')
                       from (select referrer, count(*) c from web_events
-                            where referrer is not null and referrer <> ''
+                            where referrer is not null and referrer <> '' and ts >= since
                             group by referrer order by c desc limit 25) t),
 
-    -- Hour-of-day distribution of pageviews.
+    -- Hour-of-day distribution of pageviews (within window).
     'by_hour', (select coalesce(jsonb_agg(jsonb_build_object('hour', h, 'pageviews', c) order by h), '[]')
                 from (select extract(hour from (ts at time zone 'Asia/Kolkata'))::int h, count(*) c
-                      from web_events where kind = 'pageview' group by 1) t),
+                      from web_events where kind = 'pageview' and ts >= since group by 1) t),
 
-    -- Rolling daily series over the requested window.
+    -- Rolling daily series over the window.
     'by_day', (select coalesce(jsonb_agg(jsonb_build_object(
                   'day', dd, 'pageviews', pv, 'events', ev) order by dd), '[]')
                from (select (ts at time zone 'Asia/Kolkata')::date dd,
@@ -121,13 +127,14 @@ begin
                             count(*) ev
                      from web_events where ts >= since group by 1) t),
 
-    -- Games (from the existing arcade_events log) in one unified view.
+    -- Games (from the existing arcade_events log): lifetime plays + windowed breakdown.
     'arcade', jsonb_build_object(
       'total_visits', (select count(*) from arcade_events where kind = 'visit'),
       'total_plays',  (select count(*) from arcade_events where kind = 'play'),
+      'range_plays',  (select count(*) from arcade_events where kind = 'play' and ts >= since),
       'per_game', (select coalesce(jsonb_agg(jsonb_build_object('game', game, 'plays', c) order by c desc), '[]')
                    from (select game, count(*) c from arcade_events
-                         where kind = 'play' group by game) t)
+                         where kind = 'play' and ts >= since group by game) t)
     )
   ) into v;
   return v;

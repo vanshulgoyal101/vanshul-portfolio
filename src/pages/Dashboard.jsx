@@ -232,7 +232,7 @@ const Dashboard = () => {
   const [session, setSession] = useState(undefined); // undefined = loading
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
-  const [days, setDays] = useState(30);
+  const [windowHours, setWindowHours] = useState(720); // default: last 30 days
   const [busy, setBusy] = useState(false);
 
   // Keep this private route out of search indexes while mounted.
@@ -265,11 +265,11 @@ const Dashboard = () => {
   const loadStats = useCallback(async () => {
     setBusy(true);
     setError(null);
-    const { data, error: rpcError } = await analytics.rpc('web_stats', { days });
+    const { data, error: rpcError } = await analytics.rpc('web_stats', { window_hours: windowHours });
     if (rpcError) setError(rpcError.message || 'Failed to load stats.');
     else setStats(data);
     setBusy(false);
-  }, [days]);
+  }, [windowHours]);
 
   useEffect(() => {
     if (isOwner) loadStats();
@@ -294,9 +294,9 @@ const Dashboard = () => {
       referrers: toBars(stats.top_referrers, (r) => r.referrer, 'count'),
       perGame: toBars(stats.arcade?.per_game, (r) => r.game, 'plays'),
       hours: hourSeries(stats.by_hour),
-      daily: fillDailySeries(stats.by_day, stats.range_days || days),
+      daily: fillDailySeries(stats.by_day, Math.max(1, Math.ceil(windowHours / 24))),
     };
-  }, [stats, days]);
+  }, [stats, windowHours]);
 
   // ---- render states ----
   if (session === undefined) {
@@ -343,13 +343,14 @@ const Dashboard = () => {
         <Actions>
           <Select
             aria-label="Time range"
-            value={days}
-            onChange={(e) => setDays(Number(e.target.value))}
+            value={windowHours}
+            onChange={(e) => setWindowHours(Number(e.target.value))}
           >
-            <option value={7}>Last 7 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={90}>Last 90 days</option>
-            <option value={365}>Last year</option>
+            <option value={24}>Last 24 hours</option>
+            <option value={168}>Last 7 days</option>
+            <option value={720}>Last 30 days</option>
+            <option value={2160}>Last 90 days</option>
+            <option value={8760}>Last year</option>
           </Select>
           <GhostButton onClick={loadStats} disabled={busy}>{busy ? 'Refreshing…' : 'Refresh'}</GhostButton>
           <GhostButton onClick={signOut}>Sign out</GhostButton>
@@ -363,12 +364,12 @@ const Dashboard = () => {
       {stats && derived && (
         <>
           <Cards>
-            <Card><div className="n">{formatNumber(stats.total_pageviews)}</div><div className="l">Total pageviews</div></Card>
-            <Card><div className="n">{formatNumber(stats.unique_visitors)}</div><div className="l">Unique visitors</div></Card>
-            <Card><div className="n">{formatNumber(stats.total_events)}</div><div className="l">Total events</div></Card>
+            <Card><div className="n">{formatNumber(stats.range_pageviews)}</div><div className="l">Pageviews · range</div></Card>
+            <Card><div className="n">{formatNumber(stats.range_visitors)}</div><div className="l">Visitors · range</div></Card>
+            <Card><div className="n">{formatNumber(stats.range_events)}</div><div className="l">Events · range</div></Card>
             <Card><div className="n">{formatNumber(stats.pageviews_today)}</div><div className="l">Pageviews today</div></Card>
-            <Card><div className="n">{formatNumber(stats.events_today)}</div><div className="l">Events today</div></Card>
-            <Card><div className="n">{formatNumber(stats.arcade?.total_plays)}</div><div className="l">Game plays</div></Card>
+            <Card><div className="n">{formatNumber(stats.total_pageviews)}</div><div className="l">Pageviews · all-time</div></Card>
+            <Card><div className="n">{formatNumber(stats.unique_visitors)}</div><div className="l">Visitors · all-time</div></Card>
           </Cards>
 
           <BarList title="Pageviews by site" bars={derived.perSite} empty="No pageviews yet." />

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 
 // Mock the analytics client so no network/auth happens in tests.
 const mockGetSession = vi.fn();
@@ -26,10 +26,12 @@ import Dashboard from './Dashboard';
 const sessionFor = (email) => ({ data: { session: email ? { user: { email } } : null } });
 
 const sampleStats = {
-  range_days: 30,
+  window_hours: 720,
   total_pageviews: 1234,
   unique_visitors: 321,
-  total_events: 2000,
+  range_pageviews: 500,
+  range_visitors: 120,
+  range_events: 800,
   pageviews_today: 12,
   events_today: 20,
   per_site: [{ site: 'portfolio', pageviews: 900, visitors: 200 }],
@@ -38,7 +40,7 @@ const sampleStats = {
   top_referrers: [{ referrer: 'google.com', count: 50 }],
   by_hour: [{ hour: 9, pageviews: 30 }],
   by_day: [],
-  arcade: { total_visits: 5, total_plays: 400, per_game: [{ game: 'wordle', plays: 20 }] },
+  arcade: { total_visits: 5, total_plays: 400, range_plays: 40, per_game: [{ game: 'wordle', plays: 20 }] },
 };
 
 describe('Dashboard', () => {
@@ -66,11 +68,20 @@ describe('Dashboard', () => {
     mockRpc.mockResolvedValue({ data: sampleStats, error: null });
     render(<Dashboard />);
 
-    await waitFor(() => expect(screen.getByText('Total pageviews')).toBeInTheDocument());
-    expect(mockRpc).toHaveBeenCalledWith('web_stats', { days: 30 });
-    expect(screen.getByText('Pageviews by site')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Pageviews by site')).toBeInTheDocument());
+    expect(mockRpc).toHaveBeenCalledWith('web_stats', { window_hours: 720 });
     expect(screen.getByText('Top tools used')).toBeInTheDocument();
     expect(screen.getByText('Plays per game')).toBeInTheDocument();
+  });
+
+  it('re-queries with a 24-hour window when the range changes', async () => {
+    mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
+    mockRpc.mockResolvedValue({ data: sampleStats, error: null });
+    render(<Dashboard />);
+    await waitFor(() => expect(screen.getByText('Pageviews by site')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText('Time range'), { target: { value: '24' } });
+    await waitFor(() => expect(mockRpc).toHaveBeenCalledWith('web_stats', { window_hours: 24 }));
   });
 
   it('surfaces an RPC error', async () => {
