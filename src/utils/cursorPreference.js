@@ -52,12 +52,24 @@ const isLowEndDevice = () => {
   return (typeof cores === 'number' && cores <= 4) || (typeof mem === 'number' && mem <= 4);
 };
 
+// "Plenty of RAM." navigator.deviceMemory is capped at 8 by the spec and is
+// unavailable in Safari/Firefox, so when it's missing we approximate capability
+// with the logical-core count (the only signal Safari exposes).
+const hasAmpleMemory = () => {
+  if (typeof navigator === 'undefined') return false;
+  const mem = navigator.deviceMemory;
+  if (typeof mem === 'number') return mem >= 8;
+  const cores = navigator.hardwareConcurrency;
+  return typeof cores === 'number' && cores >= 8;
+};
+
 /** Whether the cursor should auto-enable (no explicit preference set). */
 export const isAutoCursorCapable = () => {
   if (!isPointerFine()) return false;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  if (isSafari()) return false;
   if (isLowEndDevice()) return false;
+  // Safari's spring animation only stays smooth on capable (roomy) machines.
+  if (isSafari() && !hasAmpleMemory()) return false;
   return true;
 };
 
