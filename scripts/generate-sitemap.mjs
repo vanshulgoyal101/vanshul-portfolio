@@ -7,8 +7,8 @@
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SITE_URL as SITE } from '../src/constants/siteConfig.js';
 
-const SITE = 'https://vanshul.com';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const blogsDir = join(root, 'src', 'blogs');
 

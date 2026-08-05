@@ -10,8 +10,18 @@ import { FaXTwitter } from 'react-icons/fa6';
 import { IoGameController } from 'react-icons/io5';
 import { HiChevronDown } from 'react-icons/hi';
 import Magnetic from '../FunElements/Magnetic';
+import { SOCIAL_LINKS } from '../../constants/siteConfig';
 
 const FloatingRocket = lazy(() => import('../FunElements/FloatingRocket'));
+
+// Social profiles rendered in the hero, in display order.
+const HERO_SOCIALS = [
+  { url: SOCIAL_LINKS.twitter, label: 'Twitter', icon: <FaXTwitter /> },
+  { url: SOCIAL_LINKS.linkedin, label: 'LinkedIn', icon: <FaLinkedin /> },
+  { url: SOCIAL_LINKS.instagram, label: 'Instagram', icon: <FaInstagram /> },
+  { url: SOCIAL_LINKS.github, label: 'GitHub', icon: <FaGithub /> },
+  { url: SOCIAL_LINKS.games, label: 'Games', icon: <IoGameController /> },
+];
 
 // Styled Components
 const HeroSection = styled.section`
@@ -372,66 +382,20 @@ const Hero = () => {
           </CTAContainer>
 
           <SocialLinks variants={itemVariants}>
-            <Magnetic range={35}>
-              <SocialLink
-                href="https://x.com/goyal_vanshul"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Twitter"
-              >
-                <FaXTwitter />
-              </SocialLink>
-            </Magnetic>
-            <Magnetic range={35}>
-              <SocialLink
-                href="https://www.linkedin.com/in/vanshul-goyal00/"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="LinkedIn"
-              >
-                <FaLinkedin />
-              </SocialLink>
-            </Magnetic>
-            <Magnetic range={35}>
-              <SocialLink
-                href="https://www.instagram.com/vanshul_goyal/"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Instagram"
-              >
-                <FaInstagram />
-              </SocialLink>
-            </Magnetic>
-            <Magnetic range={35}>
-              <SocialLink
-                href="https://github.com/vanshulgoyal101"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="GitHub"
-              >
-                <FaGithub />
-              </SocialLink>
-            </Magnetic>
-            <Magnetic range={35}>
-              <SocialLink
-                href="https://games.vanshul.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Games"
-              >
-                <IoGameController />
-              </SocialLink>
-            </Magnetic>
+            {HERO_SOCIALS.map(({ url, label, icon }) => (
+              <Magnetic key={label} range={35}>
+                <SocialLink
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  aria-label={label}
+                >
+                  {icon}
+                </SocialLink>
+              </Magnetic>
+            ))}
           </SocialLinks>
           <Suspense fallback={null}>
             <FloatingRocket isMobileOnly />

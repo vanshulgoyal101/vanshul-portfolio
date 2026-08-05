@@ -11,6 +11,7 @@ import { loadBlogBySlug } from '../utils/blogLoader';
 import { formatViews } from '../utils/blogViews';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
+import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS, DEFAULT_OG_IMAGE } from '../constants/siteConfig';
 import { useToast } from '../components/Toast';
 import Navigation from '../components/Navigation/Navigation';
 
@@ -339,16 +340,10 @@ const BlogPost = () => {
     const publishedISO = !Number.isNaN(new Date(blog.date).getTime())
       ? new Date(blog.date).toISOString()
       : undefined;
-    const canonical = `https://vanshul.com/blog/${blog.slug}`;
-    const ogImage = `https://vanshul.com/og/${blog.slug}.png`;
+    const canonical = `${SITE_URL}/blog/${blog.slug}`;
+    const ogImage = `${SITE_URL}/og/${blog.slug}.png`;
     const readMinutes = parseInt(blog.readTime, 10);
     const wordCount = blog.content ? blog.content.trim().split(/\s+/).length : undefined;
-    const authorSameAs = [
-      'https://github.com/vanshulgoyal101',
-      'https://www.linkedin.com/in/vanshul-goyal00/',
-      'https://x.com/goyal_vanshul',
-      'https://www.instagram.com/vanshul_goyal/',
-    ];
     return JSON.stringify([
       {
         '@context': 'https://schema.org',
@@ -363,15 +358,15 @@ const BlogPost = () => {
         ...(blog.category ? { articleSection: blog.category, keywords: blog.category } : {}),
         author: {
           '@type': 'Person',
-          name: 'Vanshul Goyal',
-          url: 'https://vanshul.com',
-          sameAs: authorSameAs,
+          name: AUTHOR_NAME,
+          url: SITE_URL,
+          sameAs: AUTHOR_SAME_AS,
         },
         publisher: {
           '@type': 'Person',
-          name: 'Vanshul Goyal',
-          url: 'https://vanshul.com',
-          image: 'https://vanshul.com/og-image.png',
+          name: AUTHOR_NAME,
+          url: SITE_URL,
+          image: DEFAULT_OG_IMAGE,
         },
         mainEntityOfPage: canonical,
         url: canonical,
@@ -380,8 +375,8 @@ const BlogPost = () => {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://vanshul.com/' },
-          { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://vanshul.com/#blog' },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/#blog` },
           { '@type': 'ListItem', position: 3, name: blog.title, item: canonical },
         ],
       },
@@ -396,16 +391,16 @@ const BlogPost = () => {
     return {
       publishedTime: publishedISO,
       modifiedTime: publishedISO,
-      author: 'Vanshul Goyal',
+      author: AUTHOR_NAME,
       section: blog.category,
     };
   }, [blog]);
 
   useSeo({
-    title: blog ? `${blog.title} — Vanshul Goyal` : 'Post not found — Vanshul Goyal',
+    title: blog ? `${blog.title} — ${AUTHOR_NAME}` : `Post not found — ${AUTHOR_NAME}`,
     description: blog?.summary,
     path: blog ? `/blog/${blog.slug}` : `/blog/${slug ?? ''}`,
-    image: blog ? `https://vanshul.com/og/${blog.slug}.png` : undefined,
+    image: blog ? `${SITE_URL}/og/${blog.slug}.png` : undefined,
     type: 'article',
     jsonLd,
     article: articleMeta,

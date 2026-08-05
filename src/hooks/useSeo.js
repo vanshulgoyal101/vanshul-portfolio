@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
-
-const SITE_URL = 'https://vanshul.com';
-const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
+import { SITE_URL, DEFAULT_OG_IMAGE as DEFAULT_IMAGE } from '../constants/siteConfig';
 
 // Update an existing <meta> (or create one), returning a cleanup that restores
 // the previous state. This mutates the static tags from index.html in place so

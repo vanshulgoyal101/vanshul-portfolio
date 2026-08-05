@@ -8,8 +8,8 @@
 import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
 
-const SITE = 'https://vanshul.com';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const blogsDir = join(root, 'src', 'blogs');
 const distDir = join(root, 'dist');
@@ -56,12 +56,6 @@ const buildShell = (post) => {
     ? undefined
     : new Date(post.date).toISOString();
   const readMinutes = parseInt(post.readTime, 10);
-  const authorSameAs = [
-    'https://github.com/vanshulgoyal101',
-    'https://www.linkedin.com/in/vanshul-goyal00/',
-    'https://x.com/goyal_vanshul',
-    'https://www.instagram.com/vanshul_goyal/',
-  ];
 
   let html = template;
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escText(title)}</title>`);
@@ -82,7 +76,7 @@ const buildShell = (post) => {
   const articleTags = [
     publishedISO && `<meta property="article:published_time" content="${escAttr(publishedISO)}" />`,
     publishedISO && `<meta property="article:modified_time" content="${escAttr(publishedISO)}" />`,
-    `<meta property="article:author" content="Vanshul Goyal" />`,
+    `<meta property="article:author" content="${escAttr(AUTHOR_NAME)}" />`,
     post.category && `<meta property="article:section" content="${escAttr(post.category)}" />`,
   ]
     .filter(Boolean)
@@ -102,13 +96,13 @@ const buildShell = (post) => {
       ...(post.category ? { articleSection: post.category, keywords: post.category } : {}),
       author: {
         '@type': 'Person',
-        name: 'Vanshul Goyal',
+        name: AUTHOR_NAME,
         url: SITE,
-        sameAs: authorSameAs,
+        sameAs: AUTHOR_SAME_AS,
       },
       publisher: {
         '@type': 'Person',
-        name: 'Vanshul Goyal',
+        name: AUTHOR_NAME,
         url: SITE,
         image: `${SITE}/og-image.png`,
       },
