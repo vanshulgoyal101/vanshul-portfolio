@@ -52,17 +52,19 @@ const MainContent = styled.main`
 const SkipLink = styled.a`
   position: absolute;
   left: 8px;
-  top: -48px;
+  top: 8px;
   z-index: 1000;
   padding: var(--spacing-sm) var(--spacing-md);
   background: var(--color-accent-primary);
   color: #fff;
   font-weight: 600;
-  border-radius: 0 0 8px 8px;
-  transition: top 0.15s ease;
+  border-radius: 8px;
+  /* Fully off-screen (size-independent) until keyboard focus reveals it. */
+  transform: translateY(calc(-100% - 16px));
+  transition: transform 0.15s ease;
 
   &:focus {
-    top: 0;
+    transform: translateY(0);
   }
 `;
 
