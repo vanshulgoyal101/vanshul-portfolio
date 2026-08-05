@@ -35,6 +35,10 @@ npm run test:coverage  # coverage report (text + html in coverage/)
   `importOriginal`.
 - Stubs browser APIs jsdom lacks: `matchMedia`, `IntersectionObserver`,
   `ResizeObserver`, `Element.scrollIntoView`, and `window.scrollTo`.
+- **`matchMedia` is re-installed before *every* test** (via a `beforeEach`), so a
+  prior test's `vi.restoreAllMocks()` can never leave it returning `undefined` —
+  which would otherwise crash `matchMedia`-dependent components such as
+  `Magnetic` on the next render.
 
 ## Useful gotcha
 
@@ -51,20 +55,30 @@ container.querySelector('button[aria-label="Toggle mobile menu"]');
 
 | Area | File |
 | ---- | ---- |
-| Blog sorting util | `src/utils/blogUtils.test.js` |
-| Blog loader / frontmatter | `src/utils/blogLoader.test.js` |
+| Blog sorting + related-posts utils | `src/utils/blogUtils.test.js` |
+| Blog loader | `src/utils/blogLoader.test.js` |
+| Frontmatter parser | `src/utils/parseFrontmatter.test.js` |
 | Blog content integrity (unique ids/slugs, valid dates) | `src/blogs/blogContent.test.js` |
+| Blog view counting | `src/utils/blogViews.test.js` |
+| Idle hook | `src/hooks/useIdle.test.jsx` |
+| SEO hook (title/meta/OG/canonical/JSON-LD) | `src/hooks/useSeo.test.jsx` |
 | Contact form hook | `src/hooks/useContactForm.test.jsx` |
 | Toast provider/context | `src/components/Toast/ToastProvider.test.jsx` |
 | Blog UI (section, card, modal) | `src/components/Blog/*.test.jsx` |
 | Navigation | `src/components/Navigation/Navigation.test.jsx` |
 | Error boundary | `src/components/ErrorBoundary.test.jsx` |
 | Magnetic wrapper | `src/components/FunElements/Magnetic.test.jsx` |
+| About / Work / Projects sections | `src/components/{About,Work,Projects}/*.test.jsx` |
+| Contact form (integration) | `src/components/Contact/Contact.test.jsx` |
+| Analytics (no-op when unconfigured) | `src/components/Analytics.test.jsx` |
+| Blog post page (render, 404, SEO, related) | `src/pages/BlogPost.test.jsx` |
 | Blog constants | `src/constants/blogConstants.test.js` |
+| Site config integrity | `src/constants/siteConfig.test.js` |
+| SEO build helpers (frontmatter/escape/rfc822/readPosts) | `scripts/lib/seo.test.js` |
 
 Heavy 3D/canvas components (Hero, `InteractiveSpaceBackground`,
 etc.) are intentionally not deep-tested — they render WebGL and contain little
-testable logic.
+testable logic; they belong in an E2E/visual-regression tool.
 
 ## Adding tests
 

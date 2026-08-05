@@ -35,6 +35,10 @@ runs SEO generators around the Vite build:
 `scripts/generate-icons.mjs` regenerates the favicon/app-icon PNG set from
 `public/favicon.svg`.
 
+The frontmatter parser, XML escaping and post-reading logic shared by the feed,
+OG-image and prerender scripts live once in **`scripts/lib/seo.mjs`** (unit-tested
+in `scripts/lib/seo.test.js`), so the three generators can't drift apart.
+
 ## Structured data (JSON-LD)
 
 - **Blog posts** emit a `BlogPosting` plus a `BreadcrumbList`. The `BlogPosting`
@@ -51,6 +55,14 @@ runs SEO generators around the Vite build:
 - **`public/404.html`** — SPA fallback so deep links resolve on GitHub Pages
   (see [deployment.md](deployment.md)).
 - **`index.html`** — base meta plus the RSS `<link rel="alternate">`.
+
+## Internal linking
+
+Each blog post ends with a **related-posts** section (`getRelatedPosts` in
+`src/utils/blogUtils.js`): same-category posts first (newest first), then the most
+recent remaining posts fill any gap, excluding the current post. Beyond the UX
+value, this adds crawlable internal links between articles, which helps search
+engines discover and relate the content.
 
 ## Blog frontmatter
 
