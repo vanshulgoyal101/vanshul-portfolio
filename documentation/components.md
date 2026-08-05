@@ -233,20 +233,6 @@ import { BlogSkeletonCard } from '../Skeleton';
 
 ---
 
-## Timeline
-**Location**: `src/components/Timeline/Timeline.jsx`
-
-**Purpose**: Chronological timeline of achievements, education, and milestones.
-
-**Features**:
-- Vertical timeline with alternating left/right cards
-- Date markers and connecting lines
-- Icon indicators for event types
-- Scroll reveal animations
-- Responsive layout (single column on mobile)
-
----
-
 ## Toast Notification System
 
 ### ToastProvider.jsx

@@ -19,7 +19,7 @@ src/
   index.css            # Base CSS + design tokens (CSS custom properties)
   blogs/               # One markdown file per blog post (frontmatter + body)
   components/          # Feature-grouped components
-    About/ Work/ Projects/ Timeline/ Hero/ Contact/   # content sections
+    About/ Work/ Projects/ Hero/ Contact/   # content sections
     Blog/                                              # Blog, BlogCard, BlogModal
     Navigation/                                        # top nav + scroll spy
     Toast/                                             # global notification context

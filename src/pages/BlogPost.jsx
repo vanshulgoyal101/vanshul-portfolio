@@ -14,6 +14,7 @@ import { useSeo } from '../hooks/useSeo';
 import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS, DEFAULT_OG_IMAGE } from '../constants/siteConfig';
 import { useToast } from '../components/Toast';
 import Navigation from '../components/Navigation/Navigation';
+import BackgroundElements from '../components/BackgroundElements';
 
 // Styled Components
 const PageWrapper = styled.div`
@@ -23,37 +24,6 @@ const PageWrapper = styled.div`
   overflow-x: hidden;
 `;
 
-
-const BackgroundElements = styled.div`
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, var(--color-accent-primary) 0%, transparent 70%);
-    opacity: 0.05;
-    filter: blur(100px);
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -50%;
-    left: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, var(--color-accent-secondary) 0%, transparent 70%);
-    opacity: 0.05;
-    filter: blur(100px);
-  }
-`;
 
 const ContentWrapper = styled.div`
   position: relative;

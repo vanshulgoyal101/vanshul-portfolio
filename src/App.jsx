@@ -11,6 +11,7 @@ import { pageVariants } from './constants/motionVariants';
 import Navigation from './components/Navigation/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
+import BackgroundElements from './components/BackgroundElements';
 import BlogPost from './pages/BlogPost';
 
 // Sections (critical path)
@@ -42,53 +43,6 @@ const AppWrapper = styled.div`
 const MainContent = styled.main`
   position: relative;
   z-index: 2;
-`;
-
-const BackgroundElements = styled.div`
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  
-  /* Gradient orbs for ambience */
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, var(--color-accent-primary) 0%, transparent 70%);
-    filter: blur(100px);
-    animation: float 25s ease-in-out infinite;
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -50%;
-    left: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, var(--color-accent-secondary) 0%, transparent 70%);
-    filter: blur(100px);
-    animation: float 30s ease-in-out infinite reverse;
-  }
-  
-  @keyframes float {
-    0%, 100% {
-      transform: translate(0, 0) scale(1);
-      opacity: 0.02;
-    }
-    33% {
-      transform: translate(80px, -80px) scale(1.15);
-      opacity: 0.06;
-    }
-    66% {
-      transform: translate(-50px, 50px) scale(0.9);
-      opacity: 0.015;
-    }
-  }
 `;
 
 const SectionWrapper = styled(motion.section)`
@@ -194,7 +148,7 @@ function App() {
         <AppWrapper>
           <CustomCursor />
           {/* Background ambient elements */}
-          <BackgroundElements />
+          <BackgroundElements $animated />
           
           {/* Fun Interactive Elements — deferred until after first paint */}
           <IdleBackground />

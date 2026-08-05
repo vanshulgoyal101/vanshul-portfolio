@@ -46,7 +46,7 @@ src/
   index.css            # Base CSS + design tokens (CSS custom properties)
   blogs/               # Markdown blog posts (one file per post)
   components/          # Feature-grouped React components
-    Blog/  Contact/  Hero/  Navigation/  Projects/  Timeline/
+    Blog/  Contact/  Hero/  Navigation/  Projects/
     Work/  About/  Toast/  Skeleton/  FunElements/
     ErrorBoundary.jsx
   constants/           # Static config (blog constants)
