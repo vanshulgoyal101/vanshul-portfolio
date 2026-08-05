@@ -14,6 +14,7 @@ import { ToastProvider } from './components/Toast';
 import BackgroundElements from './components/BackgroundElements';
 import BlogPost from './pages/BlogPost';
 import BlogIndex from './pages/BlogIndex';
+import CursorToggle from './components/CursorToggle';
 
 // Sections (critical path)
 import Hero from './components/Hero/Hero';
@@ -272,6 +273,7 @@ function App() {
                   <a href="https://github.com/vanshulgoyal101" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </FooterLinks>
                 <FooterNote>© {new Date().getFullYear()} Vanshul Goyal · vanshul.com</FooterNote>
+                <CursorToggle />
               </SiteFooter>
             </>
           } />

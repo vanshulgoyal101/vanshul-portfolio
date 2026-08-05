@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { isCustomCursorEnabled, CURSOR_PREF_EVENT } from '../../utils/cursorPreference';
 
 const CursorDot = styled(motion.div)`
   width: 8px;
@@ -46,18 +47,20 @@ const CustomCursor = () => {
   const ringY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
-    // Only show the custom cursor on hover-capable, fine-pointer devices, and
-    // never when the user has requested reduced motion.
+    // Enabled on hover-capable, fine-pointer devices (never under reduced motion,
+    // Safari, or low-end hardware) — unless the visitor has explicitly toggled it.
     const hoverQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const evaluate = () => setIsSupported(hoverQuery.matches && !motionQuery.matches);
+    const evaluate = () => setIsSupported(isCustomCursorEnabled());
     evaluate();
 
     hoverQuery.addEventListener('change', evaluate);
     motionQuery.addEventListener('change', evaluate);
+    window.addEventListener(CURSOR_PREF_EVENT, evaluate);
     return () => {
       hoverQuery.removeEventListener('change', evaluate);
       motionQuery.removeEventListener('change', evaluate);
+      window.removeEventListener(CURSOR_PREF_EVENT, evaluate);
     };
   }, []);
 
