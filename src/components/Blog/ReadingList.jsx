@@ -1,79 +1,66 @@
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaBookOpen } from 'react-icons/fa';
 import { BLOG_ANIMATION_VARIANTS } from '../../constants/blogConstants';
 
-// A small, hand-picked shelf. `cover` is a genre glyph used as a stand-in for
-// the book cover so the section stays image-free and fast.
+// A small, hand-picked shelf — image-free by design so the section stays fast
+// and reads like a curated index rather than a store listing.
 const BOOKS = [
   {
-    cover: '📈',
     title: 'The Almanack of Naval Ravikant',
     author: 'Eric Jorgenson',
     note: 'A distilled playbook on building wealth and staying happy through leverage, judgement and clear thinking.',
   },
   {
-    cover: '🌌',
     title: 'Exhalation',
     author: 'Ted Chiang',
     note: 'Luminous short stories that turn physics and free will into deeply human questions.',
   },
   {
-    cover: '🤖',
     title: 'The Lifecycle of Software Objects',
     author: 'Ted Chiang',
     note: 'A tender novella about raising digital beings — and what we owe the minds we create.',
   },
   {
-    cover: '🕊️',
     title: 'The Prophet',
     author: 'Kahlil Gibran',
     note: 'Poetic meditations on love, work and freedom that read like scripture for everyday life.',
   },
   {
-    cover: '🏜️',
     title: 'The Alchemist',
     author: 'Paulo Coelho',
     note: "A shepherd's journey that became the classic parable for following your Personal Legend.",
   },
   {
-    cover: '⚡',
-    title: 'Harry Potter (series)',
+    title: 'Harry Potter',
     author: 'J.K. Rowling',
     note: 'The comfort epic: friendship, courage and growing up under a sky full of magic.',
   },
   {
-    cover: '🪐',
     title: 'The Three-Body Problem',
     author: 'Liu Cixin',
     note: 'First contact told with staggering scope, where physics itself becomes the antagonist.',
   },
   {
-    cover: '🗡️',
     title: 'Macbeth',
     author: 'William Shakespeare',
     note: "Ambition curdles into paranoia in Shakespeare's tightest, darkest tragedy.",
   },
   {
-    cover: '🌍',
     title: 'Sapiens',
     author: 'Yuval Noah Harari',
     note: 'A sweeping story of how shared fictions let one species take over the planet.',
   },
   {
-    cover: '👁️',
     title: '1984',
     author: 'George Orwell',
     note: 'The definitive warning about surveillance, language and truth bent to power.',
   },
   {
-    cover: '🎯',
     title: '80,000 Hours',
     author: 'Benjamin Todd',
     note: 'A practical guide to spending your career — your ~80,000 working hours — doing the most good.',
   },
   {
-    cover: '🏛️',
     title: 'The Daily Stoic',
     author: 'Ryan Holiday',
     note: '366 short readings that turn Stoic wisdom into a daily habit.',
@@ -82,6 +69,8 @@ const BOOKS = [
 
 const Section = styled.div`
   margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-2xl);
+  border-top: 1px solid var(--color-border);
 `;
 
 const Header = styled(motion.div)`
@@ -89,17 +78,20 @@ const Header = styled(motion.div)`
   margin-bottom: var(--spacing-xl);
 `;
 
+const Eyebrow = styled.span`
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-accent-primary);
+  margin-bottom: var(--spacing-sm);
+`;
+
 const Title = styled.h3`
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
   font-size: var(--text-3xl);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-sm);
-
-  svg {
-    color: var(--color-accent-primary);
-  }
 
   @media (max-width: 768px) {
     font-size: var(--text-2xl);
@@ -115,48 +107,45 @@ const Subtitle = styled.p`
 
 const Grid = styled(motion.div)`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: var(--spacing-md);
 
-  @media (max-width: 480px) {
+  @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
 `;
 
-const Book = styled(motion.div)`
-  display: flex;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
+const Book = styled(motion.article)`
+  position: relative;
+  padding: var(--spacing-lg);
+  padding-left: calc(var(--spacing-lg) + 8px);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-left: 3px solid var(--color-accent-primary);
-  border-radius: 12px;
-  transition: transform 0.25s ease, border-color 0.25s ease;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+
+  /* book-spine accent */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    background: var(--color-accent-primary);
+    opacity: 0.85;
+  }
 
   &:hover {
     transform: translateY(-4px);
     border-color: var(--color-accent-primary);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
   }
 `;
 
-const Cover = styled.div`
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 10px;
-`;
-
-const Info = styled.div`
-  min-width: 0;
-`;
-
-const BookTitle = styled.p`
-  font-size: var(--text-base);
+const BookTitle = styled.h4`
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--color-text-primary);
   line-height: 1.3;
@@ -164,14 +153,17 @@ const BookTitle = styled.p`
 
 const Author = styled.p`
   font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
-  margin-bottom: var(--spacing-xs);
+  margin: 8px 0 var(--spacing-sm);
 `;
 
 const Note = styled.p`
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-  line-height: 1.5;
+  line-height: 1.65;
 `;
 
 const ReadingList = () => (
@@ -182,9 +174,8 @@ const ReadingList = () => (
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
     >
-      <Title>
-        <FaBookOpen /> From My Shelf
-      </Title>
+      <Eyebrow>Reading List</Eyebrow>
+      <Title>From My Shelf</Title>
       <Subtitle>A few books that shaped how I think — fiction and non-fiction alike.</Subtitle>
     </Header>
 
@@ -196,12 +187,9 @@ const ReadingList = () => (
     >
       {BOOKS.map((book) => (
         <Book key={book.title} variants={BLOG_ANIMATION_VARIANTS.item}>
-          <Cover aria-hidden="true">{book.cover}</Cover>
-          <Info>
-            <BookTitle>{book.title}</BookTitle>
-            <Author>{book.author}</Author>
-            <Note>{book.note}</Note>
-          </Info>
+          <BookTitle>{book.title}</BookTitle>
+          <Author>{book.author}</Author>
+          <Note>{book.note}</Note>
         </Book>
       ))}
     </Grid>
