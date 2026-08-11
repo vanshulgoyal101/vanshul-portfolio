@@ -1,10 +1,11 @@
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { FaBookOpen } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaBookOpen, FaTimes } from 'react-icons/fa';
+import { MdArrowForward } from 'react-icons/md';
 import { BLOG_ANIMATION_VARIANTS } from '../../constants/blogConstants';
 
-// A single "shelf" card that sits first in the blog grid — all the books live
-// inside it as a two-column list, image-free by design so it stays fast.
+// A compact blog-sized card; the full list is revealed in a modal on open.
 const BOOKS = [
   {
     title: 'The Almanack of Naval Ravikant',
@@ -68,55 +69,174 @@ const BOOKS = [
   },
 ];
 
-// Spans the full width of the blog grid so it reads as the first ("zeroth") entry.
+/* ── Card (same footprint as a blog card) ── */
 const Card = styled(motion.article)`
-  grid-column: 1 / -1;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: var(--spacing-lg);
+  min-height: 320px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
   transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     border-color: rgba(29, 78, 216, 0.4);
+    transform: translateY(-6px);
     box-shadow: 0 20px 40px rgba(29, 78, 216, 0.08);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-accent-primary);
+    outline-offset: 4px;
+  }
+
+  @media (max-width: 768px) {
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
   }
 `;
 
-const Header = styled.div`
-  display: flex;
+const Eyebrow = styled.span`
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
+  gap: 6px;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
 
   svg {
     color: var(--color-accent-primary);
-    font-size: 1.1rem;
+    font-size: 0.95em;
   }
 `;
 
 const Title = styled.h3`
   font-size: var(--text-xl);
   color: var(--color-text-primary);
+  line-height: 1.4;
+  margin-bottom: var(--spacing-sm);
 `;
 
-const Count = styled.span`
-  margin-left: auto;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.04em;
+const Summary = styled.p`
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+`;
+
+const Spacer = styled.div`
+  flex: 1;
+`;
+
+const Action = styled.span`
   color: var(--color-accent-primary);
-  background: rgba(99, 102, 241, 0.1);
-  padding: 4px 10px;
-  border-radius: 999px;
-  white-space: nowrap;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  ${Card}:hover & svg {
+    transform: translateX(5px);
+  }
 `;
 
-const Subtitle = styled.p`
+/* ── Modal ── */
+const Overlay = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+`;
+
+const Content = styled(motion.div)`
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  max-width: 760px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+
+  @media (max-width: 768px) {
+    max-height: 100vh;
+    border-radius: 20px 20px 0 0;
+  }
+`;
+
+const ModalHeader = styled.div`
+  padding: var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  background: var(--color-bg-card);
+  z-index: 10;
+`;
+
+const ModalTitle = styled.h2`
+  font-size: var(--text-3xl);
+  color: var(--color-text-primary);
+  padding-right: var(--spacing-2xl);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  svg {
+    color: var(--color-accent-primary);
+    font-size: 0.8em;
+  }
+
+  @media (max-width: 768px) {
+    font-size: var(--text-2xl);
+  }
+`;
+
+const ModalSub = styled.p`
+  margin-top: var(--spacing-xs);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-md);
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: var(--text-xl);
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--color-accent-primary);
+  }
+`;
+
+const ModalBody = styled.div`
+  padding: var(--spacing-xl);
 `;
 
 const List = styled.ol`
@@ -163,30 +283,96 @@ const Note = styled.p`
   line-height: 1.5;
 `;
 
-const ReadingList = () => (
-  <Card
-    variants={BLOG_ANIMATION_VARIANTS.item}
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true, amount: 0.15 }}
-  >
-    <Header>
-      <FaBookOpen aria-hidden="true" />
-      <Title>From My Shelf</Title>
-      <Count>{BOOKS.length} books</Count>
-    </Header>
-    <Subtitle>Books that shaped how I think — fiction and non-fiction alike.</Subtitle>
-    <List>
-      {BOOKS.map((book) => (
-        <Item key={book.title}>
-          <BookLine>
-            <BookName>{book.title}</BookName> <By>· {book.author}</By>
-          </BookLine>
-          <Note>{book.note}</Note>
-        </Item>
-      ))}
-    </List>
-  </Card>
-);
+const modalVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
+  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
+};
+
+const ReadingList = () => {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <>
+      <Card
+        as="button"
+        type="button"
+        onClick={() => setOpen(true)}
+        variants={BLOG_ANIMATION_VARIANTS.item}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        aria-label={`From My Shelf — open ${BOOKS.length} favourite books`}
+      >
+        <Eyebrow>
+          <FaBookOpen aria-hidden="true" /> Reading list
+        </Eyebrow>
+        <Title>From My Shelf</Title>
+        <Summary>A few books that shaped how I think — fiction and non-fiction alike.</Summary>
+        <Spacer />
+        <Action>
+          Open the shelf · {BOOKS.length} books <MdArrowForward />
+        </Action>
+      </Card>
+
+      <AnimatePresence>
+        {open && (
+          <Overlay
+            onClick={() => setOpen(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <Content
+              role="dialog"
+              aria-modal="true"
+              aria-label="From My Shelf"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ModalHeader>
+                <ModalTitle>
+                  <FaBookOpen aria-hidden="true" /> From My Shelf
+                </ModalTitle>
+                <ModalSub>{BOOKS.length} books that shaped how I think.</ModalSub>
+                <CloseButton onClick={() => setOpen(false)} aria-label="Close">
+                  <FaTimes />
+                </CloseButton>
+              </ModalHeader>
+              <ModalBody>
+                <List>
+                  {BOOKS.map((book) => (
+                    <Item key={book.title}>
+                      <BookLine>
+                        <BookName>{book.title}</BookName> <By>· {book.author}</By>
+                      </BookLine>
+                      <Note>{book.note}</Note>
+                    </Item>
+                  ))}
+                </List>
+              </ModalBody>
+            </Content>
+          </Overlay>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
 
 export default ReadingList;
