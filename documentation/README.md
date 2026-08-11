@@ -19,6 +19,7 @@ then dive into specific areas.
 | [deployment.md](deployment.md) | GitHub Pages deployment, the SPA routing workaround, build process, and troubleshooting. |
 | [accessibility.md](accessibility.md) | WCAG 2.1 AA practices: keyboard navigation, focus management, touch targets, contrast, ARIA. |
 | [seo.md](seo.md) | Runtime meta (`useSeo`), build-time generation (sitemap, OG images, RSS feed, blog pre-rendering), JSON-LD, and static SEO files. |
+| [analytics.md](analytics.md) | First-party usage analytics: the `a.js` beacon, the `web_events` schema + RLS, the owner-gated `web_stats()` RPC, and the private `/dashboard`. |
 
 ## Maintenance
 
