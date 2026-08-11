@@ -70,7 +70,7 @@ const BOOKS = [
 ];
 
 /* ── Card (same footprint as a blog card) ── */
-const Card = styled(motion.article)`
+const Card = styled(motion.button)`
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: 16px;
@@ -308,7 +308,6 @@ const ReadingList = () => {
   return (
     <>
       <Card
-        as="button"
         type="button"
         onClick={() => setOpen(true)}
         variants={BLOG_ANIMATION_VARIANTS.item}

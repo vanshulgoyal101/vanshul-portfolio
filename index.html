@@ -94,34 +94,48 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Person",
-        "name": "Vanshul Goyal",
-        "jobTitle": "Engineer",
-        "description": "Engineer at United Airlines, writing about AI, the future of work, and technology.",
-        "image": "https://vanshul.com/og-image.png",
-        "worksFor": {
-          "@type": "Organization",
-          "name": "United Airlines"
-        },
-        "url": "https://vanshul.com",
-        "sameAs": [
-          "https://github.com/vanshulgoyal101",
-          "https://www.linkedin.com/in/vanshul-goyal00/",
-          "https://x.com/goyal_vanshul",
-          "https://www.instagram.com/vanshul_goyal/"
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://vanshul.com/#website",
+            "name": "Vanshul Goyal",
+            "url": "https://vanshul.com/",
+            "inLanguage": "en",
+            "publisher": { "@id": "https://vanshul.com/#person" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://vanshul.com/#person",
+            "name": "Vanshul Goyal",
+            "jobTitle": "Engineer",
+            "description": "Engineer at United Airlines, writing about AI, the future of work, and technology.",
+            "image": "https://vanshul.com/og-image.png",
+            "url": "https://vanshul.com/",
+            "worksFor": { "@type": "Organization", "name": "United Airlines" },
+            "knowsAbout": [
+              "Artificial Intelligence",
+              "Software Engineering",
+              "Robotics",
+              "The Future of Work",
+              "Web Development"
+            ],
+            "sameAs": [
+              "https://github.com/vanshulgoyal101",
+              "https://www.linkedin.com/in/vanshul-goyal00/",
+              "https://x.com/goyal_vanshul",
+              "https://www.instagram.com/vanshul_goyal/"
+            ]
+          },
+          {
+            "@type": "ProfilePage",
+            "@id": "https://vanshul.com/#webpage",
+            "url": "https://vanshul.com/",
+            "name": "Vanshul Goyal — Engineer",
+            "isPartOf": { "@id": "https://vanshul.com/#website" },
+            "about": { "@id": "https://vanshul.com/#person" },
+            "primaryImageOfPage": "https://vanshul.com/og-image.png"
+          }
         ]
-      }
-    </script>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "Vanshul Goyal",
-        "url": "https://vanshul.com",
-        "author": {
-          "@type": "Person",
-          "name": "Vanshul Goyal"
-        }
       }
     </script>
   </head>
