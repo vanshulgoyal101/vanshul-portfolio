@@ -79,6 +79,22 @@ All UI and logic are organized into feature-based React components under `src/co
 - Renders Markdown content with `react-markdown`
 - Responsive padding and max-width
 
+### ReadingList.jsx
+**Location**: `src/components/Blog/ReadingList.jsx`
+
+**Purpose**: "From My Shelf" — a curated favourite-books list, rendered as the
+first ("zeroth") card in the blog grid.
+
+**Features**:
+- Compact blog-sized card (a `motion.button`) that opens the full list in an
+  accessible modal (`role="dialog"`, backdrop/ESC/✕ to close, body scroll lock)
+- Books are a local `BOOKS` array (title, author, one-line note); the count is
+  derived, so adding/removing a book updates the label automatically
+- Two-column list inside the modal, single column on small screens
+
+**Tested**: `ReadingList.test.jsx` covers the compact card, opening the modal,
+listing the books, and closing.
+
 ---
 
 ## Contact

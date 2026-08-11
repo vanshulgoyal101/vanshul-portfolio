@@ -68,3 +68,62 @@ export const readPosts = (blogsDir) =>
 
 /** Sort comparator: newest post first, by `date`. */
 export const byDateDesc = (a, b) => new Date(b.date) - new Date(a.date);
+
+/**
+ * Parse a frontmatter `tags` value ("AI, Robotics, Future of Work") into a
+ * clean, de-duplicated array. Accepts an array too. Empty/missing → [].
+ * @param {string|string[]|undefined} value
+ * @returns {string[]}
+ */
+export const parseTags = (value) => {
+  if (!value) return [];
+  const list = Array.isArray(value) ? value : String(value).split(',');
+  const seen = new Set();
+  const out = [];
+  for (const raw of list) {
+    const tag = String(raw).trim().replace(/^["']|["']$/g, '');
+    const key = tag.toLowerCase();
+    if (tag && !seen.has(key)) {
+      seen.add(key);
+      out.push(tag);
+    }
+  }
+  return out;
+};
+
+/**
+ * Topical keywords for a post: its category (first) plus any `tags`,
+ * de-duplicated. Used for JSON-LD `keywords` and `article:tag` meta.
+ * @param {Record<string, unknown>} post
+ * @returns {string[]}
+ */
+export const postKeywords = (post) => {
+  const seen = new Set();
+  const out = [];
+  for (const kw of [post.category, ...parseTags(post.tags)]) {
+    const tag = kw ? String(kw).trim() : '';
+    const key = tag.toLowerCase();
+    if (tag && !seen.has(key)) {
+      seen.add(key);
+      out.push(tag);
+    }
+  }
+  return out;
+};
+
+/** ISO 8601 date (or undefined if the value isn't a parseable date). */
+export const isoDate = (value) => {
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
+};
+
+/**
+ * Local calendar date as `YYYY-MM-DD` (for sitemap <lastmod>). Uses local date
+ * parts so output matches the human-written date regardless of the runner's
+ * timezone (avoids a UTC off-by-one). Returns null for invalid input.
+ */
+export const localCalendarDate = (value) => {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};

@@ -41,6 +41,11 @@ in `scripts/lib/seo.test.js`), so the three generators can't drift apart.
 
 ## Structured data (JSON-LD)
 
+- **Home page** (`index.html`) emits a single schema.org `@graph` that cross-links
+  a `WebSite`, the author `Person` (with `knowsAbout` and `sameAs` profiles) and a
+  `ProfilePage`, all joined by `@id`. This gives search engines one coherent entity
+  graph for the site owner (stronger knowledge-panel signal). Guarded by
+  `src/seo.test.js`.
 - **Blog posts** emit a `BlogPosting` plus a `BreadcrumbList`. The `BlogPosting`
   includes `datePublished`/`dateModified`, `inLanguage`, `wordCount`,
   `timeRequired` (`PT{min}M` from the post's read time), the author with `sameAs`
