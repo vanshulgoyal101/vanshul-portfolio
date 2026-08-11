@@ -8,7 +8,6 @@ import { BiWorld } from 'react-icons/bi';
 import Magnetic from '../FunElements/Magnetic';
 import { useContactForm } from '../../hooks/useContactForm';
 import { containerVariants, itemVariants } from '../../constants/motionVariants';
-import { SOCIAL_LINKS } from '../../constants/siteConfig';
 
 
 // Styled Components
@@ -333,11 +332,11 @@ const Contact = () => {
   ];
 
 const socialLinks = [
-  { icon: <FaXTwitter />, url: SOCIAL_LINKS.twitter, label: 'Twitter' },
-  { icon: <FaLinkedin />, url: SOCIAL_LINKS.linkedin, label: 'LinkedIn' },
-  { icon: <FaInstagram />, url: SOCIAL_LINKS.instagram, label: 'Instagram' },
-  { icon: <FaGithub />, url: SOCIAL_LINKS.github, label: 'GitHub' },
-  { icon: <IoGameController />, url: SOCIAL_LINKS.games, label: 'Games' },
+  { icon: <FaXTwitter />, url: 'https://x.com/goyal_vanshul', label: 'Twitter' },
+  { icon: <FaLinkedin />, url: 'https://www.linkedin.com/in/vanshul-goyal00/', label: 'LinkedIn' },
+  { icon: <FaInstagram />, url: 'https://www.instagram.com/vanshul_goyal/', label: 'Instagram' },
+  { icon: <FaGithub />, url: 'https://github.com/vanshulgoyal101', label: 'GitHub' },
+  { icon: <IoGameController />, url: 'https://games.vanshul.com', label: 'Games' },
 ];
 
 

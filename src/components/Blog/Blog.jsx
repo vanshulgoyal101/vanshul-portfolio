@@ -5,6 +5,7 @@ import { FaPen, FaQuoteLeft } from 'react-icons/fa';
 
 // Component imports
 import BlogCard from './BlogCard';
+import ReadingList from './ReadingList';
 import { BlogSkeletonCard } from '../Skeleton';
 
 // Utility imports
@@ -193,6 +194,8 @@ const Blog = () => {
             <p>{BLOG_CONTENT.emptyStateMessage}</p>
           </EmptyState>
         )}
+
+        <ReadingList />
 
         <QuoteSection
           variants={BLOG_ANIMATION_VARIANTS.item}
