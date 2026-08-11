@@ -20,6 +20,7 @@ export const buildSitemap = (posts, { site }) => {
   const urls = [
     { loc: `${site}/`, priority: '1.0', changefreq: 'weekly', lastmod: newestMod },
     { loc: `${site}/blog`, priority: '0.9', changefreq: 'weekly', lastmod: newestMod },
+    { loc: `${site}/reading-list`, priority: '0.6', changefreq: 'yearly' },
     ...ordered.map((p) => ({
       loc: `${site}/blog/${p.slug}`,
       lastmod: localCalendarDate(p.date),

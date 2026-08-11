@@ -13,6 +13,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
 import BackgroundElements from './components/BackgroundElements';
 import BlogPost from './pages/BlogPost';
+import ReadingListPage from './pages/ReadingList';
 import BlogIndex from './pages/BlogIndex';
 import CursorToggle from './components/CursorToggle';
 
@@ -279,8 +280,8 @@ function App() {
           } />
           
             
-            {/* The blog lives as a section on the home page. */}
-            <Route path="/blog" element={<Navigate to="/#blog" replace />} />
+            {/* Curated reading list */}
+            <Route path="/reading-list" element={<ReadingListPage />} />
 
             {/* Individual blog post page */}
             <Route path="/blog/:slug" element={<BlogPost />} />

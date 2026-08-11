@@ -1,32 +1,29 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import ReadingList from './ReadingList';
+import { BOOKS } from '../../constants/books';
 
-describe('ReadingList', () => {
-  it('renders a compact card and hides the books until opened', () => {
-    render(<ReadingList />);
-    expect(
-      screen.getByRole('button', { name: /open .*favourite books/i })
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(screen.queryByText('Sapiens')).not.toBeInTheDocument();
+const renderCard = () =>
+  render(
+    <MemoryRouter>
+      <ReadingList variants={{}} />
+    </MemoryRouter>
+  );
+
+describe('ReadingList card', () => {
+  it('is a link to the /reading-list page, like a blog card', () => {
+    renderCard();
+    const link = screen.getByRole('link', { name: /reading list/i });
+    expect(link).toHaveAttribute('href', '/reading-list');
+    expect(screen.getByText('From My Shelf')).toBeInTheDocument();
+    expect(screen.getByText(`${BOOKS.length} books`)).toBeInTheDocument();
+    expect(screen.getByText(/read more/i)).toBeInTheDocument();
   });
 
-  it('opens a modal listing the books and closes it again', async () => {
-    const user = userEvent.setup();
-    render(<ReadingList />);
-
-    await user.click(screen.getByRole('button', { name: /favourite books/i }));
-
-    const dialog = screen.getByRole('dialog', { name: /from my shelf/i });
-    expect(dialog).toBeInTheDocument();
-    expect(screen.getByText('Sapiens')).toBeInTheDocument();
-    expect(screen.getByText('The Almanack of Naval Ravikant')).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: /close/i }));
-    await waitFor(() =>
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    );
+  it('does not list the books on the card itself', () => {
+    renderCard();
+    expect(screen.queryByText('Sapiens')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

@@ -9,13 +9,20 @@ import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
-import { parseFrontmatter, escapeXml as escAttr, escapeText as escText } from './lib/seo.mjs';
+import { parseFrontmatter, escapeXml as escAttr, escapeText as escText, parseTags, isoDate } from './lib/seo.mjs';
+import { postJsonLd, blogIndexJsonLd } from './lib/structuredData.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const blogsDir = join(root, 'src', 'blogs');
 const distDir = join(root, 'dist');
 
 const template = readFileSync(join(distDir, 'index.html'), 'utf8');
+const identity = { site: SITE, authorName: AUTHOR_NAME, authorSameAs: AUTHOR_SAME_AS };
+
+// Serialize JSON-LD for safe inline embedding (escape `<` to avoid closing the
+// script element early).
+const jsonLdScript = (data) =>
+  `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
 
 // Replace a <meta ... content="..."> value, tolerant of attribute order.
 const setMeta = (html, attr, key, value) => {
@@ -31,10 +38,8 @@ const buildShell = (post) => {
   const ogImage = `${SITE}/og/${post.slug}.png`;
   const title = `${post.title} — Vanshul Goyal`;
   const desc = post.summary || '';
-  const publishedISO = Number.isNaN(new Date(post.date).getTime())
-    ? undefined
-    : new Date(post.date).toISOString();
-  const readMinutes = parseInt(post.readTime, 10);
+  const publishedISO = isoDate(post.date);
+  const tags = parseTags(post.tags);
 
   let html = template;
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escText(title)}</title>`);
@@ -57,51 +62,14 @@ const buildShell = (post) => {
     publishedISO && `<meta property="article:modified_time" content="${escAttr(publishedISO)}" />`,
     `<meta property="article:author" content="${escAttr(AUTHOR_NAME)}" />`,
     post.category && `<meta property="article:section" content="${escAttr(post.category)}" />`,
+    ...tags.map((t) => `<meta property="article:tag" content="${escAttr(t)}" />`),
   ]
     .filter(Boolean)
     .join('\n  ');
 
-  const jsonLd = JSON.stringify([
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: post.title,
-      description: desc,
-      image: [ogImage],
-      inLanguage: 'en',
-      ...(publishedISO ? { datePublished: publishedISO, dateModified: publishedISO } : {}),
-      ...(Number.isFinite(readMinutes) ? { timeRequired: `PT${readMinutes}M` } : {}),
-      ...(post.wordCount ? { wordCount: post.wordCount } : {}),
-      ...(post.category ? { articleSection: post.category, keywords: post.category } : {}),
-      author: {
-        '@type': 'Person',
-        name: AUTHOR_NAME,
-        url: SITE,
-        sameAs: AUTHOR_SAME_AS,
-      },
-      publisher: {
-        '@type': 'Person',
-        name: AUTHOR_NAME,
-        url: SITE,
-        image: `${SITE}/og-image.png`,
-      },
-      mainEntityOfPage: canonical,
-      url: canonical,
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
-        { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE}/#blog` },
-        { '@type': 'ListItem', position: 3, name: post.title, item: canonical },
-      ],
-    },
-  ]).replace(/</g, '\\u003c');
-
   html = html.replace(
     '</head>',
-    `  ${articleTags}\n  <script type="application/ld+json">${jsonLd}</script></head>`
+    `  ${articleTags}\n  ${jsonLdScript(postJsonLd(post, identity))}</head>`,
   );
   return html;
 };
@@ -130,39 +98,9 @@ const buildIndexShell = (allPosts) => {
   html = html.replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/i, `$1${canonical}$2`);
 
   const ordered = [...allPosts].sort((a, b) => new Date(b.date) - new Date(a.date));
-  const jsonLd = JSON.stringify([
-    {
-      '@context': 'https://schema.org',
-      '@type': 'Blog',
-      name: title,
-      url: canonical,
-      description: desc,
-      inLanguage: 'en',
-      author: { '@type': 'Person', name: AUTHOR_NAME, url: SITE },
-      blogPost: ordered.map((p) => ({
-        '@type': 'BlogPosting',
-        headline: p.title,
-        url: `${SITE}/blog/${p.slug}`,
-        ...(Number.isNaN(new Date(p.date).getTime())
-          ? {}
-          : { datePublished: new Date(p.date).toISOString() }),
-        ...(p.category ? { articleSection: p.category } : {}),
-      })),
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
-        { '@type': 'ListItem', position: 2, name: 'Blog', item: canonical },
-      ],
-    },
-  ]).replace(/</g, '\\u003c');
+  const jsonLd = blogIndexJsonLd(ordered, { ...identity, title, description: desc });
 
-  html = html.replace(
-    '</head>',
-    `  <script type="application/ld+json">${jsonLd}</script></head>`
-  );
+  html = html.replace('</head>', `  ${jsonLdScript(jsonLd)}</head>`);
   return html;
 };
 
