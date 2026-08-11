@@ -9,67 +9,67 @@ const BOOKS = [
   {
     title: 'The Almanack of Naval Ravikant',
     author: 'Eric Jorgenson',
-    note: 'A distilled playbook on building wealth and staying happy through leverage, judgement and clear thinking.',
+    note: "Wealth, health and peace aren't luck — they're skills. The closest thing to a manual for all three.",
   },
   {
     title: 'Exhalation',
     author: 'Ted Chiang',
-    note: 'Luminous short stories that turn physics and free will into deeply human questions.',
+    note: 'Science fiction for people who actually think. Each story is a quiet thought experiment that rearranges you.',
   },
   {
     title: 'The Lifecycle of Software Objects',
     author: 'Ted Chiang',
-    note: 'A tender novella about raising digital beings — and what we owe the minds we create.',
+    note: 'What do we owe the minds we build? Chiang takes his time, and the question stays with you for years.',
   },
   {
     title: 'The Prophet',
     author: 'Kahlil Gibran',
-    note: 'Poetic meditations on love, work and freedom that read like scripture for everyday life.',
+    note: 'Old wisdom in plain clothes. Read one page, close the book, and think for an hour.',
   },
   {
     title: 'The Alchemist',
     author: 'Paulo Coelho',
-    note: "A shepherd's journey that became the classic parable for following your Personal Legend.",
+    note: 'One simple idea that is hard to live: commit fully, and the world starts conspiring to help you.',
   },
   {
     title: 'The Midnight Library',
     author: 'Matt Haig',
-    note: "A woman slips between life and death to try on the lives she didn't live — a warm fable about regret and possibility.",
+    note: "Every regret is a door to a life you didn't live. The work is learning to close them and stay.",
   },
   {
     title: 'Harry Potter',
     author: 'J.K. Rowling',
-    note: 'The comfort epic: friendship, courage and growing up under a sky full of magic.',
+    note: "Not really about magic. It's about choosing your people and being brave when it's inconvenient.",
   },
   {
     title: 'The Three-Body Problem',
     author: 'Liu Cixin',
-    note: 'First contact told with staggering scope, where physics itself becomes the antagonist.',
+    note: 'Physics as horror. It keeps stretching your sense of scale until the present feels small.',
   },
   {
     title: 'Macbeth',
     author: 'William Shakespeare',
-    note: "Ambition curdles into paranoia in Shakespeare's tightest, darkest tragedy.",
+    note: 'Ambition with no floor. A good man talks himself into ruin, one rationalisation at a time.',
   },
   {
     title: 'Sapiens',
     author: 'Yuval Noah Harari',
-    note: 'A sweeping story of how shared fictions let one species take over the planet.',
+    note: "We run the planet because we can believe in things that don't exist — money, nations, gods, all stories.",
   },
   {
     title: '1984',
     author: 'George Orwell',
-    note: 'The definitive warning about surveillance, language and truth bent to power.',
+    note: 'Control the words and you control the thoughts. Worth rereading whenever you feel too comfortable.',
   },
   {
     title: '80,000 Hours',
     author: 'Benjamin Todd',
-    note: 'A practical guide to spending your career — your ~80,000 working hours — doing the most good.',
+    note: "You'll work about 80,000 hours in a life. Spend them like they matter, because they do.",
   },
   {
     title: 'The Daily Stoic',
     author: 'Ryan Holiday',
-    note: '366 short readings that turn Stoic wisdom into a daily habit.',
+    note: 'One page a day. Not to sound wise — to actually be a little calmer tomorrow.',
   },
 ];
 
