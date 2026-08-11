@@ -133,22 +133,28 @@ const List = styled.ol`
   list-style: none;
   margin: 0;
   padding: 0;
-  columns: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   column-gap: var(--spacing-2xl);
 
   @media (max-width: 720px) {
-    columns: 1;
+    grid-template-columns: 1fr;
   }
 `;
 
 const Item = styled.li`
-  break-inside: avoid;
   padding: var(--spacing-md) 0;
   border-top: 1px solid var(--color-border);
 
+  /* No top border for the first row (single item on mobile, two on desktop). */
   &:first-child {
     border-top: none;
-    padding-top: 0;
+  }
+
+  @media (min-width: 721px) {
+    &:nth-child(2) {
+      border-top: none;
+    }
   }
 `;
 
