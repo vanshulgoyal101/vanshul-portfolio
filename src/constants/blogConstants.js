@@ -59,7 +59,7 @@ export const BLOG_CATEGORIES = {
 // Blog section text content
 export const BLOG_CONTENT = {
   sectionTitle: 'Writings',
-  sectionSubtitle: 'A collection of thoughts and insights (More coming soon...)',
+  sectionSubtitle: 'A collection of thoughts and insights',
   emptyStateTitle: 'Coming Soon',
   emptyStateMessage: "I'm currently crafting my thoughts into words. Check back soon for insights and stories from my journey.",
   quote: {
