@@ -37,11 +37,6 @@ const BOOKS = [
     note: "Every regret is a door to a life you didn't live. The work is learning to close them and stay.",
   },
   {
-    title: 'Harry Potter',
-    author: 'J.K. Rowling',
-    note: "Not really about magic. It's about choosing your people and being brave when it's inconvenient.",
-  },
-  {
     title: 'The Three-Body Problem',
     author: 'Liu Cixin',
     note: 'Physics as horror. It keeps stretching your sense of scale until the present feels small.',
