@@ -177,6 +177,7 @@ const Blog = () => {
           </BlogGrid>
         ) : sortedBlogPosts && sortedBlogPosts.length > 0 ? (
           <BlogGrid>
+            <ReadingList />
             {sortedBlogPosts.map((blog, index) => (
               <BlogCard
                 key={blog.id}
@@ -194,8 +195,6 @@ const Blog = () => {
             <p>{BLOG_CONTENT.emptyStateMessage}</p>
           </EmptyState>
         )}
-
-        <ReadingList />
 
         <QuoteSection
           variants={BLOG_ANIMATION_VARIANTS.item}
