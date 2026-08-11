@@ -45,7 +45,6 @@ const posts = readdirSync(blogsDir)
 
 const urls = [
   { loc: `${SITE}/`, priority: '1.0', changefreq: 'weekly' },
-  { loc: `${SITE}/blog`, priority: '0.9', changefreq: 'weekly' },
   ...posts.map((p) => ({
     loc: `${SITE}/blog/${p.slug}`,
     lastmod: isoDate(p.date),

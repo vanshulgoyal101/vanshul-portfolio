@@ -279,6 +279,9 @@ function App() {
           } />
           
             
+            {/* The blog lives as a section on the home page. */}
+            <Route path="/blog" element={<Navigate to="/#blog" replace />} />
+
             {/* Individual blog post page */}
             <Route path="/blog/:slug" element={<BlogPost />} />
 
