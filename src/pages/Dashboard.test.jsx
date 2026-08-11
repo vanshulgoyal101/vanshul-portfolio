@@ -32,9 +32,12 @@ const sampleStats = {
   range_pageviews: 500,
   range_visitors: 120,
   range_events: 800,
+  prev_pageviews: 400,
+  prev_visitors: 150,
   pageviews_today: 12,
   events_today: 20,
   per_site: [{ site: 'portfolio', pageviews: 900, visitors: 200 }],
+  top_pages: [{ site: 'portfolio', path: '/', pageviews: 300 }],
   per_tool: [{ site: 'tools', name: 'jwt', uses: 42 }],
   per_link: [{ name: 'https://games.vanshul.com/', site: 'links', clicks: 10 }],
   top_referrers: [{ referrer: 'google.com', count: 50 }],
@@ -70,8 +73,11 @@ describe('Dashboard', () => {
 
     await waitFor(() => expect(screen.getByText('Pageviews by site')).toBeInTheDocument());
     expect(mockRpc).toHaveBeenCalledWith('web_stats', { window_hours: 720 });
+    expect(screen.getByText('Top pages')).toBeInTheDocument();
     expect(screen.getByText('Top tools used')).toBeInTheDocument();
     expect(screen.getByText('Plays per game')).toBeInTheDocument();
+    // Period-over-period delta on the range card: 500 vs 400 = +25%.
+    expect(screen.getByText(/25%/)).toBeInTheDocument();
   });
 
   it('re-queries with a 24-hour window when the range changes', async () => {
@@ -89,5 +95,22 @@ describe('Dashboard', () => {
     mockRpc.mockResolvedValue({ data: null, error: { message: 'not authorized' } });
     render(<Dashboard />);
     await waitFor(() => expect(screen.getByText('not authorized')).toBeInTheDocument());
+  });
+
+  it('exports the current stats as a CSV download', async () => {
+    mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
+    mockRpc.mockResolvedValue({ data: sampleStats, error: null });
+    const createURL = vi.fn(() => 'blob:mock');
+    URL.createObjectURL = createURL;
+    URL.revokeObjectURL = vi.fn();
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+    render(<Dashboard />);
+    await waitFor(() => expect(screen.getByText('Export CSV')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Export CSV'));
+
+    expect(createURL).toHaveBeenCalledTimes(1);
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+    clickSpy.mockRestore();
   });
 });

@@ -5,6 +5,8 @@ import {
   hourSeries,
   toBars,
   shortenUrl,
+  percentDelta,
+  statsToCsv,
 } from './dashboardData';
 
 describe('formatNumber', () => {
@@ -84,5 +86,56 @@ describe('shortenUrl', () => {
     const out = shortenUrl(long);
     expect(out.length).toBeLessThanOrEqual(48);
     expect(out.endsWith('…')).toBe(true);
+  });
+});
+
+describe('percentDelta', () => {
+  it('computes a rounded percentage change', () => {
+    expect(percentDelta(120, 100)).toBe(20);
+    expect(percentDelta(80, 100)).toBe(-20);
+    expect(percentDelta(150, 100)).toBe(50);
+  });
+  it('returns 0 when both are zero and no change', () => {
+    expect(percentDelta(0, 0)).toBe(0);
+    expect(percentDelta(100, 100)).toBe(0);
+  });
+  it('returns null when there is no prior baseline (avoids +Infinity)', () => {
+    expect(percentDelta(50, 0)).toBeNull();
+    expect(percentDelta(undefined, undefined)).toBe(0);
+  });
+});
+
+describe('statsToCsv', () => {
+  const stats = {
+    window_hours: 720,
+    range_pageviews: 500,
+    per_site: [{ site: 'portfolio', pageviews: 900, visitors: 200 }],
+    top_pages: [{ site: 'portfolio', path: '/', pageviews: 300 }],
+    per_tool: [{ site: 'tools', name: 'jwt', uses: 42 }],
+    per_link: [{ name: 'https://games.vanshul.com/', site: 'links', clicks: 10 }],
+    top_referrers: [{ referrer: 'google.com', count: 50 }],
+    arcade: { per_game: [{ game: 'wordle', plays: 20 }] },
+  };
+
+  it('produces a header and one row per metric and breakdown entry', () => {
+    const csv = statsToCsv(stats);
+    const lines = csv.split('\n');
+    expect(lines[0]).toBe('section,label,value');
+    expect(csv).toContain('metric,range_pageviews,500');
+    expect(csv).toContain('site,portfolio,900');
+    expect(csv).toContain('page,portfolio/,300');
+    expect(csv).toContain('tool,tools/jwt,42');
+    expect(csv).toContain('referrer,google.com,50');
+    expect(csv).toContain('game,wordle,20');
+  });
+
+  it('escapes values containing commas or quotes', () => {
+    const csv = statsToCsv({ per_link: [{ name: 'a,b"c', site: 'x', clicks: 1 }] });
+    expect(csv).toContain('"a,b""c"');
+  });
+
+  it('returns an empty string for nullish input', () => {
+    expect(statsToCsv(null)).toBe('');
+    expect(statsToCsv(undefined)).toBe('');
   });
 });

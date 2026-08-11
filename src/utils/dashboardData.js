@@ -58,3 +58,53 @@ export const shortenUrl = (url) => {
   const s = String(url || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
   return s.length > 48 ? s.slice(0, 47) + '…' : s;
 };
+
+/**
+ * Percentage change of `current` vs `previous`, rounded. Returns null when there
+ * is no prior baseline (previous === 0 but current > 0), so callers can show
+ * "new" rather than a misleading +100% / Infinity.
+ */
+export const percentDelta = (current, previous) => {
+  const c = Number(current) || 0;
+  const p = Number(previous) || 0;
+  if (p === 0) return c === 0 ? 0 : null;
+  return Math.round(((c - p) / p) * 100);
+};
+
+/**
+ * Flatten a web_stats() result into a long-format CSV (section,label,value) so
+ * the owner can export/keep a snapshot. Covers scalar metrics and every
+ * breakdown list.
+ */
+export const statsToCsv = (stats) => {
+  if (!stats || typeof stats !== 'object') return '';
+  const rows = [['section', 'label', 'value']];
+  const esc = (v) => {
+    const s = String(v ?? '');
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+
+  const scalars = [
+    'window_hours', 'total_pageviews', 'unique_visitors',
+    'range_pageviews', 'range_visitors', 'range_events',
+    'prev_pageviews', 'prev_visitors', 'pageviews_today', 'events_today',
+  ];
+  for (const key of scalars) {
+    if (stats[key] != null) rows.push(['metric', key, stats[key]]);
+  }
+
+  const lists = [
+    ['site', stats.per_site, (r) => r.site, (r) => r.pageviews],
+    ['page', stats.top_pages, (r) => `${r.site}${r.path}`, (r) => r.pageviews],
+    ['tool', stats.per_tool, (r) => `${r.site}/${r.name}`, (r) => r.uses],
+    ['link', stats.per_link, (r) => r.name, (r) => r.clicks],
+    ['referrer', stats.top_referrers, (r) => r.referrer, (r) => r.count],
+    ['game', stats.arcade?.per_game, (r) => r.game, (r) => r.plays],
+  ];
+  for (const [section, arr, label, value] of lists) {
+    for (const r of arr || []) rows.push([section, label(r), value(r)]);
+  }
+
+  return rows.map((cols) => cols.map(esc).join(',')).join('\n');
+};
+

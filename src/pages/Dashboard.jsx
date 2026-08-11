@@ -8,6 +8,8 @@ import {
   hourSeries,
   toBars,
   shortenUrl,
+  percentDelta,
+  statsToCsv,
 } from '../utils/dashboardData';
 
 // ---------------------------------------------------------------------------
@@ -228,6 +230,27 @@ const BarList = ({ title, bars, empty }) => (
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
+const DeltaBadge = styled.span`
+  font-size: var(--text-xs);
+  font-weight: 700;
+  margin-left: 8px;
+  white-space: nowrap;
+  color: ${(p) => (p.$dir > 0 ? '#16a34a' : p.$dir < 0 ? '#dc2626' : 'var(--color-text-muted)')};
+`;
+
+// Trend badge comparing the current window to the previous equal-length one.
+const Delta = ({ current, previous }) => {
+  const pct = percentDelta(current, previous);
+  if (pct === null) return <DeltaBadge $dir={1} title="No prior data">new</DeltaBadge>;
+  if (pct === 0) return <DeltaBadge $dir={0}>±0%</DeltaBadge>;
+  const dir = pct > 0 ? 1 : -1;
+  return (
+    <DeltaBadge $dir={dir} title="vs previous period">
+      {dir > 0 ? '▲' : '▼'} {Math.abs(pct)}%
+    </DeltaBadge>
+  );
+};
+
 const Dashboard = () => {
   const [session, setSession] = useState(undefined); // undefined = loading
   const [stats, setStats] = useState(null);
@@ -285,10 +308,25 @@ const Dashboard = () => {
     setStats(null);
   };
 
+  const exportCsv = () => {
+    const csv = statsToCsv(stats);
+    if (!csv) return;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vanshul-analytics-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const derived = useMemo(() => {
     if (!stats) return null;
     return {
       perSite: toBars(stats.per_site, (r) => r.site, 'pageviews'),
+      topPages: toBars(stats.top_pages, (r) => `${r.site}${r.path}`, 'pageviews'),
       perTool: toBars(stats.per_tool, (r) => `${r.site} · ${r.name}`, 'uses'),
       perLink: toBars(stats.per_link, (r) => shortenUrl(r.name), 'clicks'),
       referrers: toBars(stats.top_referrers, (r) => r.referrer, 'count'),
@@ -353,6 +391,7 @@ const Dashboard = () => {
             <option value={8760}>Last year</option>
           </Select>
           <GhostButton onClick={loadStats} disabled={busy}>{busy ? 'Refreshing…' : 'Refresh'}</GhostButton>
+          <GhostButton onClick={exportCsv} disabled={!stats}>Export CSV</GhostButton>
           <GhostButton onClick={signOut}>Sign out</GhostButton>
         </Actions>
       </Header>
@@ -364,8 +403,8 @@ const Dashboard = () => {
       {stats && derived && (
         <>
           <Cards>
-            <Card><div className="n">{formatNumber(stats.range_pageviews)}</div><div className="l">Pageviews · range</div></Card>
-            <Card><div className="n">{formatNumber(stats.range_visitors)}</div><div className="l">Visitors · range</div></Card>
+            <Card><div className="n">{formatNumber(stats.range_pageviews)}<Delta current={stats.range_pageviews} previous={stats.prev_pageviews} /></div><div className="l">Pageviews · range</div></Card>
+            <Card><div className="n">{formatNumber(stats.range_visitors)}<Delta current={stats.range_visitors} previous={stats.prev_visitors} /></div><div className="l">Visitors · range</div></Card>
             <Card><div className="n">{formatNumber(stats.range_events)}</div><div className="l">Events · range</div></Card>
             <Card><div className="n">{formatNumber(stats.pageviews_today)}</div><div className="l">Pageviews today</div></Card>
             <Card><div className="n">{formatNumber(stats.total_pageviews)}</div><div className="l">Pageviews · all-time</div></Card>
@@ -373,6 +412,7 @@ const Dashboard = () => {
           </Cards>
 
           <BarList title="Pageviews by site" bars={derived.perSite} empty="No pageviews yet." />
+          <BarList title="Top pages" bars={derived.topPages} empty="No page views yet." />
           <BarList title="Top tools used" bars={derived.perTool} empty="No tool usage yet." />
           <BarList title="Top outbound links" bars={derived.perLink} empty="No link clicks yet." />
           <BarList title="Top referrers" bars={derived.referrers} empty="No referrers yet." />

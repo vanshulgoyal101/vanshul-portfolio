@@ -79,6 +79,12 @@ begin
     'range_pageviews', (select count(*) from web_events where kind = 'pageview' and ts >= since),
     'range_visitors',  (select count(distinct visitor) from web_events where ts >= since),
     'range_events',    (select count(*) from web_events where ts >= since),
+    -- Immediately preceding window of equal length (for period-over-period deltas).
+    'prev_pageviews', (select count(*) from web_events
+                       where kind = 'pageview'
+                         and ts >= now() - make_interval(hours => wh * 2) and ts < since),
+    'prev_visitors',  (select count(distinct visitor) from web_events
+                       where ts >= now() - make_interval(hours => wh * 2) and ts < since),
     'pageviews_today', (select count(*) from web_events
                         where kind = 'pageview'
                           and (ts at time zone 'Asia/Kolkata')::date = (now() at time zone 'Asia/Kolkata')::date),
@@ -92,6 +98,13 @@ begin
                               count(*) filter (where kind = 'pageview') pv,
                               count(distinct visitor) uv
                        from web_events where ts >= since group by site) t),
+
+    -- Most-visited pages, site + path (within window).
+    'top_pages', (select coalesce(jsonb_agg(jsonb_build_object(
+                    'site', site, 'path', path, 'pageviews', c) order by c desc), '[]')
+                  from (select site, path, count(*) c from web_events
+                        where kind = 'pageview' and path is not null and ts >= since
+                        group by site, path order by c desc limit 100) t),
 
     -- Top tools used, per site (within window).
     'per_tool', (select coalesce(jsonb_agg(jsonb_build_object(
