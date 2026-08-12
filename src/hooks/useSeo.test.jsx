@@ -48,6 +48,13 @@ describe('useSeo', () => {
     unmount();
   });
 
+  it('sets a robots meta only when provided, and cleans it up', () => {
+    const { unmount } = renderHook(() => useSeo({ title: 'T', robots: 'noindex, follow' }));
+    expect(metaContent('name', 'robots')).toBe('noindex, follow');
+    unmount();
+    expect(metaContent('name', 'robots')).toBeUndefined();
+  });
+
   it('adds article metadata for the article type', () => {
     const { unmount } = renderHook(() =>
       useSeo({

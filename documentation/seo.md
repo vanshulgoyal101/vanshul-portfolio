@@ -31,6 +31,7 @@ runs SEO generators around the Vite build:
 | `scripts/generate-og-images.mjs` | `public/og/<slug>.png` | Per-post Open Graph images (rendered with `sharp`; needs Node ≥ 20.9). |
 | `scripts/generate-feed.mjs` | `public/feed.xml` | RSS 2.0 feed of blog posts, linked from `index.html` via `<link rel="alternate" type="application/rss+xml">`. |
 | `scripts/prerender-blog.mjs` | `dist/blog/<slug>/index.html` | Static, crawlable shells per post: full meta + JSON-LD injected into the built template. |
+| `scripts/gen-sitemap-index.mjs` | `dist/sitemap-index.xml` | Master sitemap index referencing every sitemap in the vanshul.com family (edit `sitemap-sites.json`). Runs in `postbuild`; XML shape in `scripts/lib/sitemapIndex.mjs` (unit-tested). Submit this one URL to Search Console. |
 
 `scripts/generate-icons.mjs` regenerates the favicon/app-icon PNG set from
 `public/favicon.svg`.
@@ -52,6 +53,10 @@ in `scripts/lib/seo.test.js`), so the three generators can't drift apart.
 ## Static SEO files
 
 - **`public/robots.txt`** — allows crawling and points at `sitemap.xml`.
+- **Unknown routes** render a real `NotFound` page (`src/pages/NotFound.jsx`) that
+  sets `robots: noindex, follow` via `useSeo` and offers recovery links, so soft-404s
+  aren't indexed. The private `/dashboard` is likewise `noindex, nofollow`, unlinked
+  and absent from the sitemap.
 - **`public/404.html`** — SPA fallback so deep links resolve on GitHub Pages
   (see [deployment.md](deployment.md)).
 - **`index.html`** — base meta plus the RSS `<link rel="alternate">`.

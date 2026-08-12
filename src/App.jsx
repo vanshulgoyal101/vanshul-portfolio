@@ -14,6 +14,7 @@ import { ToastProvider } from './components/Toast';
 import BackgroundElements from './components/BackgroundElements';
 import BlogPost from './pages/BlogPost';
 import ReadingListPage from './pages/ReadingList';
+import NotFound from './pages/NotFound';
 import BlogIndex from './pages/BlogIndex';
 import CursorToggle from './components/CursorToggle';
 
@@ -302,6 +303,9 @@ function App() {
                 </Suspense>
               }
             />
+
+            {/* Catch-all: friendly, noindex 404 */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </AppWrapper>
       </ToastProvider>

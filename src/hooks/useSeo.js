@@ -49,6 +49,7 @@ const upsertLink = (rel, href) => {
  * @param {string} [opts.image] - Absolute Open Graph image URL
  * @param {string} [opts.type]  - Open Graph type ('website' | 'article')
  * @param {string} [opts.jsonLd] - Pre-serialized JSON-LD string
+ * @param {string} [opts.robots] - Robots directive (e.g. 'noindex, nofollow')
  * @param {Object} [opts.article] - Article OG metadata (used when type==='article')
  * @param {string} [opts.article.publishedTime] - ISO 8601 publish date
  * @param {string} [opts.article.modifiedTime]  - ISO 8601 last-modified date
@@ -62,6 +63,7 @@ export const useSeo = ({
   image = DEFAULT_IMAGE,
   type = 'website',
   jsonLd,
+  robots,
   article,
 } = {}) => {
   useEffect(() => {
@@ -88,6 +90,8 @@ export const useSeo = ({
     cleanups.push(upsertMeta('name', 'twitter:image', image));
     cleanups.push(upsertLink('canonical', url));
 
+    if (robots) cleanups.push(upsertMeta('name', 'robots', robots));
+
     if (type === 'article' && article) {
       if (article.publishedTime)
         cleanups.push(upsertMeta('property', 'article:published_time', article.publishedTime));
@@ -112,7 +116,7 @@ export const useSeo = ({
       cleanups.forEach((fn) => fn());
       if (script) script.remove();
     };
-  }, [title, description, path, image, type, jsonLd, article]);
+  }, [title, description, path, image, type, jsonLd, robots, article]);
 };
 
 export default useSeo;
