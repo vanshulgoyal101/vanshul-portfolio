@@ -3,20 +3,18 @@
 // references every sitemap in the vanshul.com family. Submit THIS file to
 // Google Search Console once (https://vanshul.com/sitemap-index.xml) and Google
 // discovers all the individual site sitemaps from it. Edit sitemap-sites.json
-// to add or remove sites.
-
+// to add or remove sites. The XML shape lives in lib/sitemapIndex.mjs (pure +
+// unit-tested); this file just does I/O.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { buildSitemapIndex } from './lib/sitemapIndex.mjs';
 
-const sites = JSON.parse(readFileSync('sitemap-sites.json', 'utf8'));
-const today = new Date().toISOString().slice(0, 10);
-const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sites.map((loc) => `  <sitemap>
-    <loc>${loc}</loc>
-    <lastmod>${today}</lastmod>
-  </sitemap>`).join('\n')}
-</sitemapindex>
-`;
-if (!existsSync('dist')) mkdirSync('dist', { recursive: true });
-writeFileSync('dist/sitemap-index.xml', xml);
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const sites = JSON.parse(readFileSync(join(root, 'sitemap-sites.json'), 'utf8'));
+const xml = buildSitemapIndex(sites, { today: new Date().toISOString().slice(0, 10) });
+
+const distDir = join(root, 'dist');
+if (!existsSync(distDir)) mkdirSync(distDir, { recursive: true });
+writeFileSync(join(distDir, 'sitemap-index.xml'), xml);
 console.log(`\u2713 wrote dist/sitemap-index.xml with ${sites.length} sitemaps`);
