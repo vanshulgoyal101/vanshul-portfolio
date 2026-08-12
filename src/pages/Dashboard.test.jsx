@@ -106,7 +106,8 @@ describe('Dashboard', () => {
     const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
 
     render(<Dashboard />);
-    await waitFor(() => expect(screen.getByText('Export CSV')).toBeInTheDocument());
+    // Wait for the stats to load — the Export button is disabled until then.
+    await waitFor(() => expect(screen.getByText('Pageviews by site')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Export CSV'));
 
     expect(createURL).toHaveBeenCalledTimes(1);
