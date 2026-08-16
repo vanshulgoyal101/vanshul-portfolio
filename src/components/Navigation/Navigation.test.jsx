@@ -18,6 +18,19 @@ describe('Navigation', () => {
     });
   });
 
+  it('exposes each section as a focusable in-page anchor', () => {
+    renderNav();
+    expect(screen.getByText('About').closest('a')).toHaveAttribute('href', '#about');
+    expect(screen.getByText('Contact').closest('a')).toHaveAttribute('href', '#contact');
+  });
+
+  it('marks the active section with aria-current', () => {
+    renderNav();
+    // Home is the default active section on first render.
+    expect(screen.getByText('Home').closest('a')).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByText('About').closest('a')).not.toHaveAttribute('aria-current');
+  });
+
   it('renders a mobile menu toggle button', () => {
     const { container } = renderNav();
     expect(

@@ -420,8 +420,10 @@ const Navigation = ({ scrollToSection }) => {
                 custom={index}
               >
                 <NavLink
+                  href={`#${item.id}`}
                   onClick={(e) => handleNavClick(e, item.id)}
                   className={effectiveSection === item.id ? 'active' : ''}
+                  aria-current={effectiveSection === item.id ? 'true' : undefined}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.92 }}
                 >
