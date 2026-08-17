@@ -108,6 +108,17 @@ const Section = styled.section`
   h2 { font-size: var(--text-xl); margin: 0 0 var(--spacing-md); }
 `;
 
+// Link out to the arcade's own, richer stats dashboard (games.vanshul.com/stats).
+const ArcadeLink = styled.a`
+  display: inline-block;
+  margin-top: var(--spacing-sm);
+  color: var(--color-accent-primary);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+`;
+
 const Row = styled.div`
   display: flex;
   align-items: center;
@@ -425,6 +436,9 @@ const Dashboard = () => {
               <Card><div className="n">{formatNumber(stats.arcade?.total_plays ?? 0)}</div><div className="l">Game plays · all-time</div></Card>
               <Card><div className="n">{formatNumber(stats.arcade?.total_visits ?? 0)}</div><div className="l">Arcade visits · all-time</div></Card>
             </Cards>
+            <ArcadeLink href={`${SOCIAL_LINKS.games}/stats/`} target="_blank" rel="noopener noreferrer">
+              Open the full arcade dashboard ↗
+            </ArcadeLink>
           </Section>
           <BarList title="Plays per game" bars={derived.perGame} empty="No game plays in this range." />
 

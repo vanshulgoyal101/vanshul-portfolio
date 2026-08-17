@@ -170,7 +170,8 @@ server-side RPC guard.
 - **Arcade section**: summary cards for game plays (current range + all-time) and
   all-time arcade visits (from `web_stats().arcade`), above the per-game breakdown.
   Shows `0` (not "absent") when the games log is empty, so it's clear whether
-  there's no data vs. no plays in the selected window.
+  there's no data vs. no plays in the selected window. Links out to the arcade's
+  own richer stats dashboard at `games.vanshul.com/stats/`.
 - **Charts**: hour-of-day and daily pageview histograms.
 - **CSV export** of the current stats (`statsToCsv` → downloaded file).
 

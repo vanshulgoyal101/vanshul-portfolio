@@ -81,6 +81,10 @@ describe('Dashboard', () => {
     expect(screen.getByText('Game plays · all-time')).toBeInTheDocument();
     expect(screen.getByText('Arcade visits · all-time')).toBeInTheDocument();
     expect(screen.getByText('400')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /full arcade dashboard/i })).toHaveAttribute(
+      'href',
+      'https://games.vanshul.com/stats/'
+    );
     // Period-over-period delta on the range card: 500 vs 400 = +25%.
     expect(screen.getByText(/25%/)).toBeInTheDocument();
   });
