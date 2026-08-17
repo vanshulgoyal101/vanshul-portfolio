@@ -416,7 +416,17 @@ const Dashboard = () => {
           <BarList title="Top tools used" bars={derived.perTool} empty="No tool usage yet." />
           <BarList title="Top outbound links" bars={derived.perLink} empty="No link clicks yet." />
           <BarList title="Top referrers" bars={derived.referrers} empty="No referrers yet." />
-          <BarList title="Plays per game" bars={derived.perGame} empty="No game plays yet." />
+
+          {/* Arcade / games — surface the totals the RPC returns, not just the breakdown. */}
+          <Section>
+            <h2>🎮 Arcade</h2>
+            <Cards>
+              <Card><div className="n">{formatNumber(stats.arcade?.range_plays ?? 0)}</div><div className="l">Game plays · range</div></Card>
+              <Card><div className="n">{formatNumber(stats.arcade?.total_plays ?? 0)}</div><div className="l">Game plays · all-time</div></Card>
+              <Card><div className="n">{formatNumber(stats.arcade?.total_visits ?? 0)}</div><div className="l">Arcade visits · all-time</div></Card>
+            </Cards>
+          </Section>
+          <BarList title="Plays per game" bars={derived.perGame} empty="No game plays in this range." />
 
           <Section>
             <h2>Pageviews by hour (IST)</h2>

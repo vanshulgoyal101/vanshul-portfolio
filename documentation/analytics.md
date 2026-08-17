@@ -167,6 +167,10 @@ server-side RPC guard.
   equal-length window; shows "new" when there's no prior baseline).
 - **Breakdowns**: pageviews by site, top pages, top tools, top outbound links,
   top referrers, plays per game.
+- **Arcade section**: summary cards for game plays (current range + all-time) and
+  all-time arcade visits (from `web_stats().arcade`), above the per-game breakdown.
+  Shows `0` (not "absent") when the games log is empty, so it's clear whether
+  there's no data vs. no plays in the selected window.
 - **Charts**: hour-of-day and daily pageview histograms.
 - **CSV export** of the current stats (`statsToCsv` → downloaded file).
 

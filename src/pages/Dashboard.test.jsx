@@ -76,6 +76,11 @@ describe('Dashboard', () => {
     expect(screen.getByText('Top pages')).toBeInTheDocument();
     expect(screen.getByText('Top tools used')).toBeInTheDocument();
     expect(screen.getByText('Plays per game')).toBeInTheDocument();
+    // Arcade totals surfaced as cards (not just the per-game breakdown).
+    expect(screen.getByText('🎮 Arcade')).toBeInTheDocument();
+    expect(screen.getByText('Game plays · all-time')).toBeInTheDocument();
+    expect(screen.getByText('Arcade visits · all-time')).toBeInTheDocument();
+    expect(screen.getByText('400')).toBeInTheDocument();
     // Period-over-period delta on the range card: 500 vs 400 = +25%.
     expect(screen.getByText(/25%/)).toBeInTheDocument();
   });

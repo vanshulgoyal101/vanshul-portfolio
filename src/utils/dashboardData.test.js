@@ -114,7 +114,7 @@ describe('statsToCsv', () => {
     per_tool: [{ site: 'tools', name: 'jwt', uses: 42 }],
     per_link: [{ name: 'https://games.vanshul.com/', site: 'links', clicks: 10 }],
     top_referrers: [{ referrer: 'google.com', count: 50 }],
-    arcade: { per_game: [{ game: 'wordle', plays: 20 }] },
+    arcade: { total_visits: 5, total_plays: 400, range_plays: 40, per_game: [{ game: 'wordle', plays: 20 }] },
   };
 
   it('produces a header and one row per metric and breakdown entry', () => {
@@ -127,6 +127,9 @@ describe('statsToCsv', () => {
     expect(csv).toContain('tool,tools/jwt,42');
     expect(csv).toContain('referrer,google.com,50');
     expect(csv).toContain('game,wordle,20');
+    expect(csv).toContain('arcade,total_plays,400');
+    expect(csv).toContain('arcade,total_visits,5');
+    expect(csv).toContain('arcade,range_plays,40');
   });
 
   it('escapes values containing commas or quotes', () => {

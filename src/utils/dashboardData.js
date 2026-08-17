@@ -105,6 +105,14 @@ export const statsToCsv = (stats) => {
     for (const r of arr || []) rows.push([section, label(r), value(r)]);
   }
 
+  // Arcade totals (nested under stats.arcade) — the per-game breakdown is
+  // already emitted above via the 'game' list.
+  if (stats.arcade && typeof stats.arcade === 'object') {
+    for (const key of ['total_visits', 'total_plays', 'range_plays']) {
+      if (stats.arcade[key] != null) rows.push(['arcade', key, stats.arcade[key]]);
+    }
+  }
+
   return rows.map((cols) => cols.map(esc).join(',')).join('\n');
 };
 
