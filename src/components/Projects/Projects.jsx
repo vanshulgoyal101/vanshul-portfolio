@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaRocket, FaExternalLinkAlt, FaCode } from 'react-icons/fa';
+import { FaRocket, FaExternalLinkAlt, FaCode, FaGithub } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
 
@@ -220,11 +220,188 @@ const ProjectLink = styled.a`
   }
 `;
 
+/* ── "More projects" compact tier ── */
+
+const MoreProjects = styled.div`
+  margin-top: var(--spacing-2xl);
+`;
+
+const MoreHeader = styled(motion.div)`
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+`;
+
+const MoreTitle = styled.h3`
+  font-size: var(--text-2xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+
+  @media (max-width: 768px) {
+    font-size: var(--text-xl);
+  }
+`;
+
+const MoreSubtitle = styled.p`
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+`;
+
+const CategoryGroup = styled.div`
+  margin-top: var(--spacing-lg);
+`;
+
+const CategoryLabel = styled.h4`
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-accent-primary);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+`;
+
+const CompactGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+`;
+
+const CompactCard = styled(motion.div)`
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    border-color: rgba(29, 78, 216, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(29, 78, 216, 0.06);
+  }
+`;
+
+const CompactTop = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+`;
+
+const CompactEmoji = styled.span`
+  font-size: 1.3rem;
+  line-height: 1;
+`;
+
+const CompactName = styled.h5`
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  margin: 0;
+  flex: 1;
+`;
+
+const LiveDot = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--text-xs);
+  color: #22c55e;
+  font-weight: 500;
+
+  &::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+  }
+`;
+
+const CompactDesc = styled.p`
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  margin: 0;
+`;
+
+const TagRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: var(--spacing-xs);
+`;
+
+const Tag = styled.span`
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-family: ${(p) => (p.$mono ? 'var(--font-mono, ui-monospace, monospace)' : 'inherit')};
+`;
+
+const CompactLinks = styled.div`
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xs);
+`;
+
+const IconLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--text-xs);
+  color: var(--color-accent-primary);
+  font-weight: 500;
+  min-height: 36px;
+
+  svg { transition: transform 0.2s ease; }
+
+  &:hover {
+    text-decoration: underline;
+    svg { transform: translateX(3px); }
+  }
+`;
+
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const projects = [
   {
     id: 1,
+    title: 'AdBrain',
+    role: 'Founder & Solo Developer',
+    description: 'An AI ad-creative generator and manager for local businesses — fill a "brand brain", set a goal, and get on-brand ad variants (image + copy) ready to launch on Meta. Built as a real product, with a live solar business as customer zero.',
+    image: '/images/projects/adbrain.webp',
+    fallbackIcon: '🎯',
+    stats: [
+      { icon: <FaRocket />, text: 'Live SaaS · adbrain.vanshul.com' },
+      { icon: <FaCode />, text: 'Next.js 16 · React 19 · Supabase' },
+    ],
+    link: 'https://adbrain.vanshul.com',
+  },
+  {
+    id: 2,
+    title: 'Tiny Arcade — 11 Browser Games',
+    role: 'Solo Developer',
+    description: 'Eleven instant-play browser games — reflex, memory, typing, mental maths, ear training, Wordle and more — built in TypeScript + Vite with a shared model/view architecture, cloud leaderboards and full SEO. No frameworks, no backend.',
+    image: '/images/projects/tiny-arcade.webp',
+    fallbackIcon: '🎮',
+    stats: [
+      { icon: <FaRocket />, text: '11 instant-play games' },
+      { icon: <FaCode />, text: 'TypeScript + Vite' },
+    ],
+    link: 'https://games.vanshul.com',
+  },
+  {
+    id: 3,
     title: 'NASA Human Exploration Rover Challenge',
     role: 'Team Lead',
     description: 'Led a team of 6 to design and manufacture a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking and engaged 12,000+ students in STEM activities.',
@@ -236,31 +413,46 @@ const projects = [
     ],
     link: 'https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge/',
   },
+];
+
+// Compact second tier — grouped so breadth shows without clutter.
+const moreProjects = [
   {
-    id: 2,
-    title: 'NASA Space Apps Collective',
-    role: 'Global Community Member',
-    description: 'Selected among 30 global space leaders. Developed weather visualisation tools for Zimbabwean farmers using open-source NASA data.',
-    image: '/images/projects/spaceapps.webp',
-    fallbackIcon: '🌍',
-    stats: [
-      { icon: <MdGroups />, text: 'Diverse global team' },
-      { icon: <FaRocket />, text: "NASA open-source data" },
+    category: 'Live products & tools',
+    items: [
+      { emoji: '☀️', title: 'Solaride', desc: 'A rooftop-solar business site with a savings calculator, lead capture and full local SEO — a real business I help run.', tags: ['Business', 'SEO'], live: 'https://solaride.in' },
+      { emoji: '🧩', title: 'ctx', desc: 'An MCP server that turns any GitHub repo into agent-ready context — pack or search a whole repo for the lines that matter.', tags: ['MCP', 'Cloudflare'], live: 'https://ctx.vanshul.com', repo: 'https://github.com/vanshulgoyal101/ctx' },
+      { emoji: '📖', title: 'mcp', desc: 'An MCP server that reads the live web as clean Markdown for AI agents.', tags: ['MCP', 'Cloudflare'], live: 'https://mcp.vanshul.com', repo: 'https://github.com/vanshulgoyal101/mcp' },
+      { emoji: '🧰', title: 'Dev Tools', desc: 'A privacy-first, offline developer toolbox — 19 utilities plus a Smart Paste box, all in the browser.', tags: ['PWA', 'Offline'], live: 'https://tools.vanshul.com', repo: 'https://github.com/vanshulgoyal101/tools' },
     ],
-    link: 'https://www.spaceappschallenge.org/collective/',
   },
   {
-    id: 3,
-    title: 'Tiny Arcade — 9 Browser Games',
-    role: 'Solo Developer',
-    description: 'Nine instant-play browser games — reflex, memory, typing, mental maths, ear training and more — built in TypeScript + Vite with a shared model/view architecture and full SEO. No frameworks, no backend.',
-    image: '/images/projects/tiny-arcade.webp',
-    fallbackIcon: '🎮',
-    stats: [
-      { icon: <FaRocket />, text: '9 instant-play games' },
-      { icon: <FaCode />, text: 'TypeScript + Vite' },
+    category: 'Open source & packages',
+    items: [
+      { emoji: '🧠', title: 'SemCache', desc: 'A zero-cost, tiered semantic cache for LLMs using local ONNX embeddings — sub-30ms matches at $0.', tags: ['npm i semcache'], repo: 'https://github.com/vanshulgoyal101/semCache' },
+      { emoji: '🔐', title: 'Agent Vault', desc: "A cryptographic policy firewall that vets an AI DeFi agent's transactions before signing.", tags: ['pip install agent-vault-py'], repo: 'https://github.com/vanshulgoyal101/agent-vault' },
+      { emoji: '📬', title: 'Agent Mailroom', desc: 'Machine-to-machine identity and micro-payments for AI agents — DIDs and off-chain channels.', tags: ['pip install agent-mailroom'], repo: 'https://github.com/vanshulgoyal101/agent-mailroom' },
+      { emoji: '🛠️', title: 'depshift', desc: 'Detects breaking API changes between Python package versions and auto-suggests migration patches.', tags: ['pip install depshift'], repo: 'https://github.com/vanshulgoyal101/autopatch' },
+      { emoji: '👁️', title: 'AgentWatch', desc: 'Local-first observability and step-by-step trace replay for multi-agent LLM systems.', tags: ['Python', 'SQLite'], repo: 'https://github.com/vanshulgoyal101/agentwatch' },
+      { emoji: '🧱', title: 'Lego', desc: 'Zero-dependency, copy-paste code blocks — 327 crash-proof components across 23 categories.', tags: ['CLI', 'Zero-dep'], repo: 'https://github.com/vanshulgoyal101/lego' },
+      { emoji: '🤖', title: 'Agent Team', desc: 'An autonomous AI software-engineering team that plans, writes and tests code from GitHub Actions.', tags: ['Agents', 'CI'], repo: 'https://github.com/vanshulgoyal101/agent-team' },
     ],
-    link: 'https://games.vanshul.com',
+  },
+  {
+    category: 'Interactive experiments',
+    items: [
+      { emoji: '⚖️', title: 'The Dialectic', desc: 'Two AI personas debate any topic while a live D3 graph maps their concepts and where they clash.', tags: ['React', 'D3', 'Gemini'], repo: 'https://github.com/vanshulgoyal101/the-dialectic' },
+      { emoji: '🌌', title: 'Cosmic Zoom', desc: 'A "powers of ten" physics sandbox — zoom across 44 orders of magnitude with real Matter.js physics.', tags: ['React', 'Matter.js'], repo: 'https://github.com/vanshulgoyal101/cosmic-zoom' },
+      { emoji: '📑', title: 'Lexis', desc: 'Typography and readability analytics for long-form Markdown — Flesch, Kincaid and Gunning Fog scoring.', tags: ['React', 'TypeScript'], repo: 'https://github.com/vanshulgoyal101/lexis' },
+      { emoji: '🗄️', title: 'Memova', desc: 'Ask multiple databases questions in plain English via Gemini. FastAPI + React.', tags: ['FastAPI', 'React'], repo: 'https://github.com/vanshulgoyal101/memova' },
+    ],
+  },
+  {
+    category: 'Space & earlier',
+    items: [
+      { emoji: '🌍', title: 'NASA Space Apps Collective', desc: 'Selected among 30 global space leaders; built weather-visualisation tools for Zimbabwean farmers from open NASA data.', tags: ['NASA', 'Data'], live: 'https://www.spaceappschallenge.org/collective/' },
+      { emoji: '🖥️', title: 'GoRemote', desc: 'My B.Tech major project — a virtual-office platform for remote teams (Phaser, React, Redux, PeerJS, Colyseus).', tags: ['MERN', 'Phaser'], repo: 'https://github.com/vanshulgoyal101/GoRemote' },
+    ],
   },
 ];
 
@@ -360,6 +552,64 @@ const Projects = () => {
             </ProjectCard>
           ))}
         </ProjectsGrid>
+
+        <MoreProjects>
+          <MoreHeader
+            variants={headerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15 }}
+          >
+            <MoreTitle>More things I&apos;ve built</MoreTitle>
+            <MoreSubtitle>Live products, open-source packages and interactive experiments.</MoreSubtitle>
+          </MoreHeader>
+
+          {moreProjects.map((group) => (
+            <CategoryGroup key={group.category}>
+              <CategoryLabel>{group.category}</CategoryLabel>
+              <CompactGrid>
+                {group.items.map((item, i) => (
+                  <CompactCard
+                    key={item.title}
+                    custom={i}
+                    variants={cardVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.1 }}
+                  >
+                    <CompactTop>
+                      <CompactEmoji aria-hidden="true">{item.emoji}</CompactEmoji>
+                      <CompactName>{item.title}</CompactName>
+                      {item.live && <LiveDot>Live</LiveDot>}
+                    </CompactTop>
+                    <CompactDesc>{item.desc}</CompactDesc>
+                    {item.tags && item.tags.length > 0 && (
+                      <TagRow>
+                        {item.tags.map((t) => (
+                          <Tag key={t} $mono={/\s|install/.test(t)}>{t}</Tag>
+                        ))}
+                      </TagRow>
+                    )}
+                    {(item.live || item.repo) && (
+                      <CompactLinks>
+                        {item.live && (
+                          <IconLink href={item.live} target="_blank" rel="noopener noreferrer">
+                            Visit <FaExternalLinkAlt size={10} />
+                          </IconLink>
+                        )}
+                        {item.repo && (
+                          <IconLink href={item.repo} target="_blank" rel="noopener noreferrer">
+                            <FaGithub size={13} /> Code
+                          </IconLink>
+                        )}
+                      </CompactLinks>
+                    )}
+                  </CompactCard>
+                ))}
+              </CompactGrid>
+            </CategoryGroup>
+          ))}
+        </MoreProjects>
       </Container>
     </ProjectsSection>
   );
