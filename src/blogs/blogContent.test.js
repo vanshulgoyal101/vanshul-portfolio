@@ -47,4 +47,27 @@ describe('blog content integrity', () => {
       expect(post.slug).toBe(post.filename);
     }
   });
+
+  // The rendered post title is the page <h1>, so in-body headings start at h2
+  // and must not skip a level (h2 -> h4). Going back up (h3 -> h2) is fine.
+  it('never skips a heading level in any post (WCAG heading order)', () => {
+    const headingLevels = (md) =>
+      md
+        .replace(/```[\s\S]*?```/g, '') // ignore fenced code blocks
+        .split('\n')
+        .map((line) => line.match(/^(#{1,6})\s+\S/))
+        .filter(Boolean)
+        .map((m) => m[1].length);
+
+    for (const post of posts) {
+      let prev = 1; // the page <h1> (post title)
+      for (const level of headingLevels(post.content)) {
+        expect(
+          level <= prev + 1,
+          `${post.filename}: h${level} skips a level after h${prev}`
+        ).toBe(true);
+        prev = level;
+      }
+    }
+  });
 });
