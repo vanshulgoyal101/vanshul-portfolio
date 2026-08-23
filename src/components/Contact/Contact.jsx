@@ -311,7 +311,7 @@ const ValidationError = styled.p`
 `;
 
 const Contact = () => {
-  const { formState, isSubmitting, emailError, handleChange, handleSubmit } = useContactForm();
+  const { formState, isSubmitting, errors, handleChange, handleSubmit } = useContactForm();
 
   const contactInfo = [
     {
@@ -426,7 +426,11 @@ const socialLinks = [
                   placeholder="John Doe"
                   required
                   disabled={isSubmitting}
+                  aria-invalid={errors.name ? 'true' : undefined}
+                  aria-describedby={errors.name ? 'name-error' : undefined}
+                  style={errors.name ? { borderColor: '#ef4444' } : {}}
                 />
+                {errors.name && <ValidationError id="name-error">{errors.name}</ValidationError>}
               </FormGroup>
 
               <FormGroup>
@@ -440,9 +444,11 @@ const socialLinks = [
                   placeholder="john@example.com"
                   required
                   disabled={isSubmitting}
-                  style={emailError ? { borderColor: '#ef4444' } : {}}
+                  aria-invalid={errors.email ? 'true' : undefined}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
+                  style={errors.email ? { borderColor: '#ef4444' } : {}}
                 />
-                {emailError && <ValidationError>{emailError}</ValidationError>}
+                {errors.email && <ValidationError id="email-error">{errors.email}</ValidationError>}
               </FormGroup>
 
               <FormGroup>
@@ -456,7 +462,11 @@ const socialLinks = [
                   rows="5"
                   required
                   disabled={isSubmitting}
+                  aria-invalid={errors.message ? 'true' : undefined}
+                  aria-describedby={errors.message ? 'message-error' : undefined}
+                  style={errors.message ? { borderColor: '#ef4444' } : {}}
                 />
+                {errors.message && <ValidationError id="message-error">{errors.message}</ValidationError>}
               </FormGroup>
 
               <SubmitButton

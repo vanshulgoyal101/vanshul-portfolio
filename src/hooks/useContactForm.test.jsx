@@ -107,10 +107,13 @@ describe('useContactForm', () => {
     const { result } = renderContactForm();
 
     act(() => result.current.handleChange(changeEvent('name', 'Grace')));
+    act(() => result.current.handleChange(changeEvent('email', 'grace@example.com')));
+    act(() => result.current.handleChange(changeEvent('message', 'Hello there')));
     await act(async () => {
       await result.current.handleSubmit({ preventDefault: vi.fn() });
     });
 
+    expect(global.fetch).toHaveBeenCalledOnce();
     expect(result.current.formState.name).toBe('Grace');
   });
 
@@ -118,11 +121,14 @@ describe('useContactForm', () => {
     global.fetch.mockRejectedValueOnce(new Error('network down'));
     const { result } = renderContactForm();
 
+    act(() => result.current.handleChange(changeEvent('name', 'Grace')));
+    act(() => result.current.handleChange(changeEvent('email', 'grace@example.com')));
     act(() => result.current.handleChange(changeEvent('message', 'Hi')));
     await act(async () => {
       await result.current.handleSubmit({ preventDefault: vi.fn() });
     });
 
+    expect(global.fetch).toHaveBeenCalledOnce();
     expect(result.current.isSubmitting).toBe(false);
   });
 
@@ -139,9 +145,43 @@ describe('useContactForm', () => {
   it('resets isSubmitting to false after success', async () => {
     global.fetch.mockResolvedValueOnce({ ok: true });
     const { result } = renderContactForm();
+    act(() => result.current.handleChange(changeEvent('name', 'Grace')));
+    act(() => result.current.handleChange(changeEvent('email', 'grace@example.com')));
+    act(() => result.current.handleChange(changeEvent('message', 'Hi there')));
     await act(async () => {
       await result.current.handleSubmit({ preventDefault: vi.fn() });
     });
     expect(result.current.isSubmitting).toBe(false);
+  });
+
+  it('blocks submit and flags every empty required field', async () => {
+    const { result } = renderContactForm();
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: vi.fn() });
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
+    expect(result.current.errors.name).toBeTruthy();
+    expect(result.current.errors.email).toBeTruthy();
+    expect(result.current.errors.message).toBeTruthy();
+  });
+
+  it('treats whitespace-only fields as empty', async () => {
+    const { result } = renderContactForm();
+    act(() => result.current.handleChange(changeEvent('name', '   ')));
+    act(() => result.current.handleChange(changeEvent('email', 'grace@example.com')));
+    act(() => result.current.handleChange(changeEvent('message', '   ')));
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: vi.fn() });
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
+    expect(result.current.errors.name).toBeTruthy();
+    expect(result.current.errors.message).toBeTruthy();
+  });
+
+  it('exposes emailError as an alias of errors.email', () => {
+    const { result } = renderContactForm();
+    act(() => result.current.handleChange(changeEvent('email', 'bad')));
+    expect(result.current.emailError).toBe(result.current.errors.email);
+    expect(result.current.emailError).toBe('Please enter a valid email address.');
   });
 });
