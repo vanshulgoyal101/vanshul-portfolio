@@ -10,6 +10,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
     css: true,
+    // Rendering full styled-components trees in jsdom routinely takes seconds;
+    // the 5s default flakes on loaded machines.
+    testTimeout: 15000,
     // Keep tests hermetic: force Supabase "unconfigured" so nothing hits the
     // network, regardless of whether a local .env exists.
     env: {

@@ -2,36 +2,45 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+import { magneticOffset } from '../../utils/magnetic';
 
-const Magnetic = ({ children }) => {
+const Magnetic = ({ children, range = 40 }) => {
   const ref = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isSupported, setIsSupported] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
 
   useEffect(() => {
-    // Only enable magnetic effect on devices with hover/fine pointers
-    const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
-    setIsSupported(mediaQuery.matches);
+    const pointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const evaluate = () => setIsEnabled(pointer.matches && !reducedMotion.matches);
+    evaluate();
+
+    pointer.addEventListener('change', evaluate);
+    reducedMotion.addEventListener('change', evaluate);
+    return () => {
+      pointer.removeEventListener('change', evaluate);
+      reducedMotion.removeEventListener('change', evaluate);
+    };
   }, []);
 
   const handleMouseMove = (e) => {
-    if (!isSupported || !ref.current) return;
+    if (!isEnabled || !ref.current) return;
 
-    const { clientX, clientY } = e;
     const { left, top, width, height } = ref.current.getBoundingClientRect();
-    const centerX = left + width / 2;
-    const centerY = top + height / 2;
-    const distanceX = clientX - centerX;
-    const distanceY = clientY - centerY;
-
-    setPosition({ x: distanceX * 0.35, y: distanceY * 0.35 });
+    setPosition(
+      magneticOffset(
+        e.clientX - (left + width / 2),
+        e.clientY - (top + height / 2),
+        range
+      )
+    );
   };
 
   const handleMouseLeave = () => {
     setPosition({ x: 0, y: 0 });
   };
 
-  if (!isSupported) {
+  if (!isEnabled) {
     return <>{children}</>;
   }
 
@@ -41,7 +50,7 @@ const Magnetic = ({ children }) => {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       animate={{ x: position.x, y: position.y }}
-      transition={{ type: 'spring', stiffness: 150, damping: 15, mass: 0.1 }}
+      transition={{ type: 'spring', stiffness: 180, damping: 22, mass: 0.1 }}
       style={{ display: 'inline-block' }}
     >
       {children}
@@ -51,6 +60,7 @@ const Magnetic = ({ children }) => {
 
 Magnetic.propTypes = {
   children: PropTypes.node.isRequired,
+  range: PropTypes.number,
 };
 
 export default Magnetic;

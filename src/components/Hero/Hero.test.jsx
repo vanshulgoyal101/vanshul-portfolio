@@ -7,6 +7,10 @@ vi.mock('./HeroScene', () => ({
   default: () => <div data-testid="hero-scene" />,
 }));
 
+vi.mock('../FunElements/FloatingRocket', () => ({
+  default: () => <div data-testid="floating-rocket" />,
+}));
+
 describe('Hero', () => {
   it('renders the name and the primary calls to action', () => {
     render(<Hero />);
