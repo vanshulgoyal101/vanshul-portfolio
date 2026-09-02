@@ -436,7 +436,7 @@ const moreProjects = [
       { emoji: '👁️', title: 'AgentWatch', desc: 'Local-first observability and step-by-step trace replay for multi-agent LLM systems.', tags: ['Python', 'SQLite'], repo: 'https://github.com/vanshulgoyal101/agentwatch' },
       { emoji: '🧱', title: 'Lego', desc: 'Zero-dependency, copy-paste code blocks — 327 crash-proof components across 23 categories.', tags: ['CLI', 'Zero-dep'], repo: 'https://github.com/vanshulgoyal101/lego' },
       { emoji: '🤖', title: 'Agent Team', desc: 'An autonomous AI software-engineering team that plans, writes and tests code from GitHub Actions.', tags: ['Agents', 'CI'], repo: 'https://github.com/vanshulgoyal101/agent-team' },
-      { emoji: '📚', title: 'vbrain', desc: 'An AI-queryable second-brain engine — turns Markdown notes into full-text search, a knowledge graph and an MCP server for agents. Open engine, private notes.', tags: ['MCP', 'Cloudflare'], repo: 'https://github.com/vanshulgoyal101/vbrain' },
+      { emoji: '📚', title: 'vbrain', desc: 'An AI-queryable second-brain engine — turns Markdown notes into full-text search, a knowledge graph and an MCP server for agents. Open engine, private notes.', tags: ['MCP', 'Cloudflare'], live: 'https://vbrain.vanshul.com', repo: 'https://github.com/vanshulgoyal101/vbrain' },
     ],
   },
   {
