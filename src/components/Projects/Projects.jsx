@@ -389,13 +389,13 @@ const projects = [
   },
   {
     id: 2,
-    title: 'Tiny Arcade — 11 Browser Games',
+    title: 'Tiny Arcade — 10 Browser Games',
     role: 'Solo Developer',
-    description: 'Eleven instant-play browser games — reflex, memory, typing, mental maths, ear training, Wordle and more — built in TypeScript + Vite with a shared model/view architecture, cloud leaderboards and full SEO. No frameworks, no backend.',
+    description: 'Ten instant-play browser games — reflex, memory, typing, mental maths, ear training, Wordle and more — built in TypeScript + Vite with a shared model/view architecture, cloud leaderboards and full SEO. No frameworks, no backend.',
     image: '/images/projects/tiny-arcade.webp',
     fallbackIcon: '🎮',
     stats: [
-      { icon: <FaRocket />, text: '11 instant-play games' },
+      { icon: <FaRocket />, text: '10 instant-play games' },
       { icon: <FaCode />, text: 'TypeScript + Vite' },
     ],
     link: 'https://games.vanshul.com',
@@ -423,7 +423,7 @@ const moreProjects = [
       { emoji: '☀️', title: 'Solaride', desc: 'A rooftop-solar business site with a savings calculator, lead capture and full local SEO — a real business I help run.', tags: ['Business', 'SEO'], live: 'https://solaride.in' },
       { emoji: '🧩', title: 'ctx', desc: 'An MCP server that turns any GitHub repo into agent-ready context — pack or search a whole repo for the lines that matter.', tags: ['MCP', 'Cloudflare'], live: 'https://ctx.vanshul.com', repo: 'https://github.com/vanshulgoyal101/ctx' },
       { emoji: '📖', title: 'mcp', desc: 'An MCP server that reads the live web as clean Markdown for AI agents.', tags: ['MCP', 'Cloudflare'], live: 'https://mcp.vanshul.com', repo: 'https://github.com/vanshulgoyal101/mcp' },
-      { emoji: '🧰', title: 'Dev Tools', desc: 'A privacy-first, offline developer toolbox — 19 utilities plus a Smart Paste box, all in the browser.', tags: ['PWA', 'Offline'], live: 'https://tools.vanshul.com', repo: 'https://github.com/vanshulgoyal101/tools' },
+      { emoji: '🧰', title: 'Dev Tools', desc: 'A privacy-first, offline developer toolbox — 25 utilities plus a Smart Paste box, all in the browser.', tags: ['PWA', 'Offline'], live: 'https://tools.vanshul.com', repo: 'https://github.com/vanshulgoyal101/tools' },
     ],
   },
   {
