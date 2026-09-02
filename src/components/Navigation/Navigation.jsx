@@ -12,17 +12,19 @@ const Nav = styled(motion.nav)`
   left: 0;
   right: 0;
   z-index: var(--z-fixed);
-  transition: 
-    top 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-    left 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-    right 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-    max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-    margin 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-    background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-    border-radius 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-    backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: top, left, right, max-width, margin, background-color, border-color, border-radius, box-shadow, backdrop-filter, transform;
+  transition:
+    top 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    left 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    right 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    max-width 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    margin 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    backdrop-filter 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    -webkit-backdrop-filter 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   background: transparent;
 
   ${({ $scrolled }) => $scrolled && `
@@ -37,7 +39,7 @@ const Nav = styled(motion.nav)`
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     box-shadow: 0 12px 30px rgba(30, 41, 59, 0.06);
-    
+
     @media (max-width: 768px) {
       top: calc(0.5rem + env(safe-area-inset-top, 0px));
       left: 1rem;
@@ -54,8 +56,9 @@ const NavContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  
+  transition: padding 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: padding, transform;
+
   @media (max-width: 768px) {
     padding: ${({ $scrolled }) => $scrolled ? '0.6rem 1.2rem' : 'calc(1rem + env(safe-area-inset-top, 0px)) var(--container-padding) 1rem var(--container-padding)'};
   }
@@ -370,6 +373,11 @@ const Navigation = ({ scrollToSection }) => {
         initial="hidden"
         animate="visible"
         $scrolled={isScrolled}
+        transition={{
+          duration: 0.75,
+          ease: [0.22, 1, 0.36, 1],
+          type: 'tween'
+        }}
       >
         <NavContainer $scrolled={isScrolled}>
           <LogoContainer
