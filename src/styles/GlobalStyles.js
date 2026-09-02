@@ -90,6 +90,7 @@ const GlobalStyles = createGlobalStyle`
   html {
     font-size: 100%; /* Respect user's font size preference */
     scroll-behavior: smooth;
+    scroll-padding-top: clamp(5rem, 8vw, 7rem);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: var(--color-bg-primary);
@@ -211,10 +212,10 @@ const GlobalStyles = createGlobalStyle`
   }
 
   section {
-    scroll-margin-top: 0px;
+    scroll-margin-top: clamp(5rem, 8vw, 7rem);
 
     @media (max-width: 768px) {
-      scroll-margin-top: 40px;
+      scroll-margin-top: 4.5rem;
     }
   }
 
@@ -310,6 +311,10 @@ const GlobalStyles = createGlobalStyle`
 
   /* Media query for reduced motion */
  @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {

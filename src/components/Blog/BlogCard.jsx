@@ -14,9 +14,9 @@ const Card = styled(motion.article)`
   border-radius: 16px;
   padding: var(--spacing-lg);
   cursor: pointer;
-  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   min-height: 320px;
   display: flex;
   flex-direction: column;

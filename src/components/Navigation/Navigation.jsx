@@ -319,7 +319,7 @@ const Navigation = ({ scrollToSection }) => {
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 500);
     }

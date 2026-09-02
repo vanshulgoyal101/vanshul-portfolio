@@ -100,8 +100,7 @@ if (!window.ResizeObserver) {
   globalThis.ResizeObserver = ResizeObserver;
 }
 
-// scrollIntoView / scrollTo are used by navigation and smooth-scroll helpers.
-if (!Element.prototype.scrollIntoView) {
-  Element.prototype.scrollIntoView = vi.fn();
-}
-window.scrollTo = window.scrollTo || vi.fn();
+// jsdom does not implement scrollIntoView / scrollTo; smooth-scroll helpers and
+// route transitions rely on these browser APIs during tests.
+Element.prototype.scrollIntoView = vi.fn();
+window.scrollTo = vi.fn();

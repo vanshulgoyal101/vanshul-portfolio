@@ -53,6 +53,32 @@ describe('Navigation', () => {
     expect(document.body.style.overflow).toBe('');
   });
 
+  describe('scroll offset behaviour', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.runOnlyPendingTimers();
+      vi.useRealTimers();
+    });
+
+    it('scrolls section targets below the fixed header instead of hiding them behind it', () => {
+      const scrollToSection = vi.fn();
+      renderNav(scrollToSection, ['/']);
+
+      act(() => {
+        fireEvent.click(screen.getByText('About'));
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+
+      expect(scrollToSection).toHaveBeenCalledWith('about');
+    });
+  });
+
   describe('link click behaviour on the home page', () => {
     beforeEach(() => {
       vi.useFakeTimers();

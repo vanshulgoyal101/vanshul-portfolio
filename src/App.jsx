@@ -125,7 +125,7 @@ const ScrollToHash = ({ isBooting }) => {
       const element = document.getElementById(id);
       if (element) {
         const timeoutId = setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth' });
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
         return () => clearTimeout(timeoutId);
       }
@@ -164,7 +164,7 @@ function App() {
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
