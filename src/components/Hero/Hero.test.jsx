@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import Hero from './Hero';
 
 // Keep the suite hermetic: the real scene pulls in three.js.
@@ -11,29 +11,36 @@ vi.mock('../FunElements/FloatingRocket', () => ({
   default: () => <div data-testid="floating-rocket" />,
 }));
 
+// The scene and rocket resolve lazily; settle them inside act().
+const renderHero = async () => {
+  const result = render(<Hero />);
+  await act(async () => {});
+  return result;
+};
+
 describe('Hero', () => {
-  it('renders the name and the primary calls to action', () => {
-    render(<Hero />);
+  it('renders the name and the primary calls to action', async () => {
+    await renderHero();
     expect(screen.getByText('Vanshul Goyal')).toBeInTheDocument();
     expect(screen.getByText('Explore My Work')).toBeInTheDocument();
     expect(screen.getByText('Get In Touch')).toBeInTheDocument();
   });
 
-  it('labels every social link for assistive tech', () => {
-    render(<Hero />);
+  it('labels every social link for assistive tech', async () => {
+    await renderHero();
     ['Twitter', 'LinkedIn', 'Instagram', 'GitHub', 'Games'].forEach((label) => {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
     });
   });
 
-  it('points the calls to action at real in-page sections', () => {
-    render(<Hero />);
+  it('points the calls to action at real in-page sections', async () => {
+    await renderHero();
     expect(screen.getByText('Explore My Work').closest('a')).toHaveAttribute('href', '#work');
     expect(screen.getByText('Get In Touch').closest('a')).toHaveAttribute('href', '#contact');
   });
 
   it('mounts the decorative 3D scene when motion is allowed', async () => {
-    render(<Hero />);
+    await renderHero();
     await waitFor(() =>
       expect(screen.getByTestId('hero-scene')).toBeInTheDocument()
     );
@@ -51,7 +58,7 @@ describe('Hero', () => {
       dispatchEvent: vi.fn(),
     }));
 
-    render(<Hero />);
+    await renderHero();
 
     expect(screen.getByText('Vanshul Goyal')).toBeInTheDocument();
     await waitFor(() =>

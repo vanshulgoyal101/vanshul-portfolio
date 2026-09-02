@@ -31,7 +31,10 @@ describe('ToastProvider', () => {
   });
 
   afterEach(() => {
-    vi.runOnlyPendingTimers();
+    // Pending auto-dismiss timers remove toasts, which is a state update.
+    act(() => {
+      vi.runOnlyPendingTimers();
+    });
     vi.useRealTimers();
   });
 
