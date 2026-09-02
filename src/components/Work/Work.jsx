@@ -203,8 +203,8 @@ const experiences = [
     department: 'Airport Operations',
     duration: 'Jul 2025 – Present',
     location: 'Gurugram, India',
-    description: 'Turning operations data into decisions — built a model to predict contact-centre handle time, plus the pipelines and dashboards that put those numbers in front of leadership.',
-    tech: ['Python', 'scikit-learn', 'pandas', 'Power BI', 'Tableau'],
+    description: 'Building internal tools for airport operations — automating ground-staff management and attendance-compliance monitoring across US hub airports, so hub-by-hub manual audits become one consistent source of truth.',
+    tech: ['Python', 'SQL', 'Power BI', 'Tableau'],
     link: 'https://www.united.com',
   },
   {
