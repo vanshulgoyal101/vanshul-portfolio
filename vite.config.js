@@ -36,6 +36,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Vite's dynamic-import preload helper is statically imported by the
+          // entry. If Rollup parks it inside a lazy vendor chunk, that chunk
+          // becomes a first-paint dependency and code-splitting is defeated.
+          if (id.includes('vite/preload-helper')) {
+            return 'vite-preload';
+          }
           // Core React — loads first, kept small
           if (id.includes('react-dom') || id.includes('react-router-dom')) {
             return 'react-vendor';

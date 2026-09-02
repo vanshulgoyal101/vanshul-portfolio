@@ -12,11 +12,13 @@ import Navigation from './components/Navigation/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
 import BackgroundElements from './components/BackgroundElements';
-import BlogPost from './pages/BlogPost';
-import ReadingListPage from './pages/ReadingList';
 import NotFound from './pages/NotFound';
-import BlogIndex from './pages/BlogIndex';
 import CursorToggle from './components/CursorToggle';
+
+// Long-form pages pull in the markdown renderer — keep them off the home bundle.
+const BlogPost = lazy(() => import('./pages/BlogPost'));
+const BlogIndex = lazy(() => import('./pages/BlogIndex'));
+const ReadingListPage = lazy(() => import('./pages/ReadingList'));
 
 // Sections (critical path)
 import Hero from './components/Hero/Hero';
@@ -188,6 +190,7 @@ function App() {
           <IdleBackground />
           <SmokeTransition />
           
+          <Suspense fallback={null}>
           <Routes>
             {/* Main portfolio page */}
             <Route path="/" element={
@@ -307,6 +310,7 @@ function App() {
             {/* Catch-all: friendly, noindex 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </AppWrapper>
       </ToastProvider>
     </Router>

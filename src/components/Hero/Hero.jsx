@@ -1,10 +1,8 @@
 // src/components/Hero/Hero.jsx
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { Canvas } from '@react-three/fiber';
 
-import FloatingShape from './FloatingShape';
 import { FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { IoGameController } from 'react-icons/io5';
@@ -12,6 +10,7 @@ import { HiChevronDown } from 'react-icons/hi';
 import Magnetic from '../FunElements/Magnetic';
 
 const FloatingRocket = lazy(() => import('../FunElements/FloatingRocket'));
+const HeroScene = lazy(() => import('./HeroScene'));
 
 // Styled Components
 const HeroSection = styled.section`
@@ -299,8 +298,26 @@ const ScrollText = styled.span`
   font-family: var(--font-mono);
 `;
 
+const ScenePlaceholder = () => (
+  <LoadingContainer>
+    <svg width="80" height="80" viewBox="0 0 80 80" style={{ opacity: 0.25 }} aria-hidden="true">
+      <circle cx="40" cy="40" r="30" fill="none" stroke="#1d4ed8" strokeWidth="1" strokeDasharray="6 4" />
+      <circle cx="40" cy="40" r="18" fill="none" stroke="#3b82f6" strokeWidth="0.8" />
+      <polygon points="40,20 55,50 25,50" fill="none" stroke="#1d4ed8" strokeWidth="0.8" />
+    </svg>
+  </LoadingContainer>
+);
+
 // Hero Component
 const Hero = () => {
+  // The 3D scene is purely decorative: skip it entirely for reduced-motion users
+  // so they never pay to download three.js.
+  const [sceneEnabled, setSceneEnabled] = useState(false);
+
+  useEffect(() => {
+    setSceneEnabled(!window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }, []);
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -439,23 +456,13 @@ const Hero = () => {
         </HeroContent>
 
         <CanvasContainer>
-          <Suspense fallback={
-            <LoadingContainer>
-              <svg width="80" height="80" viewBox="0 0 80 80" style={{ opacity: 0.25 }}>
-                <circle cx="40" cy="40" r="30" fill="none" stroke="#1d4ed8" strokeWidth="1" strokeDasharray="6 4" />
-                <circle cx="40" cy="40" r="18" fill="none" stroke="#3b82f6" strokeWidth="0.8" />
-                <polygon points="40,20 55,50 25,50" fill="none" stroke="#1d4ed8" strokeWidth="0.8" />
-              </svg>
-            </LoadingContainer>
-          }>
-            <Canvas
-              camera={{ position: [0, 0, 6], fov: 55 }}
-              gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-              dpr={Math.min(window.devicePixelRatio, 1.5)}
-            >
-              <FloatingShape />
-            </Canvas>
-          </Suspense>
+          {sceneEnabled ? (
+            <Suspense fallback={<ScenePlaceholder />}>
+              <HeroScene />
+            </Suspense>
+          ) : (
+            <ScenePlaceholder />
+          )}
         </CanvasContainer>
       </HeroContainer>
 
