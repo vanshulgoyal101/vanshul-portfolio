@@ -13,18 +13,19 @@ const Nav = styled(motion.nav)`
   right: 0;
   z-index: var(--z-fixed);
   will-change: top, left, right, max-width, margin, background-color, border-color, border-radius, box-shadow, backdrop-filter, transform;
+  transform: translate3d(0, 0, 0);
   transition:
-    top 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    left 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    right 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    max-width 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    margin 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    background-color 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    border-radius 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    backdrop-filter 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    -webkit-backdrop-filter 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    top 1s cubic-bezier(0.19, 1, 0.22, 1),
+    left 1s cubic-bezier(0.19, 1, 0.22, 1),
+    right 1s cubic-bezier(0.19, 1, 0.22, 1),
+    max-width 1s cubic-bezier(0.19, 1, 0.22, 1),
+    margin 1s cubic-bezier(0.19, 1, 0.22, 1),
+    background-color 1s cubic-bezier(0.19, 1, 0.22, 1),
+    border-color 1s cubic-bezier(0.19, 1, 0.22, 1),
+    border-radius 1s cubic-bezier(0.19, 1, 0.22, 1),
+    box-shadow 1s cubic-bezier(0.19, 1, 0.22, 1),
+    backdrop-filter 1s cubic-bezier(0.19, 1, 0.22, 1),
+    -webkit-backdrop-filter 1s cubic-bezier(0.19, 1, 0.22, 1);
   background: transparent;
 
   ${({ $scrolled }) => $scrolled && `
@@ -56,7 +57,7 @@ const NavContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: padding 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: padding 1s cubic-bezier(0.19, 1, 0.22, 1), transform 1s cubic-bezier(0.19, 1, 0.22, 1);
   will-change: padding, transform;
 
   @media (max-width: 768px) {
