@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaRocket, FaExternalLinkAlt, FaCode, FaGithub } from 'react-icons/fa';
+import { FaRocket, FaExternalLinkAlt, FaCode, FaGithub, FaBullseye, FaSun, FaPuzzlePiece, FaBookOpen, FaTools, FaBrain, FaLock, FaEnvelope, FaWrench, FaEye, FaCube, FaRobot, FaBalanceScale, FaGlobeAmericas, FaDesktop, FaFileAlt, FaDatabase } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
+import { IoGameController } from 'react-icons/io5';
 
 // ─── Styled Components ────────────────────────────────────────────────────────
 
@@ -293,9 +294,22 @@ const CompactTop = styled.div`
   gap: var(--spacing-sm);
 `;
 
-const CompactEmoji = styled.span`
-  font-size: 1.3rem;
-  line-height: 1;
+const CompactIcon = styled.span`
+  width: 2.35rem;
+  height: 2.35rem;
+  flex: 0 0 2.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: ${(p) => p.$color};
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid ${(p) => p.$color};
+  border-radius: 10px;
+
+  svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
 `;
 
 const CompactName = styled.h5`
@@ -380,7 +394,7 @@ const projects = [
     role: 'Founder & Solo Developer',
     description: 'An AI ad-creative generator and manager for local businesses — fill a "brand brain", set a goal, and get on-brand ad variants (image + copy) ready to launch on Meta. Built as a real product, with a live solar business as customer zero.',
     image: '/images/projects/adbrain.webp',
-    fallbackIcon: '🎯',
+    fallbackIcon: <FaBullseye />,
     stats: [
       { icon: <FaRocket />, text: 'Live SaaS · adbrain.vanshul.com' },
       { icon: <FaCode />, text: 'Next.js 16 · React 19 · Supabase' },
@@ -393,7 +407,7 @@ const projects = [
     role: 'Solo Developer',
     description: 'Ten instant-play browser games — reflex, memory, typing, mental maths, ear training, Wordle and more — built in TypeScript + Vite with a shared model/view architecture, cloud leaderboards and full SEO. No frameworks, no backend.',
     image: '/images/projects/tiny-arcade.webp',
-    fallbackIcon: '🎮',
+    fallbackIcon: <IoGameController />,
     stats: [
       { icon: <FaRocket />, text: '10 instant-play games' },
       { icon: <FaCode />, text: 'TypeScript + Vite' },
@@ -406,7 +420,7 @@ const projects = [
     role: 'Team Lead',
     description: 'Led a team of 6 to design and manufacture a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking and engaged 12,000+ students in STEM activities.',
     image: '/images/projects/nasa-herc.webp',
-    fallbackIcon: '🚀',
+    fallbackIcon: <FaRocket />,
     stats: [
       { icon: <MdGroups />, text: '12k+ students reached for STEM' },
       { icon: <BiMoney />,  text: '$30,000 raised via govt & private sources' },
@@ -420,39 +434,39 @@ const moreProjects = [
   {
     category: 'Live products & tools',
     items: [
-      { emoji: '☀️', title: 'Solaride', desc: 'A rooftop-solar business site with a savings calculator, lead capture and full local SEO — a real business I help run.', tags: ['Business', 'SEO'], live: 'https://solaride.in' },
-      { emoji: '🧩', title: 'ctx', desc: 'An MCP server that turns any GitHub repo into agent-ready context — pack or search a whole repo for the lines that matter.', tags: ['MCP', 'Cloudflare'], live: 'https://ctx.vanshul.com', repo: 'https://github.com/vanshulgoyal101/ctx' },
-      { emoji: '📖', title: 'mcp', desc: 'An MCP server that reads the live web as clean Markdown for AI agents.', tags: ['MCP', 'Cloudflare'], live: 'https://mcp.vanshul.com', repo: 'https://github.com/vanshulgoyal101/mcp' },
-      { emoji: '🧰', title: 'Dev Tools', desc: 'A privacy-first, offline developer toolbox — 25 utilities plus a Smart Paste box, all in the browser.', tags: ['PWA', 'Offline'], live: 'https://tools.vanshul.com', repo: 'https://github.com/vanshulgoyal101/tools' },
+      { icon: <FaSun />, color: '#f2ae68', title: 'Solaride', desc: 'A rooftop-solar business site with a savings calculator, lead capture and full local SEO — a real business I help run.', tags: ['Business', 'SEO'], live: 'https://solaride.in' },
+      { icon: <FaPuzzlePiece />, color: '#82b7ff', title: 'ctx', desc: 'An MCP server that turns any GitHub repo into agent-ready context — pack or search a whole repo for the lines that matter.', tags: ['MCP', 'Cloudflare'], live: 'https://ctx.vanshul.com', repo: 'https://github.com/vanshulgoyal101/ctx' },
+      { icon: <FaBookOpen />, color: '#8fd3ff', title: 'mcp', desc: 'An MCP server that reads the live web as clean Markdown for AI agents.', tags: ['MCP', 'Cloudflare'], live: 'https://mcp.vanshul.com', repo: 'https://github.com/vanshulgoyal101/mcp' },
+      { icon: <FaTools />, color: '#72d7c0', title: 'Dev Tools', desc: 'A privacy-first, offline developer toolbox — 25 utilities plus a Smart Paste box, all in the browser.', tags: ['PWA', 'Offline'], live: 'https://tools.vanshul.com', repo: 'https://github.com/vanshulgoyal101/tools' },
     ],
   },
   {
     category: 'Open source & packages',
     items: [
-      { emoji: '🧠', title: 'SemCache', desc: 'A zero-cost, tiered semantic cache for LLMs using local ONNX embeddings — sub-30ms matches at $0.', tags: ['npm i semcache'], repo: 'https://github.com/vanshulgoyal101/semCache' },
-      { emoji: '🔐', title: 'Agent Vault', desc: "A cryptographic policy firewall that vets an AI DeFi agent's transactions before signing.", tags: ['pip install agent-vault-py'], repo: 'https://github.com/vanshulgoyal101/agent-vault' },
-      { emoji: '📬', title: 'Agent Mailroom', desc: 'Machine-to-machine identity and micro-payments for AI agents — DIDs and off-chain channels.', tags: ['pip install agent-mailroom'], repo: 'https://github.com/vanshulgoyal101/agent-mailroom' },
-      { emoji: '🛠️', title: 'depshift', desc: 'Detects breaking API changes between Python package versions and auto-suggests migration patches.', tags: ['pip install depshift'], repo: 'https://github.com/vanshulgoyal101/autopatch' },
-      { emoji: '👁️', title: 'AgentWatch', desc: 'Local-first observability and step-by-step trace replay for multi-agent LLM systems.', tags: ['Python', 'SQLite'], repo: 'https://github.com/vanshulgoyal101/agentwatch' },
-      { emoji: '🧱', title: 'Lego', desc: 'Zero-dependency, copy-paste code blocks — 327 crash-proof components across 23 categories.', tags: ['CLI', 'Zero-dep'], repo: 'https://github.com/vanshulgoyal101/lego' },
-      { emoji: '🤖', title: 'Agent Team', desc: 'An autonomous AI software-engineering team that plans, writes and tests code from GitHub Actions.', tags: ['Agents', 'CI'], repo: 'https://github.com/vanshulgoyal101/agent-team' },
-      { emoji: '📚', title: 'vbrain', desc: 'An AI-queryable second-brain engine — turns Markdown notes into full-text search, a knowledge graph and an MCP server for agents. Open engine, private notes.', tags: ['MCP', 'Cloudflare'], live: 'https://vbrain.vanshul.com', repo: 'https://github.com/vanshulgoyal101/vbrain' },
+      { icon: <FaBrain />, color: '#c3a6ff', title: 'SemCache', desc: 'A zero-cost, tiered semantic cache for LLMs using local ONNX embeddings — sub-30ms matches at $0.', tags: ['npm i semcache'], repo: 'https://github.com/vanshulgoyal101/semCache' },
+      { icon: <FaLock />, color: '#ff8c7a', title: 'Agent Vault', desc: "A cryptographic policy firewall that vets an AI DeFi agent's transactions before signing.", tags: ['pip install agent-vault-py'], repo: 'https://github.com/vanshulgoyal101/agent-vault' },
+      { icon: <FaEnvelope />, color: '#f095c8', title: 'Agent Mailroom', desc: 'Machine-to-machine identity and micro-payments for AI agents — DIDs and off-chain channels.', tags: ['pip install agent-mailroom'], repo: 'https://github.com/vanshulgoyal101/agent-mailroom' },
+      { icon: <FaWrench />, color: '#f4c95d', title: 'depshift', desc: 'Detects breaking API changes between Python package versions and auto-suggests migration patches.', tags: ['pip install depshift'], repo: 'https://github.com/vanshulgoyal101/autopatch' },
+      { icon: <FaEye />, color: '#72d7c0', title: 'AgentWatch', desc: 'Local-first observability and step-by-step trace replay for multi-agent LLM systems.', tags: ['Python', 'SQLite'], repo: 'https://github.com/vanshulgoyal101/agentwatch' },
+      { icon: <FaCube />, color: '#8fd3ff', title: 'Lego', desc: 'Zero-dependency, copy-paste code blocks — 327 crash-proof components across 23 categories.', tags: ['CLI', 'Zero-dep'], repo: 'https://github.com/vanshulgoyal101/lego' },
+      { icon: <FaRobot />, color: '#82b7ff', title: 'Agent Team', desc: 'An autonomous AI software-engineering team that plans, writes and tests code from GitHub Actions.', tags: ['Agents', 'CI'], repo: 'https://github.com/vanshulgoyal101/agent-team' },
+      { icon: <FaBookOpen />, color: '#f095c8', title: 'vbrain', desc: 'An AI-queryable second-brain engine — turns Markdown notes into full-text search, a knowledge graph and an MCP server for agents. Open engine, private notes.', tags: ['MCP', 'Cloudflare'], live: 'https://vbrain.vanshul.com', repo: 'https://github.com/vanshulgoyal101/vbrain' },
     ],
   },
   {
     category: 'Interactive experiments',
     items: [
-      { emoji: '⚖️', title: 'The Dialectic', desc: 'Two AI personas debate any topic while a live D3 graph maps their concepts and where they clash.', tags: ['React', 'D3', 'Gemini'], repo: 'https://github.com/vanshulgoyal101/the-dialectic' },
-      { emoji: '🌌', title: 'Cosmic Zoom', desc: 'A "powers of ten" physics sandbox — zoom across 44 orders of magnitude with real Matter.js physics.', tags: ['React', 'Matter.js'], repo: 'https://github.com/vanshulgoyal101/cosmic-zoom' },
-      { emoji: '📑', title: 'Lexis', desc: 'Typography and readability analytics for long-form Markdown — Flesch, Kincaid and Gunning Fog scoring.', tags: ['React', 'TypeScript'], repo: 'https://github.com/vanshulgoyal101/lexis' },
-      { emoji: '🗄️', title: 'Memova', desc: 'Ask multiple databases questions in plain English via Gemini. FastAPI + React.', tags: ['FastAPI', 'React'], repo: 'https://github.com/vanshulgoyal101/memova' },
+      { icon: <FaBalanceScale />, color: '#c3a6ff', title: 'The Dialectic', desc: 'Two AI personas debate any topic while a live D3 graph maps their concepts and where they clash.', tags: ['React', 'D3', 'Gemini'], repo: 'https://github.com/vanshulgoyal101/the-dialectic' },
+      { icon: <FaGlobeAmericas />, color: '#82b7ff', title: 'Cosmic Zoom', desc: 'A "powers of ten" physics sandbox — zoom across 44 orders of magnitude with real Matter.js physics.', tags: ['React', 'Matter.js'], repo: 'https://github.com/vanshulgoyal101/cosmic-zoom' },
+      { icon: <FaFileAlt />, color: '#f4c95d', title: 'Lexis', desc: 'Typography and readability analytics for long-form Markdown — Flesch, Kincaid and Gunning Fog scoring.', tags: ['React', 'TypeScript'], repo: 'https://github.com/vanshulgoyal101/lexis' },
+      { icon: <FaDatabase />, color: '#72d7c0', title: 'Memova', desc: 'Ask multiple databases questions in plain English via Gemini. FastAPI + React.', tags: ['FastAPI', 'React'], repo: 'https://github.com/vanshulgoyal101/memova' },
     ],
   },
   {
     category: 'Space & earlier',
     items: [
-      { emoji: '🌍', title: 'NASA Space Apps Collective', desc: 'Selected among 30 global space leaders; built weather-visualisation tools for Zimbabwean farmers from open NASA data.', tags: ['NASA', 'Data'], live: 'https://www.spaceappschallenge.org/collective/' },
-      { emoji: '🖥️', title: 'GoRemote', desc: 'My B.Tech major project — a virtual-office platform for remote teams (Phaser, React, Redux, PeerJS, Colyseus).', tags: ['MERN', 'Phaser'], repo: 'https://github.com/vanshulgoyal101/GoRemote' },
+      { icon: <FaGlobeAmericas />, color: '#72d7c0', title: 'NASA Space Apps Collective', desc: 'Selected among 30 global space leaders; built weather-visualisation tools for Zimbabwean farmers from open NASA data.', tags: ['NASA', 'Data'], live: 'https://www.spaceappschallenge.org/collective/' },
+      { icon: <FaDesktop />, color: '#ff8c7a', title: 'GoRemote', desc: 'My B.Tech major project — a virtual-office platform for remote teams (Phaser, React, Redux, PeerJS, Colyseus).', tags: ['MERN', 'Phaser'], repo: 'https://github.com/vanshulgoyal101/GoRemote' },
     ],
   },
 ];
@@ -579,7 +593,7 @@ const Projects = () => {
                     viewport={{ once: true, amount: 0.1 }}
                   >
                     <CompactTop>
-                      <CompactEmoji aria-hidden="true">{item.emoji}</CompactEmoji>
+                      <CompactIcon $color={item.color} aria-hidden="true">{item.icon}</CompactIcon>
                       <CompactName>{item.title}</CompactName>
                       {item.live && <LiveDot>Live</LiveDot>}
                     </CompactTop>
