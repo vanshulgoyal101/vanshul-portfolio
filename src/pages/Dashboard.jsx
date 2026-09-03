@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { FaChartBar, FaGamepad } from 'react-icons/fa';
 import { analytics, OWNER_EMAIL } from '../lib/analyticsClient';
 import { SOCIAL_LINKS } from '../constants/siteConfig';
 import {
@@ -33,6 +34,12 @@ const Header = styled.header`
   h1 {
     font-size: var(--text-3xl);
     margin: 0;
+
+    svg {
+      color: var(--color-accent-primary);
+      margin-right: 0.45em;
+      vertical-align: -0.08em;
+    }
   }
 `;
 
@@ -355,7 +362,7 @@ const Dashboard = () => {
   if (!session) {
     return (
       <Page>
-        <Header><h1>📊 Dashboard</h1></Header>
+        <Header><h1><FaChartBar aria-hidden="true" />Dashboard</h1></Header>
         <Message>
           <h2>Sign in required</h2>
           <p>This dashboard is private. Sign in with the owner Google account to continue.</p>
@@ -370,7 +377,7 @@ const Dashboard = () => {
     return (
       <Page>
         <Header>
-          <h1>📊 Dashboard</h1>
+          <h1><FaChartBar aria-hidden="true" />Dashboard</h1>
           <Actions><GhostButton onClick={signOut}>Sign out</GhostButton></Actions>
         </Header>
         <Message>
@@ -388,7 +395,7 @@ const Dashboard = () => {
   return (
     <Page>
       <Header>
-        <h1>📊 Dashboard</h1>
+        <h1><FaChartBar aria-hidden="true" />Dashboard</h1>
         <Actions>
           <Select
             aria-label="Time range"
@@ -430,7 +437,7 @@ const Dashboard = () => {
 
           {/* Arcade / games — surface the totals the RPC returns, not just the breakdown. */}
           <Section>
-            <h2>🎮 Arcade</h2>
+            <h2><FaGamepad aria-hidden="true" /> Arcade</h2>
             <Cards>
               <Card><div className="n">{formatNumber(stats.arcade?.range_plays ?? 0)}</div><div className="l">Game plays · range</div></Card>
               <Card><div className="n">{formatNumber(stats.arcade?.total_plays ?? 0)}</div><div className="l">Game plays · all-time</div></Card>
