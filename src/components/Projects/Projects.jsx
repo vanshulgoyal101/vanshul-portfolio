@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaRocket, FaExternalLinkAlt, FaCode, FaGithub, FaBullseye, FaSun, FaPuzzlePiece, FaBookOpen, FaTools, FaBrain, FaLock, FaEnvelope, FaWrench, FaEye, FaCube, FaRobot, FaBalanceScale, FaGlobeAmericas, FaDesktop, FaFileAlt, FaDatabase } from 'react-icons/fa';
+import { FaRocket, FaExternalLinkAlt, FaCode, FaGithub, FaBullseye, FaSun, FaPuzzlePiece, FaTools, FaBrain, FaLock, FaEnvelope, FaWrench, FaEye, FaCube, FaRobot, FaBalanceScale, FaGlobeAmericas, FaDesktop, FaFileAlt, FaDatabase } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
 import { IoGameController } from 'react-icons/io5';
@@ -445,7 +445,10 @@ const moreProjects = [
     items: [
       { icon: <FaSun />, color: '#f2ae68', title: 'Solaride', desc: 'A rooftop-solar business site with a savings calculator, lead capture and full local SEO — a real business I help run.', tags: ['Business', 'SEO'], live: 'https://solaride.in' },
       { icon: <FaPuzzlePiece />, color: '#82b7ff', title: 'ctx', desc: 'An MCP server that turns any GitHub repo into agent-ready context — pack or search a whole repo for the lines that matter.', tags: ['MCP', 'Cloudflare'], live: 'https://ctx.vanshul.com', repo: 'https://github.com/vanshulgoyal101/ctx' },
-      { icon: <FaBookOpen />, color: '#8fd3ff', title: 'mcp', desc: 'An MCP server that reads the live web as clean Markdown for AI agents.', tags: ['MCP', 'Cloudflare'], live: 'https://mcp.vanshul.com', repo: 'https://github.com/vanshulgoyal101/mcp' },
+      // Only one MCP server is featured; ctx is the stronger of the two (2x the code,
+      // 6 tools vs 4). mcp is still live at mcp.vanshul.com — to restore it, re-add
+      // FaBookOpen to the react-icons/fa import above and uncomment the line below.
+      // { icon: <FaBookOpen />, color: '#8fd3ff', title: 'mcp', desc: 'An MCP server that reads the live web as clean Markdown for AI agents.', tags: ['MCP', 'Cloudflare'], live: 'https://mcp.vanshul.com', repo: 'https://github.com/vanshulgoyal101/mcp' },
       { icon: <FaTools />, color: '#72d7c0', title: 'Dev Tools', desc: 'A privacy-first offline developer toolbox — JSON, JWT, hashing, encoding and formatters — plus a Smart Paste box that works out what you pasted.', tags: ['PWA', 'Offline'], live: 'https://tools.vanshul.com', repo: 'https://github.com/vanshulgoyal101/tools' },
     ],
   },
