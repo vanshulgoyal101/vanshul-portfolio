@@ -301,9 +301,9 @@ const CompactIcon = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #36d98a;
-  background: rgba(54, 217, 138, 0.08);
-  border: 1px solid rgba(54, 217, 138, 0.34);
+  color: ${(p) => p.$color || '#36d98a'};
+  background: color-mix(in srgb, ${(p) => p.$color || '#36d98a'} 10%, transparent);
+  border: 1px solid color-mix(in srgb, ${(p) => p.$color || '#36d98a'} 36%, transparent);
   border-radius: 10px;
 
   svg {
@@ -311,6 +311,15 @@ const CompactIcon = styled.span`
     height: 1.05rem;
   }
 `;
+
+const VBrainIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />
+    <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" />
+    <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4" />
+    <path d="M17.599 6.5a3 3 0 0 0 .399-1.375M6.003 5.125A3 3 0 0 0 6.401 6.5M3.477 10.896a4 4 0 0 1 .585-.396M19.938 10.5a4 4 0 0 1 .585.396M6 18a4 4 0 0 1-1.967-.516M19.967 17.484A4 4 0 0 1 18 18" />
+  </svg>
+);
 
 const CompactName = styled.h5`
   font-size: var(--text-base);
@@ -450,7 +459,7 @@ const moreProjects = [
       { icon: <FaEye />, color: '#72d7c0', title: 'AgentWatch', desc: 'Local-first observability and step-by-step trace replay for multi-agent LLM systems.', tags: ['Python', 'SQLite'], repo: 'https://github.com/vanshulgoyal101/agentwatch' },
       { icon: <FaCube />, color: '#8fd3ff', title: 'Lego', desc: 'Zero-dependency, copy-paste code blocks — 327 crash-proof components across 23 categories.', tags: ['CLI', 'Zero-dep'], repo: 'https://github.com/vanshulgoyal101/lego' },
       { icon: <FaRobot />, color: '#82b7ff', title: 'Agent Team', desc: 'An autonomous AI software-engineering team that plans, writes and tests code from GitHub Actions.', tags: ['Agents', 'CI'], repo: 'https://github.com/vanshulgoyal101/agent-team' },
-      { icon: <FaBookOpen />, color: '#f095c8', title: 'vbrain', desc: 'An AI-queryable second-brain engine — turns Markdown notes into full-text search, a knowledge graph and an MCP server for agents. Open engine, private notes.', tags: ['MCP', 'Cloudflare'], live: 'https://vbrain.vanshul.com', repo: 'https://github.com/vanshulgoyal101/vbrain' },
+      { icon: <VBrainIcon />, color: '#36d98a', title: 'vbrain', desc: 'An AI-queryable second-brain engine — turns Markdown notes into full-text search, a knowledge graph and an MCP server for agents. Open engine, private notes.', tags: ['MCP', 'Cloudflare'], live: 'https://vbrain.vanshul.com', repo: 'https://github.com/vanshulgoyal101/vbrain' },
     ],
   },
   {
