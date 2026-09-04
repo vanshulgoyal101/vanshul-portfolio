@@ -118,11 +118,11 @@ const ProjectImg = styled.img`
 const ProjectImageFallback = styled.div`
   width: 100%;
   height: 100%;
-  background: var(--color-gradient-1);
+  background: linear-gradient(135deg, rgba(54, 217, 138, 0.2), rgba(54, 217, 138, 0.06));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #36d98a;
   font-size: 2.5rem;
   opacity: 0.7;
 `;
@@ -301,9 +301,9 @@ const CompactIcon = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: ${(p) => p.$color};
-  background: rgba(255, 255, 255, 0.045);
-  border: 1px solid ${(p) => p.$color};
+  color: #36d98a;
+  background: rgba(54, 217, 138, 0.08);
+  border: 1px solid rgba(54, 217, 138, 0.34);
   border-radius: 10px;
 
   svg {
