@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Transparent background on purpose -->
+
+  <!-- ears (poke above the head so it doesn't read as a ball) -->
+  <circle cx="150" cy="146" r="74" fill="#17171d"/>
+  <circle cx="362" cy="146" r="74" fill="#17171d"/>
+  <circle cx="150" cy="146" r="33" fill="#4c4c57"/>
+  <circle cx="362" cy="146" r="33" fill="#4c4c57"/>
+
+  <!-- head: symmetric, with cheeks; outlined so it reads on any background -->
+  <path d="M256 140
+           C374 140 432 216 432 300
+           C432 360 392 404 336 424
+           C300 438 212 438 176 424
+           C120 404 80 360 80 300
+           C80 216 138 140 256 140 Z"
+        fill="#ffffff" stroke="#17171d" stroke-width="13" stroke-linejoin="round"/>
+
+  <!-- eye patches (mirrored teardrops) -->
+  <ellipse cx="197" cy="288" rx="52" ry="66" fill="#17171d" transform="rotate(-18 197 288)"/>
+  <ellipse cx="315" cy="288" rx="52" ry="66" fill="#17171d" transform="rotate(18 315 288)"/>
+
+  <!-- eyes with catchlights -->
+  <circle cx="202" cy="298" r="22" fill="#ffffff"/>
+  <circle cx="310" cy="298" r="22" fill="#ffffff"/>
+  <circle cx="204" cy="301" r="12" fill="#17171d"/>
+  <circle cx="308" cy="301" r="12" fill="#17171d"/>
+  <circle cx="209" cy="296" r="4.5" fill="#ffffff"/>
+  <circle cx="313" cy="296" r="4.5" fill="#ffffff"/>
+
+  <!-- nose -->
+  <path d="M256 348 c-19 0 -29 11 -29 21 c0 11 13 19 29 19 c16 0 29 -8 29 -19 c0 -10 -10 -21 -29 -21 z" fill="#17171d"/>
+
+  <!-- mouth -->
+  <path d="M256 388 v11 M256 399 q-21 19 -42 6 M256 399 q21 19 42 6"
+        fill="none" stroke="#17171d" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
