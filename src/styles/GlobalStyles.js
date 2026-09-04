@@ -88,9 +88,10 @@ const GlobalStyles = createGlobalStyle`
   }
 
   html {
+    --header-offset: clamp(5rem, 8vw, 7rem);
     font-size: 100%; /* Respect user's font size preference */
     scroll-behavior: smooth;
-    scroll-padding-top: clamp(5rem, 8vw, 7rem);
+    scroll-padding-top: var(--header-offset);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: var(--color-bg-primary);
@@ -212,10 +213,10 @@ const GlobalStyles = createGlobalStyle`
   }
 
   section {
-    scroll-margin-top: clamp(5rem, 8vw, 7rem);
+    scroll-margin-top: var(--header-offset);
 
     @media (max-width: 768px) {
-      scroll-margin-top: 4.5rem;
+      scroll-margin-top: calc(var(--header-offset) - 0.5rem);
     }
   }
 

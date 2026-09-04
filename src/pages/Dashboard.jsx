@@ -46,6 +46,7 @@ const Header = styled.header`
 const Actions = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--spacing-md);
 `;
 
@@ -104,8 +105,19 @@ const Card = styled.div`
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: var(--spacing-lg);
+  /* Grid children default to min-width:auto, which lets long values escape the card. */
+  min-width: 0;
 
-  .n { font-size: var(--text-3xl); font-weight: 800; letter-spacing: -0.02em; }
+  .n {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
   .l { color: var(--color-text-secondary); font-size: var(--text-sm); margin-top: 4px; }
 `;
 
@@ -134,8 +146,8 @@ const Row = styled.div`
   font-size: var(--text-sm);
 
   .k {
-    width: 180px;
-    flex: none;
+    flex: 0 1 180px;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -157,7 +169,7 @@ const Row = styled.div`
     border-radius: 6px;
     min-width: 2px;
   }
-  .v { width: 64px; flex: none; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .v { min-width: 64px; flex: none; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
 `;
 
 const Hours = styled.div`
@@ -251,7 +263,6 @@ const BarList = ({ title, bars, empty }) => (
 const DeltaBadge = styled.span`
   font-size: var(--text-xs);
   font-weight: 700;
-  margin-left: 8px;
   white-space: nowrap;
   color: ${(p) => (p.$dir > 0 ? '#16a34a' : p.$dir < 0 ? '#dc2626' : 'var(--color-text-muted)')};
 `;

@@ -260,6 +260,20 @@ const Navigation = ({ scrollToSection }) => {
   // Treat /blog/:slug pages as "blog" section active
   const effectiveSection = location.pathname.startsWith('/blog') ? 'blog' : activeSection;
 
+  // Keep the shared header offset in sync with the actual nav height so
+  // native anchor jumps and programmatic scrolls land cleanly below the fixed bar.
+  useEffect(() => {
+    const syncHeaderOffset = () => {
+      const nav = document.querySelector('nav');
+      const offset = nav ? nav.offsetHeight + 20 : 96;
+      document.documentElement.style.setProperty('--header-offset', `${offset}px`);
+    };
+
+    syncHeaderOffset();
+    window.addEventListener('resize', syncHeaderOffset);
+    return () => window.removeEventListener('resize', syncHeaderOffset);
+  }, []);
+
   // Handle scroll events
   useEffect(() => {
     const handleScroll = () => {
@@ -317,10 +331,7 @@ const Navigation = ({ scrollToSection }) => {
       navigate('/');
       // Wait for navigation and DOM render to complete, then scroll
       setTimeout(() => {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        scrollToSection(sectionId);
       }, 500);
     }
   }, [scrollToSection, navigate, location.pathname]);

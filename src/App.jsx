@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import GlobalStyles from './styles/GlobalStyles';
 import { useIdle } from './hooks/useIdle';
 import { pageVariants } from './constants/motionVariants';
+import { scrollToSection as scrollToSectionUtil } from './utils/scrollToSection';
 import Navigation from './components/Navigation/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
@@ -124,13 +125,10 @@ const ScrollToHash = ({ isBooting }) => {
   useEffect(() => {
     if (!isBooting && location.hash) {
       const id = location.hash.replace('#', '');
-      const element = document.getElementById(id);
-      if (element) {
-        const timeoutId = setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-        return () => clearTimeout(timeoutId);
-      }
+      const timeoutId = setTimeout(() => {
+        scrollToSectionUtil(id, { behavior: 'smooth' });
+      }, 100);
+      return () => clearTimeout(timeoutId);
     }
   }, [location, isBooting]);
 
@@ -164,10 +162,7 @@ function App() {
   const [isBooting, setIsBooting] = useState(true);
 
   const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    scrollToSectionUtil(sectionId, { behavior: 'smooth' });
   };
 
   return (
