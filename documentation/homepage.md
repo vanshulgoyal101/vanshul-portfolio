@@ -2,7 +2,10 @@
 
 The homepage presents the introduction, selected projects, biography, employment,
 writings, and contact section in that order. Featured projects have native
-`details` case studies; the wider project directory is a separate disclosure.
+`details` case studies. The wider project directory is always visible below them,
+grouped by category in compact two-column rows (one column on mobile). It retains
+every secondary project's description, tags, and live/source links without
+adding screenshots or raised cards. Do not hide the directory behind a disclosure.
 Case-study text should describe supported project facts, not inferred customer
 results or invented metrics.
 

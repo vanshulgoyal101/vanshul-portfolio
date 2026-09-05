@@ -32,14 +32,21 @@ test('immediate content, unique targets, visible project media, and no automatic
   await page.screenshot({ path: testInfo.outputPath('selected-work.png') });
 });
 
-test('case studies and secondary project directory expand', async ({ page }) => {
+test('case studies expand and the full project directory is visible by default', async ({ page }, testInfo) => {
   await page.goto('/');
   await page.getByLabel('Read case study: AdBrain', { exact: true }).click();
   const study = page.locator('details').filter({ has: page.getByLabel('Read case study: AdBrain', { exact: true }) });
   await expect(study).toHaveAttribute('open', '');
   await expect(study.getByText('Engineering decision')).toBeVisible();
-  await page.getByText("More things I've built", { exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Project directory' })).toBeVisible();
+  const directory = page.getByRole('region', { name: "More things I've built" });
+  await expect(directory.getByRole('heading', { level: 5 })).toHaveCount(17);
+  for (const heading of await directory.getByRole('heading', { level: 5 }).all()) {
+    await expect(heading).toBeVisible();
+  }
+  expect(await directory.evaluate(element => element.closest('details'))).toBeNull();
+  await directory.scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await directory.screenshot({ path: testInfo.outputPath('project-directory.png'), animations: 'disabled' });
 });
 
 test('direct reading-list response and sitemap agree', async ({ request, page }) => {

@@ -221,16 +221,10 @@ const ProjectLink = styled.a`
 
 /* ── "More projects" compact tier ── */
 
-const MoreProjects = styled.details`
+const MoreProjects = styled.div`
   margin-top: var(--spacing-2xl);
-
-  > summary {
-    cursor: pointer;
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    padding: 1rem 0;
-    border-block: 1px solid var(--color-border);
-  }
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
 `;
 
 const CaseStudy = styled.details`
@@ -249,7 +243,7 @@ const CaseStudy = styled.details`
 `;
 
 const MoreHeader = styled(motion.div)`
-  text-align: center;
+  text-align: left;
   margin-bottom: var(--spacing-md);
 `;
 
@@ -270,12 +264,20 @@ const MoreSubtitle = styled.p`
 
 const CategoryGroup = styled.div`
   margin-top: var(--spacing-lg);
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: var(--spacing-lg);
+
+  @media (max-width: 1024px) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--spacing-sm);
+  }
 `;
 
 const CategoryLabel = styled.h4`
   font-size: var(--text-sm);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   color: var(--color-accent-primary);
   font-weight: 600;
   margin-bottom: var(--spacing-sm);
@@ -283,8 +285,8 @@ const CategoryLabel = styled.h4`
 
 const CompactGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--spacing-lg);
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -293,20 +295,12 @@ const CompactGrid = styled.div`
 `;
 
 const CompactCard = styled(motion.div)`
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: var(--spacing-md);
+  min-width: 0;
+  border-bottom: 1px solid var(--color-border);
+  padding: 1rem 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    border-color: rgba(29, 78, 216, 0.4);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(29, 78, 216, 0.06);
-  }
 `;
 
 const CompactTop = styled.div`
@@ -325,7 +319,7 @@ const CompactIcon = styled.span`
   color: ${(p) => p.$color || '#36d98a'};
   background: color-mix(in srgb, ${(p) => p.$color || '#36d98a'} 10%, transparent);
   border: 1px solid color-mix(in srgb, ${(p) => p.$color || '#36d98a'} 36%, transparent);
-  border-radius: 10px;
+  border-radius: 6px;
 
   svg {
     width: 1.05rem;
@@ -347,6 +341,8 @@ const CompactName = styled.h5`
   color: var(--color-text-primary);
   margin: 0;
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 `;
 
 const LiveDot = styled.span`
@@ -385,11 +381,14 @@ const TagRow = styled.div`
 const Tag = styled.span`
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  padding: 2px 8px;
+  overflow-wrap: anywhere;
   font-family: ${(p) => (p.$mono ? 'var(--font-mono, ui-monospace, monospace)' : 'inherit')};
+
+  & + &::before {
+    content: '/';
+    margin-right: 6px;
+    color: var(--color-text-muted);
+  }
 `;
 
 const CompactLinks = styled.div`
@@ -627,15 +626,14 @@ const Projects = () => {
           ))}
         </ProjectsGrid>
 
-        <MoreProjects>
-          <summary>More things I&apos;ve built</summary>
+        <MoreProjects role="region" aria-labelledby="project-directory-title">
           <MoreHeader
             variants={headerVariants}
-            initial="hidden"
+            initial={false}
             whileInView="visible"
             viewport={{ once: true, amount: 0.15 }}
           >
-            <MoreTitle>Project directory</MoreTitle>
+            <MoreTitle id="project-directory-title">More things I&apos;ve built</MoreTitle>
             <MoreSubtitle>Live products, open-source packages and interactive experiments.</MoreSubtitle>
           </MoreHeader>
 
@@ -643,14 +641,9 @@ const Projects = () => {
             <CategoryGroup key={group.category}>
               <CategoryLabel>{group.category}</CategoryLabel>
               <CompactGrid>
-                {group.items.map((item, i) => (
+                {group.items.map((item) => (
                   <CompactCard
                     key={item.title}
-                    custom={i}
-                    variants={cardVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.1 }}
                   >
                     <CompactTop>
                       <CompactIcon $color={item.color} aria-hidden="true">{item.icon}</CompactIcon>
@@ -668,12 +661,12 @@ const Projects = () => {
                     {(item.live || item.repo) && (
                       <CompactLinks>
                         {item.live && (
-                          <IconLink href={item.live} target="_blank" rel="noopener noreferrer">
+                          <IconLink href={item.live} aria-label={`Visit ${item.title}`} target="_blank" rel="noopener noreferrer">
                             Visit <FaExternalLinkAlt size={10} />
                           </IconLink>
                         )}
                         {item.repo && (
-                          <IconLink href={item.repo} target="_blank" rel="noopener noreferrer">
+                          <IconLink href={item.repo} aria-label={`View ${item.title} source code`} target="_blank" rel="noopener noreferrer">
                             <FaGithub size={13} /> Code
                           </IconLink>
                         )}

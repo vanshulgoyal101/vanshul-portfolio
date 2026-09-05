@@ -24,7 +24,7 @@ describe('Projects', () => {
       expect(study.querySelectorAll('dt')).toHaveLength(4);
       expect(study.querySelector('summary')).toHaveTextContent('Read case study');
     }
-    expect(screen.getByText("More things I've built").closest('details')).not.toHaveAttribute('open');
+    expect(screen.getByRole('region', { name: "More things I've built" }).closest('details')).toBeNull();
   });
 
   it('renders the compact "more projects" tier with grouped categories', () => {
@@ -39,6 +39,19 @@ describe('Projects', () => {
     const { container } = render(<Projects />);
     const repoLinks = [...container.querySelectorAll('a[href*="github.com"]')];
     expect(repoLinks.length).toBeGreaterThan(0);
+  });
+
+  it('exposes every secondary project without an expansion step', () => {
+    render(<Projects />);
+    for (const name of [
+      'Solaride', 'ctx', 'Dev Tools', 'SemCache', 'Agent Vault', 'Agent Mailroom',
+      'depshift', 'AgentWatch', 'Lego', 'Agent Team', 'vbrain', 'The Dialectic',
+      'Cosmic Zoom', 'Lexis', 'Memova', 'NASA Space Apps Collective', 'GoRemote',
+    ]) {
+      expect(screen.getByRole('heading', { name, exact: true })).toBeVisible();
+    }
+    expect(screen.getByRole('link', { name: 'Visit Solaride' })).toHaveAttribute('href', 'https://solaride.in');
+    expect(screen.getByRole('link', { name: 'View ctx source code' })).toHaveAttribute('href', 'https://github.com/vanshulgoyal101/ctx');
   });
 
   it('renders external project links safely (rel=noopener, target=_blank)', () => {
