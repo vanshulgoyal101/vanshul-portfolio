@@ -1,8 +1,3 @@
-// Decides whether the animated custom cursor should run, and lets the visitor
-// override that decision. The cursor's spring animation can feel janky in
-// Safari and on low-end hardware, so it is auto-disabled there — but a saved
-// preference ('on' | 'off') always wins.
-
 const KEY = 'vg.cursor';
 export const CURSOR_PREF_EVENT = 'vg:cursorpref';
 
@@ -33,50 +28,13 @@ export const isPointerFine = () =>
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-// Best-effort Safari detection (desktop + iPadOS), excluding Chromium/Firefox
-// builds that also carry "Safari" in their UA string.
-const isSafari = () => {
-  if (typeof navigator === 'undefined') return false;
-  const ua = navigator.userAgent || '';
-  const notOtherEngine = !/chrome|chromium|crios|android|edg|edga|edgios|fxios|opr/i.test(ua);
-  const looksSafari = /safari/i.test(ua) && notOtherEngine;
-  const appleVendor = (navigator.vendor || '').includes('Apple');
-  return looksSafari && appleVendor;
-};
-
-// Rough low-end heuristic: few logical cores or little memory.
-const isLowEndDevice = () => {
-  if (typeof navigator === 'undefined') return false;
-  const cores = navigator.hardwareConcurrency;
-  const mem = navigator.deviceMemory;
-  return (typeof cores === 'number' && cores <= 4) || (typeof mem === 'number' && mem <= 4);
-};
-
-// "Plenty of RAM." navigator.deviceMemory is capped at 8 by the spec and is
-// unavailable in Safari/Firefox, so when it's missing we approximate capability
-// with the logical-core count (the only signal Safari exposes).
-const hasAmpleMemory = () => {
-  if (typeof navigator === 'undefined') return false;
-  const mem = navigator.deviceMemory;
-  if (typeof mem === 'number') return mem >= 8;
-  const cores = navigator.hardwareConcurrency;
-  return typeof cores === 'number' && cores >= 8;
-};
-
 /** Whether the cursor should auto-enable (no explicit preference set). */
 export const isAutoCursorCapable = () => {
   if (!isPointerFine()) return false;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  if (isLowEndDevice()) return false;
-  // Safari's spring animation only stays smooth on capable (roomy) machines.
-  if (isSafari() && !hasAmpleMemory()) return false;
   return true;
 };
 
-/** The effective on/off decision: explicit preference wins, else auto-detect. */
 export const isCustomCursorEnabled = () => {
-  const pref = getCursorPreference();
-  if (pref === 'on') return true;
-  if (pref === 'off') return false;
-  return isAutoCursorCapable();
+  return isAutoCursorCapable() && getCursorPreference() !== 'off';
 };

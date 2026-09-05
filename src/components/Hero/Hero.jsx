@@ -1,4 +1,5 @@
 // src/components/Hero/Hero.jsx
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
@@ -7,6 +8,10 @@ import { FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { IoGameController } from 'react-icons/io5';
 import Magnetic from '../FunElements/Magnetic';
+import { useIdle } from '../../hooks/useIdle';
+import ErrorBoundary from '../ErrorBoundary';
+
+const HeroScene = lazy(() => import('./HeroScene'));
 
 // Styled Components
 const HeroSection = styled.section`
@@ -16,11 +21,11 @@ const HeroSection = styled.section`
   justify-content: center;
   position: relative;
   overflow: hidden;
-  padding: 8rem var(--container-padding) 2rem;
+  padding: 8rem 0 2.5rem;
   
   @media (max-width: 768px) {
     min-height: 0;
-    padding: 6.5rem var(--container-padding) 1.5rem;
+    padding: 6.5rem 0 1.5rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -28,30 +33,35 @@ const HeroSection = styled.section`
 `;
 
 const HeroContainer = styled.div`
+  width: 100%;
   max-width: var(--container-xl);
   margin: 0 auto;
-  display: block;
-  text-align: center;
+  padding: 0 var(--container-padding);
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 2rem;
+  text-align: left;
   align-items: center;
   position: relative;
   z-index: 2;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
-    text-align: center;
   }
 `;
 
 const HeroContent = styled(motion.div)`
-  max-width: 800px;
+  max-width: 38rem;
+  min-width: 0;
+`;
 
-  @media (max-width: 1024px) {
-    margin: 0 auto;
-  }
+const SceneArea = styled.div`
+  min-width: 0;
+  width: 100%;
+  height: clamp(20rem, 45vh, 28rem);
+  position: relative;
 
-  @media (max-width: 768px) {
-    margin-top: 0;
-  }
+  @media (max-width: 1024px) { display: none; }
 `;
 
 const Greeting = styled(motion.span)`
@@ -63,7 +73,7 @@ const Greeting = styled(motion.span)`
 `;
 
 const Title = styled(motion.h1)`
-  font-size: 3.5rem;
+  font-size: 4rem;
   letter-spacing: 0;
   font-weight: 700;
   line-height: 1.1;
@@ -107,17 +117,13 @@ const CTAContainer = styled(motion.div)`
   display: flex;
   gap: var(--spacing-md);
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   margin-bottom: 1rem;
   flex-wrap: wrap;
 
-  @media (max-width: 1024px) {
-    justify-content: center;
-  }
-
   @media (max-width: 480px) {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     width: 100%;
     gap: 0.75rem;
     margin-bottom: var(--spacing-md);
@@ -202,12 +208,8 @@ const SecondaryButton = styled(Link)`
 
 const SocialLinks = styled(motion.div)`
   display: flex;
-  gap: var(--spacing-md);
-  justify-content: center;
-
-  @media (max-width: 1024px) {
-    justify-content: center;
-  }
+  gap: 0.75rem;
+  justify-content: flex-start;
 `;
 
 const SocialLink = styled(motion.a)`
@@ -238,6 +240,22 @@ const SocialLink = styled(motion.a)`
 
 // Hero Component
 const Hero = () => {
+  const idle = useIdle(1200);
+  const [sceneAllowed, setSceneAllowed] = useState(false);
+
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1025px)');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setSceneAllowed(desktop.matches && !reducedMotion.matches);
+    update();
+    desktop.addEventListener('change', update);
+    reducedMotion.addEventListener('change', update);
+    return () => {
+      desktop.removeEventListener('change', update);
+      reducedMotion.removeEventListener('change', update);
+    };
+  }, []);
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -366,6 +384,9 @@ const Hero = () => {
             </Magnetic>
           </SocialLinks>
         </HeroContent>
+        <SceneArea aria-hidden="true" data-hero-scene>
+          {idle && sceneAllowed && <ErrorBoundary fallback={null}><Suspense fallback={null}><HeroScene /></Suspense></ErrorBoundary>}
+        </SceneArea>
       </HeroContainer>
     </HeroSection>
   );

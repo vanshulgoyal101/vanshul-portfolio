@@ -65,6 +65,7 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      if ('fallback' in this.props) return this.props.fallback;
       return (
         <FallbackContainer>
           <FallbackTitle>Something went wrong here</FallbackTitle>
@@ -80,6 +81,7 @@ class ErrorBoundary extends React.Component {
 
 ErrorBoundary.propTypes = {
   children: PropTypes.node.isRequired,
+  fallback: PropTypes.node,
 };
 
 export default ErrorBoundary;

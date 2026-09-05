@@ -45,6 +45,18 @@ describe('ErrorBoundary', () => {
     expect(spy).toHaveBeenCalled();
   });
 
+  it('allows an optional scene to fail without replacing surrounding content', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(
+      <>
+        <Safe />
+        <ErrorBoundary fallback={null}><Boom /></ErrorBoundary>
+      </>
+    );
+    expect(screen.getByText('safe content')).toBeInTheDocument();
+    expect(screen.queryByText('Something went wrong here')).toBeNull();
+  });
+
   it('shows a reload button that triggers window.location.reload', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const reload = vi.fn();

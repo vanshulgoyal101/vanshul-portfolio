@@ -9,11 +9,11 @@ import { HiMenuAlt3, HiX } from 'react-icons/hi';
 const Nav = styled(motion.nav)`
   position: fixed;
   top: 1rem;
-  left: 1.5rem;
-  right: 1.5rem;
-  max-width: calc(var(--container-xl) - 3rem);
+  left: 0;
+  right: 0;
+  max-width: var(--container-xl);
   margin: 0 auto;
-  border: 1px solid transparent;
+  border: none;
   border-radius: 100px;
   z-index: var(--z-fixed);
   transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
@@ -21,26 +21,23 @@ const Nav = styled(motion.nav)`
 
   @media (max-width: 768px) {
     top: calc(0.5rem + env(safe-area-inset-top, 0px));
-    left: 1rem;
-    right: 1rem;
   }
 
   ${({ $scrolled }) => $scrolled && `
     background: rgba(246, 243, 235, 0.98);
-    border: 1px solid rgba(30, 41, 59, 0.06);
-    box-shadow: 0 12px 30px rgba(30, 41, 59, 0.06);
+    box-shadow: 0 12px 30px rgba(30, 41, 59, 0.06), inset 0 0 0 1px rgba(30, 41, 59, 0.06);
   `}
 `;
 
 const NavContainer = styled.div`
   max-width: var(--container-xl);
   margin: 0 auto;
-  padding: 0.75rem 1.75rem;
+  padding: 0.75rem var(--container-padding);
   display: flex;
   justify-content: space-between;
   align-items: center;
   @media (max-width: 768px) {
-    padding: 0.6rem 1.2rem;
+    padding: 0.6rem var(--container-padding);
   }
 `;
 

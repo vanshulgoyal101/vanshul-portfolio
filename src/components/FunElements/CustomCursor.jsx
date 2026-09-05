@@ -47,8 +47,6 @@ const CustomCursor = () => {
   const ringY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
-    // Enabled on hover-capable, fine-pointer devices (never under reduced motion,
-    // Safari, or low-end hardware) — unless the visitor has explicitly toggled it.
     const hoverQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const evaluate = () => setIsSupported(isCustomCursorEnabled());

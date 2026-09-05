@@ -1,13 +1,17 @@
 import { test, expect } from '@playwright/test';
+import sharp from 'sharp';
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, testInfo) => {
+  if (!testInfo.title.startsWith('footer keeps')) {
+    await page.addInitScript(() => localStorage.setItem('vg.ambient', 'off'));
+  }
   await page.route('**/*', route => {
     const url = new URL(route.request().url());
     return url.hostname === '127.0.0.1' ? route.continue() : route.abort();
   });
 });
 
-test('immediate content, unique targets, visible project media, and no automatic 3D', async ({ page }, testInfo) => {
+test('immediate content, aligned targets, visible media, and desktop-only 3D', async ({ page }, testInfo) => {
   const requests = [];
   const errors = [];
   page.on('request', request => requests.push(request.url()));
@@ -27,12 +31,110 @@ test('immediate content, unique targets, visible project media, and no automatic
   for (const image of await page.locator('#projects img').all()) {
     await expect.poll(() => image.evaluate(element => element.complete && element.naturalWidth > 0)).toBe(true);
   }
-  expect(requests.some(url => /three-core|three-react|HeroScene|RandomTelemetry|InteractiveSpaceBackground/.test(url))).toBe(false);
+  expect(requests.some(url => /RandomTelemetry|InteractiveSpaceBackground/.test(url))).toBe(false);
+  if (testInfo.project.name === 'mobile') expect(requests.some(url => /three-core|three-react|HeroScene/.test(url))).toBe(false);
   expect(errors).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath('selected-work.png') });
 });
 
+for (const viewport of [{ width: 1025, height: 800 }, { width: 1440, height: 1000 }, { width: 1920, height: 1080 }]) {
+test(`desktop sculpture renders, moves, responds to dragging, and pauses off-screen at ${viewport.width}px`, async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'Desktop-only sculpture');
+  test.setTimeout(60000);
+  await page.setViewportSize(viewport);
+  const response = await page.goto('/');
+  expect(await response.text()).not.toMatch(/three-core|three-react|HeroScene/);
+  const canvas = page.locator('[data-hero-scene] canvas');
+  await expect(canvas).toBeVisible({ timeout: 15000 });
+  await expect(page.locator('[data-scene-active]')).toHaveAttribute('data-scene-active', 'true');
+  const readPixels = async () => sharp(await page.screenshot({ clip: await canvas.boundingBox() })).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  let first;
+  await expect.poll(async () => {
+    first = await readPixels();
+    let colored = 0;
+    for (let index = 0; index < first.data.length; index += 3) {
+      if (first.data[index + 2] > first.data[index] + 20 && first.data[index + 2] > first.data[index + 1] + 5) colored++;
+    }
+    return colored / (first.info.width * first.info.height);
+  }, { timeout: 15000 }).toBeGreaterThan(0.01);
+  const occupied = [];
+  for (let index = 0; index < first.data.length; index += 3) {
+    if (first.data[index + 2] > first.data[index] + 20 && first.data[index + 2] > first.data[index + 1] + 5) occupied.push(index / 3);
+  }
+  const horizontal = occupied.map(pixel => pixel % first.info.width);
+  const vertical = occupied.map(pixel => Math.floor(pixel / first.info.width));
+  expect(Math.min(...horizontal)).toBeGreaterThan(4);
+  expect(Math.max(...horizontal)).toBeLessThan(first.info.width - 4);
+  expect(Math.min(...vertical)).toBeGreaterThan(4);
+  expect(Math.max(...vertical)).toBeLessThan(first.info.height - 4);
+  const changedPixels = async () => {
+    const next = await readPixels();
+    let changed = 0;
+    for (let index = 0; index < first.data.length; index += 3) {
+      if (Math.abs(next.data[index] - first.data[index]) + Math.abs(next.data[index + 1] - first.data[index + 1]) + Math.abs(next.data[index + 2] - first.data[index + 2]) > 30) changed++;
+    }
+    return changed;
+  };
+  await expect.poll(changedPixels).toBeGreaterThan(200);
+  const bounds = await canvas.boundingBox();
+  first = await readPixels();
+  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + bounds.width * 0.75, bounds.y + bounds.height * 0.6, { steps: 12 });
+  await page.mouse.up();
+  expect(await changedPixels()).toBeGreaterThan(500);
+  await page.screenshot({ path: testInfo.outputPath('desktop-hero.png'), animations: 'disabled' });
+  await page.locator('#contact').scrollIntoViewIfNeeded();
+  await expect(page.locator('[data-scene-active]')).toHaveAttribute('data-scene-active', 'false');
+});
+}
+
+test('hero keeps one grid and avoids 3D on mobile and reduced-motion visits', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'Viewport matrix');
+  for (const viewport of [
+    { width: 1280, height: 800 }, { width: 1920, height: 1080 },
+    { width: 1024, height: 768 }, { width: 768, height: 1024 },
+    { width: 390, height: 844 }, { width: 320, height: 740 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const requests = [];
+    const collect = request => requests.push(request.url());
+    page.on('request', collect);
+    await page.goto('/');
+    await expect(page.locator('#home h1')).toBeVisible();
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const layout = await page.evaluate(() => {
+      const title = document.querySelector('#home h1').getBoundingClientRect();
+      const logo = document.querySelector('[data-site-header] a').getBoundingClientRect();
+      const project = document.querySelector('#projects img').parentElement.getBoundingClientRect();
+      const heading = document.querySelector('#projects h2').getBoundingClientRect();
+      const socials = [...document.querySelectorAll('#home a[aria-label]')].map(element => element.getBoundingClientRect());
+      return { titleLeft: title.left, logoLeft: logo.left, projectLeft: project.left, headingLeft: heading.left, headingTop: heading.top, height: innerHeight, overflow: document.documentElement.scrollWidth > innerWidth, socialsInside: socials.every(rect => rect.left >= 0 && rect.right <= innerWidth) };
+    });
+    expect(Math.abs(layout.titleLeft - layout.logoLeft)).toBeLessThan(2);
+    expect(Math.abs(layout.titleLeft - layout.projectLeft)).toBeLessThan(2);
+    expect(Math.abs(layout.titleLeft - layout.headingLeft)).toBeLessThan(2);
+    expect(layout.headingTop).toBeLessThan(layout.height);
+    expect(layout.overflow).toBe(false);
+    expect(layout.socialsInside).toBe(true);
+    await expect(page.locator('[data-hero-scene] canvas')).toHaveCount(0);
+    expect(requests.some(url => /three-core|three-react|HeroScene/.test(url))).toBe(false);
+    await page.screenshot({ path: testInfo.outputPath(`hero-${viewport.width}.png`), animations: 'disabled' });
+    page.off('request', collect);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  const requests = [];
+  page.on('request', request => requests.push(request.url()));
+  await page.goto('/');
+  await page.locator('#projects').scrollIntoViewIfNeeded();
+  await expect(page.locator('[data-hero-scene] canvas')).toHaveCount(0);
+  expect(requests.some(url => /three-core|three-react|HeroScene/.test(url))).toBe(false);
+});
+
 test('featured images fill consistent frames without changing on hover', async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/#projects');
   const images = page.locator('#projects img');
   await expect(images).toHaveCount(3);
@@ -122,31 +224,51 @@ test('footer keeps preferences secondary and works at narrow widths', async ({ p
   await expect(footer.getByRole('switch', { name: 'Ambient motion' })).not.toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await footer.screenshot({ path: testInfo.outputPath('footer-closed.png') });
-  await footer.locator('summary').focus();
-  await page.keyboard.press('Enter');
+  await footer.locator('summary').click();
   const ambient = footer.getByRole('switch', { name: 'Ambient motion' });
   await expect(ambient).toBeVisible();
-  await expect(ambient).not.toBeChecked();
+  await expect(ambient).toBeInViewport({ ratio: 1 });
+  await expect(ambient).toBeChecked();
   const switchSize = await ambient.boundingBox();
   expect(switchSize.width).toBeGreaterThan(switchSize.height);
   expect(switchSize.height).toBeLessThanOrEqual(24);
   expect(await ambient.locator('..').evaluate(element => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
-  await ambient.check();
-  await expect(ambient).toBeChecked();
   await ambient.uncheck();
   if (testInfo.project.name === 'mobile') {
     await expect(footer.getByRole('switch', { name: 'Custom cursor' })).toHaveCount(0);
   } else {
     const cursor = footer.getByRole('switch', { name: 'Custom cursor' });
-    await cursor.check();
     await expect(cursor).toBeChecked();
     await cursor.uncheck();
   }
   await footer.screenshot({ path: testInfo.outputPath('footer-settings.png') });
+  await page.reload();
+  await footer.locator('summary').click();
+  await expect(ambient).not.toBeChecked();
+  if (testInfo.project.name === 'desktop') {
+    const cursor = footer.getByRole('switch', { name: 'Custom cursor' });
+    await expect(cursor).not.toBeChecked();
+    await cursor.check();
+  }
+  await ambient.check();
+  await footer.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(ambient).not.toBeVisible();
+  await page.keyboard.press('Enter');
+  await expect(ambient).toBeInViewport({ ratio: 1 });
+  await page.reload();
+  await footer.locator('summary').click();
+  await expect(ambient).toBeChecked();
+  if (testInfo.project.name === 'desktop') await expect(footer.getByRole('switch', { name: 'Custom cursor' })).toBeChecked();
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.reload();
   await footer.locator('summary').click();
   await expect(footer.getByRole('switch', { name: 'Ambient motion' })).toBeDisabled();
+  await expect(ambient).not.toBeChecked();
+  if (testInfo.project.name === 'desktop') {
+    await expect(footer.getByRole('switch', { name: 'Custom cursor' })).toBeDisabled();
+    await expect(footer.getByRole('switch', { name: 'Custom cursor' })).not.toBeChecked();
+  }
 });
 
 for (const reducedMotion of ['reduce', 'no-preference']) {

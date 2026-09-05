@@ -130,7 +130,9 @@ const SiteFooter = ({ ambientEnabled, reducedMotion, onAmbientChange }) => (
         <a href="https://links.vanshul.com" target="_blank" rel="noopener noreferrer">Links</a>
         <a href="https://github.com/vanshulgoyal101" target="_blank" rel="noopener noreferrer">GitHub</a>
       </Links>
-      <Preferences>
+      <Preferences onToggle={event => {
+        if (event.currentTarget.open) event.currentTarget.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+      }}>
         <summary><HiOutlineAdjustments aria-hidden="true" />Display settings</summary>
         <div>
           <CursorToggle />

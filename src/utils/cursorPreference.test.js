@@ -34,11 +34,11 @@ describe('cursor preference', () => {
     expect(localStorage.getItem('vg.cursor')).toBeNull();
   });
 
-  it('explicit "on" enables the cursor even on an incapable (test) environment', () => {
+  it('explicit "on" does not enable the cursor on a touch device', () => {
     // jsdom matchMedia stub reports matches:false, so auto-detect is false here.
     expect(isCustomCursorEnabled()).toBe(false);
     setCursorPreference('on');
-    expect(isCustomCursorEnabled()).toBe(true);
+    expect(isCustomCursorEnabled()).toBe(false);
   });
 
   it('explicit "off" disables the cursor', () => {
@@ -55,7 +55,7 @@ describe('cursor preference', () => {
   });
 });
 
-describe('isAutoCursorCapable — Safari gating', () => {
+describe('isAutoCursorCapable', () => {
   const originalMatchMedia = window.matchMedia;
   const SAFARI_UA =
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15';
@@ -88,14 +88,14 @@ describe('isAutoCursorCapable — Safari gating', () => {
     expect(isAutoCursorCapable()).toBe(true);
   });
 
-  it('keeps the cursor off on Safari with a modest core count', () => {
+  it('enables the cursor on Safari with a modest core count', () => {
     setEnv({ ua: SAFARI_UA, vendor: 'Apple Computer, Inc.', cores: 6, mem: undefined });
-    expect(isAutoCursorCapable()).toBe(false);
+    expect(isAutoCursorCapable()).toBe(true);
   });
 
-  it('keeps the cursor off on a clearly low-end Safari machine', () => {
+  it('does not infer cursor preferences from hardware core count', () => {
     setEnv({ ua: SAFARI_UA, vendor: 'Apple Computer, Inc.', cores: 4, mem: undefined });
-    expect(isAutoCursorCapable()).toBe(false);
+    expect(isAutoCursorCapable()).toBe(true);
   });
 
   it('honours deviceMemory >= 8 when the browser reports it', () => {
@@ -106,5 +106,11 @@ describe('isAutoCursorCapable — Safari gating', () => {
   it('enables non-Safari (Chrome) on a capable machine', () => {
     setEnv({ ua: CHROME_UA, vendor: 'Google Inc.', cores: 8, mem: 8 });
     expect(isAutoCursorCapable()).toBe(true);
+  });
+
+  it('honors reduced motion even with a saved on preference', () => {
+    window.matchMedia = vi.fn(() => ({ matches: true }));
+    setCursorPreference('on');
+    expect(isCustomCursorEnabled()).toBe(false);
   });
 });

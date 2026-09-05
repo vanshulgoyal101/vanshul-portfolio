@@ -122,8 +122,16 @@ const RedirectBlogSlug = () => {
 };
 
 function App() {
-  const [ambientEnabled, setAmbientEnabled] = useState(false);
+  const [ambientEnabled, setAmbientEnabled] = useState(() => {
+    try { return localStorage.getItem('vg.ambient') !== 'off'; }
+    catch { return true; }
+  });
   const reducedMotion = useReducedMotion();
+  const changeAmbient = enabled => {
+    setAmbientEnabled(enabled);
+    try { localStorage.setItem('vg.ambient', enabled ? 'on' : 'off'); }
+    catch { return; }
+  };
 
   return (
     <MotionConfig reducedMotion="user">
@@ -201,7 +209,7 @@ function App() {
                   </ErrorBoundary>
                 </MainContent>
 
-              <SiteFooter ambientEnabled={ambientEnabled} reducedMotion={reducedMotion} onAmbientChange={setAmbientEnabled} />
+              <SiteFooter ambientEnabled={ambientEnabled} reducedMotion={reducedMotion} onAmbientChange={changeAmbient} />
             </>
           } />
           

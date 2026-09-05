@@ -1,10 +1,9 @@
 // src/components/Hero/FloatingShape.jsx
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import {
   Float,
   OrbitControls,
-  Sparkles,
 } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -36,29 +35,31 @@ const FloatingShape = () => {
   const outerRingRef = useRef();
   const gradientTexture = useGradientTexture();
 
+  useEffect(() => () => gradientTexture.dispose(), [gradientTexture]);
+
   useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
+    const elapsed = clock.elapsedTime * 0.5;
 
     // Slow, elegant rotation for the central sculpture
     if (knotRef.current) {
-      knotRef.current.rotation.y = t * 0.15;
-      knotRef.current.rotation.x = t * 0.08;
+      knotRef.current.rotation.y = elapsed * 0.15;
+      knotRef.current.rotation.x = elapsed * 0.08;
     }
 
     // Spin the wireframe overlay slightly differently to create depth
     if (wireframeRef.current) {
-      wireframeRef.current.rotation.y = t * 0.15;
-      wireframeRef.current.rotation.x = t * 0.08;
+      wireframeRef.current.rotation.y = elapsed * 0.15;
+      wireframeRef.current.rotation.x = elapsed * 0.08;
     }
 
     // Gyroscopic tech rings rotating on different axes
     if (innerRingRef.current) {
-      innerRingRef.current.rotation.y = -t * 0.25;
-      innerRingRef.current.rotation.x = t * 0.12;
+      innerRingRef.current.rotation.y = -elapsed * 0.25;
+      innerRingRef.current.rotation.x = elapsed * 0.12;
     }
     if (outerRingRef.current) {
-      outerRingRef.current.rotation.x = -t * 0.18;
-      outerRingRef.current.rotation.z = t * 0.22;
+      outerRingRef.current.rotation.x = -elapsed * 0.18;
+      outerRingRef.current.rotation.z = elapsed * 0.22;
     }
   });
 
@@ -100,10 +101,10 @@ const FloatingShape = () => {
 
       {/* ── Float group ─────────────────────────────────────────────────── */}
       <Float
-        speed={1.5}
-        rotationIntensity={0.3}
-        floatIntensity={1.2}
-        floatingRange={[-0.15, 0.15]}
+        speed={0.75}
+        rotationIntensity={0.08}
+        floatIntensity={0.3}
+        floatingRange={[-0.08, 0.08]}
       >
         <group>
           {/* Central Torus Knot (Main Sculpture) */}
@@ -156,15 +157,6 @@ const FloatingShape = () => {
         </group>
       </Float>
 
-      {/* Subtle background particles */}
-      <Sparkles
-        count={25}
-        scale={6}
-        size={1.2}
-        speed={0.15}
-        opacity={0.35}
-        color="#93c5fd"
-      />
     </>
   );
 };

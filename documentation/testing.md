@@ -29,9 +29,18 @@ canonical URL for every listed route, including the reading list. Playwright
 starts a production preview on port 4327 and tests desktop and mobile Chromium.
 The suite covers unique section IDs, heading clearance under the fixed header,
 reduced motion, cross-route links, skip-link focus, mobile menu focus and Escape,
-case-study disclosures, image loading, and the absence of automatic 3D requests.
+case-study disclosures, image loading, and the absence of 3D requests on mobile
+and reduced-motion visits. Hero checks measure shared gutters and first-viewport
+project visibility across six viewport sizes. Desktop WebGL checks at 1025, 1440,
+and 1920px sample screenshot pixels for a nonblank, contained sculpture, compare
+frames during animation and dragging, and verify off-screen pausing.
 External requests are blocked in browser tests; this does not verify live
 analytics, contact submission, or authenticated services.
+
+Footer checks exercise enabled defaults, saved on/off choices across reloads,
+pointer and keyboard opening, settings fully inside the viewport, and reduced
+motion overrides. Other browser checks explicitly save an ambient-motion opt-out
+to isolate their layout and canvas measurements.
 
 Homepage and selected-work screenshots are written under `test-results/` for
 visual inspection. Failures retain screenshots and traces. These are not pixel
@@ -99,9 +108,9 @@ container.querySelector('button[aria-label="Toggle mobile menu"]');
 | Site config integrity | `src/constants/siteConfig.test.js` |
 | SEO build helpers (frontmatter/escape/rfc822/readPosts) | `scripts/lib/seo.test.js` |
 
-Heavy 3D/canvas components (Hero, `InteractiveSpaceBackground`,
-etc.) are intentionally not deep-tested — they render WebGL and contain little
-testable logic; they belong in an E2E/visual-regression tool.
+Hero unit tests cover idle and media-preference gates, including preference
+changes and listener cleanup. Its real WebGL scene is covered by the production
+browser checks above. Other ambient canvas components are not deeply tested.
 
 ## Adding tests
 

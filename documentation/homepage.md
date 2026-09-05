@@ -31,15 +31,30 @@ toggle focus. Returning to desktop clears the mobile scroll lock.
 
 ## Content and motion
 
-There is no blocking greeting sequence or automatically mounted HeroScene.
-Ambient decorations are opt-in through the footer checkbox and disabled for
-reduced motion. Lazy routes show a loading state and share an error boundary.
+The left-aligned introduction, navbar logo, Projects heading, and featured cards
+share the same 1280px container and responsive gutter. Selected work starts in
+the first viewport at the tested desktop and mobile sizes.
+
+There is no blocking greeting sequence. The unframed hero sculpture loads after
+idle only above 1024px and without reduced motion. Its reserved area avoids layout
+shifts while loading, and its own error boundary keeps failures from replacing
+the introduction. Mobile and reduced-motion visits do not request the scene or
+Three.js chunks. Media-query changes unmount the scene when it is no longer allowed.
+Animation pauses off-screen and while the document is hidden; the texture is
+disposed on unmount. Rotation and floating motion are restrained, with no particles.
+
+Separate ambient decorations default to enabled and retain idle loading. The
+footer switch persists an explicit choice in `vg.ambient`; reduced motion always
+disables them. That setting does not control the desktop hero.
+Lazy routes show a loading state and share an error boundary.
 
 The footer separates identity and navigation from a collapsed `Display settings`
-disclosure. Cursor and ambient preferences use labelled switches. The cursor
-control is omitted on touch devices; ambient motion is disabled for reduced
-motion. The footer stacks at narrow widths and keeps navigation visible even
-when preferences are closed.
+disclosure. Opening it scrolls the expanded settings into view without changing
+focus. Cursor and ambient preferences use labelled switches. The cursor defaults
+on for mouse devices without browser or hardware heuristics; saved `vg.cursor`
+choices are preserved. Its control is omitted on touch devices, and both switches
+are disabled under reduced motion. The footer stacks at narrow widths and keeps
+navigation visible even when preferences are closed.
 
 ## Project media
 
