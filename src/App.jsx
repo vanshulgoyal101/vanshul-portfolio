@@ -33,6 +33,7 @@ import Analytics from './components/Analytics';
 
 // Heavy decorative elements — lazy loaded after first paint
 const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
+const SmokeTransition = lazy(() => import('./components/FunElements/SmokeTransition'));
 const RandomTelemetry = lazy(() => import('./components/FunElements/RandomTelemetry'));
 const InteractiveSpaceBackground = lazy(() => import('./components/FunElements/InteractiveSpaceBackground'));
 
@@ -108,6 +109,7 @@ const IdleBackground = () => {
   if (!ready) return null;
   return (
     <Suspense fallback={null}>
+      <SmokeTransition />
       <FloatingRocket isDesktopOnly />
       <RandomTelemetry />
       <InteractiveSpaceBackground />

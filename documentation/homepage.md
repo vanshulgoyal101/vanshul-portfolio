@@ -52,6 +52,14 @@ footer switch persists an explicit choice in `vg.ambient`; reduced motion always
 disables them. That setting does not control the desktop hero.
 Lazy routes show a loading state and share an error boundary.
 
+The floating desktop rocket and `SmokeTransition` load together inside the idle
+ambient boundary. Keep the smoke listener mounted with the rocket: `rocket-launch`
+starts the original pooled cyan/magenta/violet/grey trail, and
+`rocket-emit-smoke` follows the moving nozzle. The original three-tap countdown,
+0.2s shake, 1s takeoff, color-to-background blending, and reset are preserved.
+After 550ms the transition uses the shared scroll helper to focus About below
+the header. Do not disconnect the smoke listener when changing ambient loading.
+
 The footer separates identity and navigation from a collapsed `Display settings`
 disclosure. Opening it scrolls the expanded settings into view without changing
 focus. Cursor and ambient preferences use labelled switches. The cursor defaults

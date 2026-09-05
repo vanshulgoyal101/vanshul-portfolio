@@ -42,6 +42,13 @@ pointer and keyboard opening, settings fully inside the viewport, and reduced
 motion overrides. Other browser checks explicitly save an ambient-motion opt-out
 to isolate their layout and canvas measurements.
 
+`e2e/rocket.spec.js` launches the real floating rocket twice using pointer
+coordinates (the target intentionally never stops floating), samples canvas
+pixels to verify colored smoke, checks About focus/header clearance, and waits
+for the canvas to clear and the rocket to return. Smoke uses its original
+frame-based fade; software rendering can take longer than a hardware browser.
+Pixel readbacks stop after evidence is captured to avoid slowing every frame.
+
 Homepage and selected-work screenshots are written under `test-results/` for
 visual inspection. Failures retain screenshots and traces. These are not pixel
 baseline comparisons. CI runs lint, unit tests, build verification, and browser

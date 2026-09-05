@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { scrollToSection } from '../../utils/scrollToSection';
 
 const SmokeCanvas = styled.canvas`
   position: fixed;
@@ -205,10 +206,7 @@ const SmokeTransition = () => {
       // Smoothly scroll down after the rocket has gained significant altitude
       if (elapsed > 550 && !scrollTriggeredRef.current) {
         scrollTriggeredRef.current = true;
-        const aboutEl = document.getElementById('about');
-        if (aboutEl) {
-          aboutEl.scrollIntoView({ behavior: 'smooth' });
-        }
+        scrollToSection('about', { focus: true });
       }
 
       // Terminate transition loop when all particles are processed
@@ -243,7 +241,7 @@ const SmokeTransition = () => {
     };
   }, []);
 
-  return <SmokeCanvas ref={canvasRef} />;
+  return <SmokeCanvas ref={canvasRef} data-rocket-smoke aria-hidden="true" />;
 };
 
 export default SmokeTransition;

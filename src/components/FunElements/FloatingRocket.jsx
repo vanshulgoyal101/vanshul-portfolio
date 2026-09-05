@@ -248,6 +248,7 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   return (
     <RocketWrapper $isMobileOnly={isMobileOnly} $isDesktopOnly={isDesktopOnly}>
       <RocketContainer
+        data-rocket
         ref={rocketRef}
         animate={controls}
         onHoverStart={() => { setIsHovered(true); setShowBubble(true); }}
