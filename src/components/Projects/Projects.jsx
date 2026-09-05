@@ -96,16 +96,13 @@ const ProjectImageWrapper = styled.div`
 `;
 
 const ProjectImg = styled.img`
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center;
+  object-fit: cover;
+  object-position: center bottom;
   display: block;
-  transition: transform 0.4s ease;
-
-  ${ProjectCard}:hover & {
-    transform: scale(1.04);
-  }
 `;
 
 /* Fallback gradient shown when image is missing */

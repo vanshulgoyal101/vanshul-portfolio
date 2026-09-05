@@ -48,6 +48,10 @@ from their public pages using Chromium and Sharp. Install Chromium with
 `npx playwright install chromium` first. Review generated images before committing;
 never capture authenticated customer data. AdBrain currently shows its public
 landing page, not the authenticated creative workspace. The NASA photograph is
-preserved. Image frames use an 8:5 aspect ratio to avoid cropping the captures.
+preserved. Image frames use an 8:5 aspect ratio. Images are absolutely positioned
+inside the frame with `object-fit: cover` and a bottom-center anchor: the 8:5
+software captures remain complete, while the 4:3 HERC photo loses excess sky
+instead of the rover at the bottom. Images do not zoom on hover. Browser tests
+compare image/frame rectangles and frame heights on desktop and mobile.
 
 See [testing.md](testing.md) for production browser checks and their limits.

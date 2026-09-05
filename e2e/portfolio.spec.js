@@ -32,6 +32,34 @@ test('immediate content, unique targets, visible project media, and no automatic
   await page.screenshot({ path: testInfo.outputPath('selected-work.png') });
 });
 
+test('featured images fill consistent frames without changing on hover', async ({ page }, testInfo) => {
+  await page.goto('/#projects');
+  const images = page.locator('#projects img');
+  await expect(images).toHaveCount(3);
+  const frames = [];
+  for (const image of await images.all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(() => image.evaluate(element => element.complete && element.naturalWidth > 0)).toBe(true);
+    const measure = () => image.evaluate(element => {
+      const frame = element.parentElement.getBoundingClientRect();
+      const bounds = element.getBoundingClientRect();
+      return { width: frame.width, height: frame.height, left: bounds.left - frame.left, top: bounds.top - frame.top, widthDelta: bounds.width - frame.width, heightDelta: bounds.height - frame.height };
+    });
+    const frame = await measure();
+    expect(frame.width / frame.height).toBeCloseTo(8 / 5, 2);
+    for (const delta of [frame.left, frame.top, frame.widthDelta, frame.heightDelta]) expect(Math.abs(delta)).toBeLessThan(1);
+    await expect(image).toHaveCSS('object-fit', 'cover');
+    await expect(image).toHaveCSS('object-position', '50% 100%');
+    if (testInfo.project.name === 'desktop') {
+      await image.hover();
+      await expect(image).toHaveCSS('transform', 'none');
+    }
+    frames.push(frame);
+    await image.locator('..').screenshot({ path: testInfo.outputPath(`${await image.getAttribute('alt')}.png`), animations: 'disabled' });
+  }
+  for (const frame of frames) expect(Math.abs(frame.height - frames[0].height)).toBeLessThan(1);
+});
+
 test('case studies expand and the full project directory is visible by default', async ({ page }, testInfo) => {
   await page.goto('/');
   await page.getByLabel('Read case study: AdBrain', { exact: true }).click();
