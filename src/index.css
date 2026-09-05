@@ -84,7 +84,8 @@ select:focus-visible {
   outline: none;
 }
 
-h2[data-section-focus]:focus {
+:is(h1, h2, section, div, main)[data-section-focus]:focus,
+#main-content:focus {
   outline: none;
 }
 

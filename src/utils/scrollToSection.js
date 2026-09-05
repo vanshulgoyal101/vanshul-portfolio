@@ -19,11 +19,11 @@ export const scrollToSection = (sectionId, options = {}) => {
   const element = typeof sectionId === 'string' ? document.getElementById(sectionId) : sectionId;
   if (!element) return false;
 
-  const target = element.querySelector('h2') ?? element;
+  const target = element.id === 'main-content' ? element : (element.querySelector('h1, h2') ?? element);
   const top = element.id === 'home' ? 0 : getSectionScrollTop(target, options);
   if (options.focus) {
     target.setAttribute('tabindex', '-1');
-    if (target.matches('h2')) target.setAttribute('data-section-focus', '');
+    if (target.matches('h1, h2, section, div, main')) target.setAttribute('data-section-focus', '');
     target.focus({ preventScroll: true });
   }
   window.scrollTo({

@@ -75,4 +75,43 @@ describe('scrollToSection', () => {
     expect(scrollToSection('missing')).toBe(false);
     expect(window.scrollTo).not.toHaveBeenCalled();
   });
+
+  it('focuses the home h1 instead of outlining the entire home wrapper', () => {
+    const section = document.createElement('div');
+    section.id = 'home';
+    const heading = document.createElement('h1');
+    heading.textContent = 'Vanshul Goyal';
+    section.appendChild(heading);
+    document.body.appendChild(section);
+    scrollToSection('home', { focus: true });
+    expect(document.activeElement).toBe(heading);
+    expect(heading).toHaveAttribute('data-section-focus');
+    expect(section).not.toHaveAttribute('tabindex');
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+    section.remove();
+  });
+
+  it('marks a headingless section fallback without marking interactive targets', () => {
+    const section = document.createElement('section');
+    const button = document.createElement('button');
+    document.body.append(section, button);
+    scrollToSection(section, { focus: true });
+    expect(document.activeElement).toBe(section);
+    expect(section).toHaveAttribute('data-section-focus');
+    scrollToSection(button, { focus: true });
+    expect(document.activeElement).toBe(button);
+    expect(button).not.toHaveAttribute('data-section-focus');
+    section.remove();
+    button.remove();
+  });
+
+  it('keeps skip navigation focused on main content instead of a nested heading', () => {
+    const main = document.createElement('div');
+    main.id = 'main-content';
+    main.appendChild(document.createElement('h1'));
+    document.body.appendChild(main);
+    scrollToSection('main-content', { focus: true });
+    expect(document.activeElement).toBe(main);
+    main.remove();
+  });
 });

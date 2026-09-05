@@ -19,8 +19,12 @@ and let the shared hash handler position and focus the destination heading.
 The scroll helper accounts for positioned ancestors and the fixed header's
 viewport bottom. Reduced-motion users receive immediate scrolling.
 
-Programmatically focused section headings receive `data-section-focus`, which
-suppresses their decorative focus rectangle without removing the focus handoff.
+The scroll helper focuses the first `h1` or `h2`, falling back to the section
+only when it has no heading. Home must focus its name, not the full-height wrapper.
+Programmatically focused headings and non-interactive section fallbacks receive
+`data-section-focus`, which suppresses their decorative focus rectangle without
+removing the focus handoff. The skip-link destination `#main-content` also avoids
+a page-sized outline while remaining focusable.
 Interactive controls retain their keyboard outlines. Projects uses the same
 responsive heading-size tokens as About, Work, and Writings; browser tests
 compare their computed font sizes.

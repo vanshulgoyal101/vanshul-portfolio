@@ -213,6 +213,42 @@ test('direct reading-list response and sitemap agree', async ({ request, page })
   await page.getByRole('link', { name: 'Skip to content' }).focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#main-content')).toBeFocused();
+  await expect(page.locator('#main-content')).toHaveCSS('outline-style', 'none');
+});
+
+test('home and skip navigation never outline entire page sections', async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/#home');
+  const home = page.locator('#home');
+  const heading = home.locator('h1');
+  await expect(heading).toBeFocused();
+  await expect(heading).toHaveCSS('outline-style', 'none');
+  await expect(home).not.toHaveAttribute('tabindex');
+  await expect(home).toHaveCSS('outline-style', 'none');
+
+  await page.getByRole('link', { name: 'Explore My Work', exact: true }).click();
+  await expect(page.locator('#projects h2')).toBeFocused();
+  if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Toggle mobile menu' }).click();
+  const homeLink = page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Home', exact: true });
+  await page.keyboard.press('Tab');
+  await homeLink.focus();
+  await expect(homeLink).toHaveCSS('outline-style', 'solid');
+  await page.keyboard.press('Enter');
+  await expect(heading).toBeFocused();
+  await expect(heading).toHaveCSS('outline-style', 'none');
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
+
+  await page.getByRole('contentinfo').getByRole('link', { name: 'Vanshul Goyal', exact: true }).click();
+  await expect(heading).toBeFocused();
+  await expect(home).toHaveCSS('outline-style', 'none');
+  const skip = page.getByRole('link', { name: 'Skip to content' });
+  await page.keyboard.press('Tab');
+  await skip.focus();
+  await expect(skip).toHaveCSS('outline-style', 'solid');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#main-content')).toBeFocused();
+  await expect(page.locator('#main-content')).toHaveCSS('outline-style', 'none');
+  await page.screenshot({ path: testInfo.outputPath('home-focus.png'), animations: 'disabled' });
 });
 
 test('footer keeps preferences secondary and works at narrow widths', async ({ page }, testInfo) => {
