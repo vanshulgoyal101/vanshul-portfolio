@@ -15,6 +15,29 @@ npm run test:coverage  # coverage report (text + html in coverage/)
 
 `coverage/` is git-ignored and excluded from linting.
 
+## Production browser checks
+
+```bash
+npx playwright install chromium
+npm run build
+npm run verify:build
+npm run test:e2e
+```
+
+`verify:build` parses the final sitemap and requires a matching HTML shell and
+canonical URL for every listed route, including the reading list. Playwright
+starts a production preview on port 4327 and tests desktop and mobile Chromium.
+The suite covers unique section IDs, heading clearance under the fixed header,
+reduced motion, cross-route links, skip-link focus, mobile menu focus and Escape,
+case-study disclosures, image loading, and the absence of automatic 3D requests.
+External requests are blocked in browser tests; this does not verify live
+analytics, contact submission, or authenticated services.
+
+Homepage and selected-work screenshots are written under `test-results/` for
+visual inspection. Failures retain screenshots and traces. These are not pixel
+baseline comparisons. CI runs lint, unit tests, build verification, and browser
+tests before uploading the Pages artifact.
+
 ## Layout & conventions
 
 - Tests are colocated with the code they cover, named `*.test.js` / `*.test.jsx`.

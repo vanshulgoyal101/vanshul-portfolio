@@ -46,10 +46,14 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_GOATCOUNTER_CODE: ${{ secrets.VITE_GOATCOUNTER_CODE }}
 
-      - name: Generate sitemaps
-        run: |
-          node scripts/gen-sitemap.mjs
-          node scripts/gen-sitemap-index.mjs
+      - name: Verify published routes
+        run: npm run verify:build
+
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser regression tests
+        run: npm run test:e2e
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

@@ -24,6 +24,6 @@ const xml = buildSitemap(posts, { site: SITE });
 
 writeFileSync(join(root, 'public', 'sitemap.xml'), xml);
 console.log(
-  `Wrote public/sitemap.xml with ${posts.length + 2} URLs (${posts.length} posts + home + /blog).`,
+  `Wrote public/sitemap.xml with ${posts.length + 3} URLs (${posts.length} posts + home + /blog + /reading-list).`,
 );
 

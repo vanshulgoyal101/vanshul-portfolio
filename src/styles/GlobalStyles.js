@@ -213,11 +213,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   section {
-    scroll-margin-top: var(--header-offset);
-
-    @media (max-width: 768px) {
-      scroll-margin-top: calc(var(--header-offset) - 0.5rem);
-    }
+    scroll-margin-top: 0;
   }
 
   /* Fluid Section Spacing */
@@ -336,21 +332,10 @@ const GlobalStyles = createGlobalStyle`
       scrollbar-width: none;
     }
 
-      /* Fix sections not showing */
-  section {
-    min-height: auto !important;
-    padding: var(--spacing-lg) 0 !important;
-  }
-  
     /* Fix container padding */
     .container {
         padding: 0 1rem !important;
     }
-    /* Fix font sizes */
-    h1 { font-size: var(--text-4xl) !important; }
-    h2 { font-size: var(--text-3xl) !important; }
-    h3 { font-size: var(--text-2xl) !important; }
-    
     /* Fix grid layouts */
     .grid {
         grid-template-columns: 1fr !important;

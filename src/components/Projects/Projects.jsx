@@ -12,10 +12,10 @@ import { IoGameController } from 'react-icons/io5';
 const ProjectsSection = styled.section`
   position: relative;
   background: transparent;
-  padding: var(--spacing-2xl) 0;
+  padding: 2rem 0 var(--spacing-2xl);
 
   @media (max-width: 768px) {
-    padding: var(--spacing-xl) 0;
+    padding: 1rem 0 var(--spacing-xl);
   }
 `;
 
@@ -35,7 +35,7 @@ const SectionHeader = styled(motion.div)`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: var(--text-5xl);
+  font-size: 2rem;
   margin-bottom: var(--spacing-md);
   padding-top: var(--spacing-md);
   background: var(--color-gradient-1);
@@ -61,7 +61,7 @@ const SectionSubtitle = styled.p`
 
 const ProjectsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--spacing-lg);
   max-width: 1200px;
   margin: 0 auto;
@@ -75,7 +75,8 @@ const ProjectsGrid = styled.div`
 const ProjectCard = styled(motion.div)`
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 8px;
+  min-width: 0;
   overflow: hidden;
   position: relative;
   transition: border-color 0.55s cubic-bezier(0.22, 1, 0.36, 1),
@@ -91,20 +92,16 @@ const ProjectCard = styled(motion.div)`
 `;
 
 const ProjectImageWrapper = styled.div`
-  height: 200px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--color-bg-secondary);
   position: relative;
-
-  @media (max-width: 768px) {
-    height: 160px;
-  }
 `;
 
 const ProjectImg = styled.img`
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  aspect-ratio: 8 / 5;
+  object-fit: contain;
   object-position: center;
   display: block;
   transition: transform 0.4s ease;
@@ -128,7 +125,7 @@ const ProjectImageFallback = styled.div`
 `;
 
 const ProjectContent = styled.div`
-  padding: var(--spacing-lg);
+  padding: 1.5rem;
 
   @media (max-width: 768px) {
     padding: var(--spacing-md);
@@ -136,7 +133,8 @@ const ProjectContent = styled.div`
 `;
 
 const ProjectTitle = styled.h3`
-  font-size: var(--text-xl);
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
   margin-bottom: var(--spacing-sm);
   color: var(--color-text-primary);
 
@@ -223,8 +221,31 @@ const ProjectLink = styled.a`
 
 /* ── "More projects" compact tier ── */
 
-const MoreProjects = styled.div`
+const MoreProjects = styled.details`
   margin-top: var(--spacing-2xl);
+
+  > summary {
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    padding: 1rem 0;
+    border-block: 1px solid var(--color-border);
+  }
+`;
+
+const CaseStudy = styled.details`
+  margin: 1rem 0;
+  border-top: 1px solid var(--color-border);
+
+  summary {
+    cursor: pointer;
+    padding: 0.75rem 0;
+    font-weight: 600;
+    color: var(--color-accent-primary);
+  }
+
+  dt { font-weight: 600; margin-top: 0.75rem; }
+  dd { margin: 0.25rem 0 1rem; color: var(--color-text-secondary); font-size: 0.9375rem; }
 `;
 
 const MoreHeader = styled(motion.div)`
@@ -409,12 +430,18 @@ const projects = [
       { icon: <FaCode />, text: 'Next.js 16 · React 19 · Supabase' },
     ],
     link: 'https://adbrain.vanshul.com',
+    caseStudy: {
+      problem: 'Local businesses need a repeatable way to turn their brand and campaign goal into ad creative.',
+      contribution: 'Built the product end to end: brand setup, image and copy generation, and creative management.',
+      decision: 'Keep reusable brand context separate from individual campaign goals so each new creative starts from the same foundation.',
+      outcome: 'A live product with a solar business as its first real-world use case.',
+    },
   },
   {
     id: 2,
     title: 'Tiny Arcade — 10 Browser Games',
     role: 'Solo Developer',
-    description: 'Ten instant-play browser games — reflex, memory, typing, mental maths, ear training, Wordle and more — built in TypeScript + Vite with a shared model/view architecture, cloud leaderboards and full SEO. No frameworks, no backend.',
+    description: 'Instant-play games for reflexes, memory, typing and mental maths. Lightweight TypeScript interfaces, shared game architecture and cloud leaderboards.',
     image: '/images/projects/tiny-arcade.webp',
     fallbackIcon: <IoGameController />,
     stats: [
@@ -422,6 +449,12 @@ const projects = [
       { icon: <FaCode />, text: 'TypeScript + Vite' },
     ],
     link: 'https://games.vanshul.com',
+    caseStudy: {
+      problem: 'Make short, replayable games that work immediately in a browser without an installation.',
+      contribution: 'Built the games, responsive interfaces, shared audio and score-sharing utilities, and leaderboard integration.',
+      decision: 'Separate game rules from rendering so timing, scoring and round transitions can be tested independently of the interface.',
+      outcome: 'A live collection of browser games with tested game logic and shared interaction patterns.',
+    },
   },
   {
     id: 3,
@@ -435,6 +468,12 @@ const projects = [
       { icon: <BiMoney />,  text: '$30,000 raised via govt & private sources' },
     ],
     link: 'https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge/',
+    caseStudy: {
+      problem: 'Design and manufacture a human-powered rover for NASA HERC 2023.',
+      contribution: 'Led a six-person team through the design and manufacturing work, alongside fundraising and STEM outreach.',
+      decision: 'Take the rover from design into physical manufacture, making the engineering work accountable to a working vehicle.',
+      outcome: 'Competed at NASA HERC 2023 with the team and its manufactured rover.',
+    },
   },
 ];
 
@@ -525,17 +564,17 @@ const ProjectImage = ({ src, alt, fallback }) => {
 
 const Projects = () => {
   return (
-    <ProjectsSection id="projects">
+    <ProjectsSection>
       <Container>
         <SectionHeader
           variants={headerVariants}
-          initial="hidden"
+          initial={false}
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
         >
           <SectionTitle>Featured Projects</SectionTitle>
           <SectionSubtitle>
-            From space exploration to software development — projects that define my journey
+            Software in use. Games you can play. A rover we built.
           </SectionSubtitle>
         </SectionHeader>
 
@@ -545,10 +584,9 @@ const Projects = () => {
               key={project.id}
               custom={i}
               variants={cardVariants}
-              initial="hidden"
+              initial={false}
               whileInView="visible"
               viewport={{ once: true, amount: 0.15 }}
-              whileHover={{ y: -5 }}
             >
               <ProjectImage
                 src={project.image}
@@ -559,6 +597,15 @@ const Projects = () => {
                 <ProjectTitle>{project.title}</ProjectTitle>
                 <ProjectRole>{project.role}</ProjectRole>
                 <ProjectDescription>{project.description}</ProjectDescription>
+                <CaseStudy>
+                  <summary aria-label={`Read case study: ${project.title}`}>Read case study</summary>
+                  <dl>
+                    <dt>The problem</dt><dd>{project.caseStudy.problem}</dd>
+                    <dt>My contribution</dt><dd>{project.caseStudy.contribution}</dd>
+                    <dt>Engineering decision</dt><dd>{project.caseStudy.decision}</dd>
+                    <dt>Outcome</dt><dd>{project.caseStudy.outcome}</dd>
+                  </dl>
+                </CaseStudy>
 
                 <ProjectStats>
                   {project.stats.map((stat, idx) => (
@@ -581,13 +628,14 @@ const Projects = () => {
         </ProjectsGrid>
 
         <MoreProjects>
+          <summary>More things I&apos;ve built</summary>
           <MoreHeader
             variants={headerVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.15 }}
           >
-            <MoreTitle>More things I&apos;ve built</MoreTitle>
+            <MoreTitle>Project directory</MoreTitle>
             <MoreSubtitle>Live products, open-source packages and interactive experiments.</MoreSubtitle>
           </MoreHeader>
 

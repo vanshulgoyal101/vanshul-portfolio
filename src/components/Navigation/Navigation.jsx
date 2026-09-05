@@ -1,5 +1,5 @@
 // src/components/Navigation/Navigation.jsx
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
@@ -8,60 +8,39 @@ import { HiMenuAlt3, HiX } from 'react-icons/hi';
 // Styled Components
 const Nav = styled(motion.nav)`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 1rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  max-width: calc(var(--container-xl) - 3rem);
+  margin: 0 auto;
+  border: 1px solid transparent;
+  border-radius: 100px;
   z-index: var(--z-fixed);
-  will-change: top, left, right, max-width, margin, background-color, border-color, border-radius, box-shadow, backdrop-filter, transform;
-  transform: translate3d(0, 0, 0);
-  transition:
-    top 1s cubic-bezier(0.19, 1, 0.22, 1),
-    left 1s cubic-bezier(0.19, 1, 0.22, 1),
-    right 1s cubic-bezier(0.19, 1, 0.22, 1),
-    max-width 1s cubic-bezier(0.19, 1, 0.22, 1),
-    margin 1s cubic-bezier(0.19, 1, 0.22, 1),
-    background-color 1s cubic-bezier(0.19, 1, 0.22, 1),
-    border-color 1s cubic-bezier(0.19, 1, 0.22, 1),
-    border-radius 1s cubic-bezier(0.19, 1, 0.22, 1),
-    box-shadow 1s cubic-bezier(0.19, 1, 0.22, 1),
-    backdrop-filter 1s cubic-bezier(0.19, 1, 0.22, 1),
-    -webkit-backdrop-filter 1s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
   background: transparent;
 
-  ${({ $scrolled }) => $scrolled && `
-    top: 1rem;
-    left: 1.5rem;
-    right: 1.5rem;
-    max-width: calc(var(--container-xl) - 3rem);
-    margin: 0 auto;
-    background: rgba(246, 243, 235, 0.75);
-    border: 1px solid rgba(30, 41, 59, 0.06);
-    border-radius: 100px;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 12px 30px rgba(30, 41, 59, 0.06);
+  @media (max-width: 768px) {
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    left: 1rem;
+    right: 1rem;
+  }
 
-    @media (max-width: 768px) {
-      top: calc(0.5rem + env(safe-area-inset-top, 0px));
-      left: 1rem;
-      right: 1rem;
-      max-width: calc(100% - 2rem);
-    }
+  ${({ $scrolled }) => $scrolled && `
+    background: rgba(246, 243, 235, 0.98);
+    border: 1px solid rgba(30, 41, 59, 0.06);
+    box-shadow: 0 12px 30px rgba(30, 41, 59, 0.06);
   `}
 `;
 
 const NavContainer = styled.div`
   max-width: var(--container-xl);
   margin: 0 auto;
-  padding: ${({ $scrolled }) => $scrolled ? '0.75rem 1.75rem' : 'clamp(1rem, 3vw, 1.5rem) var(--container-padding)'};
+  padding: 0.75rem 1.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: padding 1s cubic-bezier(0.19, 1, 0.22, 1), transform 1s cubic-bezier(0.19, 1, 0.22, 1);
-  will-change: padding, transform;
-
   @media (max-width: 768px) {
-    padding: ${({ $scrolled }) => $scrolled ? '0.6rem 1.2rem' : 'calc(1rem + env(safe-area-inset-top, 0px)) var(--container-padding) 1rem var(--container-padding)'};
+    padding: 0.6rem 1.2rem;
   }
 `;
 
@@ -111,7 +90,8 @@ const NavLinks = styled(motion.ul)`
     position: fixed;
     top: 0;
     right: 0;
-    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
     width: min(75vw, 360px);
     background: rgba(246, 243, 235, 0.85);
     backdrop-filter: blur(30px);
@@ -121,6 +101,7 @@ const NavLinks = styled(motion.ul)`
     gap: 2rem;
     padding: 2rem;
     transform: translateX(calc(100% + 40px));
+    visibility: hidden;
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: -15px 0 40px rgba(30, 41, 59, 0.05);
     border-left: 1px solid rgba(30, 41, 59, 0.08);
@@ -129,6 +110,7 @@ const NavLinks = styled(motion.ul)`
 
     ${({ $isOpen }) => $isOpen && `
       transform: translateX(0);
+      visibility: visible;
     `}
   }
 `;
@@ -233,12 +215,25 @@ const MobileOverlay = styled(motion.div)`
 `;
 
 // Navigation Component
-const Navigation = ({ scrollToSection }) => {
+const navItems = [
+  { id: 'home', label: 'Home' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'about', label: 'About' },
+  { id: 'work', label: 'Work' },
+  { id: 'blog', label: 'Blog' },
+  { id: 'contact', label: 'Contact' },
+];
+
+const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const navigate = useNavigate();
   const location = useLocation();
+  const navRef = useRef(null);
+  const menuRef = useRef(null);
+  const toggleRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 768px)').matches);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -247,16 +242,6 @@ const Navigation = ({ scrollToSection }) => {
     restDelta: 0.001
   });
 
-  // Memoized nav items — stable across renders
-  const navItems = useMemo(() => [
-    { id: 'home',     label: 'Home'     },
-    { id: 'about',    label: 'About'    },
-    { id: 'work',     label: 'Work'     },
-    { id: 'projects', label: 'Projects' },
-    { id: 'blog',     label: 'Blog'     },
-    { id: 'contact',  label: 'Contact'  },
-  ], []);
-
   // Treat /blog/:slug pages as "blog" section active
   const effectiveSection = location.pathname.startsWith('/blog') ? 'blog' : activeSection;
 
@@ -264,14 +249,18 @@ const Navigation = ({ scrollToSection }) => {
   // native anchor jumps and programmatic scrolls land cleanly below the fixed bar.
   useEffect(() => {
     const syncHeaderOffset = () => {
-      const nav = document.querySelector('nav');
-      const offset = nav ? nav.offsetHeight + 20 : 96;
+      const offset = (navRef.current?.getBoundingClientRect().bottom ?? 76) + 20;
       document.documentElement.style.setProperty('--header-offset', `${offset}px`);
     };
 
     syncHeaderOffset();
+    const observer = new ResizeObserver(syncHeaderOffset);
+    observer.observe(navRef.current);
     window.addEventListener('resize', syncHeaderOffset);
-    return () => window.removeEventListener('resize', syncHeaderOffset);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', syncHeaderOffset);
+    };
   }, []);
 
   // Handle scroll events
@@ -282,72 +271,72 @@ const Navigation = ({ scrollToSection }) => {
 
       // Update active section based on scroll position
       const sections = navItems.map(item => document.getElementById(item.id));
-      const scrollPosition = window.scrollY + window.innerHeight / 3;
+      const scrollPosition = window.innerHeight / 3;
 
       sections.forEach((section, index) => {
         if (section) {
-          const { offsetTop, offsetHeight } = section;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+          const { top, bottom } = section.getBoundingClientRect();
+          if (scrollPosition >= top && scrollPosition < bottom) {
             setActiveSection(navItems[index].id);
           }
         }
       });
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll(); // Initial check
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [navItems]);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)');
+    const update = () => {
+      setIsMobile(media.matches);
+      if (!media.matches) setIsMobileMenuOpen(false);
+    };
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-
+    if (!isMobileMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    menuRef.current?.querySelector('a')?.focus();
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setIsMobileMenuOpen(false);
+        toggleRef.current?.focus();
+      }
+      if (event.key === 'Tab') {
+        const controls = [...menuRef.current.querySelectorAll('a'), toggleRef.current];
+        const current = controls.indexOf(document.activeElement);
+        const next = event.shiftKey ? current - 1 : current + 1;
+        if (current === -1 || next < 0 || next >= controls.length) {
+          event.preventDefault();
+          controls[event.shiftKey ? controls.length - 1 : 0].focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
     };
   }, [isMobileMenuOpen]);
 
   // Handle navigation click
-  const handleNavClick = useCallback((e, sectionId) => {
-    e.preventDefault();
+  const handleNavClick = (event, sectionId) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
     setIsMobileMenuOpen(false);
-    
-    // Check if we're on the home page
-    const isOnHomePage = location.pathname === '/';
-    
-    if (isOnHomePage) {
-      // Already on home page, just scroll to section
-      setTimeout(() => {
-        scrollToSection(sectionId);
-      }, 300);
-    } else {
-      // Navigate to home page first, then scroll
-      navigate('/');
-      // Wait for navigation and DOM render to complete, then scroll
-      setTimeout(() => {
-        scrollToSection(sectionId);
-      }, 500);
-    }
-  }, [scrollToSection, navigate, location.pathname]);
-
-  // Animation variants
-  const navVariants = {
-    hidden: { y: -100 },
-    visible: {
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
-    },
+    navigate(`/#${sectionId}`);
   };
 
+  // Animation variants
   const linkVariants = {
     hidden: { opacity: 0, y: -20 },
     visible: (i) => ({
@@ -381,9 +370,9 @@ const Navigation = ({ scrollToSection }) => {
   return (
     <>
       <Nav
-        variants={navVariants}
-        initial="hidden"
-        animate="visible"
+        ref={navRef}
+        data-site-header
+        aria-label="Primary navigation"
         $scrolled={isScrolled}
         transition={{
           duration: 0.75,
@@ -393,6 +382,8 @@ const Navigation = ({ scrollToSection }) => {
       >
         <NavContainer $scrolled={isScrolled}>
           <LogoContainer
+            href="/#home"
+            aria-label="Vanshul Goyal, home"
             onClick={(e) => handleNavClick(e, 'home')}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.95 }}
@@ -430,17 +421,17 @@ const Navigation = ({ scrollToSection }) => {
             </LogoBadge>
           </LogoContainer>
 
-          <NavLinks $isOpen={isMobileMenuOpen}>
+          <NavLinks id="primary-menu" ref={menuRef} $isOpen={isMobileMenuOpen} inert={isMobile && !isMobileMenuOpen}>
             {navItems.map((item, index) => (
               <motion.li
                 key={item.id}
                 variants={linkVariants}
-                initial="hidden"
+                initial={false}
                 animate="visible"
                 custom={index}
               >
                 <NavLink
-                  href={`#${item.id}`}
+                  href={`/#${item.id}`}
                   onClick={(e) => handleNavClick(e, item.id)}
                   className={effectiveSection === item.id ? 'active' : ''}
                   aria-current={effectiveSection === item.id ? 'true' : undefined}
@@ -454,6 +445,9 @@ const Navigation = ({ scrollToSection }) => {
           </NavLinks>
 
           <MenuButton
+            ref={toggleRef}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="primary-menu"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -493,7 +487,10 @@ const Navigation = ({ scrollToSection }) => {
             initial="closed"
             animate="open"
             exit="closed"
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              toggleRef.current?.focus();
+            }}
           />
         )}
       </AnimatePresence>

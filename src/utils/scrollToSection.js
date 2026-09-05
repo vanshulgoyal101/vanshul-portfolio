@@ -1,21 +1,16 @@
-export const getScrollOffset = ({ navSelector = 'nav', gap = 20 } = {}) => {
+export const getScrollOffset = ({ navSelector = '[data-site-header]', gap = 20 } = {}) => {
   const nav = document.querySelector(navSelector);
-  const navHeight = nav ? (nav.offsetHeight || nav.getBoundingClientRect().height || 0) : 0;
-  return navHeight + gap;
+  return Math.max(nav?.getBoundingClientRect().bottom ?? 0, 0) + gap;
 };
 
 export const getSectionScrollTop = (element, options = {}) => {
   if (!element) return 0;
 
-  const { gap = 20, navSelector = 'nav' } = options;
-  const nav = document.querySelector(navSelector);
-  const navHeight = nav ? (nav.offsetHeight || nav.getBoundingClientRect().height || 0) : 0;
-
-  const elementTop = typeof element.offsetTop === 'number'
-    ? element.offsetTop
-    : (element.getBoundingClientRect().top + window.scrollY);
-
-  return Math.max(elementTop - navHeight - gap, 0);
+  let elementTop = 0;
+  for (let parent = element; parent; parent = parent.offsetParent) {
+    elementTop += parent.offsetTop;
+  }
+  return Math.max(elementTop - getScrollOffset(options), 0);
 };
 
 export const scrollToSection = (sectionId, options = {}) => {
@@ -24,10 +19,15 @@ export const scrollToSection = (sectionId, options = {}) => {
   const element = typeof sectionId === 'string' ? document.getElementById(sectionId) : sectionId;
   if (!element) return false;
 
-  const top = getSectionScrollTop(element, options);
+  const target = element.querySelector('h2') ?? element;
+  const top = element.id === 'home' ? 0 : getSectionScrollTop(target, options);
+  if (options.focus) {
+    target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+  }
   window.scrollTo({
     top,
-    behavior: options.behavior ?? 'smooth',
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : (options.behavior ?? 'smooth'),
   });
 
   return true;

@@ -1,30 +1,26 @@
 // src/components/Hero/Hero.jsx
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 
 import { FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { IoGameController } from 'react-icons/io5';
-import { HiChevronDown } from 'react-icons/hi';
 import Magnetic from '../FunElements/Magnetic';
-
-const FloatingRocket = lazy(() => import('../FunElements/FloatingRocket'));
-const HeroScene = lazy(() => import('./HeroScene'));
 
 // Styled Components
 const HeroSection = styled.section`
-  min-height: 100vh;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  padding: var(--spacing-2xl) var(--container-padding);
+  padding: 8rem var(--container-padding) 2rem;
   
   @media (max-width: 768px) {
-    min-height: 100svh;
-    padding: 40px var(--container-padding) 40px var(--container-padding);
+    min-height: 0;
+    padding: 6.5rem var(--container-padding) 1.5rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -34,9 +30,8 @@ const HeroSection = styled.section`
 const HeroContainer = styled.div`
   max-width: var(--container-xl);
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-xl);
+  display: block;
+  text-align: center;
   align-items: center;
   position: relative;
   z-index: 2;
@@ -48,14 +43,14 @@ const HeroContainer = styled.div`
 `;
 
 const HeroContent = styled(motion.div)`
-  max-width: 600px;
+  max-width: 800px;
 
   @media (max-width: 1024px) {
     margin: 0 auto;
   }
 
   @media (max-width: 768px) {
-    margin-top: 40px;
+    margin-top: 0;
   }
 `;
 
@@ -68,7 +63,8 @@ const Greeting = styled(motion.span)`
 `;
 
 const Title = styled(motion.h1)`
-  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-size: 3.5rem;
+  letter-spacing: 0;
   font-weight: 700;
   line-height: 1.1;
   margin-bottom: var(--spacing-md);
@@ -78,12 +74,13 @@ const Title = styled(motion.h1)`
   background-clip: text;
 
   @media (max-width: 768px) {
+    font-size: 2.25rem;
     margin-bottom: var(--spacing-xs);
   }
 `;
 
 const Subtitle = styled(motion.p)`
-  font-size: var(--text-xl);
+  font-size: 1rem;
   color: var(--color-text-secondary);
   margin-bottom: var(--spacing-md);
   line-height: 1.6;
@@ -95,7 +92,7 @@ const Subtitle = styled(motion.p)`
 `;
 
 const Description = styled(motion.p)`
-  font-size: var(--text-base);
+  font-size: 1.125rem;
   color: var(--color-text-secondary);
   margin-bottom: var(--spacing-lg);
   line-height: 1.8;
@@ -110,7 +107,8 @@ const CTAContainer = styled(motion.div)`
   display: flex;
   gap: var(--spacing-md);
   align-items: center;
-  margin-bottom: var(--spacing-lg);
+  justify-content: center;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
 
   @media (max-width: 1024px) {
@@ -131,7 +129,7 @@ const CTAContainer = styled(motion.div)`
   }
 `;
 
-const CTAButton = styled(motion.a)`
+const CTAButton = styled(Link)`
   padding: clamp(0.875rem, 2vw, 1rem) clamp(1.75rem, 4vw, 2.5rem);
   background: var(--color-gradient-1);
   color: var(--color-bg-primary);
@@ -172,7 +170,7 @@ const CTAButton = styled(motion.a)`
   }
 `;
 
-const SecondaryButton = styled(motion.a)`
+const SecondaryButton = styled(Link)`
   padding: clamp(0.875rem, 2vw, 1rem) clamp(1.75rem, 4vw, 2.5rem);
   border: 2px solid var(--color-border);
   color: var(--color-text-primary);
@@ -205,6 +203,7 @@ const SecondaryButton = styled(motion.a)`
 const SocialLinks = styled(motion.div)`
   display: flex;
   gap: var(--spacing-md);
+  justify-content: center;
 
   @media (max-width: 1024px) {
     justify-content: center;
@@ -237,87 +236,8 @@ const SocialLink = styled(motion.a)`
   }
 `;
 
-const CanvasContainer = styled.div`
-  width: 100%;
-  height: 600px;
-  position: relative;
-
-  @media (max-width: 1024px) {
-    height: 400px;
-    position: absolute;
-    top: 100px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.3;
-    z-index: -1;
-  }
-`;
-
-const LoadingContainer = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-`;
-
-const ScrollIndicator = styled(motion.button)`
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  z-index: 3;
-
-  &:hover {
-    color: var(--color-accent-primary);
-  }
-
-  @media (max-width: 1024px) {
-    display: none;
-  }
-`;
-
-const ScrollText = styled.span`
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  font-family: var(--font-mono);
-`;
-
-const ScenePlaceholder = () => (
-  <LoadingContainer>
-    <svg width="80" height="80" viewBox="0 0 80 80" style={{ opacity: 0.25 }} aria-hidden="true">
-      <circle cx="40" cy="40" r="30" fill="none" stroke="#1d4ed8" strokeWidth="1" strokeDasharray="6 4" />
-      <circle cx="40" cy="40" r="18" fill="none" stroke="#3b82f6" strokeWidth="0.8" />
-      <polygon points="40,20 55,50 25,50" fill="none" stroke="#1d4ed8" strokeWidth="0.8" />
-    </svg>
-  </LoadingContainer>
-);
-
 // Hero Component
 const Hero = () => {
-  // The 3D scene is purely decorative: skip it entirely for reduced-motion users
-  // so they never pay to download three.js.
-  const [sceneEnabled, setSceneEnabled] = useState(false);
-
-  useEffect(() => {
-    setSceneEnabled(!window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  }, []);
-
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -347,11 +267,11 @@ const Hero = () => {
       <HeroContainer>
         <HeroContent
           variants={containerVariants}
-          initial="hidden"
+          initial={false}
           animate="visible"
         >
           <Greeting variants={itemVariants}>
-            Hello, I'm
+            Engineer &amp; independent builder
           </Greeting>
 
           <Title variants={itemVariants}>
@@ -363,25 +283,20 @@ const Hero = () => {
           </Subtitle>
 
           <Description variants={itemVariants}>
-            Driven by a deep curiosity for how things work. I enjoy getting my hands dirty with engineering
-            and building new things from the ground up.
+            I build software for real businesses, tools for curious people, and things that move beyond the screen.
           </Description>
 
           <CTAContainer variants={itemVariants}>
             <Magnetic range={80}>
               <CTAButton
-                href="#work"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                to="/#projects"
               >
                 Explore My Work
               </CTAButton>
             </Magnetic>
             <Magnetic range={80}>
               <SecondaryButton
-                href="#contact"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                to="/#contact"
               >
                 Get In Touch
               </SecondaryButton>
@@ -450,41 +365,8 @@ const Hero = () => {
               </SocialLink>
             </Magnetic>
           </SocialLinks>
-          <Suspense fallback={null}>
-            <FloatingRocket isMobileOnly />
-          </Suspense>
         </HeroContent>
-
-        <CanvasContainer>
-          {sceneEnabled ? (
-            <Suspense fallback={<ScenePlaceholder />}>
-              <HeroScene />
-            </Suspense>
-          ) : (
-            <ScenePlaceholder />
-          )}
-        </CanvasContainer>
       </HeroContainer>
-
-      <ScrollIndicator
-        onClick={() => {
-          const el = document.getElementById('about');
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }}
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2, duration: 0.5 }}
-        whileHover={{ scale: 1.1 }}
-        aria-label="Scroll to About"
-      >
-        <ScrollText>Scroll</ScrollText>
-        <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <HiChevronDown size={20} />
-        </motion.div>
-      </ScrollIndicator>
     </HeroSection>
   );
 };

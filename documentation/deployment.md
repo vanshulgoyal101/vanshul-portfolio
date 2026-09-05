@@ -1,7 +1,10 @@
 # Deployment Documentation
 
 ## Overview
-This project deploys to **GitHub Pages**, a free static hosting platform for GitHub repositories. The deployment leverages the `gh-pages` package to automate the process, and implements a custom SPA (Single Page Application) routing solution to support client-side routing with `react-router-dom`.
+This project deploys to **GitHub Pages** through `.github/workflows/deploy.yml`.
+Public blog and reading-list routes have generated HTML shells. A custom SPA
+fallback supports other client-side routes but is not a substitute for a public
+page returning HTTP 200.
 
 ---
 
@@ -10,13 +13,13 @@ This project deploys to **GitHub Pages**, a free static hosting platform for Git
 ### Repository Configuration
 **Repository**: `vanshulgoyal101/vanshul-portfolio`
 **Branch**: `main` (source code)
-**Deployment Branch**: `gh-pages` (auto-generated)
+**Deployment Source**: GitHub Actions artifact built from `main`
 **Custom Domain**: `vanshul.com`
 
 ### GitHub Settings
 1. Navigate to repository **Settings** → **Pages**
-2. **Source**: Deploy from branch `gh-pages`
-3. **Folder**: `/` (root)
+2. **Source**: GitHub Actions
+3. **Artifact**: `dist/` from the deployment workflow
 4. **Custom domain**: `vanshul.com`
 5. **Enforce HTTPS**: ✅ Enabled
 
@@ -43,34 +46,29 @@ vanshulgoyal101.github.io
 ## Deployment Process
 
 ### Automated Deployment
-**Command**: `npm run deploy` or `make deploy`
+Push validated changes to `main`. GitHub Actions installs dependencies, runs
+lint and unit tests, builds the site, verifies the generated routes, and runs
+desktop/mobile Playwright checks before uploading and deploying `dist/`.
 
-**Steps**:
-1. **Pre-deploy Hook**: Runs `npm run build` automatically (via `predeploy` script)
-2. **Build Process**: Vite generates optimized production bundle in `dist/`
-3. **Deploy**: `gh-pages` package pushes `dist/` contents to `gh-pages` branch
-4. **GitHub Pages**: Detects new commit on `gh-pages` branch, rebuilds site
-5. **Live**: Site updated at `https://vanshul.com` within 1-2 minutes
-
-**Full Workflow**:
+Local release checks:
 ```bash
-# Make changes to code
-git add .
-git commit -m "Your changes"
-git push origin main
-
-# Deploy to GitHub Pages
-npm run deploy
-```
-
-### Manual Deployment
-```bash
-# Step 1: Build production bundle
+npm run lint
+npm test
+npx playwright install chromium
 npm run build
-
-# Step 2: Deploy dist/ to gh-pages branch
-npx gh-pages -d dist
+npm run verify:build
+npm run test:e2e
 ```
+
+The prebuild sitemap generator is authoritative. Do not run
+`scripts/gen-sitemap.mjs` after the build: its HTML scan replaces the tested
+sitemap and omits routes outside its configured include list. Postbuild creates
+the page shells and the separate family sitemap index.
+
+### Legacy Branch Deployment
+`npm run deploy` still publishes through the `gh-pages` package, but is not the
+current Actions deployment path and does not run all release gates. Do not use
+it alongside the Actions workflow for routine releases.
 
 ---
 
@@ -128,7 +126,9 @@ markdown libraries.
 ## SPA Routing Workaround
 
 ### Problem
-GitHub Pages serves static files only. When a user navigates directly to `vanshul.com/blog/health-post-agi`, GitHub Pages looks for a physical file at that path, finds nothing, and returns a 404 error.
+GitHub Pages serves static files only. An application route without a generated
+HTML file returns HTTP 404 on a direct visit. The build emits shells for `/blog`,
+each published post, and `/reading-list` so these public routes avoid the fallback.
 
 ### Solution
 Two-script system that intercepts 404s and restores client-side routing:

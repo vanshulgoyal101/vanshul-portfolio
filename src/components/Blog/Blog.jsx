@@ -155,7 +155,7 @@ const Blog = () => {
   const [isLoading] = useState(false);
 
   return (
-    <BlogSection id="blog">
+    <BlogSection>
       <Container>
         <SectionHeader
           variants={BLOG_ANIMATION_VARIANTS.container}

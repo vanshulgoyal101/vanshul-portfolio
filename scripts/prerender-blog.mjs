@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
 import { parseFrontmatter, escapeXml as escAttr, escapeText as escText, parseTags, isoDate } from './lib/seo.mjs';
 import { postJsonLd, blogIndexJsonLd } from './lib/structuredData.mjs';
+import { BOOKS } from '../src/constants/books.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const blogsDir = join(root, 'src', 'blogs');
@@ -76,11 +77,8 @@ const buildShell = (post) => {
 
 // The /blog listing shell: index metadata + Blog/ItemList structured data so
 // crawlers see a real content hub, not just the SPA fallback.
-const buildIndexShell = (allPosts) => {
-  const canonical = `${SITE}/blog`;
-  const title = `Blog — ${AUTHOR_NAME}`;
-  const desc =
-    'Essays on AI, robotics, the future of work, and technology by Vanshul Goyal — engineer at United Airlines.';
+const buildPageShell = ({ path, title, description: desc, jsonLd }) => {
+  const canonical = `${SITE}${path}`;
   const ogImage = `${SITE}/og-image.png`;
 
   let html = template;
@@ -96,9 +94,6 @@ const buildIndexShell = (allPosts) => {
   html = setMeta(html, 'name', 'twitter:url', canonical);
   html = setMeta(html, 'name', 'twitter:image', ogImage);
   html = html.replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/i, `$1${canonical}$2`);
-
-  const ordered = [...allPosts].sort((a, b) => new Date(b.date) - new Date(a.date));
-  const jsonLd = blogIndexJsonLd(ordered, { ...identity, title, description: desc });
 
   html = html.replace('</head>', `  ${jsonLdScript(jsonLd)}</head>`);
   return html;
@@ -123,6 +118,33 @@ for (const post of posts) {
 // The /blog listing shell (dist/blog/index.html) — a real file, so GitHub Pages
 // serves it directly instead of the SPA 404 fallback.
 mkdirSync(join(distDir, 'blog'), { recursive: true });
-writeFileSync(join(distDir, 'blog', 'index.html'), buildIndexShell(posts));
+const blogTitle = `Blog — ${AUTHOR_NAME}`;
+const blogDescription = 'Essays on AI, robotics, the future of work, and technology by Vanshul Goyal — engineer at United Airlines.';
+writeFileSync(join(distDir, 'blog', 'index.html'), buildPageShell({
+  path: '/blog',
+  title: blogTitle,
+  description: blogDescription,
+  jsonLd: blogIndexJsonLd([...posts].sort((first, second) => new Date(second.date) - new Date(first.date)), {
+    ...identity, title: blogTitle, description: blogDescription,
+  }),
+}));
 
-console.log(`Prerendered ${posts.length} blog meta shells + /blog index into dist/blog/.`);
+mkdirSync(join(distDir, 'reading-list'), { recursive: true });
+writeFileSync(join(distDir, 'reading-list', 'index.html'), buildPageShell({
+  path: '/reading-list',
+  title: `Reading List — ${AUTHOR_NAME}`,
+  description: 'From My Shelf: favourite books that shaped how I think — fiction and non-fiction, with a one-line note on each.',
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'From My Shelf',
+    url: `${SITE}/reading-list`,
+    numberOfItems: BOOKS.length,
+    itemListElement: BOOKS.map((book, index) => ({
+      '@type': 'ListItem', position: index + 1,
+      item: { '@type': 'Book', name: book.title, author: { '@type': 'Person', name: book.author } },
+    })),
+  },
+}));
+
+console.log(`Prerendered ${posts.length} posts, blog index, and reading list.`);

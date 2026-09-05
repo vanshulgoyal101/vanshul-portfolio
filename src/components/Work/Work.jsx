@@ -236,7 +236,7 @@ const cardVariants = {
 
 const Work = () => {
   return (
-    <WorkSection id="work">
+    <WorkSection>
       <Container>
         <SectionHeader
           initial={{ opacity: 0, y: 20 }}

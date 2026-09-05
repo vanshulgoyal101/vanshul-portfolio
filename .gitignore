@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 coverage
+playwright-report/
+test-results/
 *.local
 
 # Generated per-post OG images (rebuilt by prebuild)

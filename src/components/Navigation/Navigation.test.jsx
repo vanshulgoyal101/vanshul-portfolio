@@ -1,12 +1,18 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import Navigation from './Navigation';
 
-const renderNav = (scrollToSection = vi.fn(), initialEntries = ['/']) =>
+const Location = () => {
+  const location = useLocation();
+  return <output data-testid="location">{location.pathname}{location.hash}</output>;
+};
+
+const renderNav = (initialEntries = ['/']) =>
   render(
     <MemoryRouter initialEntries={initialEntries}>
-      <Navigation scrollToSection={scrollToSection} />
+      <Navigation />
+      <Location />
     </MemoryRouter>
   );
 
@@ -20,8 +26,8 @@ describe('Navigation', () => {
 
   it('exposes each section as a focusable in-page anchor', () => {
     renderNav();
-    expect(screen.getByText('About').closest('a')).toHaveAttribute('href', '#about');
-    expect(screen.getByText('Contact').closest('a')).toHaveAttribute('href', '#contact');
+    expect(screen.getByText('About').closest('a')).toHaveAttribute('href', '/#about');
+    expect(screen.getByText('Contact').closest('a')).toHaveAttribute('href', '/#contact');
   });
 
   it('marks the active section with aria-current', () => {
@@ -53,51 +59,37 @@ describe('Navigation', () => {
     expect(document.body.style.overflow).toBe('');
   });
 
-  describe('scroll offset behaviour', () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-    });
-
-    afterEach(() => {
-      vi.runOnlyPendingTimers();
-      vi.useRealTimers();
-    });
-
-    it('scrolls section targets below the fixed header instead of hiding them behind it', () => {
-      const scrollToSection = vi.fn();
-      renderNav(scrollToSection, ['/']);
-
-      act(() => {
-        fireEvent.click(screen.getByText('About'));
-      });
-
-      act(() => {
-        vi.advanceTimersByTime(300);
-      });
-
-      expect(scrollToSection).toHaveBeenCalledWith('about');
-    });
+  it.each(['/', '/reading-list', '/blog/example'])('navigates from %s without timers', route => {
+    renderNav([route]);
+    fireEvent.click(screen.getByRole('link', { name: 'Projects' }));
+    expect(screen.getByTestId('location')).toHaveTextContent('/#projects');
   });
 
-  describe('link click behaviour on the home page', () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-    });
-    afterEach(() => {
-      vi.runOnlyPendingTimers();
-      vi.useRealTimers();
-    });
+  it('preserves modified-click browser behavior', () => {
+    renderNav();
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true });
+    screen.getByRole('link', { name: 'Projects' }).dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/$/);
+  });
 
-    it('scrolls to the section when already on the home page', () => {
-      const scrollToSection = vi.fn();
-      renderNav(scrollToSection, ['/']);
-      act(() => {
-        fireEvent.click(screen.getByText('About'));
-      });
-      act(() => {
-        vi.advanceTimersByTime(300);
-      });
-      expect(scrollToSection).toHaveBeenCalledWith('about');
-    });
+  it('excludes the closed mobile menu and restores focus and scrolling on Escape', () => {
+    window.matchMedia.mockImplementation(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+    renderNav();
+    const toggle = document.querySelector('button[aria-controls="primary-menu"]');
+    const menu = document.getElementById(toggle.getAttribute('aria-controls'));
+    expect(menu).toHaveAttribute('inert');
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(toggle);
+    expect(menu).not.toHaveAttribute('inert');
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.activeElement).toBe(screen.getByRole('link', { name: 'Home' }));
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(toggle);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(toggle).toHaveFocus();
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(document.body.style.overflow).toBe('');
   });
 });

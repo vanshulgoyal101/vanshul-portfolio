@@ -27,6 +27,8 @@ describe('scrollToSection', () => {
     document.body.appendChild(section);
 
     const nav = document.createElement('nav');
+    nav.setAttribute('data-site-header', '');
+    nav.getBoundingClientRect = () => ({ bottom: 96 });
     Object.defineProperty(nav, 'offsetHeight', {
       value: 96,
       configurable: true,
@@ -42,5 +44,34 @@ describe('scrollToSection', () => {
 
     document.body.removeChild(section);
     document.body.removeChild(nav);
+  });
+
+  it('includes positioned ancestors and ignores animation transforms', () => {
+    const parent = document.createElement('section');
+    const heading = document.createElement('h2');
+    parent.id = 'projects';
+    parent.appendChild(heading);
+    document.body.appendChild(parent);
+    Object.defineProperty(parent, 'offsetTop', { value: 600 });
+    Object.defineProperty(heading, 'offsetTop', { value: 80 });
+    Object.defineProperty(heading, 'offsetParent', { value: parent });
+    scrollToSection('projects', { focus: true });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 660, behavior: 'smooth' });
+    expect(document.activeElement).toBe(heading);
+    parent.remove();
+  });
+
+  it('does not animate scrolling when reduced motion is requested', () => {
+    window.matchMedia.mockReturnValue({ matches: true });
+    const section = document.createElement('section');
+    document.body.appendChild(section);
+    scrollToSection(section);
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
+    section.remove();
+  });
+
+  it('returns false for missing targets', () => {
+    expect(scrollToSection('missing')).toBe(false);
+    expect(window.scrollTo).not.toHaveBeenCalled();
   });
 });

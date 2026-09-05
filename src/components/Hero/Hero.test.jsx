@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import Hero from './Hero';
+import { MemoryRouter } from 'react-router-dom';
 
 // Keep the suite hermetic: the real scene pulls in three.js.
 vi.mock('./HeroScene', () => ({
@@ -13,7 +14,7 @@ vi.mock('../FunElements/FloatingRocket', () => ({
 
 // The scene and rocket resolve lazily; settle them inside act().
 const renderHero = async () => {
-  const result = render(<Hero />);
+  const result = render(<MemoryRouter><Hero /></MemoryRouter>);
   await act(async () => {});
   return result;
 };
@@ -35,15 +36,14 @@ describe('Hero', () => {
 
   it('points the calls to action at real in-page sections', async () => {
     await renderHero();
-    expect(screen.getByText('Explore My Work').closest('a')).toHaveAttribute('href', '#work');
-    expect(screen.getByText('Get In Touch').closest('a')).toHaveAttribute('href', '#contact');
+    expect(screen.getByText('Explore My Work').closest('a')).toHaveAttribute('href', '/#projects');
+    expect(screen.getByText('Get In Touch').closest('a')).toHaveAttribute('href', '/#contact');
   });
 
-  it('mounts the decorative 3D scene when motion is allowed', async () => {
+  it('does not mount expensive decoration on initial render', async () => {
     await renderHero();
-    await waitFor(() =>
-      expect(screen.getByTestId('hero-scene')).toBeInTheDocument()
-    );
+    expect(screen.queryByTestId('hero-scene')).toBeNull();
+    expect(screen.queryByTestId('floating-rocket')).toBeNull();
   });
 
   it('never loads the 3D scene for reduced-motion visitors', async () => {

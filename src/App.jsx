@@ -2,12 +2,10 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
-import PropTypes from 'prop-types';
+import { MotionConfig, useReducedMotion } from 'framer-motion';
 
 import GlobalStyles from './styles/GlobalStyles';
 import { useIdle } from './hooks/useIdle';
-import { pageVariants } from './constants/motionVariants';
 import { scrollToSection as scrollToSectionUtil } from './utils/scrollToSection';
 import Navigation from './components/Navigation/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -30,9 +28,7 @@ import Blog from './components/Blog/Blog';
 import Contact from './components/Contact/Contact';
 
 // Decorative elements
-import BootLoader from './components/FunElements/BootLoader';
 import CustomCursor from './components/FunElements/CustomCursor';
-import SmokeTransition from './components/FunElements/SmokeTransition';
 import Analytics from './components/Analytics';
 
 // Heavy decorative elements — lazy loaded after first paint
@@ -75,7 +71,7 @@ const SkipLink = styled.a`
   }
 `;
 
-const SectionWrapper = styled(motion.section)`
+const SectionWrapper = styled.div`
   width: 100%;
   position: relative;
 `;
@@ -119,24 +115,24 @@ const FooterNote = styled.p`
 
 // ScrollToHash: scrolls to a section when returning from a subroute, or when
 // the URL contains a hash on a direct hit.
-const ScrollToHash = ({ isBooting }) => {
+const ScrollToHash = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if (!isBooting && location.hash) {
-      const id = location.hash.replace('#', '');
-      const timeoutId = setTimeout(() => {
-        scrollToSectionUtil(id, { behavior: 'smooth' });
-      }, 100);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [location, isBooting]);
+    if (!location.hash) return;
+    let cancelled = false;
+    let frame;
+    document.fonts?.ready.then(() => {
+      if (!cancelled) frame = requestAnimationFrame(() => scrollToSectionUtil(decodeURIComponent(location.hash.slice(1)), { focus: true }));
+    });
+    if (!document.fonts) frame = requestAnimationFrame(() => scrollToSectionUtil(location.hash.slice(1), { focus: true }));
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
+  }, [location]);
 
   return null;
-};
-
-ScrollToHash.propTypes = {
-  isBooting: PropTypes.bool.isRequired,
 };
 
 // IdleBackground: renders decorative elements only after browser idle
@@ -159,39 +155,35 @@ const RedirectBlogSlug = () => {
 };
 
 function App() {
-  const [isBooting, setIsBooting] = useState(true);
-
-  const scrollToSection = (sectionId) => {
-    scrollToSectionUtil(sectionId, { behavior: 'smooth' });
-  };
+  const [ambientEnabled, setAmbientEnabled] = useState(false);
+  const reducedMotion = useReducedMotion();
 
   return (
+    <MotionConfig reducedMotion="user">
     <Router>
-      <ScrollToHash isBooting={isBooting} />
+      <ScrollToHash />
       <Analytics />
       <ToastProvider>
         <GlobalStyles />
-        <AnimatePresence mode="wait">
-          {isBooting && <BootLoader onComplete={() => setIsBooting(false)} />}
-        </AnimatePresence>
         
         <AppWrapper>
           <SkipLink href="#main-content">Skip to content</SkipLink>
           <CustomCursor />
           {/* Background ambient elements */}
-          <BackgroundElements $animated />
+          <BackgroundElements />
           
           {/* Fun Interactive Elements — deferred until after first paint */}
-          <IdleBackground />
-          <SmokeTransition />
+          {ambientEnabled && !reducedMotion && <IdleBackground />}
           
-          <Suspense fallback={null}>
+          <div id="main-content" tabIndex={-1}>
+          <Suspense fallback={<MainContent role="status" style={{ padding: '8rem 2rem' }}>Loading page...</MainContent>}>
+          <ErrorBoundary>
           <Routes>
             {/* Main portfolio page */}
             <Route path="/" element={
             <>
-              <Navigation scrollToSection={scrollToSection} />
-              <MainContent id="main-content" tabIndex={-1}>
+              <Navigation />
+              <MainContent>
                   {/* Hero Section */}
                   <ErrorBoundary>
                     <SectionWrapper id="home">
@@ -199,14 +191,16 @@ function App() {
                     </SectionWrapper>
                   </ErrorBoundary>
 
+                  <ErrorBoundary>
+                    <SectionWrapper id="projects">
+                      <Projects />
+                    </SectionWrapper>
+                  </ErrorBoundary>
+
                   {/* About Section */}
                   <ErrorBoundary>
                     <SectionWrapper
                       id="about"
-                      variants={pageVariants}
-                      initial="initial"
-                      whileInView="animate"
-                      viewport={{ once: true, amount: 0.1 }}
                     >
                       <About />
                     </SectionWrapper>
@@ -216,25 +210,8 @@ function App() {
                   <ErrorBoundary>
                     <SectionWrapper
                       id="work"
-                      variants={pageVariants}
-                      initial="initial"
-                      whileInView="animate"
-                      viewport={{ once: true, amount: 0.1 }}
                     >
                       <Work />
-                    </SectionWrapper>
-                  </ErrorBoundary>
-
-                  {/* Projects Section with horizontal scroll */}
-                  <ErrorBoundary>
-                    <SectionWrapper
-                      id="projects"
-                      variants={pageVariants}
-                      initial="initial"
-                      whileInView="animate"
-                      viewport={{ once: true, amount: 0.1 }}
-                    >
-                      <Projects />
                     </SectionWrapper>
                   </ErrorBoundary>
 
@@ -242,10 +219,6 @@ function App() {
                   <ErrorBoundary>
                     <SectionWrapper
                       id="blog"
-                      variants={pageVariants}
-                      initial="initial"
-                      whileInView="animate"
-                      viewport={{ once: true, amount: 0.1 }}
                     >
                       <Blog />
                     </SectionWrapper>
@@ -255,10 +228,6 @@ function App() {
                   <ErrorBoundary>
                     <SectionWrapper
                       id="contact"
-                      variants={pageVariants}
-                      initial="initial"
-                      whileInView="animate"
-                      viewport={{ once: true, amount: 0.1 }}
                     >
                       <Contact />
                     </SectionWrapper>
@@ -274,6 +243,10 @@ function App() {
                 </FooterLinks>
                 <FooterNote>© {new Date().getFullYear()} Vanshul Goyal · vanshul.com</FooterNote>
                 <CursorToggle />
+                <label style={{ display: 'inline-flex', gap: '0.5rem', alignItems: 'center', margin: '1rem' }}>
+                  <input type="checkbox" checked={ambientEnabled && !reducedMotion} disabled={reducedMotion} onChange={event => setAmbientEnabled(event.target.checked)} />
+                  Ambient motion
+                </label>
               </SiteFooter>
             </>
           } />
@@ -305,10 +278,13 @@ function App() {
             {/* Catch-all: friendly, noindex 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ErrorBoundary>
           </Suspense>
+          </div>
         </AppWrapper>
       </ToastProvider>
     </Router>
+    </MotionConfig>
   );
 }
 

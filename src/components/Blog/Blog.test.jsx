@@ -37,8 +37,9 @@ describe('Blog section', () => {
     expect(links.some((l) => l.getAttribute('href')?.startsWith('/blog/'))).toBe(true);
   });
 
-  it('has a section landmark with id "blog"', async () => {
+  it('renders a section without duplicating the page-owned blog anchor', async () => {
     const { container } = await renderBlog();
-    expect(container.querySelector('#blog')).not.toBeNull();
+    expect(screen.getByRole('heading', { name: BLOG_CONTENT.sectionTitle }).closest('section')).not.toBeNull();
+    expect(container.querySelector('#blog')).toBeNull();
   });
 });

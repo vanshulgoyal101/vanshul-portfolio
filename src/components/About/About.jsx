@@ -336,7 +336,7 @@ const About = () => {
   const [imageError, setImageError]   = useState(false);
 
   return (
-    <AboutSection id="about">
+    <AboutSection>
       <Container>
         <SectionHeader>
           <motion.div
