@@ -27,6 +27,12 @@ There is no blocking greeting sequence or automatically mounted HeroScene.
 Ambient decorations are opt-in through the footer checkbox and disabled for
 reduced motion. Lazy routes show a loading state and share an error boundary.
 
+The footer separates identity and navigation from a collapsed `Display settings`
+disclosure. Cursor and ambient preferences use labelled switches. The cursor
+control is omitted on touch devices; ambient motion is disabled for reduced
+motion. The footer stacks at narrow widths and keeps navigation visible even
+when preferences are closed.
+
 ## Project media
 
 `node scripts/capture-projects.mjs` refreshes the AdBrain and Tiny Arcade images

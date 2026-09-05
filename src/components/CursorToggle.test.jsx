@@ -34,13 +34,11 @@ describe('CursorToggle', () => {
     localStorage.setItem('vg.cursor', 'on');
 
     render(<CursorToggle />);
-    const btn = screen.getByRole('button');
-    expect(btn).toHaveTextContent('Custom cursor: On');
-    expect(btn).toHaveAttribute('aria-pressed', 'true');
+    const toggle = screen.getByRole('switch', { name: 'Custom cursor' });
+    expect(toggle).toBeChecked();
 
-    fireEvent.click(btn);
-    expect(btn).toHaveTextContent('Custom cursor: Off');
-    expect(btn).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(toggle);
+    expect(toggle).not.toBeChecked();
     expect(localStorage.getItem('vg.cursor')).toBe('off');
   });
 });

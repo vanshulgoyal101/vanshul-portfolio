@@ -12,7 +12,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
 import BackgroundElements from './components/BackgroundElements';
 import NotFound from './pages/NotFound';
-import CursorToggle from './components/CursorToggle';
+import SiteFooter from './components/SiteFooter';
 
 // Long-form pages pull in the markdown renderer — keep them off the home bundle.
 const BlogPost = lazy(() => import('./pages/BlogPost'));
@@ -74,39 +74,6 @@ const SkipLink = styled.a`
 const SectionWrapper = styled.div`
   width: 100%;
   position: relative;
-`;
-
-const SiteFooter = styled.footer`
-  position: relative;
-  z-index: 2;
-  border-top: 1px solid var(--color-border);
-  padding: var(--spacing-xl) var(--container-padding);
-  text-align: center;
-  color: var(--color-text-secondary);
-`;
-
-const FooterLinks = styled.nav`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-md);
-
-  a {
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: var(--color-accent-primary);
-    }
-  }
-`;
-
-const FooterNote = styled.p`
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
 `;
 
 // ---------------------------------------------------------------------------
@@ -234,20 +201,7 @@ function App() {
                   </ErrorBoundary>
                 </MainContent>
 
-              <SiteFooter>
-                <FooterLinks aria-label="Vanshul Goyal network">
-                  <a href="/#blog">Blog</a>
-                  <a href="https://games.vanshul.com" target="_blank" rel="noopener noreferrer">Games</a>
-                  <a href="https://links.vanshul.com" target="_blank" rel="noopener noreferrer">Links</a>
-                  <a href="https://github.com/vanshulgoyal101" target="_blank" rel="noopener noreferrer">GitHub</a>
-                </FooterLinks>
-                <FooterNote>© {new Date().getFullYear()} Vanshul Goyal · vanshul.com</FooterNote>
-                <CursorToggle />
-                <label style={{ display: 'inline-flex', gap: '0.5rem', alignItems: 'center', margin: '1rem' }}>
-                  <input type="checkbox" checked={ambientEnabled && !reducedMotion} disabled={reducedMotion} onChange={event => setAmbientEnabled(event.target.checked)} />
-                  Ambient motion
-                </label>
-              </SiteFooter>
+              <SiteFooter ambientEnabled={ambientEnabled} reducedMotion={reducedMotion} onAmbientChange={setAmbientEnabled} />
             </>
           } />
           

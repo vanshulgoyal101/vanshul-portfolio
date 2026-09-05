@@ -62,6 +62,42 @@ test('direct reading-list response and sitemap agree', async ({ request, page })
   await expect(page.locator('#main-content')).toBeFocused();
 });
 
+test('footer keeps preferences secondary and works at narrow widths', async ({ page }, testInfo) => {
+  if (testInfo.project.name === 'mobile') await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto('/');
+  const footer = page.getByRole('contentinfo');
+  await footer.scrollIntoViewIfNeeded();
+  await expect(footer.getByRole('navigation', { name: 'Footer links' }).getByRole('link')).toHaveCount(4);
+  await expect(footer.getByRole('switch', { name: 'Ambient motion' })).not.toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await footer.screenshot({ path: testInfo.outputPath('footer-closed.png') });
+  await footer.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  const ambient = footer.getByRole('switch', { name: 'Ambient motion' });
+  await expect(ambient).toBeVisible();
+  await expect(ambient).not.toBeChecked();
+  const switchSize = await ambient.boundingBox();
+  expect(switchSize.width).toBeGreaterThan(switchSize.height);
+  expect(switchSize.height).toBeLessThanOrEqual(24);
+  expect(await ambient.locator('..').evaluate(element => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+  await ambient.check();
+  await expect(ambient).toBeChecked();
+  await ambient.uncheck();
+  if (testInfo.project.name === 'mobile') {
+    await expect(footer.getByRole('switch', { name: 'Custom cursor' })).toHaveCount(0);
+  } else {
+    const cursor = footer.getByRole('switch', { name: 'Custom cursor' });
+    await cursor.check();
+    await expect(cursor).toBeChecked();
+    await cursor.uncheck();
+  }
+  await footer.screenshot({ path: testInfo.outputPath('footer-settings.png') });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.reload();
+  await footer.locator('summary').click();
+  await expect(footer.getByRole('switch', { name: 'Ambient motion' })).toBeDisabled();
+});
+
 for (const reducedMotion of ['reduce', 'no-preference']) {
   test(`section URLs land headings below the header with ${reducedMotion}`, async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion });
