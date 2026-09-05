@@ -4,8 +4,10 @@ The homepage presents the introduction, selected projects, biography, employment
 writings, and contact section in that order. Featured projects have native
 `details` case studies. The wider project directory is always visible below them,
 grouped by category in compact two-column rows (one column on mobile). It retains
-every secondary project's description, tags, and live/source links without
-adding screenshots or raised cards. Do not hide the directory behind a disclosure.
+every secondary project's name, full description, and live/source links without
+adding screenshots or raised cards. Technology badges and status labels are
+omitted from the compact rows; icon links have descriptive accessible names,
+hover titles, and 44px targets. Do not hide the directory behind a disclosure.
 Case-study text should describe supported project facts, not inferred customer
 results or invented metrics.
 
@@ -16,6 +18,12 @@ repeat them. Navigation links use `/#section` URLs, preserve modified clicks,
 and let the shared hash handler position and focus the destination heading.
 The scroll helper accounts for positioned ancestors and the fixed header's
 viewport bottom. Reduced-motion users receive immediate scrolling.
+
+Programmatically focused section headings receive `data-section-focus`, which
+suppresses their decorative focus rectangle without removing the focus handoff.
+Interactive controls retain their keyboard outlines. Projects uses the same
+responsive heading-size tokens as About, Work, and Writings; browser tests
+compare their computed font sizes.
 
 The closed mobile menu is inert. Opening it focuses the first link, wraps Tab
 within its controls, and locks body scrolling. Escape closes it and restores

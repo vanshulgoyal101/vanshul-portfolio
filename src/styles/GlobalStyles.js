@@ -57,6 +57,11 @@ const GlobalStyles = createGlobalStyle`
     --text-4xl: clamp(2.25rem, 6vw, 3rem);
     --text-5xl: clamp(3rem, 8vw, 4rem);
     --text-6xl: clamp(3.75rem, 10vw, 6rem);
+    --text-section-title: 2.5rem;
+
+    @media (max-width: 768px) {
+      --text-section-title: 1.5rem;
+    }
     
     /* Animations */
     --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

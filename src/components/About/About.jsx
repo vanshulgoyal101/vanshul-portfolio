@@ -36,16 +36,13 @@ const SectionHeader = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: var(--text-5xl);
+  font-size: var(--text-section-title);
   margin-bottom: var(--spacing-md);
   background: var(--color-gradient-1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 
-  @media (max-width: 768px) {
-    font-size: var(--text-2xl);
-  }
 `;
 
 const SectionSubtitle = styled.p`

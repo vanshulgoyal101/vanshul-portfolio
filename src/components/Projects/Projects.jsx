@@ -35,7 +35,7 @@ const SectionHeader = styled(motion.div)`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 2rem;
+  font-size: var(--text-section-title);
   margin-bottom: var(--spacing-md);
   padding-top: var(--spacing-md);
   background: var(--color-gradient-1);
@@ -43,9 +43,6 @@ const SectionTitle = styled.h2`
   -webkit-text-fill-color: transparent;
   background-clip: text;
 
-  @media (max-width: 768px) {
-    font-size: var(--text-2xl);
-  }
 `;
 
 const SectionSubtitle = styled.p`
@@ -92,7 +89,7 @@ const ProjectCard = styled(motion.div)`
 `;
 
 const ProjectImageWrapper = styled.div`
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 8 / 5;
   overflow: hidden;
   background: var(--color-bg-secondary);
   position: relative;
@@ -100,7 +97,7 @@ const ProjectImageWrapper = styled.div`
 
 const ProjectImg = styled.img`
   width: 100%;
-  aspect-ratio: 8 / 5;
+  height: 100%;
   object-fit: contain;
   object-position: center;
   display: block;
@@ -263,34 +260,25 @@ const MoreSubtitle = styled.p`
 `;
 
 const CategoryGroup = styled.div`
-  margin-top: var(--spacing-lg);
-  display: grid;
-  grid-template-columns: 180px minmax(0, 1fr);
-  gap: var(--spacing-lg);
-
-  @media (max-width: 1024px) {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--spacing-sm);
-  }
+  margin-top: 2rem;
 `;
 
 const CategoryLabel = styled.h4`
   font-size: var(--text-sm);
-  text-transform: uppercase;
   letter-spacing: 0;
-  color: var(--color-accent-primary);
+  color: var(--color-text-secondary);
   font-weight: 600;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 0.25rem;
 `;
 
 const CompactGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: var(--spacing-lg);
+  column-gap: 2rem;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
+    gap: 0;
   }
 `;
 
@@ -304,22 +292,19 @@ const CompactCard = styled(motion.div)`
 `;
 
 const CompactTop = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0.75rem;
 `;
 
 const CompactIcon = styled.span`
-  width: 2.35rem;
-  height: 2.35rem;
-  flex: 0 0 2.35rem;
+  width: 1.5rem;
+  height: 1.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: ${(p) => p.$color || '#36d98a'};
-  background: color-mix(in srgb, ${(p) => p.$color || '#36d98a'} 10%, transparent);
-  border: 1px solid color-mix(in srgb, ${(p) => p.$color || '#36d98a'} 36%, transparent);
-  border-radius: 6px;
+  color: var(--color-text-secondary);
 
   svg {
     width: 1.05rem;
@@ -345,72 +330,30 @@ const CompactName = styled.h5`
   overflow-wrap: anywhere;
 `;
 
-const LiveDot = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: var(--text-xs);
-  color: #22c55e;
-  font-weight: 500;
-
-  &::before {
-    content: '';
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #22c55e;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
-  }
-`;
-
 const CompactDesc = styled.p`
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
   line-height: 1.55;
-  margin: 0;
-`;
-
-const TagRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: var(--spacing-xs);
-`;
-
-const Tag = styled.span`
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
-  overflow-wrap: anywhere;
-  font-family: ${(p) => (p.$mono ? 'var(--font-mono, ui-monospace, monospace)' : 'inherit')};
-
-  & + &::before {
-    content: '/';
-    margin-right: 6px;
-    color: var(--color-text-muted);
-  }
+  margin: 0 0 0 2.25rem;
 `;
 
 const CompactLinks = styled.div`
   display: flex;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-xs);
+  gap: 0.25rem;
 `;
 
 const IconLink = styled.a`
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: var(--text-xs);
-  color: var(--color-accent-primary);
-  font-weight: 500;
-  min-height: 36px;
-
-  svg { transition: transform 0.2s ease; }
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--color-text-secondary);
+  border-radius: 6px;
 
   &:hover {
-    text-decoration: underline;
-    svg { transform: translateX(3px); }
+    color: var(--color-accent-primary);
+    background: var(--color-bg-secondary);
   }
 `;
 
@@ -646,32 +589,22 @@ const Projects = () => {
                     key={item.title}
                   >
                     <CompactTop>
-                      <CompactIcon $color={item.color} aria-hidden="true">{item.icon}</CompactIcon>
+                      <CompactIcon aria-hidden="true">{item.icon}</CompactIcon>
                       <CompactName>{item.title}</CompactName>
-                      {item.live && <LiveDot>Live</LiveDot>}
-                    </CompactTop>
-                    <CompactDesc>{item.desc}</CompactDesc>
-                    {item.tags && item.tags.length > 0 && (
-                      <TagRow>
-                        {item.tags.map((t) => (
-                          <Tag key={t} $mono={/\s|install/.test(t)}>{t}</Tag>
-                        ))}
-                      </TagRow>
-                    )}
-                    {(item.live || item.repo) && (
                       <CompactLinks>
                         {item.live && (
-                          <IconLink href={item.live} aria-label={`Visit ${item.title}`} target="_blank" rel="noopener noreferrer">
-                            Visit <FaExternalLinkAlt size={10} />
+                          <IconLink href={item.live} aria-label={`Visit ${item.title}`} title={`Visit ${item.title}`} target="_blank" rel="noopener noreferrer">
+                            <FaExternalLinkAlt size={14} aria-hidden="true" />
                           </IconLink>
                         )}
                         {item.repo && (
-                          <IconLink href={item.repo} aria-label={`View ${item.title} source code`} target="_blank" rel="noopener noreferrer">
-                            <FaGithub size={13} /> Code
+                          <IconLink href={item.repo} aria-label={`View ${item.title} source code`} title={`View ${item.title} source code`} target="_blank" rel="noopener noreferrer">
+                            <FaGithub size={17} aria-hidden="true" />
                           </IconLink>
                         )}
                       </CompactLinks>
-                    )}
+                    </CompactTop>
+                    <CompactDesc>{item.desc}</CompactDesc>
                   </CompactCard>
                 ))}
               </CompactGrid>

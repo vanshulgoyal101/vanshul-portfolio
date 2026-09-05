@@ -58,6 +58,7 @@ describe('scrollToSection', () => {
     scrollToSection('projects', { focus: true });
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 660, behavior: 'smooth' });
     expect(document.activeElement).toBe(heading);
+    expect(heading).toHaveAttribute('data-section-focus');
     parent.remove();
   });
 

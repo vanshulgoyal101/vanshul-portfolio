@@ -23,6 +23,7 @@ export const scrollToSection = (sectionId, options = {}) => {
   const top = element.id === 'home' ? 0 : getSectionScrollTop(target, options);
   if (options.focus) {
     target.setAttribute('tabindex', '-1');
+    if (target.matches('h2')) target.setAttribute('data-section-focus', '');
     target.focus({ preventScroll: true });
   }
   window.scrollTo({

@@ -43,10 +43,33 @@ test('case studies expand and the full project directory is visible by default',
   for (const heading of await directory.getByRole('heading', { level: 5 }).all()) {
     await expect(heading).toBeVisible();
   }
+  for (const link of await directory.getByRole('link').all()) {
+    await expect(link).toHaveAttribute('title', /.+/);
+    const bounds = await link.boundingBox();
+    expect(bounds.width).toBeGreaterThanOrEqual(44);
+    expect(bounds.height).toBeGreaterThanOrEqual(44);
+  }
   expect(await directory.evaluate(element => element.closest('details'))).toBeNull();
   await directory.scrollIntoViewIfNeeded();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await directory.screenshot({ path: testInfo.outputPath('project-directory.png'), animations: 'disabled' });
+  await directory.screenshot({ path: testInfo.outputPath('project-directory.png'), animations: 'disabled', style: '[data-site-header] { visibility: hidden; }' });
+});
+
+test('section titles match without focus boxes and links keep keyboard outlines', async ({ page }, testInfo) => {
+  await page.goto('/#work');
+  const work = page.locator('#work h2');
+  await expect(work).toBeFocused();
+  await expect(work).toHaveCSS('outline-style', 'none');
+  const titleSizes = await page.locator('#projects h2, #work h2, #about h2, #blog h2, #contact h2').evaluateAll(headings => headings.map(heading => getComputedStyle(heading).fontSize));
+  expect(new Set(titleSizes).size).toBe(1);
+  expect(titleSizes[0]).toBe(testInfo.project.name === 'mobile' ? '24px' : '40px');
+  if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Toggle mobile menu' }).click();
+  const nav = page.getByRole('navigation', { name: 'Primary navigation' });
+  await nav.getByRole('link', { name: 'Home', exact: true }).focus();
+  await page.keyboard.press('Tab');
+  const projects = nav.getByRole('link', { name: 'Projects', exact: true });
+  await expect(projects).toBeFocused();
+  await expect(projects).toHaveCSS('outline-style', 'solid');
 });
 
 test('direct reading-list response and sitemap agree', async ({ request, page }) => {
