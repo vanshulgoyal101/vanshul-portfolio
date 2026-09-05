@@ -29,6 +29,7 @@ import Contact from './components/Contact/Contact';
 
 // Decorative elements
 import CustomCursor from './components/FunElements/CustomCursor';
+import BootLoader from './components/FunElements/BootLoader';
 import Analytics from './components/Analytics';
 
 // Heavy decorative elements — lazy loaded after first paint
@@ -83,11 +84,11 @@ const SectionWrapper = styled.div`
 
 // ScrollToHash: scrolls to a section when returning from a subroute, or when
 // the URL contains a hash on a direct hit.
-const ScrollToHash = () => {
+const ScrollToHash = ({ isBooting }) => {
   const location = useLocation();
 
   useEffect(() => {
-    if (!location.hash) return;
+    if (isBooting || !location.hash) return;
     let cancelled = false;
     let frame;
     document.fonts?.ready.then(() => {
@@ -98,7 +99,7 @@ const ScrollToHash = () => {
       cancelled = true;
       cancelAnimationFrame(frame);
     };
-  }, [location]);
+  }, [location, isBooting]);
 
   return null;
 };
@@ -124,6 +125,14 @@ const RedirectBlogSlug = () => {
 };
 
 function App() {
+  const [isBooting, setIsBooting] = useState(true);
+  useEffect(() => {
+    if (!isBooting) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [isBooting]);
+
   const [ambientEnabled, setAmbientEnabled] = useState(() => {
     try { return localStorage.getItem('vg.ambient') !== 'off'; }
     catch { return true; }
@@ -138,19 +147,20 @@ function App() {
   return (
     <MotionConfig reducedMotion="user">
     <Router>
-      <ScrollToHash />
+      <ScrollToHash isBooting={isBooting} />
       <Analytics />
       <ToastProvider>
         <GlobalStyles />
+        {isBooting && <BootLoader onComplete={() => setIsBooting(false)} />}
         
-        <AppWrapper>
+        <AppWrapper inert={isBooting}>
           <SkipLink href="#main-content">Skip to content</SkipLink>
           <CustomCursor />
           {/* Background ambient elements */}
           <BackgroundElements />
           
           {/* Fun Interactive Elements — deferred until after first paint */}
-          {ambientEnabled && !reducedMotion && <IdleBackground />}
+          {!isBooting && ambientEnabled && !reducedMotion && <IdleBackground />}
           
           <div id="main-content" tabIndex={-1}>
           <Suspense fallback={<MainContent role="status" style={{ padding: '8rem 2rem' }}>Loading page...</MainContent>}>
@@ -164,7 +174,7 @@ function App() {
                   {/* Hero Section */}
                   <ErrorBoundary>
                     <SectionWrapper id="home">
-                      <Hero />
+                      <Hero sceneEnabled={!isBooting} />
                     </SectionWrapper>
                   </ErrorBoundary>
 

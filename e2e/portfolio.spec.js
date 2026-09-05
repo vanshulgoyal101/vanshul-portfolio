@@ -1,6 +1,12 @@
 import { test, expect } from '@playwright/test';
 import sharp from 'sharp';
 
+const visit = async (page, url) => {
+  const response = await page.goto(url);
+  await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
+  return response;
+};
+
 test.beforeEach(async ({ page }, testInfo) => {
   if (!testInfo.title.startsWith('footer keeps')) {
     await page.addInitScript(() => localStorage.setItem('vg.ambient', 'off'));
@@ -11,12 +17,12 @@ test.beforeEach(async ({ page }, testInfo) => {
   });
 });
 
-test('immediate content, aligned targets, visible media, and desktop-only 3D', async ({ page }, testInfo) => {
+test('content after greeting, aligned targets, visible media, and desktop-only 3D', async ({ page }, testInfo) => {
   const requests = [];
   const errors = [];
   page.on('request', request => requests.push(request.url()));
   page.on('pageerror', error => errors.push(error.message));
-  await page.goto('/');
+  await visit(page, '/');
   await expect(page.getByRole('heading', { name: 'Vanshul Goyal', exact: true })).toBeVisible();
   await expect(page.getByText('Engineer & independent builder')).toBeVisible();
   await expect.poll(() => page.evaluate(() => {
@@ -42,8 +48,9 @@ test(`desktop sculpture renders, moves, responds to dragging, and pauses off-scr
   test.skip(testInfo.project.name !== 'desktop', 'Desktop-only sculpture');
   test.setTimeout(60000);
   await page.setViewportSize(viewport);
-  const response = await page.goto('/');
+  const response = await visit(page, '/');
   expect(await response.text()).not.toMatch(/three-core|three-react|HeroScene/);
+  await expect(page.locator('[data-boot-loader]')).toHaveCount(0);
   const canvas = page.locator('[data-hero-scene] canvas');
   await expect(canvas).toBeVisible({ timeout: 15000 });
   await expect(page.locator('[data-scene-active]')).toHaveAttribute('data-scene-active', 'true');
@@ -101,7 +108,7 @@ test('hero keeps one grid and avoids 3D on mobile and reduced-motion visits', as
     const requests = [];
     const collect = request => requests.push(request.url());
     page.on('request', collect);
-    await page.goto('/');
+    await visit(page, '/');
     await expect(page.locator('#home h1')).toBeVisible();
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const layout = await page.evaluate(() => {
@@ -110,11 +117,13 @@ test('hero keeps one grid and avoids 3D on mobile and reduced-motion visits', as
       const project = document.querySelector('#projects img').parentElement.getBoundingClientRect();
       const heading = document.querySelector('#projects h2').getBoundingClientRect();
       const socials = [...document.querySelectorAll('#home a[aria-label]')].map(element => element.getBoundingClientRect());
-      return { titleLeft: title.left, logoLeft: logo.left, projectLeft: project.left, headingLeft: heading.left, headingTop: heading.top, height: innerHeight, overflow: document.documentElement.scrollWidth > innerWidth, socialsInside: socials.every(rect => rect.left >= 0 && rect.right <= innerWidth) };
+      const subtitle = document.querySelector('#projects h2 + p').getBoundingClientRect();
+      return { titleLeft: title.left, logoLeft: logo.left, projectLeft: project.left, headingAlign: getComputedStyle(document.querySelector('#projects h2')).textAlign, subtitleCenter: subtitle.left + subtitle.width / 2, width: innerWidth, headingTop: heading.top, height: innerHeight, overflow: document.documentElement.scrollWidth > innerWidth, socialsInside: socials.every(rect => rect.left >= 0 && rect.right <= innerWidth) };
     });
     expect(Math.abs(layout.titleLeft - layout.logoLeft)).toBeLessThan(2);
     expect(Math.abs(layout.titleLeft - layout.projectLeft)).toBeLessThan(2);
-    expect(Math.abs(layout.titleLeft - layout.headingLeft)).toBeLessThan(2);
+    expect(layout.headingAlign).toBe('center');
+    expect(Math.abs(layout.subtitleCenter - layout.width / 2)).toBeLessThan(2);
     expect(layout.headingTop).toBeLessThan(layout.height);
     expect(layout.overflow).toBe(false);
     expect(layout.socialsInside).toBe(true);
@@ -127,7 +136,7 @@ test('hero keeps one grid and avoids 3D on mobile and reduced-motion visits', as
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   const requests = [];
   page.on('request', request => requests.push(request.url()));
-  await page.goto('/');
+  await visit(page, '/');
   await page.locator('#projects').scrollIntoViewIfNeeded();
   await expect(page.locator('[data-hero-scene] canvas')).toHaveCount(0);
   expect(requests.some(url => /three-core|three-react|HeroScene/.test(url))).toBe(false);
@@ -135,7 +144,7 @@ test('hero keeps one grid and avoids 3D on mobile and reduced-motion visits', as
 
 test('featured images fill consistent frames without changing on hover', async ({ page }, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/#projects');
+  await visit(page, '/#projects');
   const images = page.locator('#projects img');
   await expect(images).toHaveCount(3);
   const frames = [];
@@ -163,7 +172,7 @@ test('featured images fill consistent frames without changing on hover', async (
 });
 
 test('case studies expand and the full project directory is visible by default', async ({ page }, testInfo) => {
-  await page.goto('/');
+  await visit(page, '/');
   await page.getByLabel('Read case study: AdBrain', { exact: true }).click();
   const study = page.locator('details').filter({ has: page.getByLabel('Read case study: AdBrain', { exact: true }) });
   await expect(study).toHaveAttribute('open', '');
@@ -186,7 +195,7 @@ test('case studies expand and the full project directory is visible by default',
 });
 
 test('section titles match without focus boxes and links keep keyboard outlines', async ({ page }, testInfo) => {
-  await page.goto('/#work');
+  await visit(page, '/#work');
   const work = page.locator('#work h2');
   await expect(work).toBeFocused();
   await expect(work).toHaveCSS('outline-style', 'none');
@@ -208,7 +217,7 @@ test('direct reading-list response and sitemap agree', async ({ request, page })
   expect(await response.text()).toContain('Reading List');
   const sitemap = await request.get('/sitemap.xml');
   expect(await sitemap.text()).toContain('<loc>https://vanshul.com/reading-list</loc>');
-  await page.goto('/reading-list');
+  await visit(page, '/reading-list');
   await expect(page.getByRole('heading', { name: 'From My Shelf' })).toBeVisible();
   await page.getByRole('link', { name: 'Skip to content' }).focus();
   await page.keyboard.press('Enter');
@@ -218,7 +227,7 @@ test('direct reading-list response and sitemap agree', async ({ request, page })
 
 test('home and skip navigation never outline entire page sections', async ({ page }, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/#home');
+  await visit(page, '/#home');
   const home = page.locator('#home');
   const heading = home.locator('h1');
   await expect(heading).toBeFocused();
@@ -252,8 +261,9 @@ test('home and skip navigation never outline entire page sections', async ({ pag
 });
 
 test('footer keeps preferences secondary and works at narrow widths', async ({ page }, testInfo) => {
+  test.setTimeout(60000);
   if (testInfo.project.name === 'mobile') await page.setViewportSize({ width: 320, height: 740 });
-  await page.goto('/');
+  await visit(page, '/');
   const footer = page.getByRole('contentinfo');
   await footer.scrollIntoViewIfNeeded();
   await expect(footer.getByRole('navigation', { name: 'Footer links' }).getByRole('link')).toHaveCount(4);
@@ -309,9 +319,10 @@ test('footer keeps preferences secondary and works at narrow widths', async ({ p
 
 for (const reducedMotion of ['reduce', 'no-preference']) {
   test(`section URLs land headings below the header with ${reducedMotion}`, async ({ page }, testInfo) => {
+    test.setTimeout(60000);
     await page.emulateMedia({ reducedMotion });
     for (const id of ['projects', 'about', 'work', 'blog', 'contact']) {
-      await page.goto(`/#${id}`);
+      await visit(page, `/#${id}`);
       await expect.poll(() => page.evaluate(sectionId => {
         const heading = document.querySelector(`#${sectionId} h2`);
         const nav = document.querySelector('[data-site-header]');
@@ -321,7 +332,7 @@ for (const reducedMotion of ['reduce', 'no-preference']) {
         return Math.round(document.querySelector(`#${sectionId} h2`).getBoundingClientRect().top - document.querySelector('[data-site-header]').getBoundingClientRect().bottom);
       }, id)).toBeLessThanOrEqual(24);
     }
-    await page.goto('/reading-list');
+    await visit(page, '/reading-list');
     if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Toggle mobile menu' }).click();
     await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Projects', exact: true }).click();
     await expect(page).toHaveURL(/\/#projects$/);
@@ -331,7 +342,7 @@ for (const reducedMotion of ['reduce', 'no-preference']) {
 
 test('mobile menu has no hidden tab stops and supports Escape and focus wrapping', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile', 'Mobile menu contract');
-  await page.goto('/');
+  await visit(page, '/');
   const toggle = page.getByRole('button', { name: 'Toggle mobile menu' });
   await expect(page.locator('#primary-menu')).toHaveAttribute('inert', '');
   await page.getByRole('link', { name: 'Vanshul Goyal, home' }).focus();

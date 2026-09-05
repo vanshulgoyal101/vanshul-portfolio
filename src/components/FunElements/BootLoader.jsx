@@ -33,20 +33,21 @@ const GreetingContainer = styled.div`
 
 const GreetingWord = styled(motion.h1)`
   font-family: var(--font-display);
-  font-size: clamp(3rem, 10vw, 6rem);
+  font-size: 6rem;
   font-weight: 800;
   color: var(--color-accent-primary);
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
   line-height: 1;
   /* Reserve space so height never jumps */
   margin: 0;
+  @media (max-width: 768px) { font-size: 3rem; }
 `;
 
 const LangLabel = styled(motion.p)`
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--color-text-muted);
-  letter-spacing: 0.2em;
+  letter-spacing: 0;
   text-transform: uppercase;
   margin-top: 1.5rem;
   height: 1.2em; /* fixed height — prevents layout shift */
@@ -139,24 +140,13 @@ const BootLoader = ({ onComplete }) => {
       return;
     }
 
-    const tick = () => {
-      setIndex((prev) => {
-        const next = prev + 1;
-
-        if (next >= sequence.length) {
-          // We've shown the last word — start exit
-          // Use setTimeout(0) to step out of the setState updater
-          setTimeout(() => setExiting(true), STEP_MS);
-          return prev; // don't advance past end
-        }
-
-        return next;
-      });
-    };
-
-    const id = setInterval(tick, STEP_MS);
-    return () => clearInterval(id);
-  }, []);
+    const isFinal = index === sequence.length - 1;
+    const timer = setTimeout(() => {
+      if (isFinal) setExiting(true);
+      else setIndex(index + 1);
+    }, isFinal ? STEP_MS * 2 : STEP_MS);
+    return () => clearTimeout(timer);
+  }, [index]);
 
   // When exiting is set, wait for exit animation then call onComplete.
   useEffect(() => {
@@ -172,19 +162,22 @@ const BootLoader = ({ onComplete }) => {
     <AnimatePresence>
       {!exiting && (
         <LoaderWrapper
+          data-boot-loader
+          role="status"
+          aria-label="Loading website"
           key="bootloader"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 0.985 }}
           transition={{ duration: 0.5, ease: 'easeInOut' }}
         >
-          <GreetingContainer>
+          <GreetingContainer aria-hidden="true">
             {/*
               FIX for word/lang mismatch:
               Both the greeting word AND the lang label share the same `key`.
               AnimatePresence animates the ENTIRE block together, so they
               always display the same greeting pair — never mismatched.
             */}
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" key={index === SHOW_COUNT ? 'welcome' : 'greetings'}>
               <motion.div
                 key={current ? current.word : index}
                 initial={{ opacity: 0, y: 12 }}
@@ -193,9 +186,9 @@ const BootLoader = ({ onComplete }) => {
                 transition={{ duration: 0.13, ease: 'easeOut' }}
                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
               >
-                <GreetingWord>{current.word}</GreetingWord>
+                <GreetingWord data-greeting-word>{current.word}</GreetingWord>
 
-                <LangLabel>
+                <LangLabel data-greeting-language>
                   <Dot
                     animate={{ scale: [1, 1.6, 1], opacity: [0.4, 1, 0.4] }}
                     transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}

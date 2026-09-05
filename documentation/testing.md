@@ -49,6 +49,11 @@ for the canvas to clear and the rocket to return. Smoke uses its original
 frame-based fade; software rendering can take longer than a hardware browser.
 Pixel readbacks stop after evidence is captured to avoid slowing every frame.
 
+`e2e/boot.spec.js` checks visible multilingual greetings through Welcome, the
+centered Projects text, inert content and scroll-lock release, About deep links
+after the intro, no replay on internal navigation, and reduced-motion bypass.
+It captures greeting and revealed-page screenshots on desktop and mobile.
+
 Homepage and selected-work screenshots are written under `test-results/` for
 visual inspection. Failures retain screenshots and traces. These are not pixel
 baseline comparisons. CI runs lint, unit tests, build verification, and browser

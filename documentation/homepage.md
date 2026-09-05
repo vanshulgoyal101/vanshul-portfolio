@@ -35,12 +35,19 @@ toggle focus. Returning to desktop clears the mobile scroll lock.
 
 ## Content and motion
 
-The left-aligned introduction, navbar logo, Projects heading, and featured cards
-share the same 1280px container and responsive gutter. Selected work starts in
-the first viewport at the tested desktop and mobile sizes.
+The left-aligned introduction, navbar logo, and featured cards share the same
+1280px container and responsive gutter. The Featured Projects heading and
+subtitle are centered, matching the sections below. Selected work starts in
+the first viewport at the tested desktop and mobile sizes after the intro.
 
-There is no blocking greeting sequence. The unframed hero sculpture loads after
-idle only above 1024px and without reduced motion. Its reserved area avoids layout
+The original multilingual greeting runs once per app load: eight shuffled
+greetings at 220ms intervals, then Welcome and a 500ms fade. Internal navigation
+does not replay it. The underlying app is inert and body scrolling is locked
+until completion; hash navigation waits until the overlay is gone. Reduced-motion
+visitors bypass the sequence. All greeting and exit timers are cleaned up.
+
+The unframed hero sculpture loads after the greeting and browser idle only above
+1024px and without reduced motion. Its reserved area avoids layout
 shifts while loading, and its own error boundary keeps failures from replacing
 the introduction. Mobile and reduced-motion visits do not request the scene or
 Three.js chunks. Media-query changes unmount the scene when it is no longer allowed.

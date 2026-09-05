@@ -26,7 +26,7 @@ const Container = styled.div`
 `;
 
 const SectionHeader = styled(motion.div)`
-  text-align: left;
+  text-align: center;
   margin-bottom: var(--spacing-lg);
 
   @media (max-width: 768px) {
@@ -49,7 +49,7 @@ const SectionSubtitle = styled.p`
   font-size: var(--text-lg);
   color: var(--color-text-secondary);
   max-width: 600px;
-  margin: 0;
+  margin: 0 auto;
 
   @media (max-width: 768px) {
     font-size: var(--text-base);

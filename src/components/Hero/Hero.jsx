@@ -239,7 +239,7 @@ const SocialLink = styled(motion.a)`
 `;
 
 // Hero Component
-const Hero = () => {
+const Hero = ({ sceneEnabled = true }) => {
   const idle = useIdle(1200);
   const [sceneAllowed, setSceneAllowed] = useState(false);
 
@@ -385,7 +385,7 @@ const Hero = () => {
           </SocialLinks>
         </HeroContent>
         <SceneArea aria-hidden="true" data-hero-scene>
-          {idle && sceneAllowed && <ErrorBoundary fallback={null}><Suspense fallback={null}><HeroScene /></Suspense></ErrorBoundary>}
+          {sceneEnabled && idle && sceneAllowed && <ErrorBoundary fallback={null}><Suspense fallback={null}><HeroScene /></Suspense></ErrorBoundary>}
         </SceneArea>
       </HeroContainer>
     </HeroSection>
