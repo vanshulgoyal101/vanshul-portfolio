@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
 import { SITE_URL } from '../src/constants/siteConfig.js';
-import { BOOKS } from '../src/constants/books.js';
+import { BOOKS, ESSAYS, SHELF_ITEMS } from '../src/constants/books.js';
 
 const dist = new URL('../dist/', import.meta.url);
 const sitemap = new JSDOM(readFileSync(new URL('sitemap.xml', dist), 'utf8'), { contentType: 'text/xml' });
@@ -21,7 +21,11 @@ for (const url of urls) {
   if (path === 'reading-list') {
     assert(document.title.startsWith('Reading List'));
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].flatMap(element => JSON.parse(element.textContent));
-    assert.equal(schemas.find(schema => schema['@type'] === 'ItemList')?.numberOfItems, BOOKS.length);
+    const shelf = schemas.find(schema => schema['@type'] === 'ItemList');
+    assert.equal(shelf?.numberOfItems, SHELF_ITEMS.length);
+    assert.deepEqual(shelf.itemListElement.map(entry => entry.item.name), SHELF_ITEMS.map(item => item.title));
+    assert.equal(shelf.itemListElement.filter(entry => entry.item['@type'] === 'Book').length, BOOKS.length);
+    assert.deepEqual(shelf.itemListElement.filter(entry => entry.item['@type'] === 'Article').map(entry => entry.item.url), ESSAYS.map(essay => essay.url));
   }
 }
 console.log(`Verified ${urls.length} published routes and their canonical URLs.`);

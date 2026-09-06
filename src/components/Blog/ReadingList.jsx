@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FaBookOpen } from 'react-icons/fa';
 import { MdArrowForward } from 'react-icons/md';
-import { SHELF_ITEMS } from '../../constants/books';
+import { BOOKS, ESSAYS } from '../../constants/books';
 
 // Mirrors BlogCard so the "From My Shelf" entry looks and behaves exactly like a
 // blog card: a link that navigates to a dedicated page (/reading-list).
@@ -54,7 +54,7 @@ const Meta = styled.div`
   gap: 4px 10px;
   margin-bottom: var(--spacing-sm);
   font-size: 0.78rem;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   color: var(--color-text-secondary);
 
   span {
@@ -90,6 +90,25 @@ const Spacer = styled.div`
   flex: 1;
 `;
 
+const Collections = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+
+  strong {
+    margin-right: 0.4rem;
+    color: var(--color-accent-primary);
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+`;
+
 const ReadMore = styled.span`
   color: var(--color-accent-primary);
   font-size: var(--text-sm);
@@ -121,13 +140,16 @@ const ReadingList = ({ variants }) => (
         <span>
           <FaBookOpen aria-hidden="true" /> Reading list
         </span>
-        <span>{SHELF_ITEMS.length} reads</span>
       </Meta>
       <Title>From My Shelf</Title>
       <Summary>Books and essays that shaped how I think.</Summary>
+      <Collections>
+        <span><strong>{BOOKS.length}</strong> Books</span>
+        <span><strong>{ESSAYS.length}</strong> Essays</span>
+      </Collections>
       <Spacer />
       <ReadMore>
-        Read More <MdArrowForward />
+        Explore the shelf <MdArrowForward aria-hidden="true" />
       </ReadMore>
     </Card>
   </CardLink>

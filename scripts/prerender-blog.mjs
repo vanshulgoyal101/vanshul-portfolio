@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
 import { parseFrontmatter, escapeXml as escAttr, escapeText as escText, parseTags, isoDate } from './lib/seo.mjs';
 import { postJsonLd, blogIndexJsonLd } from './lib/structuredData.mjs';
-import { BOOKS } from '../src/constants/books.js';
+import { READING_LIST_DESCRIPTION, READING_LIST_JSON_LD } from '../src/constants/readingListSeo.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const blogsDir = join(root, 'src', 'blogs');
@@ -133,18 +133,8 @@ mkdirSync(join(distDir, 'reading-list'), { recursive: true });
 writeFileSync(join(distDir, 'reading-list', 'index.html'), buildPageShell({
   path: '/reading-list',
   title: `Reading List — ${AUTHOR_NAME}`,
-  description: 'From My Shelf: favourite books that shaped how I think — fiction and non-fiction, with a one-line note on each.',
-  jsonLd: {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'From My Shelf',
-    url: `${SITE}/reading-list`,
-    numberOfItems: BOOKS.length,
-    itemListElement: BOOKS.map((book, index) => ({
-      '@type': 'ListItem', position: index + 1,
-      item: { '@type': 'Book', name: book.title, author: { '@type': 'Person', name: book.author } },
-    })),
-  },
+  description: READING_LIST_DESCRIPTION,
+  jsonLd: READING_LIST_JSON_LD,
 }));
 
 console.log(`Prerendered ${posts.length} posts, blog index, and reading list.`);

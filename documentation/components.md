@@ -87,13 +87,24 @@ first ("zeroth") card in the blog grid.
 
 **Features**:
 - Compact blog-sized card linking to the dedicated `/reading-list` page
-- Books and essays are local shelf items with a title, author, note, and optional
-  source URL; the count is derived from `SHELF_ITEMS`
-- External essays open in a new tab with safe `noopener noreferrer` links
-- Two-column list on desktop, single column on small screens
+- Separate Books and Essays counts derived from the shared `BOOKS` and `ESSAYS` arrays
+- An open page layout using the site's display/mono fonts, blue accents, and shared background,
+  without an enclosing article card
+- Two always-visible, labelled collections: a numbered two-column book catalogue
+  (one column at 600px and below), followed by a single-column essay list
+- Titles, authors, and personal notes preserved; essay links include source domains
+  and external-link icons, opening with `noopener noreferrer`
+- Collection index links support `#books` and `#essays`, including direct visits and reloads;
+  the page restores the target after lazy loading and font readiness
+- Back links return to the homepage Writings section (`/#blog`)
+- Runtime and prerendered metadata share `src/constants/readingListSeo.js`, with
+  Book and Article types and original essay URLs
 
-**Tested**: `ReadingList.test.jsx` covers the compact card, all shelf items, and
-source links for essays.
+**Tested**: The card and page `ReadingList.test.jsx` files cover counts, all shelf
+items, category membership, navigation destinations, and source links.
+`e2e/shelf.spec.js` covers the Writings-to-shelf journey, collection jumps and reloads,
+44px essay link targets, and responsive layouts. `verify:build` checks the published
+item names, category types, counts, and essay URLs.
 
 ---
 

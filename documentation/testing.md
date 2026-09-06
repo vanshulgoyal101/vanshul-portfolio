@@ -54,6 +54,12 @@ centered Projects text, inert content and scroll-lock release, About deep links
 after the intro, no replay on internal navigation, and reduced-motion bypass.
 It captures greeting and revealed-page screenshots on desktop and mobile.
 
+`e2e/shelf.spec.js` covers the homepage shelf card, separate Books and Essays
+collections, source link semantics and target sizes, collection hash navigation
+and reloads, and the return to Writings. A 1440/768/390/320px matrix checks text
+bounds and horizontal overflow and captures full-page screenshots. External essay
+destinations are asserted from the curated data, not loaded by these tests.
+
 Homepage and selected-work screenshots are written under `test-results/` for
 visual inspection. Failures retain screenshots and traces. These are not pixel
 baseline comparisons. CI runs lint, unit tests, build verification, and browser
