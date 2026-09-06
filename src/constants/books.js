@@ -65,6 +65,18 @@ export const BOOKS = [
 
 export const ESSAYS = [
   {
+    title: "Do Things that Don't Scale",
+    author: 'Paul Graham',
+    url: 'https://paulgraham.com/ds.html',
+    note: 'The classic case for doing the unscalable, human work that helps a young idea find its first real users.',
+  },
+  {
+    title: 'Hackers & Painters',
+    author: 'Paul Graham',
+    url: 'https://paulgraham.com/hackpaint.html',
+    note: 'A wide-ranging meditation on programming, aesthetics, intelligence, and why making software resembles painting.',
+  },
+  {
     title: 'Machines of Loving Grace',
     author: 'Dario Amodei',
     url: 'https://darioamodei.com/essay/machines-of-loving-grace',
