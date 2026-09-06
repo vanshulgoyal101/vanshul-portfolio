@@ -91,6 +91,10 @@ card generator was removed so screenshot capture remains the owning workflow.
 
 The capture script uses Chromium and Sharp. Install Chromium with
 `npx playwright install chromium` first. Review generated images before committing;
+pass a project name, for example `node scripts/capture-projects.mjs adbrain`, to
+refresh one product without changing another's artwork. Screenshots themselves
+can contain old branding even when the surrounding title icon is correct;
+inspect the actual image after an identity release.
 never capture authenticated customer data. AdBrain currently shows its public
 landing page, not the authenticated creative workspace. The NASA photograph is
 preserved. Image frames use an 8:5 aspect ratio. Images are absolutely positioned
