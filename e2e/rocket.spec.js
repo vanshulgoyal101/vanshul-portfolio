@@ -13,6 +13,25 @@ test('reduced-motion visits do not load rocket or smoke', async ({ page }) => {
   expect(requests.some(url => /FloatingRocket|SmokeTransition/.test(url))).toBe(false);
 });
 
+test('mobile shows the floating rocket and accepts the three-tap launch', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile', 'Mobile-only rocket contract');
+  await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
+  await page.goto('/');
+  await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
+  const rocket = page.locator('[data-rocket]');
+  await expect(rocket).toBeVisible();
+  const bounds = await rocket.boundingBox();
+  expect(bounds.x).toBeGreaterThan(0);
+  expect(bounds.y).toBeGreaterThan(0);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(844);
+  await rocket.dispatchEvent('click');
+  await rocket.dispatchEvent('click');
+  await rocket.dispatchEvent('click');
+  await expect(page.locator('[data-rocket-smoke]')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.querySelector('[data-rocket]')?.getBoundingClientRect().top)).toBeLessThan(bounds.y);
+});
+
 test('original rocket launches with colored smoke and lands on About twice', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop', 'The existing floating rocket is desktop-only');
   test.setTimeout(60000);

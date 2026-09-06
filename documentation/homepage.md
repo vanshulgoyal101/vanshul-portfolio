@@ -35,10 +35,12 @@ toggle focus. Returning to desktop clears the mobile scroll lock.
 
 ## Content and motion
 
-The left-aligned introduction, navbar logo, and featured cards share the same
-1280px container and responsive gutter. The Featured Projects heading and
-subtitle are centered, matching the sections below. Selected work starts in
-the first viewport at the tested desktop and mobile sizes after the intro.
+The left-aligned desktop introduction, navbar logo, and featured cards share the
+same 1280px container and responsive gutter. On mobile, the introduction centers
+its copy, actions, and social links to avoid a lopsided narrow layout. The
+Featured Projects heading and subtitle are centered at every size, matching the
+sections below. Selected work starts in the first viewport at the tested desktop
+and mobile sizes after the intro.
 
 The original multilingual greeting runs once per app load: eight shuffled
 greetings at 220ms intervals, then Welcome and a 500ms fade. Internal navigation
@@ -59,8 +61,12 @@ footer switch persists an explicit choice in `vg.ambient`; reduced motion always
 disables them. That setting does not control the desktop hero.
 Lazy routes show a loading state and share an error boundary.
 
-The floating desktop rocket and `SmokeTransition` load together inside the idle
-ambient boundary. Keep the smoke listener mounted with the rocket: `rocket-launch`
+The floating rocket and `SmokeTransition` load together inside the idle ambient
+boundary. On desktop the rocket remains fixed in the lower-right corner; on
+mobile it uses a smaller fixed lower-right placement inside the safe area so it
+stays visible without pushing content or overlapping navigation. The heavy 3D
+hero scene remains desktop-only. Keep the smoke listener mounted with the rocket:
+`rocket-launch`
 starts the original pooled cyan/magenta/violet/grey trail, and
 `rocket-emit-smoke` follows the moving nozzle. The original three-tap countdown,
 0.2s shake, 1s takeoff, color-to-background blending, and reset are preserved.

@@ -48,11 +48,19 @@ const HeroContainer = styled.div`
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
   }
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
 `;
 
 const HeroContent = styled(motion.div)`
   max-width: 38rem;
   min-width: 0;
+
+  @media (max-width: 768px) {
+    margin: 0 auto;
+  }
 `;
 
 const SceneArea = styled.div`
@@ -123,7 +131,7 @@ const CTAContainer = styled(motion.div)`
 
   @media (max-width: 480px) {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     width: 100%;
     gap: 0.75rem;
     margin-bottom: var(--spacing-md);
@@ -210,6 +218,10 @@ const SocialLinks = styled(motion.div)`
   display: flex;
   gap: 0.75rem;
   justify-content: flex-start;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
 `;
 
 const SocialLink = styled(motion.a)`

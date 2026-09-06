@@ -118,10 +118,14 @@ test('hero keeps one grid and avoids 3D on mobile and reduced-motion visits', as
       const heading = document.querySelector('#projects h2').getBoundingClientRect();
       const socials = [...document.querySelectorAll('#home a[aria-label]')].map(element => element.getBoundingClientRect());
       const subtitle = document.querySelector('#projects h2 + p').getBoundingClientRect();
-      return { titleLeft: title.left, logoLeft: logo.left, projectLeft: project.left, headingAlign: getComputedStyle(document.querySelector('#projects h2')).textAlign, subtitleCenter: subtitle.left + subtitle.width / 2, width: innerWidth, headingTop: heading.top, height: innerHeight, overflow: document.documentElement.scrollWidth > innerWidth, socialsInside: socials.every(rect => rect.left >= 0 && rect.right <= innerWidth) };
+      return { titleLeft: title.left, titleRight: title.right, logoLeft: logo.left, projectLeft: project.left, headingAlign: getComputedStyle(document.querySelector('#projects h2')).textAlign, subtitleCenter: subtitle.left + subtitle.width / 2, width: innerWidth, headingTop: heading.top, height: innerHeight, overflow: document.documentElement.scrollWidth > innerWidth, socialsInside: socials.every(rect => rect.left >= 0 && rect.right <= innerWidth) };
     });
-    expect(Math.abs(layout.titleLeft - layout.logoLeft)).toBeLessThan(2);
-    expect(Math.abs(layout.titleLeft - layout.projectLeft)).toBeLessThan(2);
+    if (viewport.width > 768) {
+      expect(Math.abs(layout.titleLeft - layout.logoLeft)).toBeLessThan(2);
+      expect(Math.abs(layout.titleLeft - layout.projectLeft)).toBeLessThan(2);
+    } else {
+      expect(Math.abs((layout.titleLeft + layout.titleRight) / 2 - layout.width / 2)).toBeLessThan(2);
+    }
     expect(layout.headingAlign).toBe('center');
     expect(Math.abs(layout.subtitleCenter - layout.width / 2)).toBeLessThan(2);
     expect(layout.headingTop).toBeLessThan(layout.height);

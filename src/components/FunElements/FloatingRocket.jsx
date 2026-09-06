@@ -14,24 +14,18 @@ const RocketWrapper = styled.div`
   `}
   
   @media (max-width: 768px) {
-    ${({ $isDesktopOnly }) => $isDesktopOnly && `
-      display: none !important;
-    `}
-    
     ${({ $isMobileOnly }) => $isMobileOnly && `
       display: flex !important;
     `}
-    
-    position: relative;
-    bottom: auto;
+
+    position: fixed;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
     left: auto;
-    right: auto;
-    transform: none;
-    margin: 60px auto 0 auto;
-    display: flex;
-    justify-content: center;
+    right: 1rem;
+    margin: 0;
+    display: block;
     pointer-events: none;
-    z-index: 10;
+    z-index: 100;
     width: fit-content;
   }
 `;

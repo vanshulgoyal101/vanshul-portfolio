@@ -111,7 +111,7 @@ const IdleBackground = () => {
   return (
     <Suspense fallback={null}>
       <SmokeTransition />
-      <FloatingRocket isDesktopOnly />
+      <FloatingRocket />
       <RandomTelemetry />
       <InteractiveSpaceBackground />
     </Suspense>
