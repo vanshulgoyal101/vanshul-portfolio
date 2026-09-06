@@ -95,6 +95,8 @@ pass a project name, for example `node scripts/capture-projects.mjs adbrain`, to
 refresh one product without changing another's artwork. Screenshots themselves
 can contain old branding even when the surrounding title icon is correct;
 inspect the actual image after an identity release.
+Version the project image URL when replacing a public screenshot; GitHub Pages
+can retain the previous bytes at an unchanged CDN URL after a successful deploy.
 never capture authenticated customer data. AdBrain currently shows its public
 landing page, not the authenticated creative workspace. The NASA photograph is
 preserved. Image frames use an 8:5 aspect ratio. Images are absolutely positioned

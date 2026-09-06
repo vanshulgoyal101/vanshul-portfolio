@@ -24,6 +24,7 @@ describe('Projects', () => {
     expect(mark).toHaveAttribute('alt', '');
     expect(mark).toHaveAttribute('width', '28');
     expect(mark).toHaveAttribute('height', '28');
+    expect(screen.getByRole('img', { name: 'AdBrain', exact: true })).toHaveAttribute('src', '/images/projects/adbrain.webp?v=99a19eb');
   });
 
   it('provides a case study for each featured project and keeps the directory secondary', () => {

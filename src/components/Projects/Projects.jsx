@@ -378,7 +378,7 @@ const projects = [
     title: 'AdBrain',
     role: 'Founder & Solo Developer',
     description: 'An AI ad-creative generator and manager for local businesses — fill a "brand brain", set a goal, and get on-brand ad variants (image + copy) ready to launch on Meta. Built as a real product, with a live solar business as customer zero.',
-    image: '/images/projects/adbrain.webp',
+    image: '/images/projects/adbrain.webp?v=99a19eb',
     brandIcon: <AdBrainMark />,
     fallbackIcon: <AdBrainMark />,
     stats: [
