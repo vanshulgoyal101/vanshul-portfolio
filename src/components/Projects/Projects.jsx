@@ -378,13 +378,13 @@ const projects = [
   },
   {
     id: 2,
-    title: 'Tiny Arcade — 10 Browser Games',
+    title: 'Tiny Arcade — 11 Browser Games',
     role: 'Solo Developer',
-    description: 'Instant-play games for reflexes, memory, typing and mental maths. Lightweight TypeScript interfaces, shared game architecture and cloud leaderboards.',
+    description: '11 instant-play games including 2048, reflex, memory, typing and mental maths. Lightweight TypeScript interfaces, shared game architecture and cloud leaderboards.',
     image: '/images/projects/tiny-arcade.webp',
     fallbackIcon: <IoGameController />,
     stats: [
-      { icon: <FaRocket />, text: '10 instant-play games' },
+      { icon: <FaRocket />, text: '11 instant-play games, including 2048' },
       { icon: <FaCode />, text: 'TypeScript + Vite' },
     ],
     link: 'https://games.vanshul.com',
