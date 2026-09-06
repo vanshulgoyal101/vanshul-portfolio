@@ -149,7 +149,7 @@ test('hero keeps one grid and avoids 3D on mobile and reduced-motion visits', as
 test('featured images fill consistent frames without changing on hover', async ({ page }, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await visit(page, '/#projects');
-  const images = page.locator('#projects img');
+  const images = page.locator('#projects img[alt]:not([alt=""])');
   await expect(images).toHaveCount(3);
   const frames = [];
   for (const image of await images.all()) {
@@ -173,6 +173,10 @@ test('featured images fill consistent frames without changing on hover', async (
     await image.locator('..').screenshot({ path: testInfo.outputPath(`${await image.getAttribute('alt')}.png`), animations: 'disabled' });
   }
   for (const frame of frames) expect(Math.abs(frame.height - frames[0].height)).toBeLessThan(1);
+  const mark = page.getByRole('heading', { name: 'AdBrain', exact: true }).locator('img');
+  await expect(mark).toHaveAttribute('src', '/images/projects/adbrain-icon.svg');
+  await expect.poll(() => mark.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
+  await expect(mark).toHaveCSS('object-fit', 'contain');
 });
 
 test('case studies expand and the full project directory is visible by default', async ({ page }, testInfo) => {

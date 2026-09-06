@@ -16,6 +16,16 @@ describe('Projects', () => {
     expect(screen.getByRole('heading', { name: /Tiny Arcade/i })).toBeInTheDocument();
   });
 
+  it('shows the canonical AdBrain icon without duplicating its accessible name', () => {
+    render(<Projects />);
+    const heading = screen.getByRole('heading', { name: 'AdBrain', exact: true });
+    const mark = heading.querySelector('img');
+    expect(mark).toHaveAttribute('src', '/images/projects/adbrain-icon.svg');
+    expect(mark).toHaveAttribute('alt', '');
+    expect(mark).toHaveAttribute('width', '28');
+    expect(mark).toHaveAttribute('height', '28');
+  });
+
   it('provides a case study for each featured project and keeps the directory secondary', () => {
     const { container } = render(<Projects />);
     const studies = [...container.querySelectorAll('details')].filter(detail => detail.querySelector('dl'));

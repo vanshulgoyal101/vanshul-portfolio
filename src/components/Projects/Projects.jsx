@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaRocket, FaExternalLinkAlt, FaCode, FaGithub, FaBullseye, FaSun, FaPuzzlePiece, FaTools, FaBrain, FaLock, FaEnvelope, FaWrench, FaEye, FaCube, FaRobot, FaBalanceScale, FaGlobeAmericas, FaDesktop, FaFileAlt, FaDatabase } from 'react-icons/fa';
+import { FaRocket, FaExternalLinkAlt, FaCode, FaGithub, FaSun, FaPuzzlePiece, FaTools, FaBrain, FaLock, FaEnvelope, FaWrench, FaEye, FaCube, FaRobot, FaBalanceScale, FaGlobeAmericas, FaDesktop, FaFileAlt, FaDatabase } from 'react-icons/fa';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
 import { IoGameController } from 'react-icons/io5';
@@ -127,6 +127,9 @@ const ProjectContent = styled.div`
 `;
 
 const ProjectTitle = styled.h3`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1.25rem;
   overflow-wrap: anywhere;
   margin-bottom: var(--spacing-sm);
@@ -135,6 +138,19 @@ const ProjectTitle = styled.h3`
   @media (max-width: 768px) {
     font-size: var(--text-lg);
   }
+`;
+
+const AdBrainMark = styled.img.attrs({
+  src: '/images/projects/adbrain-icon.svg',
+  alt: '',
+  'aria-hidden': true,
+  width: 28,
+  height: 28,
+})`
+  flex-shrink: 0;
+  width: 1.4em;
+  height: 1.4em;
+  object-fit: contain;
 `;
 
 const ProjectRole = styled.p`
@@ -363,7 +379,8 @@ const projects = [
     role: 'Founder & Solo Developer',
     description: 'An AI ad-creative generator and manager for local businesses — fill a "brand brain", set a goal, and get on-brand ad variants (image + copy) ready to launch on Meta. Built as a real product, with a live solar business as customer zero.',
     image: '/images/projects/adbrain.webp',
-    fallbackIcon: <FaBullseye />,
+    brandIcon: <AdBrainMark />,
+    fallbackIcon: <AdBrainMark />,
     stats: [
       { icon: <FaRocket />, text: 'Live SaaS · adbrain.vanshul.com' },
       { icon: <FaCode />, text: 'Next.js 16 · React 19 · Supabase' },
@@ -533,7 +550,7 @@ const Projects = () => {
                 fallback={project.fallbackIcon}
               />
               <ProjectContent>
-                <ProjectTitle>{project.title}</ProjectTitle>
+                <ProjectTitle>{project.brandIcon}{project.title}</ProjectTitle>
                 <ProjectRole>{project.role}</ProjectRole>
                 <ProjectDescription>{project.description}</ProjectDescription>
                 <CaseStudy>

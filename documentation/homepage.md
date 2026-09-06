@@ -84,7 +84,12 @@ navigation visible even when preferences are closed.
 ## Project media
 
 `node scripts/capture-projects.mjs` refreshes the AdBrain and Tiny Arcade images
-from their public pages using Chromium and Sharp. Install Chromium with
+from their public pages. AdBrain's title and image fallback use the local
+`public/images/projects/adbrain-icon.svg` copy of its canonical generated mark;
+do not substitute a generic advertising icon. The obsolete authored AdBrain
+card generator was removed so screenshot capture remains the owning workflow.
+
+The capture script uses Chromium and Sharp. Install Chromium with
 `npx playwright install chromium` first. Review generated images before committing;
 never capture authenticated customer data. AdBrain currently shows its public
 landing page, not the authenticated creative workspace. The NASA photograph is
