@@ -82,18 +82,18 @@ All UI and logic are organized into feature-based React components under `src/co
 ### ReadingList.jsx
 **Location**: `src/components/Blog/ReadingList.jsx`
 
-**Purpose**: "From My Shelf" — a curated favourite-books list, rendered as the
+**Purpose**: "From My Shelf" — a curated reading list of books and essays, rendered as the
 first ("zeroth") card in the blog grid.
 
 **Features**:
-- Compact blog-sized card (a `motion.button`) that opens the full list in an
-  accessible modal (`role="dialog"`, backdrop/ESC/✕ to close, body scroll lock)
-- Books are a local `BOOKS` array (title, author, one-line note); the count is
-  derived, so adding/removing a book updates the label automatically
-- Two-column list inside the modal, single column on small screens
+- Compact blog-sized card linking to the dedicated `/reading-list` page
+- Books and essays are local shelf items with a title, author, note, and optional
+  source URL; the count is derived from `SHELF_ITEMS`
+- External essays open in a new tab with safe `noopener noreferrer` links
+- Two-column list on desktop, single column on small screens
 
-**Tested**: `ReadingList.test.jsx` covers the compact card, opening the modal,
-listing the books, and closing.
+**Tested**: `ReadingList.test.jsx` covers the compact card, all shelf items, and
+source links for essays.
 
 ---
 

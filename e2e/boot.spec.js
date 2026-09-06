@@ -22,7 +22,7 @@ test('multilingual greeting finishes and reveals centered projects', async ({ pa
   await page.goto('/');
   const loader = page.locator('[data-boot-loader]');
   await expect(loader).toBeVisible();
-  await expect(page.locator('#main-content').locator('..')).toHaveAttribute('inert', '');
+  await expect.poll(() => page.locator('#main-content').locator('..').evaluate(element => element.inert)).toBe(true);
   await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
   await page.waitForFunction(() => [...document.querySelectorAll('[data-greeting-word]')].some(word =>
     word.textContent === 'Welcome' && Number(getComputedStyle(word.parentElement).opacity) > 0.9
@@ -35,7 +35,7 @@ test('multilingual greeting finishes and reveals centered projects', async ({ pa
   const greetings = await page.evaluate(() => window.bootGreetings);
   expect(greetings.length).toBeGreaterThanOrEqual(4);
   expect(greetings.at(-1)).toEqual({ word: 'Welcome', language: 'English' });
-  await expect(page.locator('#main-content').locator('..')).not.toHaveAttribute('inert');
+  await expect.poll(() => page.locator('#main-content').locator('..').evaluate(element => element.inert)).toBe(false);
   await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
   await expect(page.locator('#projects h2')).toHaveCSS('text-align', 'center');
   await expect(page.locator('#projects h2 + p')).toHaveCSS('text-align', 'center');

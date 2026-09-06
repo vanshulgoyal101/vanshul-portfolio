@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FaBookOpen } from 'react-icons/fa';
 import { MdArrowForward } from 'react-icons/md';
-import { BOOKS } from '../../constants/books';
+import { SHELF_ITEMS } from '../../constants/books';
 
 // Mirrors BlogCard so the "From My Shelf" entry looks and behaves exactly like a
 // blog card: a link that navigates to a dedicated page (/reading-list).
@@ -121,10 +121,10 @@ const ReadingList = ({ variants }) => (
         <span>
           <FaBookOpen aria-hidden="true" /> Reading list
         </span>
-        <span>{BOOKS.length} books</span>
+        <span>{SHELF_ITEMS.length} reads</span>
       </Meta>
       <Title>From My Shelf</Title>
-      <Summary>Books that shaped how I think — fiction and non-fiction alike.</Summary>
+      <Summary>Books and essays that shaped how I think.</Summary>
       <Spacer />
       <ReadMore>
         Read More <MdArrowForward />

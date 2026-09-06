@@ -1,5 +1,5 @@
-// Curated favourite-books list shown on the "From My Shelf" card and its
-// dedicated /reading-list page. Notes are intentionally short and personal.
+// Curated reading list shown on the "From My Shelf" card and its dedicated
+// /reading-list page. Notes are intentionally short and personal.
 export const BOOKS = [
   {
     title: 'The Almanack of Naval Ravikant',
@@ -62,3 +62,44 @@ export const BOOKS = [
     note: 'One page a day. Not to sound wise — to actually be a little calmer tomorrow.',
   },
 ];
+
+export const ESSAYS = [
+  {
+    title: 'Machines of Loving Grace',
+    author: 'Dario Amodei',
+    url: 'https://darioamodei.com/essay/machines-of-loving-grace',
+    note: 'A concrete, hopeful picture of what powerful AI could do for health, science, prosperity, peace, and human meaning.',
+  },
+  {
+    title: 'An Alien Mind',
+    author: 'Jakub Pachocki',
+    url: 'https://x.com/merettm/status/2096630018495377464?s=48',
+    note: 'A warning about the choices ahead as AI becomes more capable, and why the future still has to remain in human hands.',
+  },
+  {
+    title: 'Why Are Rivers So Mathematical?',
+    author: 'Natalie Wolchover',
+    url: 'https://www.quantamagazine.org/why-are-rivers-so-mathematical-20260810/',
+    note: 'A beautiful look at Hack’s law, river networks, and the surprising order hidden in flowing water.',
+  },
+  {
+    title: 'Modern Sisyphus: The Absurdity of the Corporate World',
+    author: 'Unwana Johnson',
+    url: 'https://journal.nyphilosophy.org/p/modern-sisyphus-the-absurdity-of',
+    note: 'A sharp philosophical reading of performance metrics, voluntary self-exploitation, and the corporate boulder.',
+  },
+  {
+    title: 'Waking up science’s sleeping beauties',
+    author: 'Ulkar Aghayeva',
+    url: 'https://worksinprogress.co/issue/waking-up-sciences-sleeping-beauties/',
+    note: 'Why important discoveries can sleep for decades, and how better connections across the literature might wake them.',
+  },
+  {
+    title: 'The Adolescence of Technology',
+    author: 'Dario Amodei',
+    url: 'https://darioamodei.com/essay/the-adolescence-of-technology',
+    note: 'A sober companion to Machines of Loving Grace about the risks humanity must navigate as AI becomes powerful.',
+  },
+];
+
+export const SHELF_ITEMS = [...BOOKS, ...ESSAYS];

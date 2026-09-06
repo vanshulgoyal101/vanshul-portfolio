@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaArrowLeft, FaBookOpen } from 'react-icons/fa';
-import { BOOKS } from '../constants/books';
+import { SHELF_ITEMS } from '../constants/books';
 import { useSeo } from '../hooks/useSeo';
 import { SITE_URL } from '../constants/siteConfig';
 import Navigation from '../components/Navigation/Navigation';
@@ -164,6 +164,15 @@ const BookLine = styled.p`
   color: var(--color-text-primary);
 `;
 
+const ReadingLink = styled.a`
+  color: inherit;
+  text-decoration: none;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+
+  &:hover { color: var(--color-accent-primary); text-decoration: underline; }
+`;
+
 const BookName = styled.span`
   font-weight: 600;
 `;
@@ -189,14 +198,14 @@ const ReadingListPage = () => {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
         name: 'From My Shelf — Vanshul Goyal',
-        description: 'Favourite books that shaped how Vanshul Goyal thinks.',
+        description: 'Books and essays that shaped how Vanshul Goyal thinks.',
         url,
-        numberOfItems: BOOKS.length,
-        itemListElement: BOOKS.map((book, i) => ({
+        numberOfItems: SHELF_ITEMS.length,
+        itemListElement: SHELF_ITEMS.map((book, i) => ({
           '@type': 'ListItem',
           position: i + 1,
           item: {
-            '@type': 'Book',
+            '@type': book.url ? 'Article' : 'Book',
             name: book.title,
             author: { '@type': 'Person', name: book.author },
           },
@@ -217,7 +226,7 @@ const ReadingListPage = () => {
   useSeo({
     title: 'Reading List — Vanshul Goyal',
     description:
-      "From My Shelf: favourite books that shaped how I think — fiction and non-fiction, with a one-line note on each.",
+      'From My Shelf: books and essays that shaped how I think, with a one-line note on each.',
     path: '/reading-list',
     jsonLd,
   });
@@ -248,16 +257,18 @@ const ReadingListPage = () => {
                 <FaBookOpen aria-hidden="true" /> From My Shelf
               </Title>
               <Subtitle>
-                {BOOKS.length} books that shaped how I think — fiction and non-fiction alike.
+                {SHELF_ITEMS.length} reads that shaped how I think — fiction, non-fiction, and essays alike.
               </Subtitle>
             </Header>
 
             <Body>
               <List>
-                {BOOKS.map((book) => (
+                {SHELF_ITEMS.map((book) => (
                   <Item key={book.title}>
                     <BookLine>
-                      <BookName>{book.title}</BookName> <By>· {book.author}</By>
+                      <BookName>
+                        {book.url ? <ReadingLink href={book.url} target="_blank" rel="noopener noreferrer">{book.title}</ReadingLink> : book.title}
+                      </BookName> <By>· {book.author}</By>
                     </BookLine>
                     <Note>{book.note}</Note>
                   </Item>

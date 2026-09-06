@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ReadingList from './ReadingList';
-import { BOOKS } from '../../constants/books';
+import { SHELF_ITEMS } from '../../constants/books';
 
 const renderCard = () =>
   render(
@@ -17,7 +17,7 @@ describe('ReadingList card', () => {
     const link = screen.getByRole('link', { name: /reading list/i });
     expect(link).toHaveAttribute('href', '/reading-list');
     expect(screen.getByText('From My Shelf')).toBeInTheDocument();
-    expect(screen.getByText(`${BOOKS.length} books`)).toBeInTheDocument();
+    expect(screen.getByText(`${SHELF_ITEMS.length} reads`)).toBeInTheDocument();
     expect(screen.getByText(/read more/i)).toBeInTheDocument();
   });
 
