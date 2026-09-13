@@ -67,5 +67,7 @@ describe('BlogPost', () => {
     renderAt('/blog/this-post-does-not-exist-xyz');
     expect(screen.getByText('Blog Post Not Found')).toBeInTheDocument();
     expect(document.title).toContain('Post not found');
+    expect(screen.getByRole('heading', { level: 1, name: 'Blog Post Not Found' })).toBeInTheDocument();
+    expect(document.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow');
   });
 });

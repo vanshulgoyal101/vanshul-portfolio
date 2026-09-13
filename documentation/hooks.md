@@ -28,12 +28,33 @@ const {
 - `handleChange` updates the field and, for the `email` field, validates against
   a simple regex, setting `emailError` when invalid (empty is not treated as
   invalid).
-- `handleSubmit` calls `preventDefault`, aborts early if there is an
-  `emailError`, POSTs JSON to the Formspree endpoint, and shows a success or
+- `handleSubmit` calls `preventDefault`, validates all required fields using trimmed values,
+  POSTs normalized JSON to the Formspree endpoint, and shows a success or
   error toast. On success it resets the form; on failure or network error it
   keeps the entered values so the user can retry.
+- An in-flight ref prevents duplicate requests before React renders the disabled
+  button. Unmount aborts the client request and suppresses late toasts/state updates.
+  Aborting the client does not guarantee a message already received by the server
+  was not delivered; no server-side idempotency guarantee is claimed.
 - `useToast()` provides the toast callbacks, so the component using this hook
   must be rendered inside `<ToastProvider>`.
+
+---
+
+## useSeo
+
+Runtime route metadata replaces prerendered `script[data-route-seo]` nodes and
+article tags while the route is active, preserving the global site identity graph.
+The hook updates canonical, Open Graph, and Twitter URLs together. Home mounts its
+own metadata so navigating from a directly loaded subpage cannot leave that
+subpage's original HTML title/canonical on Home. Missing posts use `noindex, follow`.
+Cleanup restores the previous head state for the next route's hook to replace.
+
+## useBlogViews / useBlogView
+
+Optional view requests return empty/null UI states when unavailable or rejected.
+Effect guards ignore late responses, and clearing or changing a slug clears the
+previous post's count. Tests do not write to the live Supabase database.
 
 ---
 
@@ -95,7 +116,10 @@ const location = useLocation();
 if (location.pathname === '/') {
   scrollToSection(id);           // already home → scroll
 } else {
-  navigate('/');                 // go home first…
-  setTimeout(() => { /* scroll */ }, 500); // …then scroll after render
+  navigate(`/#${id}`);
 }
 ```
+
+The route hash helper waits for intro completion and fonts, tolerates malformed
+percent encoding, and applies measured header clearance and focus. Lazy page
+targets must also exist before restoration; fixed-delay navigation is not used.

@@ -53,6 +53,8 @@ vi.mock('framer-motion', async (importOriginal) => {
             whileTap,
             whileFocus,
             whileDrag,
+            onHoverStart,
+            onHoverEnd,
             viewport,
             layout,
             layoutId,

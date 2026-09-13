@@ -50,6 +50,7 @@ const createOffscreenSmokeCanvas = (r, g, b) => {
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
   
   const half = size / 2;
   const gradient = ctx.createRadialGradient(half, half, 1, half, half, half);
@@ -125,6 +126,10 @@ class SmokeParticle {
     // Calculate blending progress (0 = fully colored, 1 = morphed to bg)
     const progress = Math.min(1, (0.95 - this.opacity) / 0.7);
     const cachedCanvas = cachedCanvases[this.colorIndex];
+    if (!cachedCanvas || !bgCanvas) {
+      ctx.restore();
+      return;
+    }
     
     // Draw base color (slightly desaturates towards age)
     ctx.globalAlpha = this.opacity * (1 - progress * 0.65);
@@ -161,9 +166,9 @@ const SmokeTransition = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const ownedPool = poolRef.current;
 
     const ctx = canvas.getContext('2d', { alpha: true });
-    if (!ctx) return;
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
@@ -173,6 +178,7 @@ const SmokeTransition = () => {
     window.addEventListener('resize', resizeCanvas);
 
     const handleEmitSmoke = (e) => {
+      if (!ctx) return;
       if (!isAnimatingRef.current) return;
       const { x, y } = e.detail;
       // Spawn 2 optimized particles every frame for a continuous dense trail
@@ -188,7 +194,7 @@ const SmokeTransition = () => {
     const animate = () => {
       if (!isAnimatingRef.current) return;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
       const elapsed = Date.now() - startTimeRef.current;
 
       const pool = poolRef.current;
@@ -212,7 +218,7 @@ const SmokeTransition = () => {
       // Terminate transition loop when all particles are processed
       if (elapsed > 800 && pool.active.length === 0) {
         isAnimatingRef.current = false;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx?.clearRect(0, 0, canvas.width, canvas.height);
       } else {
         animationFrameRef.current = requestAnimationFrame(animate);
       }
@@ -220,7 +226,7 @@ const SmokeTransition = () => {
 
     const handleLaunch = () => {
       poolRef.current.clear();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
       startTimeRef.current = Date.now();
       scrollTriggeredRef.current = false;
 
@@ -234,6 +240,8 @@ const SmokeTransition = () => {
     window.addEventListener('rocket-launch', handleLaunch);
 
     return () => {
+      isAnimatingRef.current = false;
+      ownedPool.clear();
       window.removeEventListener('resize', resizeCanvas);
       window.removeEventListener('rocket-emit-smoke', handleEmitSmoke);
       window.removeEventListener('rocket-launch', handleLaunch);

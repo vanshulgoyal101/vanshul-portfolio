@@ -12,6 +12,8 @@ export const useBlogViews = () => {
     let active = true;
     getAllBlogViews().then((map) => {
       if (active) setViews(map);
+    }).catch(() => {
+      if (active) setViews({});
     });
     return () => {
       active = false;
@@ -31,11 +33,13 @@ export const useBlogView = (slug) => {
   const [count, setCount] = useState(null);
 
   useEffect(() => {
+    setCount(null);
     if (!slug) return;
     let active = true;
-    setCount(null);
     incrementBlogView(slug).then((n) => {
       if (active && n != null) setCount(n);
+    }).catch(() => {
+      if (active) setCount(null);
     });
     return () => {
       active = false;

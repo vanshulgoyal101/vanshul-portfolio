@@ -5,6 +5,7 @@
 export const SITE_URL = 'https://vanshul.com';
 export const AUTHOR_NAME = 'Vanshul Goyal';
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+export const HOME_DESCRIPTION = 'Engineer at United Airlines. I write about AI, robotics, and the future of work — and build at the intersection of technology and human potential.';
 
 // Social profiles keyed by platform. `games` is a product link, not an identity
 // profile, so it is intentionally excluded from `AUTHOR_SAME_AS` below.

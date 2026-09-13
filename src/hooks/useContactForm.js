@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useToast } from '../components/Toast';
 
 // Formspree endpoint for the contact form. Override with VITE_CONTACT_ENDPOINT.
@@ -26,12 +26,18 @@ export const useContactForm = (initialState = { name: '', email: '', message: ''
   const [formState, setFormState] = useState(initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const requestRef = useRef(null);
+
+  useEffect(() => () => {
+    requestRef.current?.abort();
+    requestRef.current = null;
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
     if (name === 'email') {
-      const valid = !value || EMAIL_RE.test(value);
+      const valid = !value.trim() || EMAIL_RE.test(value.trim());
       setErrors((prev) => ({ ...prev, email: valid ? '' : 'Please enter a valid email address.' }));
     } else {
       setErrors((prev) => (prev[name] ? { ...prev, [name]: '' } : prev));
@@ -40,6 +46,7 @@ export const useContactForm = (initialState = { name: '', email: '', message: ''
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (requestRef.current) return;
 
     const next = {
       name: fieldError('name', formState.name),
@@ -52,21 +59,26 @@ export const useContactForm = (initialState = { name: '', email: '', message: ''
       return;
     }
 
+    const request = new AbortController();
+    requestRef.current = request;
     setIsSubmitting(true);
+    const submission = Object.fromEntries(Object.entries(formState).map(([key, value]) => [key, value.trim()]));
 
     try {
       const response = await fetch(CONTACT_ENDPOINT, {
         method: 'POST',
+        signal: request.signal,
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formState,
-          _replyto: formState.email,
-          _subject: `Portfolio Contact: ${formState.name}`,
+          ...submission,
+          _replyto: submission.email,
+          _subject: `Portfolio Contact: ${submission.name}`,
         }),
       });
 
+      if (request.signal.aborted) return;
       if (response.ok) {
         showSuccess(
           'Message Sent!',
@@ -81,12 +93,16 @@ export const useContactForm = (initialState = { name: '', email: '', message: ''
         );
       }
     } catch {
+      if (request.signal.aborted) return;
       showError(
         'Network Error',
         'Unable to send message. Please check your connection and try again.'
       );
     } finally {
-      setIsSubmitting(false);
+      if (requestRef.current === request) {
+        requestRef.current = null;
+        setIsSubmitting(false);
+      }
     }
   };
 

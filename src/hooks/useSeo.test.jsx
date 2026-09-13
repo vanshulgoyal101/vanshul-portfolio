@@ -34,6 +34,7 @@ describe('useSeo', () => {
     expect(metaContent('property', 'og:image:alt')).toBe('T');
     expect(metaContent('name', 'twitter:title')).toBe('T');
     expect(metaContent('name', 'twitter:description')).toBe('D');
+    expect(metaContent('name', 'twitter:url')).toBe(`${SITE_URL}/blog/y`);
     expect(linkHref('canonical')).toBe(`${SITE_URL}/blog/y`);
 
     unmount();
@@ -48,7 +49,7 @@ describe('useSeo', () => {
     unmount();
   });
 
-  it('sets a robots meta only when provided, and cleans it up', () => {
+  it('sets the requested robots policy, and cleans it up', () => {
     const { unmount } = renderHook(() => useSeo({ title: 'T', robots: 'noindex, follow' }));
     expect(metaContent('name', 'robots')).toBe('noindex, follow');
     unmount();
@@ -98,5 +99,30 @@ describe('useSeo', () => {
     unmount();
     expect(metaContent('name', 'description')).toBe('default description');
     meta.remove();
+  });
+
+  it('replaces prerendered route schema and removes stale article metadata across routes', () => {
+    const prerendered = document.createElement('script');
+    prerendered.type = 'application/ld+json';
+    prerendered.setAttribute('data-route-seo', '');
+    prerendered.textContent = JSON.stringify({ '@type': 'BlogPosting', headline: 'Original post' });
+    const articleTag = document.createElement('meta');
+    articleTag.setAttribute('property', 'article:tag');
+    articleTag.content = 'Original category';
+    document.head.append(prerendered, articleTag);
+    const { rerender, unmount } = renderHook(options => useSeo(options), {
+      initialProps: { title: 'New post', path: '/blog/new', jsonLd: JSON.stringify({ '@type': 'BlogPosting', headline: 'New post' }) },
+    });
+    expect(document.querySelectorAll('script[data-route-seo]')).toHaveLength(1);
+    expect(document.querySelector('script[data-route-seo]').textContent).toContain('New post');
+    expect(document.querySelector('meta[property="article:tag"]')).toBeNull();
+    rerender({ title: 'Home', description: 'Home description', path: '/' });
+    expect(linkHref('canonical')).toBe(`${SITE_URL}/`);
+    expect(metaContent('name', 'twitter:url')).toBe(`${SITE_URL}/`);
+    expect(document.querySelector('script[data-route-seo]')).toBeNull();
+    expect(document.querySelector('meta[property^="article:"]')).toBeNull();
+    unmount();
+    articleTag.remove();
+    prerendered.remove();
   });
 });

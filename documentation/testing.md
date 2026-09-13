@@ -48,6 +48,16 @@ pixels to verify colored smoke, checks About focus/header clearance, and waits
 for the canvas to clear and the rocket to return. Smoke uses its original
 frame-based fade; software rendering can take longer than a hardware browser.
 Pixel readbacks stop after evidence is captured to avoid slowing every frame.
+The rocket is a native button. Additional browser coverage activates it with Enter
+and Space while 2D canvas contexts return null, requiring About focus without
+uncaught errors. Unit tests interrupt the shake, takeoff, and pending reset to
+verify all timers/frames are cancelled and late animation promises do no work.
+
+Portfolio browser checks cover malformed hashes, direct generated-subpage entry
+followed by Home navigation (canonical, title, Twitter URL, no stale route schema
+or article tags), and 320px contact/article bounds. Screenshot checks wait for
+scroll-reveal content to become fully opaque rather than equating DOM visibility
+with painted content.
 
 `e2e/boot.spec.js` checks visible multilingual greetings through Welcome, the
 centered Projects text, inert content and scroll-lock release, About deep links

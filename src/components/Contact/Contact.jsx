@@ -49,17 +49,19 @@ const SectionSubtitle = styled.p`
 
 const ContactGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--spacing-xl);
   align-items: start;
   
   @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 `;
 
 const ContactInfo = styled(motion.div)`
+  min-width: 0;
   padding: var(--spacing-lg);
+  @media (max-width: 480px) { padding: 0; }
 `;
 
 const InfoTitle = styled.h3`
@@ -93,6 +95,7 @@ const InfoItem = styled(motion.div)`
 `;
 
 const InfoIcon = styled.div`
+  flex-shrink: 0;
   width: 48px;
   height: 48px;
   background: rgba(99, 102, 241, 0.1);
@@ -106,6 +109,8 @@ const InfoIcon = styled.div`
 
 const InfoContent = styled.div`
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 `;
 
 const InfoLabel = styled.p`
@@ -122,6 +127,7 @@ const InfoValue = styled.p`
 
 const SocialLinks = styled(motion.div)`
   display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-md);
   margin-top: var(--spacing-lg);
 `;
@@ -173,12 +179,14 @@ const Spinner = styled.div`
 `;
 
 const ContactFormWrapper = styled(motion.div)`
+  min-width: 0;
   background: var(--color-bg-card);
   padding: var(--spacing-xl);
   border-radius: 20px;
   border: 1px solid var(--color-border);
   position: relative;
   overflow: hidden;
+  @media (max-width: 480px) { padding: var(--spacing-md); }
   
   &::before {
     content: '';

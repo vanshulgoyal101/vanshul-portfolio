@@ -422,10 +422,11 @@ const BlogPost = () => {
 
   useSeo({
     title: blog ? `${blog.title} — ${AUTHOR_NAME}` : `Post not found — ${AUTHOR_NAME}`,
-    description: blog?.summary,
+    description: blog?.summary || 'The requested blog post could not be found.',
     path: blog ? `/blog/${blog.slug}` : `/blog/${slug ?? ''}`,
     image: blog ? `${SITE_URL}/og/${blog.slug}.png` : undefined,
-    type: 'article',
+    type: blog ? 'article' : 'website',
+    robots: blog ? undefined : 'noindex, follow',
     jsonLd,
     article: articleMeta,
   });
@@ -478,7 +479,7 @@ const BlogPost = () => {
               </BackButton>
             </TopBar>
             <NotFound>
-              <h2>Blog Post Not Found</h2>
+              <h1>Blog Post Not Found</h1>
               <p>The blog post you're looking for doesn't exist.</p>
             </NotFound>
           </Container>

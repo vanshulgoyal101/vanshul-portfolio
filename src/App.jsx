@@ -6,7 +6,9 @@ import { MotionConfig, useReducedMotion } from 'framer-motion';
 
 import GlobalStyles from './styles/GlobalStyles';
 import { useIdle } from './hooks/useIdle';
-import { scrollToSection as scrollToSectionUtil } from './utils/scrollToSection';
+import { getHashTarget, scrollToSection as scrollToSectionUtil } from './utils/scrollToSection';
+import { useSeo } from './hooks/useSeo';
+import { AUTHOR_NAME, HOME_DESCRIPTION } from './constants/siteConfig';
 import Navigation from './components/Navigation/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
@@ -84,17 +86,23 @@ const SectionWrapper = styled.div`
 
 // ScrollToHash: scrolls to a section when returning from a subroute, or when
 // the URL contains a hash on a direct hit.
+const HomeMetadata = () => {
+  useSeo({ title: AUTHOR_NAME, description: HOME_DESCRIPTION, path: '/' });
+  return null;
+};
+
 const ScrollToHash = ({ isBooting }) => {
   const location = useLocation();
 
   useEffect(() => {
     if (isBooting || !location.hash) return;
+    const target = getHashTarget(location.hash);
     let cancelled = false;
     let frame;
     document.fonts?.ready.then(() => {
-      if (!cancelled) frame = requestAnimationFrame(() => scrollToSectionUtil(decodeURIComponent(location.hash.slice(1)), { focus: true }));
+      if (!cancelled) frame = requestAnimationFrame(() => scrollToSectionUtil(target, { focus: true }));
     });
-    if (!document.fonts) frame = requestAnimationFrame(() => scrollToSectionUtil(location.hash.slice(1), { focus: true }));
+    if (!document.fonts) frame = requestAnimationFrame(() => scrollToSectionUtil(target, { focus: true }));
     return () => {
       cancelled = true;
       cancelAnimationFrame(frame);
@@ -169,6 +177,7 @@ function App() {
             {/* Main portfolio page */}
             <Route path="/" element={
             <>
+              <HomeMetadata />
               <Navigation />
               <MainContent>
                   {/* Hero Section */}

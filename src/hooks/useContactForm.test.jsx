@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useContactForm } from './useContactForm';
 import { ToastProvider } from '../components/Toast';
+import * as toast from '../components/Toast';
 
 const wrapper = ({ children }) => <ToastProvider>{children}</ToastProvider>;
 
@@ -27,6 +28,49 @@ describe('useContactForm', () => {
     expect(result.current.formState).toEqual({ name: '', email: '', message: '' });
     expect(result.current.isSubmitting).toBe(false);
     expect(result.current.emailError).toBe('');
+  });
+
+  it('prevents simultaneous submissions before React can disable the form', async () => {
+    let finish;
+    global.fetch.mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+    const { result } = renderContactForm({ name: 'Grace', email: 'grace@example.com', message: 'Hi' });
+    let pending;
+    act(() => {
+      pending = result.current.handleSubmit({ preventDefault: vi.fn() });
+      result.current.handleSubmit({ preventDefault: vi.fn() });
+    });
+    expect(global.fetch).toHaveBeenCalledOnce();
+    await act(async () => { finish({ ok: true }); await pending; });
+    expect(result.current.isSubmitting).toBe(false);
+  });
+
+  it.each([true, false])('aborts on unmount and suppresses late completion (success=%s)', async (succeeds) => {
+    const notices = { showSuccess: vi.fn(), showError: vi.fn() };
+    vi.spyOn(toast, 'useToast').mockReturnValue(notices);
+    let finish;
+    global.fetch.mockImplementation(() => new Promise((resolve, reject) => {
+      finish = () => succeeds ? resolve({ ok: true }) : reject(new Error('aborted'));
+    }));
+    const { result, unmount } = renderContactForm({ name: 'Grace', email: 'grace@example.com', message: 'Hi' });
+    let pending;
+    act(() => { pending = result.current.handleSubmit({ preventDefault: vi.fn() }); });
+    const signal = global.fetch.mock.calls[0][1].signal;
+    unmount();
+    expect(signal.aborted).toBe(true);
+    await act(async () => { finish(); await pending; });
+    expect(notices.showSuccess).not.toHaveBeenCalled();
+    expect(notices.showError).not.toHaveBeenCalled();
+  });
+
+  it('submits the same trimmed email that validation accepts', async () => {
+    global.fetch.mockResolvedValue({ ok: true });
+    const { result } = renderContactForm({ name: ' Grace ', email: '', message: ' Hi ' });
+    act(() => result.current.handleChange(changeEvent('email', ' grace@example.com ')));
+    expect(result.current.emailError).toBe('');
+    await act(async () => result.current.handleSubmit({ preventDefault: vi.fn() }));
+    expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toMatchObject({
+      name: 'Grace', email: 'grace@example.com', message: 'Hi', _replyto: 'grace@example.com',
+    });
   });
 
   it('accepts a custom initial state', () => {

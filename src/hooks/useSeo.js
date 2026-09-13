@@ -63,13 +63,15 @@ export const useSeo = ({
   image = DEFAULT_IMAGE,
   type = 'website',
   jsonLd,
-  robots,
+  robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   article,
 } = {}) => {
   useEffect(() => {
     const url = `${SITE_URL}${path}`;
     const prevTitle = document.title;
     const cleanups = [];
+    const previousRouteTags = [...document.head.querySelectorAll('script[data-route-seo], meta[property^="article:"]')];
+    previousRouteTags.forEach(element => element.remove());
 
     if (title) {
       document.title = title;
@@ -83,6 +85,7 @@ export const useSeo = ({
     }
     cleanups.push(upsertMeta('property', 'og:type', type));
     cleanups.push(upsertMeta('property', 'og:url', url));
+    cleanups.push(upsertMeta('name', 'twitter:url', url));
     cleanups.push(upsertMeta('property', 'og:image', image));
     cleanups.push(upsertMeta('property', 'og:image:width', '1200'));
     cleanups.push(upsertMeta('property', 'og:image:height', '630'));
@@ -107,6 +110,7 @@ export const useSeo = ({
     if (jsonLd) {
       script = document.createElement('script');
       script.type = 'application/ld+json';
+      script.setAttribute('data-route-seo', '');
       script.textContent = jsonLd;
       document.head.appendChild(script);
     }
@@ -115,6 +119,7 @@ export const useSeo = ({
       document.title = prevTitle;
       cleanups.forEach((fn) => fn());
       if (script) script.remove();
+      previousRouteTags.forEach(element => document.head.appendChild(element));
     };
   }, [title, description, path, image, type, jsonLd, robots, article]);
 };

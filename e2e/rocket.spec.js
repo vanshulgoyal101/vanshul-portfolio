@@ -1,5 +1,28 @@
 import { test, expect } from '@playwright/test';
 
+test('rocket works by keyboard without a 2D canvas context', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => {
+    const getContext = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (type, ...options) {
+      return type === '2d' ? null : getContext.call(this, type, ...options);
+    };
+  });
+  await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
+  const rocket = page.getByRole('button', { name: 'Launch rocket: 3 taps remaining' });
+  await expect(rocket).toBeVisible();
+  await rocket.focus();
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Space');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#about h2')).toBeFocused();
+  expect(errors).toEqual([]);
+});
+
 test('reduced-motion visits do not load rocket or smoke', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const requests = [];

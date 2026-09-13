@@ -27,19 +27,29 @@ const RocketWrapper = styled.div`
     pointer-events: none;
     z-index: 100;
     width: fit-content;
+    ${({ $isDesktopOnly }) => $isDesktopOnly && `display: none;`}
   }
 `;
 
-const RocketContainer = styled(motion.div)`
+const RocketContainer = styled(motion.button)`
+  position: relative;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
   pointer-events: auto;
-  outline: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   will-change: transform;
 `;
 
-const Rocket = styled(motion.div)`
+const Rocket = styled(motion.span)`
+  display: block;
   font-size: 3rem;
   color: var(--color-accent-primary);
   filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5));
@@ -50,7 +60,7 @@ const Rocket = styled(motion.div)`
   }
 `;
 
-const Flame = styled(motion.div)`
+const Flame = styled(motion.span)`
   position: absolute;
   bottom: -15px;
   left: 50%;
@@ -65,7 +75,7 @@ const Flame = styled(motion.div)`
   will-change: transform, opacity;
 `;
 
-const Smoke = styled(motion.div)`
+const Smoke = styled(motion.span)`
   position: absolute;
   bottom: -10px;
   left: 50%;
@@ -78,18 +88,19 @@ const Smoke = styled(motion.div)`
   will-change: transform, opacity;
 `;
 
-const Tooltip = styled(motion.div)`
+const Tooltip = styled(motion.span)`
   position: absolute;
   bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%) !important;
+  right: 0;
+  max-width: calc(100vw - 2rem);
   background: var(--color-bg-card);
   color: var(--color-text-primary);
   padding: 8px 14px;
   border-radius: 12px;
   font-size: 0.825rem;
   font-weight: 500;
-  white-space: nowrap;
+  width: max-content;
+  white-space: normal;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--color-border);
   pointer-events: none;
@@ -124,6 +135,10 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   const controls = useAnimation();
   const rocketRef = useRef(null);
   const clickTimeoutRef = useRef(null);
+  const resetTimeoutRef = useRef(null);
+  const frameRef = useRef(null);
+  const generationRef = useRef(0);
+  const launchingRef = useRef(false);
 
   // Auto-temptation pulse helper: triggers a shake occasionally to catch the eye
   useEffect(() => {
@@ -139,7 +154,7 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   }, [hasLaunched, controls]);
 
   const handleClick = async () => {
-    if (hasLaunched) return;
+    if (launchingRef.current) return;
 
     if (clickTimeoutRef.current) {
       clearTimeout(clickTimeoutRef.current);
@@ -150,6 +165,8 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
     setShowBubble(true);
     
     if (nextClickCount >= 3) {
+      launchingRef.current = true;
+      const generation = generationRef.current;
       // Launch sequence
       setHasLaunched(true);
       
@@ -161,10 +178,11 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
         x: [0, -8, 8, -8, 8, 0],
         transition: { duration: 0.2 }
       });
+      if (generation !== generationRef.current) return;
       
       // Setup position tracking frame loop
-      let animFrame;
       const trackPosition = () => {
+        if (generation !== generationRef.current) return;
         if (rocketRef.current) {
           const rect = rocketRef.current.getBoundingClientRect();
           const nozzleX = rect.left + rect.width / 2;
@@ -173,7 +191,7 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
             detail: { x: nozzleX, y: nozzleY }
           }));
         }
-        animFrame = requestAnimationFrame(trackPosition);
+        frameRef.current = requestAnimationFrame(trackPosition);
       };
       
       // Start tracking
@@ -189,11 +207,14 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
       });
       
       // Stop tracking frame loop
-      cancelAnimationFrame(animFrame);
+      if (generation !== generationRef.current) return;
+      cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
 
       // Reset after launch (quicker reset)
-      setTimeout(() => {
+      resetTimeoutRef.current = setTimeout(() => {
         controls.set({ y: 0 });
+        launchingRef.current = false;
         setHasLaunched(false);
         setClickCount(0);
         setShowBubble(false);
@@ -215,9 +236,13 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
 
   useEffect(() => {
     return () => {
+      generationRef.current += 1;
+      controls.stop();
       if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+      clearTimeout(resetTimeoutRef.current);
+      cancelAnimationFrame(frameRef.current);
     };
-  }, []);
+  }, [controls]);
 
   useEffect(() => {
     // Floating animation
@@ -243,10 +268,15 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
     <RocketWrapper $isMobileOnly={isMobileOnly} $isDesktopOnly={isDesktopOnly}>
       <RocketContainer
         data-rocket
+        type="button"
+        aria-label={hasLaunched ? 'Rocket launching' : `Launch rocket: ${3 - clickCount} taps remaining`}
+        aria-disabled={hasLaunched}
         ref={rocketRef}
         animate={controls}
         onHoverStart={() => { setIsHovered(true); setShowBubble(true); }}
         onHoverEnd={() => { setIsHovered(false); if (clickCount === 0) setShowBubble(false); }}
+        onFocus={() => setShowBubble(true)}
+        onBlur={() => { if (clickCount === 0) setShowBubble(false); }}
         onClick={handleClick}
         whileHover={{ scale: 1.15 }}
         whileTap={{ scale: 0.95 }}
@@ -257,7 +287,7 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
           }}
           transition={{ duration: 0.3 }}
         >
-          <FaRocket />
+          <FaRocket aria-hidden="true" />
         </Rocket>
         
         <Flame
@@ -298,11 +328,11 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
         )}
         
         <Tooltip
-          initial={{ opacity: 0, y: 10, x: "-50%" }}
+          aria-hidden="true"
+          initial={{ opacity: 0, y: 10 }}
           animate={{ 
             opacity: (showBubble || isHovered) && !hasLaunched ? 1 : 0,
             y: (showBubble || isHovered) && !hasLaunched ? 0 : 10,
-            x: "-50%"
           }}
         >
           {tooltipText}

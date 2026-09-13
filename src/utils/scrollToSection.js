@@ -1,3 +1,12 @@
+export const getHashTarget = (hash) => {
+  const target = hash.replace(/^#/, '');
+  try {
+    return decodeURIComponent(target);
+  } catch {
+    return target;
+  }
+};
+
 export const getScrollOffset = ({ navSelector = '[data-site-header]', gap = 20 } = {}) => {
   const nav = document.querySelector(navSelector);
   return Math.max(nav?.getBoundingClientRect().bottom ?? 0, 0) + gap;

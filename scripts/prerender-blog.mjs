@@ -23,7 +23,7 @@ const identity = { site: SITE, authorName: AUTHOR_NAME, authorSameAs: AUTHOR_SAM
 // Serialize JSON-LD for safe inline embedding (escape `<` to avoid closing the
 // script element early).
 const jsonLdScript = (data) =>
-  `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
+  `<script type="application/ld+json" data-route-seo>${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
 
 // Replace a <meta ... content="..."> value, tolerant of attribute order.
 const setMeta = (html, attr, key, value) => {

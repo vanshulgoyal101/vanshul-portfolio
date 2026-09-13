@@ -1,5 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { scrollToSection } from './scrollToSection';
+import { getHashTarget, scrollToSection } from './scrollToSection';
+
+describe('getHashTarget', () => {
+  it.each([
+    ['#%61bout', 'about'],
+    ['#a%20section', 'a section'],
+    ['#%', '%'],
+    ['#%E0%A4%A', '%E0%A4%A'],
+    ['', ''],
+  ])('safely decodes %s', (hash, expected) => {
+    expect(getHashTarget(hash)).toBe(expected);
+  });
+});
 
 describe('scrollToSection', () => {
   beforeEach(() => {

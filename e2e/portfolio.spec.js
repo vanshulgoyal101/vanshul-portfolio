@@ -233,6 +233,51 @@ test('direct reading-list response and sitemap agree', async ({ request, page })
   await expect(page.locator('#main-content')).toHaveCSS('outline-style', 'none');
 });
 
+test('malformed fragments remain usable and direct subpage metadata follows navigation', async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await visit(page, '/#%E0%A4%A');
+  await expect(page.locator('#home h1')).toBeVisible();
+  expect(errors).toEqual([]);
+  for (const path of ['/reading-list/', '/blog/the-new-leverage/']) {
+    await visit(page, path);
+    await expect(page.locator('script[data-route-seo]')).toHaveCount(1);
+    if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Toggle mobile menu' }).click();
+    await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Home', exact: true }).click();
+    await expect(page).toHaveTitle('Vanshul Goyal');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://vanshul.com/');
+    await expect(page.locator('meta[name="twitter:url"]')).toHaveAttribute('content', 'https://vanshul.com/');
+    await expect(page.locator('meta[property^="article:"]')).toHaveCount(0);
+    await expect(page.locator('script[data-route-seo]')).toHaveCount(0);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('contact controls and blog content fit a 320px viewport', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const path of ['/#contact', '/blog/the-new-leverage/']) {
+    await visit(page, path);
+    const surface = path.startsWith('/#') ? page.locator('#contact') : page.locator('article').first().locator('..');
+    await expect(surface).toBeVisible();
+    for (const target of await surface.locator('h2, h3, button[type="submit"]').all()) {
+      await target.scrollIntoViewIfNeeded();
+      await expect.poll(() => target.evaluate(element => {
+        let opacity = 1;
+        for (let ancestor = element; ancestor; ancestor = ancestor.parentElement) opacity *= Number(getComputedStyle(ancestor).opacity);
+        return opacity;
+      })).toBe(1);
+    }
+    const outside = await surface.locator('a, button, input, textarea, h1, h2, h3, p').evaluateAll(elements => elements.filter(element => {
+      const rect = element.getBoundingClientRect();
+      return rect.width && (rect.left < -1 || rect.right > innerWidth + 1 || element.scrollWidth > element.clientWidth + 1);
+    }).map(element => ({ tag: element.tagName, text: element.textContent?.slice(0, 70) })));
+    expect(outside).toEqual([]);
+    await surface.screenshot({ path: testInfo.outputPath(path.startsWith('/#') ? 'contact-320.png' : 'article-320.png') });
+  }
+});
+
 test('home and skip navigation never outline entire page sections', async ({ page }, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await visit(page, '/#home');
