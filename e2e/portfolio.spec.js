@@ -179,13 +179,24 @@ test('featured images fill consistent frames without changing on hover', async (
   await expect(mark).toHaveCSS('object-fit', 'contain');
 });
 
-test('case studies expand and the full project directory is visible by default', async ({ page }, testInfo) => {
+test('case studies and the secondary project disclosure work with pointer and keyboard', async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await visit(page, '/');
   await page.getByLabel('Read case study: AdBrain', { exact: true }).click();
   const study = page.locator('details').filter({ has: page.getByLabel('Read case study: AdBrain', { exact: true }) });
   await expect(study).toHaveAttribute('open', '');
   await expect(study.getByText('Engineering decision')).toBeVisible();
+  await page.getByLabel('Read case study: AdBrain', { exact: true }).click();
   const directory = page.getByRole('region', { name: "More things I've built" });
+  const summary = directory.locator('summary');
+  await expect(directory).not.toHaveAttribute('open');
+  await expect(directory.getByRole('link')).toHaveCount(0);
+  await expect(summary).toContainText('17 projects');
+  await summary.scrollIntoViewIfNeeded();
+  await expect(summary).toBeInViewport({ ratio: 1 });
+  await page.screenshot({ path: testInfo.outputPath('projects-collapsed.png'), animations: 'disabled' });
+  await summary.click();
+  await expect(directory).toHaveAttribute('open', '');
   await expect(directory.getByRole('heading', { level: 5 })).toHaveCount(17);
   for (const heading of await directory.getByRole('heading', { level: 5 }).all()) {
     await expect(heading).toBeVisible();
@@ -196,10 +207,31 @@ test('case studies expand and the full project directory is visible by default',
     expect(bounds.width).toBeGreaterThanOrEqual(44);
     expect(bounds.height).toBeGreaterThanOrEqual(44);
   }
-  expect(await directory.evaluate(element => element.closest('details'))).toBeNull();
   await directory.scrollIntoViewIfNeeded();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await directory.screenshot({ path: testInfo.outputPath('project-directory.png'), animations: 'disabled', style: '[data-site-header] { visibility: hidden; }' });
+  await summary.click();
+  await expect(directory).not.toHaveAttribute('open');
+  await summary.focus();
+  await page.keyboard.press('Space');
+  await expect(directory).toHaveAttribute('open', '');
+  await expect(summary).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(directory.getByRole('link').first()).toBeFocused();
+  await summary.focus();
+  await page.keyboard.press('Enter');
+  await expect(directory).not.toHaveAttribute('open');
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => document.activeElement.closest('details[aria-labelledby="project-directory-title"]') !== null)).toBe(false);
+  await page.setViewportSize({ width: 320, height: 740 });
+  await summary.scrollIntoViewIfNeeded();
+  await expect(summary).toBeInViewport({ ratio: 1 });
+  await summary.screenshot({ path: testInfo.outputPath('projects-toggle-320.png') });
+  await summary.click();
+  expect(await directory.locator('h3, h4, h5, p, a').evaluateAll(elements => elements.every(element => {
+    const bounds = element.getBoundingClientRect();
+    return bounds.left >= 0 && bounds.right <= innerWidth && element.scrollWidth <= element.clientWidth + 1;
+  }))).toBe(true);
 });
 
 test('section titles match without focus boxes and links keep keyboard outlines', async ({ page }, testInfo) => {

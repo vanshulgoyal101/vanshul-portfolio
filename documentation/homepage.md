@@ -2,12 +2,17 @@
 
 The homepage presents the introduction, selected projects, biography, employment,
 writings, and contact section in that order. Featured projects have native
-`details` case studies. The wider project directory is always visible below them,
-grouped by category in compact two-column rows (one column on mobile). It retains
+`details` case studies. The wider project directory sits below them in a native
+`details` disclosure, collapsed by default. Its full-width summary pairs
+"More things I've built" with a data-derived project count and a rotating chevron.
+The open directory is grouped by category in compact two-column rows (one column on mobile). It retains
 every secondary project's name, full description, and live/source links without
 adding screenshots or raised cards. Technology badges and status labels are
 omitted from the compact rows; icon links have descriptive accessible names,
-hover titles, and 44px targets. Do not hide the directory behind a disclosure.
+hover titles, and 44px targets. The summary has a visible keyboard focus ring;
+Enter and Space toggle it, and closed project links leave the tab order. At narrow
+widths, the count wraps below the title without displacing the chevron. This
+collapsed default supersedes the earlier always-visible design preference.
 Case-study text should describe supported project facts, not inferred customer
 results or invented metrics.
 
