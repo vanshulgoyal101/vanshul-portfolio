@@ -4,6 +4,8 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import BlogPost from './BlogPost';
 import { ToastProvider } from '../components/Toast';
 import { loadBlogPosts } from '../utils/blogLoader';
+import { postJsonLd } from '../../scripts/lib/structuredData.mjs';
+import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';
 
 const renderAt = (path) =>
   render(
@@ -52,6 +54,10 @@ describe('BlogPost', () => {
       .join('');
     expect(combined).toContain('BlogPosting');
     expect(combined).toContain('BreadcrumbList');
+    const schema = document.head.querySelector('script[data-route-seo]');
+    expect(JSON.parse(schema.textContent)).toEqual(postJsonLd({ ...sample, wordCount: sample.content.trim().split(/\s+/).length }, {
+      site: SITE_URL, authorName: AUTHOR_NAME, authorSameAs: AUTHOR_SAME_AS,
+    }));
   });
 
   it('renders a "More writing" section linking to other posts', () => {

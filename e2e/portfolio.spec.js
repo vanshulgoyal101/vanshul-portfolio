@@ -17,6 +17,26 @@ test.beforeEach(async ({ page }, testInfo) => {
   });
 });
 
+test('published writing and shelf remain readable without JavaScript', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'Static document contract');
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  try {
+    const origin = testInfo.project.use.baseURL || 'http://127.0.0.1:4327';
+    await page.goto(`${origin}/`);
+    await expect(page.getByRole('heading', { name: 'Vanshul Goyal', exact: true })).toBeVisible();
+    await page.getByRole('link', { name: 'The New Leverage', exact: true }).click();
+    await expect(page.locator('article p').first()).toBeVisible();
+    expect(await page.locator('article').innerText()).toContain('The New Leverage');
+    expect((await page.locator('article').innerText()).length).toBeGreaterThan(1000);
+    await page.getByRole('link', { name: 'Reading List', exact: true }).click();
+    await expect(page.locator('#books li')).toHaveCount(12);
+    await expect(page.locator('#essays li')).toHaveCount(8);
+  } finally {
+    await context.close();
+  }
+});
+
 test('hero actions and social links center on small screens and align left on large screens', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop', 'Checks all viewport widths in one run');
   await page.emulateMedia({ reducedMotion: 'reduce' });

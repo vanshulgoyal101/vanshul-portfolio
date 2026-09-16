@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect } from 'vitest';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -82,5 +84,32 @@ describe('seo/readPosts', () => {
         new Date(sorted[i].date).getTime()
       );
     }
+  });
+});
+
+describe('publishing input validation', () => {
+  let directory;
+  afterEach(() => { if (directory) rmSync(directory, { recursive: true, force: true }); });
+  const fixture = (slug, date = '2026-09-16') => `---\ntitle: Example\nslug: ${slug}\ndate: ${date}\n---\nActual content`;
+  const prepare = text => {
+    directory = mkdtempSync(join(tmpdir(), 'portfolio-posts-'));
+    writeFileSync(join(directory, 'post.md'), text);
+  };
+  it.each(['../escape', '/absolute', 'with spaces', 'mixedCase', 'a'.repeat(121)])('rejects invalid slug %s', slug => {
+    prepare(fixture(slug));
+    expect(() => readPosts(directory)).toThrow('Invalid title or URL slug');
+  });
+  it('rejects duplicate paths instead of overwriting a published article', () => {
+    prepare(fixture('example'));
+    writeFileSync(join(directory, 'duplicate.md'), fixture('example'));
+    expect(() => readPosts(directory)).toThrow('Duplicate blog slug');
+  });
+  it('rejects invalid publication dates', () => {
+    prepare(fixture('example', 'not-a-date'));
+    expect(() => readPosts(directory)).toThrow('Invalid publication date');
+  });
+  it('normalizes Windows line endings in metadata and article content', () => {
+    prepare(fixture('example').replaceAll('\n', '\r\n'));
+    expect(readPosts(directory)[0]).toMatchObject({ slug: 'example', body: 'Actual content', wordCount: 2 });
   });
 });

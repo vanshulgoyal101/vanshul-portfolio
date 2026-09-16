@@ -4,7 +4,7 @@
  * the prerender script. All identity (site URL, author, sameAs) is injected via
  * `opts` — nothing is read from disk or the environment here.
  */
-import { isoDate, postKeywords } from './seo.mjs';
+import { isoDate, postKeywords } from '../../src/utils/seoValues.js';
 
 const websiteId = (site) => `${site}/#website`;
 const personId = (site) => `${site}/#person`;

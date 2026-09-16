@@ -14,7 +14,7 @@ import { join } from 'node:path';
  * @returns {Record<string, string>}
  */
 export const parseFrontmatter = (md) => {
-  const match = String(md).match(/^---\n([\s\S]*?)\n---/);
+  const match = String(md).replace(/\r\n/g, '\n').match(/^---\n([\s\S]*?)\n---/);
   const data = {};
   if (match) {
     for (const line of match[1].split('\n')) {
@@ -51,20 +51,28 @@ export const rfc822 = (value) => {
  * @param {string} blogsDir
  * @returns {Array<Record<string, unknown>>}
  */
-export const readPosts = (blogsDir) =>
-  readdirSync(blogsDir)
+export const readPosts = (blogsDir) => {
+  const slugs = new Set();
+  return readdirSync(blogsDir)
     .filter((f) => f.endsWith('.md'))
     .map((f) => {
-      const raw = readFileSync(join(blogsDir, f), 'utf8');
+      const raw = readFileSync(join(blogsDir, f), 'utf8').replace(/\r\n/g, '\n');
+      const data = parseFrontmatter(raw);
+      if (!data.title || !data.slug || data.slug.length > 120 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug)) {
+        throw new Error(`Invalid title or URL slug in ${f}`);
+      }
+      if (slugs.has(data.slug)) throw new Error(`Duplicate blog slug in ${f}: ${data.slug}`);
+      if (!data.date || Number.isNaN(new Date(data.date).getTime())) throw new Error(`Invalid publication date in ${f}`);
+      slugs.add(data.slug);
       const body = raw.replace(/^---\n[\s\S]*?\n---/, '').trim();
       return {
-        ...parseFrontmatter(raw),
+        ...data,
         body,
         wordCount: body ? body.split(/\s+/).length : undefined,
         filename: f.replace(/\.md$/, ''),
       };
-    })
-    .filter((p) => p.slug && p.title);
+    });
+  };
 
 /** Sort comparator: newest post first, by `date`. */
 export const byDateDesc = (a, b) => new Date(b.date) - new Date(a.date);
@@ -75,47 +83,7 @@ export const byDateDesc = (a, b) => new Date(b.date) - new Date(a.date);
  * @param {string|string[]|undefined} value
  * @returns {string[]}
  */
-export const parseTags = (value) => {
-  if (!value) return [];
-  const list = Array.isArray(value) ? value : String(value).split(',');
-  const seen = new Set();
-  const out = [];
-  for (const raw of list) {
-    const tag = String(raw).trim().replace(/^["']|["']$/g, '');
-    const key = tag.toLowerCase();
-    if (tag && !seen.has(key)) {
-      seen.add(key);
-      out.push(tag);
-    }
-  }
-  return out;
-};
-
-/**
- * Topical keywords for a post: its category (first) plus any `tags`,
- * de-duplicated. Used for JSON-LD `keywords` and `article:tag` meta.
- * @param {Record<string, unknown>} post
- * @returns {string[]}
- */
-export const postKeywords = (post) => {
-  const seen = new Set();
-  const out = [];
-  for (const kw of [post.category, ...parseTags(post.tags)]) {
-    const tag = kw ? String(kw).trim() : '';
-    const key = tag.toLowerCase();
-    if (tag && !seen.has(key)) {
-      seen.add(key);
-      out.push(tag);
-    }
-  }
-  return out;
-};
-
-/** ISO 8601 date (or undefined if the value isn't a parseable date). */
-export const isoDate = (value) => {
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
-};
+export { parseTags, postKeywords, isoDate } from '../../src/utils/seoValues.js';
 
 /**
  * Local calendar date as `YYYY-MM-DD` (for sitemap <lastmod>). Uses local date

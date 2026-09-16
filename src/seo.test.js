@@ -36,5 +36,6 @@ describe('home structured data', () => {
     expect(byType('WebSite').publisher['@id']).toBe(byType('Person')['@id']);
     expect(byType('ProfilePage').isPartOf['@id']).toBe(byType('WebSite')['@id']);
     expect(byType('ProfilePage').about['@id']).toBe(byType('Person')['@id']);
+    expect(byType('ProfilePage').mainEntity['@id']).toBe(byType('Person')['@id']);
   });
 });

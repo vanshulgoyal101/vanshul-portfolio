@@ -12,7 +12,8 @@ import { getRelatedPosts } from '../utils/blogUtils';
 import { formatViews } from '../utils/blogViews';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
-import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS, DEFAULT_OG_IMAGE } from '../constants/siteConfig';
+import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';
+import { postJsonLd } from '../../scripts/lib/structuredData.mjs';
 import { useToast } from '../components/Toast';
 import Navigation from '../components/Navigation/Navigation';
 import BackgroundElements from '../components/BackgroundElements';
@@ -361,50 +362,10 @@ const BlogPost = () => {
   // Per-post SEO: unique title/description/canonical + BlogPosting structured data.
   const jsonLd = useMemo(() => {
     if (!blog) return undefined;
-    const publishedISO = !Number.isNaN(new Date(blog.date).getTime())
-      ? new Date(blog.date).toISOString()
-      : undefined;
-    const canonical = `${SITE_URL}/blog/${blog.slug}`;
-    const ogImage = `${SITE_URL}/og/${blog.slug}.png`;
-    const readMinutes = parseInt(blog.readTime, 10);
     const wordCount = blog.content ? blog.content.trim().split(/\s+/).length : undefined;
-    return JSON.stringify([
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        headline: blog.title,
-        description: blog.summary,
-        image: [ogImage],
-        inLanguage: 'en',
-        ...(publishedISO ? { datePublished: publishedISO, dateModified: publishedISO } : {}),
-        ...(Number.isFinite(readMinutes) ? { timeRequired: `PT${readMinutes}M` } : {}),
-        ...(wordCount ? { wordCount } : {}),
-        ...(blog.category ? { articleSection: blog.category, keywords: blog.category } : {}),
-        author: {
-          '@type': 'Person',
-          name: AUTHOR_NAME,
-          url: SITE_URL,
-          sameAs: AUTHOR_SAME_AS,
-        },
-        publisher: {
-          '@type': 'Person',
-          name: AUTHOR_NAME,
-          url: SITE_URL,
-          image: DEFAULT_OG_IMAGE,
-        },
-        mainEntityOfPage: canonical,
-        url: canonical,
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
-          { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/#blog` },
-          { '@type': 'ListItem', position: 3, name: blog.title, item: canonical },
-        ],
-      },
-    ]);
+    return JSON.stringify(postJsonLd({ ...blog, wordCount }, {
+      site: SITE_URL, authorName: AUTHOR_NAME, authorSameAs: AUTHOR_SAME_AS,
+    }));
   }, [blog]);
 
   const articleMeta = useMemo(() => {

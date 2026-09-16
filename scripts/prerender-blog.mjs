@@ -5,11 +5,12 @@
  * non-JS crawlers (and social scrapers) get real per-post metadata. The SPA
  * still boots from these shells and renders the post normally.
  */
-import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
-import { parseFrontmatter, escapeXml as escAttr, escapeText as escText, parseTags, isoDate } from './lib/seo.mjs';
+import { readPosts, byDateDesc, escapeXml as escAttr, escapeText as escText, parseTags, isoDate } from './lib/seo.mjs';
+import { prerenderContent } from './lib/prerenderContent.mjs';
 import { postJsonLd, blogIndexJsonLd } from './lib/structuredData.mjs';
 import { READING_LIST_DESCRIPTION, READING_LIST_JSON_LD } from '../src/constants/readingListSeo.js';
 
@@ -99,20 +100,15 @@ const buildPageShell = ({ path, title, description: desc, jsonLd }) => {
   return html;
 };
 
-const posts = readdirSync(blogsDir)
-  .filter((f) => f.endsWith('.md'))
-  .map((f) => {
-    const raw = readFileSync(join(blogsDir, f), 'utf8');
-    const body = raw.replace(/^---\n[\s\S]*?\n---/, '').trim();
-    const wordCount = body ? body.split(/\s+/).length : undefined;
-    return { ...parseFrontmatter(raw), wordCount };
-  })
-  .filter((p) => p.slug && p.title);
+const posts = readPosts(blogsDir).sort(byDateDesc);
+const withContent = (html, options) => html.replace('<div id="root"></div>', () => `<div id="root">${prerenderContent({ ...options, posts })}</div>`);
+
+writeFileSync(join(distDir, 'index.html'), withContent(template));
 
 for (const post of posts) {
   const dir = join(distDir, 'blog', post.slug);
   mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, 'index.html'), buildShell(post));
+  writeFileSync(join(dir, 'index.html'), withContent(buildShell(post), { post }));
 }
 
 // The /blog listing shell (dist/blog/index.html) — a real file, so GitHub Pages
@@ -120,21 +116,21 @@ for (const post of posts) {
 mkdirSync(join(distDir, 'blog'), { recursive: true });
 const blogTitle = `Blog — ${AUTHOR_NAME}`;
 const blogDescription = 'Essays on AI, robotics, the future of work, and technology by Vanshul Goyal — engineer at United Airlines.';
-writeFileSync(join(distDir, 'blog', 'index.html'), buildPageShell({
+writeFileSync(join(distDir, 'blog', 'index.html'), withContent(buildPageShell({
   path: '/blog',
   title: blogTitle,
   description: blogDescription,
   jsonLd: blogIndexJsonLd([...posts].sort((first, second) => new Date(second.date) - new Date(first.date)), {
     ...identity, title: blogTitle, description: blogDescription,
   }),
-}));
+}), { page: 'blog' }));
 
 mkdirSync(join(distDir, 'reading-list'), { recursive: true });
-writeFileSync(join(distDir, 'reading-list', 'index.html'), buildPageShell({
+writeFileSync(join(distDir, 'reading-list', 'index.html'), withContent(buildPageShell({
   path: '/reading-list',
   title: `Reading List — ${AUTHOR_NAME}`,
   description: READING_LIST_DESCRIPTION,
   jsonLd: READING_LIST_JSON_LD,
-}));
+}), { page: 'reading-list' }));
 
 console.log(`Prerendered ${posts.length} posts, blog index, and reading list.`);
