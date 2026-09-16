@@ -108,6 +108,20 @@ create table public.web_events (
 - A `CHECK` constraint bounds the free-text field lengths so anonymous inserts
   can't store oversized rows.
 
+The checked-in schema grants clients INSERT only on `site`, `kind`, `name`,
+`path`, `referrer`, and `visitor`. Identity, timestamp and `user_id` are not
+client-writable. Raw SELECT/UPDATE/DELETE privileges are revoked from browser
+roles; the aggregate RPC grants EXECUTE to authenticated users only and still
+checks the owner UID internally. Its search path puts `pg_temp` last to prevent
+temporary-table shadowing of public relations.
+
+Repository migrations must be reviewed and applied explicitly to the intended
+Supabase project. Local SQL tests do not establish the current production
+policy state. Schema reapplication does not delete diagnostic rows. Anonymous
+event collection remains forgeable and is not rate-limited by these grants;
+abuse protection/retention quotas require a server-side ingestion boundary or
+provider controls before traffic warrants that change.
+
 ---
 
 ## 3. Reporting — `web_stats(window_hours int default 720)`

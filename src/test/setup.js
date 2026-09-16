@@ -13,6 +13,7 @@ afterEach(() => {
 // fresh stub before every test so a prior test's vi.restoreAllMocks() can never
 // leave it returning undefined (which crashes matchMedia-dependent components).
 const installMatchMedia = () => {
+  if (typeof window === 'undefined') return;
   window.matchMedia = vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
@@ -75,7 +76,7 @@ vi.mock('framer-motion', async (importOriginal) => {
 });
 
 // jsdom does not implement IntersectionObserver — framer-motion whileInView uses it.
-if (!window.IntersectionObserver) {
+if (typeof window !== 'undefined' && !window.IntersectionObserver) {
   class IntersectionObserver {
     constructor(callback) {
       this.callback = callback;
@@ -92,7 +93,7 @@ if (!window.IntersectionObserver) {
 }
 
 // jsdom does not implement ResizeObserver.
-if (!window.ResizeObserver) {
+if (typeof window !== 'undefined' && !window.ResizeObserver) {
   class ResizeObserver {
     observe() {}
     unobserve() {}
@@ -104,5 +105,7 @@ if (!window.ResizeObserver) {
 
 // jsdom does not implement scrollIntoView / scrollTo; smooth-scroll helpers and
 // route transitions rely on these browser APIs during tests.
-Element.prototype.scrollIntoView = vi.fn();
-window.scrollTo = vi.fn();
+if (typeof window !== 'undefined') {
+  Element.prototype.scrollIntoView = vi.fn();
+  window.scrollTo = vi.fn();
+}

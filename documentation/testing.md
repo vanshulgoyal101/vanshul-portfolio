@@ -4,6 +4,31 @@ The project uses **Vitest** with **React Testing Library** and a **jsdom**
 environment. Configuration lives in `vite.config.js` (the `test` block); global
 setup lives in [`src/test/setup.js`](../src/test/setup.js).
 
+Vitest and its V8 coverage adapter are upgraded together (currently 5.0.1).
+Use Node 22.12+, 24, or a newer supported release; CI uses Node LTS.
+The full dependency audit is `npm audit`; production-only is
+`npm audit --omit=dev`. Do not expose test/dev servers to untrusted networks.
+
+## Database and accessibility checks
+
+`scripts/database.test.js` runs both checked-in SQL schemas in a fresh in-memory
+PGlite PostgreSQL engine. It creates test-only auth roles and an `auth.uid()`
+fixture, verifies owner-only aggregate reads (including NULL/non-owner rejection),
+anonymous insert bounds, forbidden raw reads/mutations, server-owned timestamp
+and identity columns, bounded blog RPCs, and non-destructive schema reapplication.
+It makes no production connection. This is SQL behavior coverage, not a test of
+Supabase hosting, deployed grants, OAuth configuration, quotas or rate limits.
+
+`e2e/accessibility.spec.js` runs axe-core WCAG 2 A/AA and 2.1 AA checks on desktop
+and mobile: home with expanded disclosures, blog index, article, shelf,
+missing-route recovery and signed-out dashboard. No rule exclusions are used.
+Automated scans do not prove full accessibility; keep the keyboard, focus,
+reduced-motion, geometry and screenshot checks alongside them.
+
+Analytics tests isolate the beacon in a VM and capture fake fetch payloads;
+database TLS tests use injected CA reads. No secrets or live submissions are
+required. Dashboard tests cover promise rejections and out-of-order responses.
+
 ## Running tests
 
 ```bash

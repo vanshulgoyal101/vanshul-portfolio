@@ -37,11 +37,15 @@ alter table public.web_events add constraint web_events_bounds
   ) not valid;
 
 alter table public.web_events enable row level security;
+revoke all on public.web_events from public, anon, authenticated;
+grant insert (site, kind, name, path, referrer, visitor) on public.web_events to anon, authenticated;
+grant usage on sequence public.web_events_id_seq to anon, authenticated;
 
 -- Anyone may log an event (anonymous). Only known kinds are accepted.
 drop policy if exists web_events_insert on public.web_events;
 create policy web_events_insert
   on public.web_events for insert
+  to anon, authenticated
   with check (kind in ('pageview', 'tool', 'link', 'action'));
 
 -- No SELECT policy: the raw event log is never publicly readable. The owner
@@ -58,7 +62,7 @@ create or replace function public.web_stats(window_hours int default 720)
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, pg_temp
 as $$
 declare
   v jsonb;
@@ -154,7 +158,5 @@ begin
 end;
 $$;
 
+revoke all on function public.web_stats(int) from public, anon;
 grant execute on function public.web_stats(int) to authenticated;
-
--- Clean up any diagnostic rows.
-delete from public.web_events where site = '__diag__';
