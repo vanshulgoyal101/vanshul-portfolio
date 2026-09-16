@@ -53,6 +53,38 @@ test('About deep links focus their destination after the greeting', async ({ pag
   await expect.poll(() => heading.evaluate(element => Math.abs(element.getBoundingClientRect().top - document.querySelector('[data-site-header]').getBoundingClientRect().bottom - 20))).toBeLessThan(1);
 });
 
+test('loaded project photos stay hidden throughout the greeting and exit on reload', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('vg.ambient', 'off');
+    window.bootVisibility = { frames: 0, loadedFrames: 0, leaks: 0 };
+    const sample = () => {
+      const loader = document.querySelector('[data-boot-loader]');
+      const content = document.querySelector('#main-content')?.parentElement;
+      if (loader && content) {
+        const photos = [...document.querySelectorAll('#projects img')];
+        photos.forEach(photo => { photo.loading = 'eager'; });
+        window.bootVisibility.frames++;
+        if (photos.some(photo => photo.complete && photo.naturalWidth > 0)) window.bootVisibility.loadedFrames++;
+        if (getComputedStyle(content).opacity !== '0') window.bootVisibility.leaks++;
+      }
+      requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  });
+  for (const reload of [false, true]) {
+    if (reload) await page.reload();
+    else await page.goto('/#projects');
+    await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
+    const evidence = await page.evaluate(() => window.bootVisibility);
+    expect(evidence.frames).toBeGreaterThan(0);
+    expect(evidence.loadedFrames).toBeGreaterThan(0);
+    expect(evidence.leaks).toBe(0);
+    await expect(page.locator('#main-content').locator('..')).toHaveCSS('opacity', '1');
+    await expect(page.locator('#projects img').first()).toBeVisible();
+    await expect(page.locator('#projects h2')).toBeFocused();
+  }
+});
+
 test('reduced-motion visitors bypass the greeting', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');

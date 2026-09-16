@@ -76,6 +76,12 @@ greetings at 220ms intervals, then Welcome and a 500ms fade. Internal navigation
 does not replay it. The underlying app is inert and body scrolling is locked
 until completion; hash navigation waits until the overlay is gone. Reduced-motion
 visitors bypass the sequence. All greeting and exit timers are cleaned up.
+The same boot state sets the application wrapper opacity to zero until completion.
+`inert` alone does not hide content: loaded project images could otherwise appear
+through the loader's fading/scaling exit. Keeping the page mounted preserves image
+loading and layout without exposing it early. Desktop/mobile regressions sample
+frames with loaded images on initial navigation and reload, then assert the page
+is fully visible and its deep-link heading is focused after completion.
 
 The unframed hero sculpture loads after the greeting and browser idle only above
 1024px and without reduced motion. Its reserved area avoids layout

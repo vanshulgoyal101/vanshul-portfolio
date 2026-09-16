@@ -48,6 +48,7 @@ const AppWrapper = styled.div`
   position: relative;
   min-height: 100vh;
   overflow: hidden;
+  opacity: ${({ $isBooting }) => ($isBooting ? 0 : 1)};
 `;
 
 const MainContent = styled.main`
@@ -161,7 +162,7 @@ function App() {
         <GlobalStyles />
         {isBooting && <BootLoader onComplete={() => setIsBooting(false)} />}
         
-        <AppWrapper inert={isBooting}>
+        <AppWrapper inert={isBooting} $isBooting={isBooting}>
           <SkipLink href="#main-content">Skip to content</SkipLink>
           <CustomCursor />
           {/* Background ambient elements */}
