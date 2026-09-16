@@ -129,6 +129,10 @@ const CTAContainer = styled(motion.div)`
   margin-bottom: 1rem;
   flex-wrap: wrap;
 
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+
   @media (max-width: 480px) {
     flex-direction: column;
     align-items: center;

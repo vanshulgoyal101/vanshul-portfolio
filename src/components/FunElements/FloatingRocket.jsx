@@ -49,22 +49,35 @@ const RocketContainer = styled(motion.button)`
 `;
 
 const Rocket = styled(motion.span)`
+  position: relative;
   display: block;
+  width: 1em;
+  height: 1em;
+  margin: 0 auto;
   font-size: 3rem;
   color: var(--color-accent-primary);
   filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5));
   will-change: transform;
+  > svg { display: block; }
   
   @media (max-width: 768px) {
     font-size: 2.5rem;
   }
 `;
 
+const Exhaust = styled.span`
+  position: absolute;
+  left: 25.5%;
+  top: 74.5%;
+  width: 0;
+  height: 0;
+  transform: rotate(45deg);
+`;
+
 const Flame = styled(motion.span)`
   position: absolute;
-  bottom: -15px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 0;
+  left: -10px;
   width: 20px;
   height: 30px;
   background: linear-gradient(180deg, #ff6b6b 0%, #ffd93d 50%, transparent 100%);
@@ -77,9 +90,8 @@ const Flame = styled(motion.span)`
 
 const Smoke = styled(motion.span)`
   position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: -6px;
+  left: -6px;
   width: 12px;
   height: 12px;
   background: radial-gradient(circle, rgba(99, 102, 241, 0.6) 0%, rgba(56, 189, 248, 0.3) 50%, transparent 100%);
@@ -133,7 +145,7 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   const [hasLaunched, setHasLaunched] = useState(false);
   const [clickCount, setClickCount] = useState(0);
   const controls = useAnimation();
-  const rocketRef = useRef(null);
+  const exhaustRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const resetTimeoutRef = useRef(null);
   const frameRef = useRef(null);
@@ -183,12 +195,10 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
       // Setup position tracking frame loop
       const trackPosition = () => {
         if (generation !== generationRef.current) return;
-        if (rocketRef.current) {
-          const rect = rocketRef.current.getBoundingClientRect();
-          const nozzleX = rect.left + rect.width / 2;
-          const nozzleY = rect.bottom;
+        if (exhaustRef.current) {
+          const rect = exhaustRef.current.getBoundingClientRect();
           window.dispatchEvent(new CustomEvent('rocket-emit-smoke', {
-            detail: { x: nozzleX, y: nozzleY }
+            detail: { x: rect.left, y: rect.top }
           }));
         }
         frameRef.current = requestAnimationFrame(trackPosition);
@@ -271,7 +281,6 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
         type="button"
         aria-label={hasLaunched ? 'Rocket launching' : `Launch rocket: ${3 - clickCount} taps remaining`}
         aria-disabled={hasLaunched}
-        ref={rocketRef}
         animate={controls}
         onHoverStart={() => { setIsHovered(true); setShowBubble(true); }}
         onHoverEnd={() => { setIsHovered(false); if (clickCount === 0) setShowBubble(false); }}
@@ -288,44 +297,44 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
           transition={{ duration: 0.3 }}
         >
           <FaRocket aria-hidden="true" />
+          <Exhaust ref={exhaustRef} data-rocket-exhaust aria-hidden="true">
+            <Flame
+              data-rocket-flame
+              animate={{
+                opacity: hasLaunched ? 1 : 0,
+                scaleY: hasLaunched ? [1, 1.5, 1] : 1,
+              }}
+              transition={{
+                duration: 0.2,
+                repeat: hasLaunched ? Infinity : 0,
+                repeatType: "reverse"
+              }}
+            />
+
+            {hasLaunched && (
+              <>
+                {[...Array(3)].map((_, index) => (
+                  <Smoke
+                    key={index}
+                    initial={{ opacity: 0.6, scale: 0 }}
+                    animate={{
+                      y: [0, 60],
+                      x: [0, (index - 1) * 12],
+                      opacity: [0.6, 0],
+                      scale: [1, 2.5]
+                    }}
+                    transition={{
+                      duration: 0.6,
+                      delay: index * 0.08,
+                      repeat: Infinity,
+                      ease: "easeOut"
+                    }}
+                  />
+                ))}
+              </>
+            )}
+          </Exhaust>
         </Rocket>
-        
-        <Flame
-          animate={{ 
-            opacity: hasLaunched ? 1 : 0,
-            scaleY: hasLaunched ? [1, 1.5, 1] : 1,
-            rotate: hasLaunched ? 45 : 0,
-            x: hasLaunched ? '-30%' : '-50%'
-          }}
-          transition={{ 
-            duration: 0.2,
-            repeat: hasLaunched ? Infinity : 0,
-            repeatType: "reverse"
-          }}
-        />
-        
-        {hasLaunched && (
-          <>
-            {[...Array(3)].map((_, i) => (
-              <Smoke
-                key={i}
-                initial={{ opacity: 0.6, scale: 0 }}
-                animate={{
-                  y: [0, 60],
-                  x: [0, (i - 1) * 12],
-                  opacity: [0.6, 0],
-                  scale: [1, 2.5]
-                }}
-                transition={{
-                  duration: 0.6,
-                  delay: i * 0.08,
-                  repeat: Infinity,
-                  ease: "easeOut"
-                }}
-              />
-            ))}
-          </>
-        )}
         
         <Tooltip
           aria-hidden="true"

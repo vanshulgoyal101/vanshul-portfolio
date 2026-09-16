@@ -1,5 +1,42 @@
 import { test, expect } from '@playwright/test';
 
+test('smoke and flame stay anchored to the rotating rocket nozzle', async ({ page }, testInfo) => {
+  await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
+  await page.goto('/');
+  await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
+  const rocket = page.locator('[data-rocket]');
+  await expect(rocket).toBeVisible();
+  await page.evaluate(() => {
+    window.exhaustSamples = [];
+    window.addEventListener('rocket-emit-smoke', event => {
+      const svg = document.querySelector('[data-rocket] svg');
+      const nozzle = new DOMPoint(131, 381).matrixTransform(svg.getScreenCTM());
+      const flame = document.querySelector('[data-rocket-flame]');
+      const anchor = flame.parentElement.getBoundingClientRect();
+      const rotation = new DOMMatrix(getComputedStyle(svg.parentElement).transform);
+      const exhaustRotation = new DOMMatrix(getComputedStyle(flame.parentElement).transform);
+      const combined = rotation.multiply(exhaustRotation);
+      window.exhaustSamples.push({
+        offset: Math.hypot(event.detail.x - nozzle.x, event.detail.y - nozzle.y),
+        sharedAnchor: Math.hypot(event.detail.x - anchor.left, event.detail.y - anchor.top),
+        flameCentered: flame.offsetLeft + flame.offsetWidth / 2 === 0 && flame.offsetTop === 0,
+        direction: Math.abs(combined.c),
+      });
+    });
+  });
+  await rocket.focus();
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Space');
+  await page.keyboard.press('Enter');
+  await expect.poll(() => page.evaluate(() => window.exhaustSamples.length)).toBeGreaterThan(6);
+  await page.screenshot({ path: testInfo.outputPath('aligned-exhaust.png') });
+  await expect(page.locator('#about h2')).toBeFocused();
+  const samples = await page.evaluate(() => window.exhaustSamples);
+  expect(Math.max(...samples.map(sample => sample.offset))).toBeLessThan(1);
+  expect(samples.every(sample => sample.sharedAnchor < 0.1 && sample.flameCentered)).toBe(true);
+  expect(samples.at(-1).direction).toBeLessThan(0.01);
+});
+
 test('rocket works by keyboard without a 2D canvas context', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript(() => {

@@ -3,20 +3,32 @@
 The homepage presents the introduction, selected projects, biography, employment,
 writings, and contact section in that order. Featured projects have native
 `details` case studies. The wider project directory sits below them in a native
-`details` disclosure, collapsed by default. Its full-width summary pairs
-"More things I've built" with a data-derived project count and a rotating chevron.
+`details` disclosure, collapsed by default. Its summary pairs
+"More things I've built" with a rotating chevron.
 The open directory is grouped by category in compact two-column rows (one column on mobile). It retains
 every secondary project's name, full description, and live/source links without
 adding screenshots or raised cards. Technology badges and status labels are
 omitted from the compact rows; icon links have descriptive accessible names,
 hover titles, and 44px targets. The summary has a visible keyboard focus ring;
-Enter and Space toggle it, and closed project links leave the tab order. At narrow
-widths, the count wraps below the title without displacing the chevron. This
+Enter and Space toggle it, and closed project links leave the tab order. This
 collapsed default supersedes the earlier always-visible design preference.
 Case-study text should describe supported project facts, not inferred customer
 results or invented metrics.
 
 ## Navigation contract
+
+Hero buttons and social links center at widths up to and including 768px and
+align with the heading's left edge above that breakpoint. Buttons stack below
+481px. Browser tests measure the actual control positions at 390, 600, 768, 769,
+1024, and 1440px rather than relying only on CSS declarations.
+
+The floating rocket's flame and local puffs share a zero-size exhaust anchor
+inside the rotating icon. Its position (25.5%, 74.5%) corresponds to the rear
+midpoint of the Font Awesome rocket's 512-unit viewBox. The canvas receives the
+anchor's transformed viewport coordinates, not the button's bounding box.
+Changing the rocket icon requires rechecking this anchor. Browser tests compare
+emissions with the SVG nozzle during launch on desktop and mobile and preserve
+the repeated launch, colored smoke, reduced-motion, and About-navigation tests.
 
 `App.jsx` owns the unique home section IDs. Inner section components must not
 repeat them. Navigation links use `/#section` URLs, preserve modified clicks,

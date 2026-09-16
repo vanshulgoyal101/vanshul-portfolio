@@ -17,6 +17,32 @@ test.beforeEach(async ({ page }, testInfo) => {
   });
 });
 
+test('hero actions and social links center on small screens and align left on large screens', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'Checks all viewport widths in one run');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await visit(page, '/');
+  const hero = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Vanshul Goyal', exact: true }) });
+  for (const width of [390, 600, 768, 769, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const primary = await hero.getByRole('link', { name: 'Explore My Work' }).boundingBox();
+    const secondary = await hero.getByRole('link', { name: 'Get In Touch' }).boundingBox();
+    const firstSocial = await hero.getByRole('link', { name: 'Twitter', exact: true }).boundingBox();
+    const lastSocial = await hero.getByRole('link', { name: 'Games', exact: true }).boundingBox();
+    const heading = await hero.getByRole('heading', { level: 1 }).boundingBox();
+    if (width <= 768) {
+      const buttonCenter = width <= 480 ? primary.x + primary.width / 2 : (primary.x + secondary.x + secondary.width) / 2;
+      expect(Math.abs(buttonCenter - width / 2)).toBeLessThan(1);
+      expect(Math.abs((firstSocial.x + lastSocial.x + lastSocial.width) / 2 - width / 2)).toBeLessThan(1);
+      if (width <= 480) expect(Math.abs(secondary.x + secondary.width / 2 - width / 2)).toBeLessThan(1);
+    } else {
+      expect(Math.abs(primary.x - heading.x)).toBeLessThan(1);
+      expect(Math.abs(firstSocial.x - heading.x)).toBeLessThan(1);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    if (width === 600 || width === 1440) await hero.screenshot({ path: testInfo.outputPath(`hero-alignment-${width}.png`), animations: 'disabled' });
+  }
+});
+
 test('content after greeting, aligned targets, visible media, and desktop-only 3D', async ({ page }, testInfo) => {
   const requests = [];
   const errors = [];
@@ -179,13 +205,19 @@ test('featured images fill consistent frames without changing on hover', async (
   await expect(mark).toHaveCSS('object-fit', 'contain');
 });
 
-test('case studies expand and the full project directory is visible by default', async ({ page }, testInfo) => {
+test('case studies expand and the project directory supports pointer and keyboard disclosure', async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await visit(page, '/');
   await page.getByLabel('Read case study: AdBrain', { exact: true }).click();
   const study = page.locator('details').filter({ has: page.getByLabel('Read case study: AdBrain', { exact: true }) });
   await expect(study).toHaveAttribute('open', '');
   await expect(study.getByText('Engineering decision')).toBeVisible();
   const directory = page.getByRole('region', { name: "More things I've built" });
+  const summary = directory.locator('summary');
+  await expect(directory).not.toHaveAttribute('open');
+  await expect(directory.getByRole('link')).toHaveCount(0);
+  await summary.click();
+  await expect(directory).toHaveAttribute('open', '');
   await expect(directory.getByRole('heading', { level: 5 })).toHaveCount(17);
   for (const heading of await directory.getByRole('heading', { level: 5 }).all()) {
     await expect(heading).toBeVisible();
@@ -196,10 +228,19 @@ test('case studies expand and the full project directory is visible by default',
     expect(bounds.width).toBeGreaterThanOrEqual(44);
     expect(bounds.height).toBeGreaterThanOrEqual(44);
   }
-  expect(await directory.evaluate(element => element.closest('details'))).toBeNull();
   await directory.scrollIntoViewIfNeeded();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await directory.screenshot({ path: testInfo.outputPath('project-directory.png'), animations: 'disabled', style: '[data-site-header] { visibility: hidden; }' });
+  await summary.focus();
+  await page.keyboard.press('Enter');
+  await expect(directory).not.toHaveAttribute('open');
+  await page.keyboard.press('Tab');
+  expect(await directory.evaluate(element => element.contains(document.activeElement))).toBe(false);
+  await summary.focus();
+  await page.keyboard.press('Space');
+  await expect(directory).toHaveAttribute('open', '');
+  await page.keyboard.press('Tab');
+  await expect(directory.getByRole('link').first()).toBeFocused();
 });
 
 test('section titles match without focus boxes and links keep keyboard outlines', async ({ page }, testInfo) => {

@@ -32,6 +32,19 @@ const launch = () => {
 };
 
 describe('FloatingRocket', () => {
+  it('emits smoke from the transformed exhaust anchor instead of the button bounds', async () => {
+    const dispatch = vi.spyOn(window, 'dispatchEvent');
+    const { container, unmount } = render(<FloatingRocket />);
+    const exhaust = container.querySelector('[data-rocket-exhaust]');
+    vi.spyOn(exhaust, 'getBoundingClientRect').mockReturnValue({ left: 123, top: 456, width: 0, height: 0 });
+    launch();
+    await act(async () => resolveShake());
+    const emissions = dispatch.mock.calls.map(([event]) => event).filter(event => event.type === 'rocket-emit-smoke');
+    expect(emissions[0].detail).toEqual({ x: 123, y: 456 });
+    expect(exhaust.querySelector('[data-rocket-flame]')).not.toBeNull();
+    unmount();
+  });
+
   it('supports native keyboard activation and resets incomplete tap sequences', async () => {
     vi.useRealTimers();
     const user = userEvent.setup();
