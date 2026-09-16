@@ -39,10 +39,14 @@ const SectionTitle = styled.h2`
   -webkit-text-fill-color: transparent;
   background-clip: text;
 
+  @media (max-width: 768px) {
+    font-size: 2rem;
+    letter-spacing: 0;
+  }
 `;
 
 const SectionSubtitle = styled.p`
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: var(--color-text-secondary);
   max-width: 600px;
   margin: 0 auto;
@@ -121,7 +125,7 @@ const CardInfo = styled.div`
 `;
 
 const JobTitle = styled.h3`
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   line-height: 1.3;
   letter-spacing: 0;
   color: var(--color-text-primary);
@@ -133,7 +137,7 @@ const JobTitle = styled.h3`
 `;
 
 const CompanyName = styled.h4`
-  font-size: 1.125rem;
+  font-size: 1rem;
   line-height: 1.5;
   letter-spacing: 0;
   color: var(--color-accent-primary);

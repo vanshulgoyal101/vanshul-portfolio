@@ -52,13 +52,15 @@ toggle focus. Returning to desktop clears the mobile scroll lock.
 
 ## Content and motion
 
-Work Experience keeps the shared section-title size (40px desktop, 24px through
-768px). Its supporting typography has a separate, fixed responsive hierarchy:
-job titles are 24px desktop / 18px mobile, company names and the section subtitle
-18px / 16px, descriptions 16px, and date/location metadata 14px. Sizes are rem
+Work Experience uses a 40px desktop heading and a 32px heading through 768px;
+the larger mobile heading distinguishes the section from its employment cards.
+Other sections retain their existing heading sizes. Supporting typography uses
+20px desktop / 18px mobile job titles, 16px company names, subtitle and
+descriptions, and 14px date/location metadata. Sizes are rem
 based and respect browser text preferences. Do not let fluid card-title tokens
 grow to match the mobile section heading. The browser regression checks heading
-order and text containment at 320, 390, 600, 768, 769 and 1440px.
+order and text containment at 320, 390, 600, 768, 769 and 1440px, with a minimum
+1.75 section-heading-to-job-title size ratio.
 Mobile descriptions use 1.6 line-height (desktop stays at 1.8), with 12px gaps
 below card headers and descriptions and a smaller gap before the first card.
 
