@@ -116,6 +116,19 @@ choices are preserved. Its control is omitted on touch devices, and both switche
 are disabled under reduced motion. The footer stacks at narrow widths and keeps
 navigation visible even when preferences are closed.
 
+The custom cursor mounts only after boot. It hides the native pointer only once
+a mouse-movement frame has rendered its replacement. Pointer leave and window
+blur cancel pending movement frames and restore the native pointer; re-entry or
+preference changes wait for fresh movement instead of displaying stale coordinates.
+Hover events with non-element targets are ignored safely.
+
+The interactive background schedules at most one animation frame at a time.
+Hidden-tab mounts wait for visibility before drawing, repeated visibility events
+cannot create parallel loops, and particle spawning is skipped while hidden.
+Unmount cancels the frame, spawning interval and listeners. Dedicated unit tests
+control the frame queue to verify these lifecycle contracts without relying on
+browser throttling; browser tests cover boot and pointer handoff with real motion.
+
 ## Project media
 
 `node scripts/capture-projects.mjs` refreshes the AdBrain and Tiny Arcade images

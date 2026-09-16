@@ -49,7 +49,10 @@ const CustomCursor = () => {
   useEffect(() => {
     const hoverQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const evaluate = () => setIsSupported(isCustomCursorEnabled());
+    const evaluate = () => {
+      setIsSupported(isCustomCursorEnabled());
+      setIsVisible(false);
+    };
     evaluate();
 
     hoverQuery.addEventListener('change', evaluate);
@@ -80,16 +83,14 @@ const CustomCursor = () => {
     };
 
     const handleMouseLeave = () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
       setIsVisible(false);
-    };
-
-    const handleMouseEnter = () => {
-      setIsVisible(true);
     };
 
     const handleMouseOver = (e) => {
       const target = e.target;
-      if (!target) return;
+      if (!(target instanceof Element)) return;
 
       const interactive =
         target.tagName === 'A' ||
@@ -104,24 +105,27 @@ const CustomCursor = () => {
     };
 
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('blur', handleMouseLeave);
     document.addEventListener('mouseleave', handleMouseLeave);
-    document.addEventListener('mouseenter', handleMouseEnter);
     window.addEventListener('mouseover', handleMouseOver);
-
-    // Disable default body cursor when custom cursor is active
-    document.body.classList.add('has-custom-cursor');
 
     return () => {
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
       }
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('blur', handleMouseLeave);
       document.removeEventListener('mouseleave', handleMouseLeave);
-      document.removeEventListener('mouseenter', handleMouseEnter);
       window.removeEventListener('mouseover', handleMouseOver);
       document.body.classList.remove('has-custom-cursor');
     };
   }, [isSupported, mouseX, mouseY]);
+
+  useEffect(() => {
+    if (!isSupported || !isVisible) return;
+    document.body.classList.add('has-custom-cursor');
+    return () => document.body.classList.remove('has-custom-cursor');
+  }, [isSupported, isVisible]);
 
   if (!isSupported || !isVisible) return null;
 

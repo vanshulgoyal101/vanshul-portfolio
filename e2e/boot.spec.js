@@ -22,6 +22,7 @@ test('multilingual greeting finishes and reveals centered projects', async ({ pa
   await page.goto('/');
   const loader = page.locator('[data-boot-loader]');
   await expect(loader).toBeVisible();
+  await expect(page.locator('body')).not.toHaveClass(/has-custom-cursor/);
   await expect.poll(() => page.locator('#main-content').locator('..').evaluate(element => element.inert)).toBe(true);
   await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
   await page.waitForFunction(() => [...document.querySelectorAll('[data-greeting-word]')].some(word =>
@@ -91,4 +92,24 @@ test('reduced-motion visitors bypass the greeting', async ({ page }) => {
   await expect(page.locator('[data-boot-loader]')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Vanshul Goyal', exact: true })).toBeVisible();
   await expect(page.locator('#main-content').locator('..')).not.toHaveAttribute('inert');
+});
+
+test('native pointer remains available until the custom cursor has a current position', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'Requires a fine pointer');
+  await page.addInitScript(() => localStorage.setItem('vg.ambient', 'off'));
+  await page.goto('/');
+  await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
+  await expect(page.locator('body')).not.toHaveClass(/has-custom-cursor/);
+  await page.mouse.move(300, 300);
+  await expect(page.locator('body')).toHaveClass(/has-custom-cursor/);
+  await page.evaluate(() => {
+    window.dispatchEvent(new MouseEvent('mousemove', { clientX: 320, clientY: 320 }));
+    window.dispatchEvent(new Event('blur'));
+  });
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await expect(page.locator('body')).not.toHaveClass(/has-custom-cursor/);
+  await page.mouse.move(340, 340);
+  await expect(page.locator('body')).toHaveClass(/has-custom-cursor/);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.locator('body')).not.toHaveClass(/has-custom-cursor/);
 });

@@ -164,7 +164,7 @@ function App() {
         
         <AppWrapper inert={isBooting} $isBooting={isBooting}>
           <SkipLink href="#main-content">Skip to content</SkipLink>
-          <CustomCursor />
+          {!isBooting && <CustomCursor />}
           {/* Background ambient elements */}
           <BackgroundElements />
           

@@ -27,7 +27,7 @@ const InteractiveSpaceBackground = () => {
     // Honor reduced-motion: skip the animated starfield entirely.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    let animationFrameId;
+    let animationFrameId = null;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight + 100);
 
@@ -107,7 +107,7 @@ const InteractiveSpaceBackground = () => {
 
     // Auto spawn shooting stars occasionally
     const spawnInterval = setInterval(() => {
-      if (shootingStars.length < 3 && Math.random() > 0.3) {
+      if (!document.hidden && shootingStars.length < 3 && Math.random() > 0.3) {
         spawnShootingStar();
       }
     }, 4000);
@@ -134,6 +134,8 @@ const InteractiveSpaceBackground = () => {
 
     // Render loop
     const render = () => {
+      animationFrameId = null;
+      if (document.hidden) return;
       ctx.clearRect(0, 0, width, height);
 
       // 0. Draw floating background planets (slow and low-contrast to not distract)
@@ -365,13 +367,14 @@ const InteractiveSpaceBackground = () => {
     const handleVisibility = () => {
       if (document.hidden) {
         cancelAnimationFrame(animationFrameId);
-      } else {
+        animationFrameId = null;
+      } else if (animationFrameId === null) {
         animationFrameId = requestAnimationFrame(render);
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
 
-    render();
+    handleVisibility();
 
     return () => {
       cancelAnimationFrame(animationFrameId);
