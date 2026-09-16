@@ -91,6 +91,7 @@ const ProjectCard = styled(motion.div)`
 
 const ProjectImageWrapper = styled.div`
   aspect-ratio: 8 / 5;
+  border-radius: 8px;
   overflow: hidden;
   background: var(--color-bg-secondary);
   position: relative;
@@ -420,7 +421,7 @@ const projects = [
     title: 'AdBrain',
     role: 'Founder & Solo Developer',
     description: 'An AI ad-creative generator and manager for local businesses — fill a "brand brain", set a goal, and get on-brand ad variants (image + copy) ready to launch on Meta. Built as a real product, with a live solar business as customer zero.',
-    image: '/images/projects/adbrain.webp?v=99a19eb',
+    image: '/images/projects/adbrain.webp?v=edge-to-edge-20260916',
     brandIcon: <AdBrainMark />,
     fallbackIcon: <AdBrainMark />,
     stats: [
