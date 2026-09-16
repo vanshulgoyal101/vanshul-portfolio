@@ -14,6 +14,7 @@
  */
 (function () {
   'use strict';
+  if (navigator.globalPrivacyControl || navigator.doNotTrack === '1' || window.doNotTrack === '1') return;
   var ENDPOINT = 'https://tmngedsmgcgbkbkmsnsw.supabase.co/rest/v1/web_events';
   var KEY = 'sb_publishable_qFZySs9l19_7bISrvmLHIw_vwt-DUdx';
 
@@ -57,11 +58,25 @@
   }
 
   function path() {
-    return (location.pathname + location.hash).slice(0, 300);
+    var anchor = /^#(?:home|projects|about|work|blog|contact|books|essays)$/.test(location.hash) ? location.hash : '';
+    return (location.pathname + anchor).slice(0, 300);
+  }
+
+  function outboundUrl(value) {
+    try {
+      var url = new URL(value, location.href);
+      if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
+      return (url.origin + url.pathname).slice(0, 200);
+    } catch { return null; }
   }
 
   function send(kind, name) {
     try {
+      if (/^\/dashboard(?:\/|$)/.test(location.pathname)) return;
+      if (kind === 'link') {
+        name = outboundUrl(name);
+        if (!name) return;
+      }
       fetch(ENDPOINT, {
         method: 'POST',
         keepalive: true,

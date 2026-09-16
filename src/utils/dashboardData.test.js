@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import {
   formatNumber,
   fillDailySeries,
@@ -26,6 +26,7 @@ describe('formatNumber', () => {
 });
 
 describe('fillDailySeries', () => {
+  afterEach(() => vi.restoreAllMocks());
   it('always returns exactly `days` entries oldest → newest', () => {
     const s = fillDailySeries([], 7);
     expect(s).toHaveLength(7);
@@ -38,7 +39,7 @@ describe('fillDailySeries', () => {
     expect(s.every((d) => d.pageviews === 0 && d.events === 0)).toBe(true);
   });
   it('places a known day’s counts on the matching slot', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
     const s = fillDailySeries([{ day: today, pageviews: 5, events: 9 }], 3);
     const last = s[s.length - 1];
     expect(last.day).toBe(today);
@@ -48,6 +49,14 @@ describe('fillDailySeries', () => {
   it('clamps the window to a sane range', () => {
     expect(fillDailySeries([], 0)).toHaveLength(1);
     expect(fillDailySeries([], 10000)).toHaveLength(365);
+    expect(fillDailySeries([], 2.9)).toHaveLength(2);
+  });
+  it('uses the IST date across UTC midnight and year boundaries', () => {
+    vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-12-31T20:00:00Z'));
+    const series = fillDailySeries([{ day: '2027-01-01', pageviews: 9 }], 2);
+    expect(series.map(day => day.day)).toEqual(['2026-12-31', '2027-01-01']);
+    expect(series[1].pageviews).toBe(9);
+    expect(series[1].label).toBe('01 Jan');
   });
 });
 
@@ -140,5 +149,14 @@ describe('statsToCsv', () => {
   it('returns an empty string for nullish input', () => {
     expect(statsToCsv(null)).toBe('');
     expect(statsToCsv(undefined)).toBe('');
+  });
+  it.each(['=1+1', '+cmd', '-cmd', '@SUM(A1)', '  =1+1', '\tformula', '\rformula', '\nformula'])('neutralizes spreadsheet formulas in untrusted text: %j', name => {
+    const csv = statsToCsv({ per_link: [{ name, clicks: 1 }] });
+    expect(csv).toContain(`'${name}`);
+  });
+  it('quotes carriage returns and retains actual numeric metrics', () => {
+    const csv = statsToCsv({ range_pageviews: -1, per_link: [{ name: 'first\rsecond', clicks: 1 }] });
+    expect(csv).toContain('metric,range_pageviews,-1');
+    expect(csv).toContain('"first\rsecond"');
   });
 });

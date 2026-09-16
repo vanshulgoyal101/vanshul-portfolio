@@ -22,14 +22,15 @@ export const fillDailySeries = (byDay, days = 30) => {
   );
   const out = [];
   const raw = Number(days);
-  const n = Math.max(1, Math.min(Number.isFinite(raw) ? raw : 30, 365));
+  const n = Math.max(1, Math.min(Number.isFinite(raw) ? Math.floor(raw) : 30, 365));
+  const dateKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' });
   for (let i = n - 1; i >= 0; i--) {
     const dt = new Date(Date.now() - i * 86400000);
-    const key = dt.toISOString().slice(0, 10);
+    const key = dateKey.format(dt);
     const hit = map.get(key) || { pageviews: 0, events: 0 };
     out.push({
       day: key,
-      label: dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+      label: dt.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short' }),
       pageviews: hit.pageviews,
       events: hit.events,
     });
@@ -80,8 +81,9 @@ export const statsToCsv = (stats) => {
   if (!stats || typeof stats !== 'object') return '';
   const rows = [['section', 'label', 'value']];
   const esc = (v) => {
-    const s = String(v ?? '');
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    const value = String(v ?? '');
+    const safe = typeof v === 'string' && /^(?:\s*[=+@-]|[\t\r\n])/.test(value) ? `'${value}` : value;
+    return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
   };
 
   const scalars = [

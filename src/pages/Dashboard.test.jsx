@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { act, render, screen, waitFor, fireEvent } from '@testing-library/react';
 
 // Mock the analytics client so no network/auth happens in tests.
 const mockGetSession = vi.fn();
@@ -122,5 +122,65 @@ describe('Dashboard', () => {
     expect(createURL).toHaveBeenCalledTimes(1);
     expect(clickSpy).toHaveBeenCalledTimes(1);
     clickSpy.mockRestore();
+  });
+
+  it('recovers from a rejected session restore', async () => {
+    mockGetSession.mockRejectedValueOnce(new Error('offline'));
+    render(<Dashboard />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not restore your session');
+    expect(screen.getByText('Sign in with Google')).toBeEnabled();
+  });
+
+  it('handles rejected stats and permits retry', async () => {
+    mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
+    mockRpc.mockRejectedValueOnce(new Error('offline')).mockResolvedValue({ data: sampleStats });
+    render(<Dashboard />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('offline');
+    fireEvent.click(screen.getByText('Refresh'));
+    expect(await screen.findByText('Pageviews by site')).toBeInTheDocument();
+  });
+
+  it('ignores an old range response after a newer range has loaded', async () => {
+    let resolveOld;
+    mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
+    mockRpc.mockImplementationOnce(() => new Promise(resolve => { resolveOld = resolve; }))
+      .mockResolvedValue({ data: { ...sampleStats, total_pageviews: 987 } });
+    render(<Dashboard />);
+    fireEvent.change(await screen.findByLabelText('Time range'), { target: { value: '24' } });
+    expect(await screen.findByText('987')).toBeInTheDocument();
+    await act(async () => resolveOld({ data: sampleStats }));
+    expect(screen.getByText('987')).toBeInTheDocument();
+    expect(screen.getByText('Refresh')).toBeEnabled();
+  });
+
+  it('does not let session restoration overwrite a newer auth event', async () => {
+    let resolveSession;
+    mockGetSession.mockImplementationOnce(() => new Promise(resolve => { resolveSession = resolve; }));
+    render(<Dashboard />);
+    act(() => mockOnAuthStateChange.mock.calls[0][0]('SIGNED_OUT', null));
+    await act(async () => resolveSession(sessionFor('vanshulg101@gmail.com')));
+    expect(screen.getByText('Sign in with Google')).toBeInTheDocument();
+    expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  it('clears private stats after sign-out even when an RPC resolves late', async () => {
+    let resolveStats;
+    mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
+    mockRpc.mockImplementationOnce(() => new Promise(resolve => { resolveStats = resolve; }));
+    mockSignOut.mockResolvedValueOnce({ error: null });
+    render(<Dashboard />);
+    fireEvent.click(await screen.findByText('Sign out'));
+    await screen.findByText('Sign in with Google');
+    await act(async () => resolveStats({ data: sampleStats }));
+    expect(screen.queryByText('Pageviews by site')).not.toBeInTheDocument();
+  });
+
+  it('surfaces OAuth errors instead of silently failing', async () => {
+    mockGetSession.mockResolvedValue(sessionFor(null));
+    mockSignIn.mockRejectedValueOnce(new Error('offline'));
+    render(<Dashboard />);
+    fireEvent.click(await screen.findByText('Sign in with Google'));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not start sign-in');
+    expect(screen.getByText('Sign in with Google')).toBeEnabled();
   });
 });

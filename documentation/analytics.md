@@ -2,7 +2,11 @@
 
 The site runs its own first-party, privacy-friendly usage analytics across every
 `vanshul.com` property, feeding a private owner-only dashboard at
-**`/dashboard`**. No cookies, no third-party trackers, no personal data.
+**`/dashboard`**. The beacon uses no cookies, but stores a persistent random
+identifier in localStorage. This is pseudonymous usage data, not a guarantee of
+anonymity or absence of personal data. Hosting and Supabase have their own data
+handling policies. The separate optional GoatCounter integration is documented
+in the analytics component and should be considered when assessing consent.
 
 ```
  visitor's browser                      Supabase (Postgres)                owner
@@ -46,9 +50,18 @@ What it records:
 | `tool`     | click on any `[data-track]` element, or `window.vtrack(id)` | the tool id |
 | `action`   | `window.vtrack(id, 'action')` | the action label |
 
-Each row also carries: `site`, `path` (`location.pathname + hash`), `referrer`
+Each row also carries: `site`, `path` (pathname plus a known section anchor), `referrer`
 (referring **host** only — never query strings), and an anonymous per-device
 `visitor` id (a random UUID kept in `localStorage` under `vg.vid`).
+
+The beacon strips arbitrary fragments (including OAuth tokens) and query strings.
+Outbound URLs retain only origin and pathname, never credentials, query strings,
+or fragments. The private `/dashboard` subtree is excluded. Do Not Track and
+Global Privacy Control disable collection before storage access or history hooks.
+Custom `vtrack` names must be fixed identifiers, never user-entered text.
+URL path segments themselves can contain sensitive values: avoid instrumenting
+applications whose route paths contain personal or secret data without a
+site-specific route allowlist. These rules do not sanitize historical records.
 
 Design notes:
 
@@ -159,6 +172,16 @@ server-side RPC guard.
 > 404-redirect preserves the URL hash, so the OAuth token survives the bounce to
 > the virtual `/dashboard` route.
 
+Prefer an exact `https://vanshul.com/dashboard` OAuth redirect allowlist rather
+than a wildcard. The client excludes this route from beacon collection.
+Server-side UID checks remain the authorization boundary; matching the owner
+email in React is presentation logic only.
+
+Session, OAuth, sign-out and RPC failures render recoverable errors. Request
+generation tracking rejects stale range responses and completions after unmount
+or sign-out. Loading a range clears old statistics so a new range label cannot
+be paired with previous data. Dashboard metadata uses the shared `useSeo` hook.
+
 **Features**
 
 - **Time range** selector: last 24 hours / 7 / 30 / 90 days / 1 year. Every
@@ -174,6 +197,11 @@ server-side RPC guard.
   own richer stats dashboard at `games.vanshul.com/stats/`.
 - **Charts**: hour-of-day and daily pageview histograms.
 - **CSV export** of the current stats (`statsToCsv` → downloaded file).
+
+CSV strings that could be interpreted as spreadsheet formulas are prefixed with
+an apostrophe before normal CSV quoting; numeric metrics remain numeric. Daily
+chart keys and labels use Asia/Kolkata, matching SQL, including UTC date-boundary
+and year-boundary cases.
 
 The pure data-shaping logic lives in
 [`src/utils/dashboardData.js`](../src/utils/dashboardData.js) (`formatNumber`,

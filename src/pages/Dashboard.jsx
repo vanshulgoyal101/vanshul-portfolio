@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { FaChartBar, FaGamepad } from 'react-icons/fa';
 import { analytics, OWNER_EMAIL } from '../lib/analyticsClient';
 import { SOCIAL_LINKS } from '../constants/siteConfig';
+import useSeo from '../hooks/useSeo';
 import {
   formatNumber,
   fillDailySeries,
@@ -286,27 +287,34 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [windowHours, setWindowHours] = useState(720); // default: last 30 days
   const [busy, setBusy] = useState(false);
-
-  // Keep this private route out of search indexes while mounted.
-  useEffect(() => {
-    document.title = 'Dashboard — Vanshul Goyal';
-    const meta = document.createElement('meta');
-    meta.name = 'robots';
-    meta.content = 'noindex, nofollow';
-    document.head.appendChild(meta);
-    return () => meta.remove();
-  }, []);
+  const [authBusy, setAuthBusy] = useState(false);
+  const requestRef = useRef(0);
+  const mountedRef = useRef(false);
+  useSeo({ title: 'Dashboard', description: 'Private analytics dashboard.', path: '/dashboard', robots: 'noindex, nofollow' });
 
   useEffect(() => {
     let active = true;
-    analytics.auth.getSession().then(({ data }) => {
-      if (active) setSession(data?.session ?? null);
+    let authChanged = false;
+    mountedRef.current = true;
+    analytics.auth.getSession().then(({ data, error: sessionError }) => {
+      if (!active || authChanged) return;
+      if (sessionError) throw sessionError;
+      setSession(data?.session ?? null);
+    }).catch(() => {
+      if (!active || authChanged) return;
+      setSession(null);
+      setError('Could not restore your session. Please sign in again.');
     });
     const { data: sub } = analytics.auth.onAuthStateChange((_e, s) => {
-      if (active) setSession(s ?? null);
+      if (active) {
+        authChanged = true;
+        setSession(s ?? null);
+      }
     });
     return () => {
       active = false;
+      mountedRef.current = false;
+      requestRef.current += 1;
       sub?.subscription?.unsubscribe?.();
     };
   }, []);
@@ -315,27 +323,53 @@ const Dashboard = () => {
   const isOwner = email === OWNER_EMAIL;
 
   const loadStats = useCallback(async () => {
+    if (!isOwner) return;
+    const request = ++requestRef.current;
     setBusy(true);
     setError(null);
-    const { data, error: rpcError } = await analytics.rpc('web_stats', { window_hours: windowHours });
-    if (rpcError) setError(rpcError.message || 'Failed to load stats.');
-    else setStats(data);
-    setBusy(false);
-  }, [windowHours]);
+    setStats(null);
+    try {
+      const { data, error: rpcError } = await analytics.rpc('web_stats', { window_hours: windowHours });
+      if (rpcError) throw rpcError;
+      if (!data) throw new Error('No stats were returned.');
+      if (mountedRef.current && request === requestRef.current) setStats(data);
+    } catch (failure) {
+      if (mountedRef.current && request === requestRef.current) setError(failure.message || 'Failed to load stats. Please retry.');
+    } finally {
+      if (mountedRef.current && request === requestRef.current) setBusy(false);
+    }
+  }, [isOwner, windowHours]);
 
   useEffect(() => {
     if (isOwner) loadStats();
+    else {
+      setStats(null);
+      setBusy(false);
+    }
+    return () => { requestRef.current += 1; };
   }, [isOwner, loadStats]);
 
-  const signIn = () =>
-    analytics.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + '/dashboard' },
-    });
-  const signOut = async () => {
-    await analytics.auth.signOut();
-    setStats(null);
+  const changeAuth = async (signingOut) => {
+    setAuthBusy(true);
+    setError(null);
+    try {
+      const result = signingOut
+        ? await analytics.auth.signOut()
+        : await analytics.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/dashboard' } });
+      if (result?.error) throw result.error;
+      if (mountedRef.current && signingOut) {
+        requestRef.current += 1;
+        setStats(null);
+        setSession(null);
+      }
+    } catch {
+      if (mountedRef.current) setError(signingOut ? 'Could not sign out. Please retry.' : 'Could not start sign-in. Please retry.');
+    } finally {
+      if (mountedRef.current) setAuthBusy(false);
+    }
   };
+  const signIn = () => changeAuth(false);
+  const signOut = () => changeAuth(true);
 
   const exportCsv = () => {
     const csv = statsToCsv(stats);
@@ -377,7 +411,8 @@ const Dashboard = () => {
         <Message>
           <h2>Sign in required</h2>
           <p>This dashboard is private. Sign in with the owner Google account to continue.</p>
-          <Button onClick={signIn}>Sign in with Google</Button>
+          <Button onClick={signIn} disabled={authBusy}>Sign in with Google</Button>
+          {error && <p role="alert">{error}</p>}
         </Message>
         <DashboardFooter />
       </Page>
@@ -389,11 +424,12 @@ const Dashboard = () => {
       <Page>
         <Header>
           <h1><FaChartBar aria-hidden="true" />Dashboard</h1>
-          <Actions><GhostButton onClick={signOut}>Sign out</GhostButton></Actions>
+          <Actions><GhostButton onClick={signOut} disabled={authBusy}>Sign out</GhostButton></Actions>
         </Header>
         <Message>
           <h2>Not authorized</h2>
           <p>{email} does not have access to this dashboard.</p>
+          {error && <p role="alert">{error}</p>}
         </Message>
         <DashboardFooter />
       </Page>
@@ -421,11 +457,11 @@ const Dashboard = () => {
           </Select>
           <GhostButton onClick={loadStats} disabled={busy}>{busy ? 'Refreshing…' : 'Refresh'}</GhostButton>
           <GhostButton onClick={exportCsv} disabled={!stats}>Export CSV</GhostButton>
-          <GhostButton onClick={signOut}>Sign out</GhostButton>
+          <GhostButton onClick={signOut} disabled={authBusy}>Sign out</GhostButton>
         </Actions>
       </Header>
 
-      {error && <Message><h2>Error</h2><p>{error}</p></Message>}
+      {error && <Message role="alert"><h2>Error</h2><p>{error}</p></Message>}
 
       {!stats && !error && <Message>Loading stats…</Message>}
 

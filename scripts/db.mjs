@@ -15,6 +15,7 @@
  */
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
+import { databaseConfig } from './lib/databaseConfig.mjs';
 
 const connectionString = process.env.SUPABASE_DB_URL;
 const hasPgEnv = Boolean(process.env.PGPASSWORD && process.env.PGHOST);
@@ -43,10 +44,7 @@ if (!sql || !sql.trim()) {
   process.exit(1);
 }
 
-const client = new pg.Client({
-  ...(connectionString ? { connectionString } : {}), // else pg reads PG* env vars
-  ssl: { rejectUnauthorized: false }, // Supabase requires SSL
-});
+const client = new pg.Client(databaseConfig());
 
 try {
   await client.connect();
