@@ -20,6 +20,9 @@ then dive into specific areas.
 | [accessibility.md](accessibility.md) | WCAG 2.1 AA practices: keyboard navigation, focus management, touch targets, contrast, ARIA. |
 | [seo.md](seo.md) | Runtime meta (`useSeo`), build-time generation (sitemap, OG images, RSS feed, blog pre-rendering), JSON-LD, and static SEO files. |
 | [analytics.md](analytics.md) | First-party usage analytics: the `a.js` beacon, the `web_events` schema + RLS, the owner-gated `web_stats()` RPC, and the private `/dashboard`. |
+| [homepage.md](homepage.md) | Preserved loader, layout, disclosure, rocket/exhaust and responsive contracts. |
+| [audit-2026-09.md](audit-2026-09.md) | Verified fixes, evidence, coverage boundaries and operational follow-up. |
+| [../FEATURES.md](../FEATURES.md) | Shipped capabilities, proposed work and deliberate non-goals. |
 
 ## Maintenance
 

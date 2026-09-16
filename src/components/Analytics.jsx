@@ -1,39 +1,42 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
-// GoatCounter is privacy-friendly (no cookies, no consent banner needed).
-// Set VITE_GOATCOUNTER_CODE to your site code (the "<code>" in
-// https://<code>.goatcounter.com). When unset, analytics is a no-op.
-const CODE = import.meta.env.VITE_GOATCOUNTER_CODE;
-
 const Analytics = () => {
-  const location = useLocation();
-  const initial = useRef(true);
+  const { pathname } = useLocation();
+  const lastPath = useRef(null);
+  const code = import.meta.env.VITE_GOATCOUNTER_CODE;
 
-  // Load the counter script once.
   useEffect(() => {
-    if (!CODE || document.getElementById('goatcounter')) return;
-    const script = document.createElement('script');
-    script.id = 'goatcounter';
-    script.async = true;
-    script.src = '//gc.zgo.at/count.js';
-    script.dataset.goatcounter = `https://${CODE}.goatcounter.com/count`;
-    document.body.appendChild(script);
-  }, []);
-
-  // Count client-side route changes (the script auto-counts the first load).
-  // Keyed on pathname only so in-page hash navigation (#about, #work, …)
-  // doesn't inflate the pageview count.
-  useEffect(() => {
-    if (!CODE) return;
-    if (initial.current) {
-      initial.current = false;
+    const optedOut = () => navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || window.doNotTrack === '1';
+    if (!code || !/^[a-z0-9-]+$/i.test(code) || optedOut() || /^\/dashboard(?:\/|$)/i.test(pathname)) {
+      lastPath.current = null;
       return;
     }
-    window.goatcounter?.count?.({
-      path: location.pathname,
-    });
-  }, [location.pathname]);
+    let script = document.getElementById('goatcounter');
+    if (!script) {
+      script = document.createElement('script');
+      script.id = 'goatcounter';
+      script.async = true;
+      script.src = 'https://gc.zgo.at/count.js';
+      script.referrerPolicy = 'no-referrer';
+      script.dataset.goatcounter = `https://${code}.goatcounter.com/count`;
+      script.dataset.goatcounterSettings = JSON.stringify({ no_onload: true, no_events: true });
+      document.body.appendChild(script);
+    }
+    const count = () => {
+      if (optedOut() || lastPath.current === pathname || !window.goatcounter?.count) return;
+      try {
+        window.goatcounter.count({ path: pathname, title: pathname, referrer: '' });
+        lastPath.current = pathname;
+      } catch {
+        return;
+      }
+    };
+    script.addEventListener('load', count);
+    count();
+    return () => script.removeEventListener('load', count);
+  }, [pathname, code]);
 
   return null;
 };

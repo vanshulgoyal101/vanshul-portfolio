@@ -21,13 +21,29 @@ Supabase hosting, deployed grants, OAuth configuration, quotas or rate limits.
 
 `e2e/accessibility.spec.js` runs axe-core WCAG 2 A/AA and 2.1 AA checks on desktop
 and mobile: home with expanded disclosures, blog index, article, shelf,
-missing-route recovery and signed-out dashboard. No rule exclusions are used.
+missing-route recovery and signed-out dashboard. An additional fabricated owner
+session with intercepted API responses covers the year chart, 365 daily values,
+scroll containment and owner-state contrast. No real authentication is used.
+No rule exclusions are used.
 Automated scans do not prove full accessibility; keep the keyboard, focus,
 reduced-motion, geometry and screenshot checks alongside them.
 
 Analytics tests isolate the beacon in a VM and capture fake fetch payloads;
 database TLS tests use injected CA reads. No secrets or live submissions are
 required. Dashboard tests cover promise rejections and out-of-order responses.
+
+### September 2026 coverage baseline
+
+Vitest 5: 401 tests in 52 files, 64.93% lines, 65.51% branches, 63.20% functions.
+The prior Vitest 3 report is not directly comparable because coverage mapping
+changed. Hooks and data utilities have strong coverage; App, styling and
+decorative canvases rely on browser verification and are not unit-complete.
+Do not exclude these files merely to inflate the percentage.
+
+WebGL pixel tests wait until the canvas matches its reserved scene dimensions
+before capturing. A visible canvas can still have its initial 300x150 dimensions
+before renderer measurement. Framing, motion, dragging and offscreen pause remain
+asserted, without retry-based success or relaxed pixel bounds.
 
 ## Running tests
 

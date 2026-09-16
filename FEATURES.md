@@ -11,16 +11,24 @@
 - ✅ **3D space-themed hero** (three.js / @react-three/fiber + drei), Framer-Motion
   section animations, smooth in-page navigation.
 - ✅ Sections: Home · About · Work · Projects · Blog · Contact.
-- ✅ **Contact form** (`useContactForm`) → Supabase; Toast + Skeleton + ErrorBoundary.
+- ✅ **Contact form** (`useContactForm`) → Formspree, with validation, duplicate-submit
+  guarding, cancellation and visible failures; Toast + Skeleton + ErrorBoundary.
 - ✅ **Accessible + responsive** design; SPA routing (react-router 7) with a
   `404.html` GitHub-Pages shim.
+- ✅ Original multilingual intro, three-tap rocket/smoke/About transition,
+  desktop sculpture and persistent display preferences are retained.
+- ✅ Featured projects plus a keyboard-operable, initially collapsed directory.
+- ✅ Separate Books (12) and Essays (8) at `/reading-list`, with external sources.
+- ✅ Private analytics dashboard: owner-gated SQL aggregates, time ranges, IST
+  charts, safe CSV export, loading/error/empty states and sign-out invalidation.
 
 ## Blog (✅)
 
 - ✅ Markdown posts in `src/blogs/*.md` (filename = slug), rendered at `/blog/:slug`
   with a `/blog` index and a homepage `#blog` section.
 - ✅ Frontmatter schema (id, title, slug, summary, date, readTime, category).
-- ✅ **Per-post prerender shells**, per-post OG images, RSS feed, sitemap.
+- ✅ Readable static article bodies, writing index, shelf and basic homepage;
+  public navigation works without JavaScript. Per-post OG images, RSS, sitemap.
 
 ## SEO (✅ strong)
 
@@ -32,15 +40,28 @@
 ## Engineering (✅)
 
 - ✅ React 19 + Vite 7, styled-components, react-icons.
-- ✅ **Vitest + React Testing Library** (~36 test files).
+- ✅ **Vitest 5 + React Testing Library**, isolated SQL authorization tests,
+  desktop/mobile Playwright interaction and canvas checks, axe accessibility scans.
+- ✅ Verified database TLS, least-privilege schema grants, DNT/GPC privacy gates,
+  sanitized analytics URLs and shared build/runtime article structured data.
 - ✅ **Auto-deploy** to GitHub Pages on push to `main` (validate before pushing).
 
 ## Proposed / potential 🔜
 
-- More blog posts + project case studies (content); light-theme polish; per-post
-  reading analytics. No formal feature roadmap — the site is feature-complete.
+- Search Console and field Core Web Vitals monitoring: establish ownership,
+  submit the generated sitemap, inspect representative indexed URLs and measure
+  real-user performance before making further performance changes.
+- Analytics retention and abuse protection: define a retention window and
+  ingestion quota before adding a server-side ingestion endpoint. Public metrics
+  remain forgeable; client-side identifiers are not an abuse-control mechanism.
+- More original posts and evidenced project case studies. Add only authored,
+  reviewed material; no generated keyword pages or fabricated achievements.
+- Manual assistive-technology review and live OAuth/contact verification remain
+  operational checks. Automated accessibility tests are not certification.
 
 ## Non-goals ⛔
 
-- **Server/DB beyond Supabase view counts + contact** — it's a static SPA.
+- **General application backend**: the site stays statically hosted; Supabase
+  handles views/analytics and Formspree handles contact delivery.
 - **CMS** — posts are version-controlled markdown, intentionally.
+- Guaranteed search rankings, fabricated content and collecting sensitive data.

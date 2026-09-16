@@ -106,6 +106,18 @@ describe('Dashboard', () => {
     await waitFor(() => expect(screen.getByText('not authorized')).toBeInTheDocument());
   });
 
+  it('retains all daily values in a keyboard-focusable year chart', async () => {
+    mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
+    mockRpc.mockResolvedValue({ data: sampleStats, error: null });
+    render(<Dashboard />);
+    await screen.findByText('Pageviews by site');
+    fireEvent.change(screen.getByLabelText('Time range'), { target: { value: '8760' } });
+    const chart = await screen.findByRole('region', { name: 'Daily pageviews chart' });
+    expect(chart).toHaveAttribute('tabindex', '0');
+    expect(chart.querySelectorAll('[role="img"]')).toHaveLength(365);
+    expect(chart.firstElementChild).toHaveStyle({ gridTemplateColumns: 'repeat(365, minmax(4px, 1fr))' });
+  });
+
   it('exports the current stats as a CSV download', async () => {
     mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
     mockRpc.mockResolvedValue({ data: sampleStats, error: null });

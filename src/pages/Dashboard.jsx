@@ -183,6 +183,16 @@ const Hours = styled.div`
   .h > span { position: absolute; inset: auto 0 0 0; background: var(--color-accent-primary); border-radius: 4px 4px 0 0; }
 `;
 
+const ChartViewport = styled.div`
+  max-width: 100%;
+  overflow-x: auto;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: 4px;
+  }
+`;
+
 const HourLabels = styled.div`
   display: grid;
   grid-template-columns: repeat(24, 1fr);
@@ -265,7 +275,7 @@ const DeltaBadge = styled.span`
   font-size: var(--text-xs);
   font-weight: 700;
   white-space: nowrap;
-  color: ${(p) => (p.$dir > 0 ? '#16a34a' : p.$dir < 0 ? '#dc2626' : 'var(--color-text-muted)')};
+  color: ${(p) => (p.$dir > 0 ? '#15803d' : p.$dir < 0 ? '#dc2626' : 'var(--color-text-muted)')};
 `;
 
 // Trend badge comparing the current window to the previous equal-length one.
@@ -514,16 +524,18 @@ const Dashboard = () => {
 
           <Section>
             <h2>Daily pageviews</h2>
-            <Hours style={{ gridTemplateColumns: `repeat(${derived.daily.length}, 1fr)` }}>
+            <ChartViewport role="region" aria-label="Daily pageviews chart" tabIndex={0}>
+            <Hours style={{ gridTemplateColumns: `repeat(${derived.daily.length}, minmax(4px, 1fr))` }}>
               {derived.daily.map((d) => (
                 <div className="h" key={d.day} role="img" aria-label={`${d.label} — ${d.pageviews} pageviews`} title={`${d.label}: ${d.pageviews}`}>
                   <span style={{ height: `${(d.pageviews / dayMax) * 100}%` }} />
                 </div>
               ))}
             </Hours>
+            </ChartViewport>
           </Section>
 
-          <Foot>Private · anonymous analytics · times in IST (Asia/Kolkata). Signed in as {email}.</Foot>
+          <Foot>Private · pseudonymous analytics · times in IST (Asia/Kolkata). Signed in as {email}.</Foot>
         </>
       )}
       <DashboardFooter />

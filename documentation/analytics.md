@@ -1,12 +1,29 @@
 # Analytics & Dashboard
 
-The site runs its own first-party, privacy-friendly usage analytics across every
-`vanshul.com` property, feeding a private owner-only dashboard at
+The repository provides a shared first-party usage beacon for participating
+`vanshul.com` properties, feeding a private owner-only dashboard at
 **`/dashboard`**. The beacon uses no cookies, but stores a persistent random
 identifier in localStorage. This is pseudonymous usage data, not a guarantee of
 anonymity or absence of personal data. Hosting and Supabase have their own data
 handling policies. The separate optional GoatCounter integration is documented
-in the analytics component and should be considered when assessing consent.
+below. Deployment coverage and legal consent requirements must be assessed
+separately; cookie-free does not mean anonymous or automatically exempt.
+
+## Optional GoatCounter integration
+
+`src/components/Analytics.jsx` loads GoatCounter only when
+`VITE_GOATCOUNTER_CODE` is configured. It uses the documented `no_onload` and
+`no_events` settings, then manually counts the current pathname after loading.
+Effect cleanup removes pending callbacks when the route changes or unmounts.
+Private dashboard routes and DNT/GPC disable collection. Query strings,
+fragments, document titles and referrers are not submitted by this integration;
+the title field contains the pathname. Hash-only navigation is not a pageview.
+The external script is requested with `referrerPolicy="no-referrer"`.
+Third-party hosting still receives normal network request information.
+
+Nine isolated component tests cover configuration, preferences, private paths,
+late loading, unmount and route transitions. No live GoatCounter account was
+queried. API reference: https://www.goatcounter.com/help/js.
 
 ```
  visitor's browser                      Supabase (Postgres)                owner
@@ -16,7 +33,7 @@ in the analytics component and should be considered when assessing consent.
 └──────────────────┘                 └──────────────────────┘          └──────────┘
 ```
 
-- **Collection** — a tiny script ([`public/a.js`](../public/a.js)) logs anonymous
+- **Collection** — a tiny script ([`public/a.js`](../public/a.js)) logs pseudonymous
   events straight to Supabase's REST API using the public **anon** key.
 - **Storage** — the `web_events` table; Row Level Security allows anonymous
   *inserts* only, and never *reads*.
@@ -31,15 +48,15 @@ The schema and RPC live in [`supabase/web-analytics.sql`](../supabase/web-analyt
 
 ## 1. The beacon — `public/a.js`
 
-A dependency-free script served from `https://vanshul.com/a.js`. Every property
-includes it with a one-line tag identifying the site:
+A dependency-free script served from `https://vanshul.com/a.js`. A participating
+property opts in with a tag identifying the site:
 
 ```html
 <script defer src="https://vanshul.com/a.js" data-site="tools"></script>
 ```
 
-On `vanshul.com` itself it's loaded same-origin as `/a.js` with
-`data-site="portfolio"`.
+The portfolio entry document does not currently include this beacon. Serving
+the file does not prove it is installed on this or any other property.
 
 What it records:
 
@@ -51,7 +68,7 @@ What it records:
 | `action`   | `window.vtrack(id, 'action')` | the action label |
 
 Each row also carries: `site`, `path` (pathname plus a known section anchor), `referrer`
-(referring **host** only — never query strings), and an anonymous per-device
+(referring **host** only — never query strings), and a pseudonymous per-device
 `visitor` id (a random UUID kept in `localStorage` under `vg.vid`).
 
 The beacon strips arbitrary fragments (including OAuth tokens) and query strings.
@@ -74,12 +91,14 @@ Design notes:
   elements with `data-track="…"` are auto-tracked (optionally
   `data-track-kind="link|action"`).
 
-### Instrumented properties
+### Cross-property integration inventory
 
-`portfolio`, `tools` (per-tool via `vtrack` in its router), `cron`, `json`,
+Previously documented integration targets include `portfolio`, `tools`, `cron`, `json`,
 `regex`, `tokens`, `links`, `blog`, `solaride`, `adbrain`, `reader`, `mcp`.
 Games (`arcade`) keep their existing `arcade_events` log, which `web_stats()`
-folds into the same dashboard.
+folds into the same dashboard. Installation on these other repositories was not
+verified in this portfolio audit; confirm their script tags before relying on
+this list as a current deployment inventory.
 
 ---
 
@@ -94,8 +113,8 @@ create table public.web_events (
   name     text,            -- tool id / outbound link / action label
   path     text,            -- location.pathname (+ hash)
   referrer text,            -- referring host (no query strings)
-  visitor  text,            -- anonymous per-device id
-  user_id  uuid             -- set when signed in (optional)
+  visitor  text,            -- pseudonymous per-device id
+  user_id  uuid             -- reserved; browser roles cannot insert this column
 );
 ```
 

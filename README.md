@@ -2,7 +2,8 @@
 
 A modern, animated personal portfolio and blog built with React 19 and Vite. It
 features a 3D space-themed hero, smooth section navigation, a markdown-powered
-blog, and a fully accessible, responsive design. Deployed as a static SPA to
+blog, a reading shelf, and a responsive design with automated accessibility
+checks. Deployed as a static SPA with readable public HTML to
 GitHub Pages at [vanshul.com](https://vanshul.com).
 
 ## Tech stack
@@ -17,13 +18,15 @@ GitHub Pages at [vanshul.com](https://vanshul.com).
 | 3D graphics | three.js, @react-three/fiber, @react-three/drei |
 | Markdown    | react-markdown (frontmatter parsed by a small in-house parser) |
 | Icons       | react-icons |
-| Testing     | Vitest + React Testing Library + jsdom |
-| Deployment  | gh-pages → GitHub Pages |
+| Testing     | Vitest 5 + React Testing Library + PGlite + Playwright + axe-core |
+| Deployment  | GitHub Actions → GitHub Pages |
 
 ## Getting started
 
+Use Node 22.12+, 24, or a newer supported release (see `package.json` engines).
+
 ```bash
-npm install       # install dependencies
+npm ci            # install locked dependencies
 npm run dev       # start the dev server (http://localhost:5173)
 npm run build     # production build → dist/
 npm run preview   # preview the production build locally
@@ -31,7 +34,9 @@ npm run lint      # run ESLint
 npm test          # run the test suite once
 npm run test:watch     # run tests in watch mode
 npm run test:coverage  # run tests with a coverage report
-npm run deploy    # build and publish dist/ to GitHub Pages
+npm run verify:build   # validate every published route after building
+npm run test:e2e       # desktop/mobile browser checks (install Chromium first)
+npm audit             # production and development advisories
 ```
 
 A `Makefile` provides shortcuts (`make dev`, `make build`, `make preview`,
@@ -64,6 +69,10 @@ documentation/         # In-depth documentation (see below)
 Comprehensive documentation lives in [`documentation/`](documentation/README.md):
 architecture, components, hooks, data/blog system, styling, assets, testing,
 configuration, deployment, and accessibility.
+Start with the [capability catalog](FEATURES.md) and the
+[September audit](documentation/audit-2026-09.md) for verified changes and
+operational limitations. Push validated changes to `main` for deployment;
+the legacy `npm run deploy` command bypasses the current release gates.
 
 ## Adding a blog post
 

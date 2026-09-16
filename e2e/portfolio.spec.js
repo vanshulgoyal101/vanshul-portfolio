@@ -100,6 +100,13 @@ test(`desktop sculpture renders, moves, responds to dragging, and pauses off-scr
   const canvas = page.locator('[data-hero-scene] canvas');
   await expect(canvas).toBeVisible({ timeout: 15000 });
   await expect(page.locator('[data-scene-active]')).toHaveAttribute('data-scene-active', 'true');
+  await expect.poll(() => canvas.evaluate(element => {
+    const reserved = element.closest('[data-hero-scene]').getBoundingClientRect();
+    const rendered = element.getBoundingClientRect();
+    return Math.abs(rendered.width - reserved.width) < 1 &&
+      Math.abs(rendered.height - reserved.height) < 1 &&
+      element.width >= Math.floor(reserved.width) && element.height >= Math.floor(reserved.height);
+  })).toBe(true);
   const readPixels = async () => sharp(await page.screenshot({ clip: await canvas.boundingBox() })).removeAlpha().raw().toBuffer({ resolveWithObject: true });
   let first;
   await expect.poll(async () => {
