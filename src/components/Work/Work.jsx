@@ -24,6 +24,10 @@ const Container = styled.div`
 const SectionHeader = styled(motion.div)`
   text-align: center;
   margin-bottom: var(--spacing-lg);
+
+  @media (max-width: 768px) {
+    margin-bottom: var(--spacing-md);
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -85,6 +89,10 @@ const CardHeader = styled.div`
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const CardIcon = styled.div`
@@ -120,7 +128,7 @@ const JobTitle = styled.h3`
   margin-bottom: var(--spacing-xs);
 
   @media (max-width: 768px) {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
   }
 `;
 
@@ -162,6 +170,11 @@ const Description = styled.p`
   color: var(--color-text-secondary);
   line-height: 1.8;
   margin-bottom: var(--spacing-md);
+
+  @media (max-width: 768px) {
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const TechStack = styled.div`

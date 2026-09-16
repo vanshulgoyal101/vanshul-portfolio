@@ -301,13 +301,20 @@ test('work typography keeps section headings above role and supporting text', as
       const roles = [...section.querySelectorAll('h3')].map(size);
       const companies = [...section.querySelectorAll('h4')].map(size);
       const paragraphs = [...section.querySelectorAll('p')].map(size);
+      const description = section.querySelector('h3').parentElement.parentElement.nextElementSibling;
+      const descriptionStyle = getComputedStyle(description);
+      const lineHeight = parseFloat(descriptionStyle.lineHeight) / size(description);
+      const contentGap = parseFloat(descriptionStyle.marginBottom);
       const fits = [...section.querySelectorAll('h2, h3, h4, p')].every(element => {
         const bounds = element.getBoundingClientRect();
         return bounds.left >= 0 && bounds.right <= innerWidth && element.scrollWidth <= element.clientWidth + 1;
       });
-      return { heading, roles, companies, paragraphs, fits };
+      return { heading, roles, companies, paragraphs, fits, lineHeight, contentGap };
     });
     expect(typography.heading).toBe(width <= 768 ? 24 : 40);
+    expect(typography.roles).toEqual([width <= 768 ? 18 : 24, width <= 768 ? 18 : 24]);
+    expect(typography.lineHeight).toBeCloseTo(width <= 768 ? 1.6 : 1.8);
+    if (width <= 768) expect(typography.contentGap).toBe(12);
     expect(Math.max(...typography.roles)).toBeLessThan(typography.heading);
     expect(Math.max(...typography.companies, ...typography.paragraphs)).toBeLessThan(Math.min(...typography.roles));
     expect(Math.min(...typography.paragraphs)).toBeGreaterThanOrEqual(16);
