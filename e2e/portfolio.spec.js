@@ -287,6 +287,35 @@ test('section titles match without focus boxes and links keep keyboard outlines'
   await expect(projects).toHaveCSS('outline-style', 'solid');
 });
 
+test('work typography keeps section headings above role and supporting text', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'Checks desktop and mobile widths in one run');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await visit(page, '/#work');
+  for (const width of [320, 390, 600, 768, 769, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const work = page.locator('#work');
+    await work.scrollIntoViewIfNeeded();
+    const typography = await work.evaluate(section => {
+      const size = element => parseFloat(getComputedStyle(element).fontSize);
+      const heading = size(section.querySelector('h2'));
+      const roles = [...section.querySelectorAll('h3')].map(size);
+      const companies = [...section.querySelectorAll('h4')].map(size);
+      const paragraphs = [...section.querySelectorAll('p')].map(size);
+      const fits = [...section.querySelectorAll('h2, h3, h4, p')].every(element => {
+        const bounds = element.getBoundingClientRect();
+        return bounds.left >= 0 && bounds.right <= innerWidth && element.scrollWidth <= element.clientWidth + 1;
+      });
+      return { heading, roles, companies, paragraphs, fits };
+    });
+    expect(typography.heading).toBe(width <= 768 ? 24 : 40);
+    expect(Math.max(...typography.roles)).toBeLessThan(typography.heading);
+    expect(Math.max(...typography.companies, ...typography.paragraphs)).toBeLessThan(Math.min(...typography.roles));
+    expect(Math.min(...typography.paragraphs)).toBeGreaterThanOrEqual(16);
+    expect(typography.fits).toBe(true);
+    if (width === 390 || width === 1440) await work.screenshot({ path: testInfo.outputPath(`work-typography-${width}.png`), animations: 'disabled', style: '[data-site-header] { visibility: hidden; }' });
+  }
+});
+
 test('direct reading-list response and sitemap agree', async ({ request, page }) => {
   const response = await request.get('/reading-list/');
   expect(response.status()).toBe(200);

@@ -52,6 +52,14 @@ toggle focus. Returning to desktop clears the mobile scroll lock.
 
 ## Content and motion
 
+Work Experience keeps the shared section-title size (40px desktop, 24px through
+768px). Its supporting typography has a separate, fixed responsive hierarchy:
+job titles are 24px desktop / 20px mobile, company names and the section subtitle
+18px / 16px, descriptions 16px, and date/location metadata 14px. Sizes are rem
+based and respect browser text preferences. Do not let fluid card-title tokens
+grow to match the mobile section heading. The browser regression checks heading
+order and text containment at 320, 390, 600, 768, 769 and 1440px.
+
 The left-aligned desktop introduction, navbar logo, and featured cards share the
 same 1280px container and responsive gutter. On mobile, the introduction centers
 its copy, actions, and social links to avoid a lopsided narrow layout. The

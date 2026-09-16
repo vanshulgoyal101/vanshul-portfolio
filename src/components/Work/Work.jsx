@@ -23,7 +23,7 @@ const Container = styled.div`
 
 const SectionHeader = styled(motion.div)`
   text-align: center;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 `;
 
 const SectionTitle = styled.h2`
@@ -38,10 +38,14 @@ const SectionTitle = styled.h2`
 `;
 
 const SectionSubtitle = styled.p`
-  font-size: var(--text-lg);
+  font-size: 1.125rem;
   color: var(--color-text-secondary);
   max-width: 600px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
 `;
 
 const ExperienceGrid = styled.div`
@@ -104,26 +108,40 @@ const CardIcon = styled.div`
 
 const CardInfo = styled.div`
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 `;
 
 const JobTitle = styled.h3`
-  font-size: var(--text-xl);
+  font-size: 1.5rem;
+  line-height: 1.3;
+  letter-spacing: 0;
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-xs);
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
 `;
 
 const CompanyName = styled.h4`
-  font-size: var(--text-lg);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  letter-spacing: 0;
   color: var(--color-accent-primary);
   font-weight: 500;
   margin-bottom: var(--spacing-xs);
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
 `;
 
 const MetaInfo = styled.div`
   display: flex;
   gap: var(--spacing-md);
   flex-wrap: wrap;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   color: var(--color-text-secondary);
   align-items: center;
 
@@ -140,6 +158,7 @@ const MetaChip = styled.span`
 `;
 
 const Description = styled.p`
+  font-size: 1rem;
   color: var(--color-text-secondary);
   line-height: 1.8;
   margin-bottom: var(--spacing-md);
