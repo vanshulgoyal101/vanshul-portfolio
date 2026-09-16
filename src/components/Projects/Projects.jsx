@@ -234,12 +234,9 @@ const ProjectLink = styled.a`
 /* ── "More projects" compact tier ── */
 
 const MoreProjects = styled.details`
-  max-width: 1200px;
-  margin: 2rem auto 0;
+  margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-lg);
   border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-
-  &[open] { padding-bottom: 1.5rem; }
 `;
 
 const CaseStudy = styled.details`
@@ -262,60 +259,34 @@ const MoreHeader = styled.summary`
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  min-height: 76px;
-  padding: 1.25rem 0;
+  min-height: 44px;
+  padding: 0.75rem 0;
   cursor: pointer;
   list-style: none;
   text-align: left;
   &::-webkit-details-marker { display: none; }
-  > svg {
-    flex-shrink: 0;
-    width: 16px;
-    height: 16px;
-    color: var(--color-accent-primary);
-    transition: transform 180ms ease;
-  }
-  &:hover h3 > span:first-child { color: var(--color-accent-primary); }
+  > svg { flex-shrink: 0; color: var(--color-accent-primary); }
   ${MoreProjects}[open] > & > svg { transform: rotate(180deg); }
   &:focus-visible { outline: 2px solid var(--color-accent-primary); outline-offset: 4px; }
-  @media (prefers-reduced-motion: reduce) { > svg { transition: none; } }
 `;
 
-const MoreHeading = styled.h3`
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.35rem 1rem;
-  min-width: 0;
-  margin: 0;
-`;
-
-const MoreTitle = styled.span`
-  font-size: 1.125rem;
-  line-height: 1.4;
-  letter-spacing: 0;
+const MoreTitle = styled.h3`
+  font-size: var(--text-2xl);
   color: var(--color-text-primary);
   margin: 0;
-  overflow-wrap: anywhere;
-`;
 
-const MoreCount = styled.span`
-  font-family: var(--font-mono);
-  font-weight: 400;
-  font-size: 0.75rem;
-  line-height: 1.5;
-  color: var(--color-text-secondary);
+  @media (max-width: 768px) {
+    font-size: var(--text-xl);
+  }
 `;
 
 const MoreSubtitle = styled.p`
   color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  max-width: 60ch;
-  margin: 0 0 1.5rem;
+  font-size: var(--text-base);
 `;
 
 const CategoryGroup = styled.div`
-  margin-top: 1.75rem;
+  margin-top: 2rem;
 `;
 
 const CategoryLabel = styled.h4`
@@ -377,7 +348,6 @@ const VBrainIcon = () => (
 );
 
 const CompactName = styled.h5`
-  letter-spacing: 0;
   font-size: var(--text-base);
   color: var(--color-text-primary);
   margin: 0;
@@ -628,10 +598,7 @@ const Projects = () => {
 
         <MoreProjects role="region" aria-labelledby="project-directory-title">
           <MoreHeader>
-            <MoreHeading>
-              <MoreTitle id="project-directory-title">More things I&apos;ve built</MoreTitle>
-              <MoreCount>{moreProjects.reduce((total, group) => total + group.items.length, 0)} projects</MoreCount>
-            </MoreHeading>
+            <MoreTitle id="project-directory-title">More things I&apos;ve built</MoreTitle>
             <FaChevronDown aria-hidden="true" />
           </MoreHeader>
           <MoreSubtitle>Live products, open-source packages and interactive experiments.</MoreSubtitle>

@@ -56,7 +56,6 @@ describe('Projects', () => {
     render(<Projects />);
     const directory = screen.getByRole('region', { name: "More things I've built" });
     const toggle = directory.querySelector('summary');
-    expect(toggle).toHaveTextContent('17 projects');
     expect(screen.getByText('Solaride')).not.toBeVisible();
     fireEvent.click(toggle);
     expect(directory).toHaveAttribute('open');
