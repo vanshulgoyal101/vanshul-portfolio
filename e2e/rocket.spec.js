@@ -1,5 +1,30 @@
 import { test, expect } from '@playwright/test';
 
+test('a partial tap resumes idle floating and the countdown resets', async ({ page }) => {
+  await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
+  await page.goto('/');
+  await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
+  const rocket = page.locator('[data-rocket]');
+  await expect(rocket).toBeVisible();
+  await rocket.focus();
+  await page.keyboard.press('Enter');
+  await expect(rocket).toHaveAccessibleName('Launch rocket: 2 taps remaining');
+  const travel = await rocket.evaluate(element => new Promise(resolve => {
+    const positions = [];
+    const started = performance.now();
+    const sample = now => {
+      if (now - started > 600) positions.push(new DOMMatrix(getComputedStyle(element).transform).m42);
+      if (now - started < 1800) requestAnimationFrame(sample);
+      else resolve(Math.max(...positions) - Math.min(...positions));
+    };
+    requestAnimationFrame(sample);
+  }));
+  expect(travel).toBeGreaterThan(1);
+  await expect(rocket).toHaveAccessibleName('Launch rocket: 3 taps remaining');
+  await page.keyboard.press('Enter');
+  await expect(rocket).toHaveAccessibleName('Launch rocket: 2 taps remaining');
+});
+
 test('smoke and flame stay anchored to the rotating rocket nozzle', async ({ page }, testInfo) => {
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
   await page.goto('/');

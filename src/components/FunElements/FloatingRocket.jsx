@@ -139,6 +139,15 @@ const Tooltip = styled(motion.span)`
   }
 `;
 
+const floatingAnimation = {
+  y: [0, -10, 0],
+  transition: {
+    duration: 3,
+    repeat: Infinity,
+    ease: 'easeInOut',
+  },
+};
+
 const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showBubble, setShowBubble] = useState(false);
@@ -151,6 +160,7 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   const frameRef = useRef(null);
   const generationRef = useRef(0);
   const launchingRef = useRef(false);
+  const clickCountRef = useRef(0);
 
   // Auto-temptation pulse helper: triggers a shake occasionally to catch the eye
   useEffect(() => {
@@ -172,13 +182,14 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
       clearTimeout(clickTimeoutRef.current);
     }
     
-    const nextClickCount = clickCount + 1;
+    const generation = ++generationRef.current;
+    const nextClickCount = clickCountRef.current + 1;
+    clickCountRef.current = nextClickCount;
     setClickCount(nextClickCount);
     setShowBubble(true);
     
     if (nextClickCount >= 3) {
       launchingRef.current = true;
-      const generation = generationRef.current;
       // Launch sequence
       setHasLaunched(true);
       
@@ -225,22 +236,25 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
       resetTimeoutRef.current = setTimeout(() => {
         controls.set({ y: 0 });
         launchingRef.current = false;
+        clickCountRef.current = 0;
         setHasLaunched(false);
         setClickCount(0);
         setShowBubble(false);
       }, 700);
     } else {
-      // Small bounce
-      controls.start({
-        y: [0, -20, 0],
-        transition: { duration: 0.3 }
-      });
-      
       // Hide chat bubble and reset count after 3 seconds if they don't keep tapping
       clickTimeoutRef.current = setTimeout(() => {
+        clickCountRef.current = 0;
         setClickCount(0);
         setShowBubble(false);
       }, 3000);
+
+      await controls.start({
+        y: [0, -20, 0],
+        transition: { duration: 0.3 }
+      });
+      if (generation !== generationRef.current) return;
+      controls.start(floatingAnimation);
     }
   };
 
@@ -257,14 +271,7 @@ const FloatingRocket = ({ isMobileOnly = false, isDesktopOnly = false }) => {
   useEffect(() => {
     // Floating animation
     if (!hasLaunched) {
-      controls.start({
-        y: [0, -10, 0],
-        transition: {
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }
-      });
+      controls.start(floatingAnimation);
     }
   }, [hasLaunched, controls]);
 

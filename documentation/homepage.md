@@ -111,6 +111,12 @@ starts the original pooled cyan/magenta/violet/grey trail, and
 After 550ms the transition uses the shared scroll helper to focus About below
 the header. Do not disconnect the smoke listener when changing ambient loading.
 
+Tap counting is synchronous so activations batched before a React render are not
+lost. Partial-tap bounces resume the idle float when they finish; completion from
+an older tap or an unmounted rocket cannot restart floating over a newer animation
+or launch. Unit regressions cover these ordering cases and countdown resets;
+desktop/mobile browser checks measure resumed vertical movement after a partial tap.
+
 Smoke movement, growth, damping and fade use elapsed milliseconds from the
 monotonic performance clock, preserving the original 60fps tuning. Emission is
 120 puffs per second rather than two per display frame; positions are interpolated

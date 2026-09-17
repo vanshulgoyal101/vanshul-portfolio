@@ -32,6 +32,58 @@ const launch = () => {
 };
 
 describe('FloatingRocket', () => {
+  it('counts activations within one render and launches only once', () => {
+    const dispatch = vi.spyOn(window, 'dispatchEvent');
+    const { unmount } = render(<FloatingRocket />);
+    const button = screen.getByRole('button');
+    act(() => {
+      for (let tap = 0; tap < 4; tap++) button.click();
+    });
+    expect(dispatch.mock.calls.filter(([event]) => event.type === 'rocket-launch')).toHaveLength(1);
+    expect(button).toHaveAccessibleName('Rocket launching');
+    unmount();
+  });
+
+  it('resumes floating after a partial tap bounce completes', async () => {
+    const { unmount } = render(<FloatingRocket />);
+    controls.start.mockClear();
+    fireEvent.click(screen.getByRole('button'));
+    await act(async () => {});
+    expect(controls.start).toHaveBeenLastCalledWith(expect.objectContaining({
+      y: [0, -10, 0],
+      transition: expect.objectContaining({ repeat: Infinity }),
+    }));
+    unmount();
+  });
+
+  it('ignores old bounce completions after another tap, launch, or unmount', async () => {
+    const { unmount } = render(<FloatingRocket />);
+    const completions = [];
+    controls.start.mockImplementation(animation => {
+      if (animation.transition.duration === 0.3) {
+        return new Promise(resolve => completions.push(resolve));
+      }
+      return new Promise(() => {});
+    });
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button'));
+    controls.start.mockClear();
+    await act(async () => completions[0]());
+    expect(controls.start).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button'));
+    controls.start.mockClear();
+    await act(async () => completions[1]());
+    expect(controls.start).not.toHaveBeenCalled();
+    unmount();
+
+    const next = render(<FloatingRocket />);
+    fireEvent.click(screen.getByRole('button'));
+    next.unmount();
+    controls.start.mockClear();
+    await act(async () => completions[2]());
+    expect(controls.start).not.toHaveBeenCalled();
+  });
+
   it('emits smoke from the transformed exhaust anchor instead of the button bounds', async () => {
     const dispatch = vi.spyOn(window, 'dispatchEvent');
     const { container, unmount } = render(<FloatingRocket />);
@@ -59,6 +111,8 @@ describe('FloatingRocket', () => {
     fireEvent.click(screen.getByRole('button'));
     act(() => vi.advanceTimersByTime(3000));
     expect(screen.getByRole('button')).toHaveAccessibleName('Launch rocket: 3 taps remaining');
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.getByRole('button')).toHaveAccessibleName('Launch rocket: 2 taps remaining');
     countdown.unmount();
     expect(vi.getTimerCount()).toBe(0);
   });
