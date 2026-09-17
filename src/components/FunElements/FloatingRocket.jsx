@@ -67,8 +67,8 @@ const Rocket = styled(motion.span)`
 
 const Exhaust = styled.span`
   position: absolute;
-  left: 25.5%;
-  top: 74.5%;
+  left: 25.5859375%;
+  top: 74.4140625%;
   width: 0;
   height: 0;
   transform: rotate(45deg);

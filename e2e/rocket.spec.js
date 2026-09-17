@@ -32,7 +32,7 @@ test('smoke and flame stay anchored to the rotating rocket nozzle', async ({ pag
   await page.screenshot({ path: testInfo.outputPath('aligned-exhaust.png') });
   await expect(page.locator('#about h2')).toBeFocused();
   const samples = await page.evaluate(() => window.exhaustSamples);
-  expect(Math.max(...samples.map(sample => sample.offset))).toBeLessThan(1);
+  expect(Math.max(...samples.map(sample => sample.offset))).toBeLessThan(0.1);
   expect(samples.every(sample => sample.sharedAnchor < 0.1 && sample.flameCentered)).toBe(true);
   expect(samples.at(-1).direction).toBeLessThan(0.01);
 });

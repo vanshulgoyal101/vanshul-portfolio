@@ -19,7 +19,7 @@ class ParticlePool {
   }
 
   // Retrieve a particle from the pool or instantiate one if empty
-  obtain(x, y) {
+  obtain(x, y, createdAt = performance.now()) {
     let p;
     if (this.pool.length > 0) {
       p = this.pool.pop();
@@ -27,6 +27,7 @@ class ParticlePool {
     } else {
       p = new SmokeParticle(x, y);
     }
+    p.createdAt = createdAt;
     this.active.push(p);
     return p;
   }
@@ -39,7 +40,8 @@ class ParticlePool {
   }
 
   clear() {
-    this.active = [];
+    this.pool.push(...this.active);
+    this.active.length = 0;
   }
 }
 
@@ -83,10 +85,10 @@ const bgCanvas = createOffscreenSmokeCanvas(246, 243, 235);
 class SmokeParticle {
   constructor(x, y) {
     this.reset(x, y);
-    this.maxSize = Math.max(window.innerWidth, window.innerHeight) * 0.95;
   }
 
   reset(x, y) {
+    this.maxSize = Math.max(window.innerWidth, window.innerHeight) * 0.95;
     this.x = x;
     this.y = y;
     this.size = Math.random() * 6 + 3;
@@ -107,16 +109,16 @@ class SmokeParticle {
     }
   }
 
-  update() {
-    this.x += this.speedX;
-    this.y += this.speedY;
-    this.size += this.growth;
-    
-    // Smoother, less abrupt deceleration
-    this.speedX *= 0.96;
-    this.speedY *= 0.96;
-    
-    this.opacity -= 0.015; // fade out slower and smoother
+  update(milliseconds) {
+    const frames = milliseconds / (1000 / 60);
+    const damping = 0.96 ** frames;
+    const travel = (1 - damping) / (1 - 0.96);
+    this.x += this.speedX * travel;
+    this.y += this.speedY * travel;
+    this.size += this.growth * frames;
+    this.speedX *= damping;
+    this.speedY *= damping;
+    this.opacity -= 0.015 * frames;
   }
 
   draw(ctx) {
@@ -177,35 +179,57 @@ const SmokeTransition = () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
+    let previousEmission = null;
+    let emissionRemainder = 0;
+    let previousFrame = 0;
+
     const handleEmitSmoke = (e) => {
       if (!ctx) return;
       if (!isAnimatingRef.current) return;
       const { x, y } = e.detail;
-      // Spawn 2 optimized particles every frame for a continuous dense trail
-      for (let i = 0; i < 2; i++) {
-        poolRef.current.obtain(
-          x + (Math.random() - 0.5) * 10,
-          y + (Math.random() - 0.5) * 6
-        );
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+      const now = performance.now();
+      const elapsed = previousEmission ? now - previousEmission.time : 0;
+      if (!previousEmission || elapsed > 100) {
+        emissionRemainder = 0;
+        for (let count = 0; count < 2; count++) ownedPool.obtain(x, y);
+      } else {
+        const interval = 1000 / 120;
+        const accumulated = emissionRemainder + elapsed;
+        const count = Math.floor((accumulated + 1e-7) / interval);
+        for (let index = 0; index < count; index++) {
+          const offset = Math.min(elapsed, interval - emissionRemainder + index * interval);
+          const fraction = elapsed > 0 ? offset / elapsed : 1;
+          ownedPool.obtain(
+            previousEmission.x + (x - previousEmission.x) * fraction,
+            previousEmission.y + (y - previousEmission.y) * fraction,
+            previousEmission.time + offset
+          );
+        }
+        emissionRemainder = Math.max(0, accumulated - count * interval);
       }
+      previousEmission = { x, y, time: now };
     };
     window.addEventListener('rocket-emit-smoke', handleEmitSmoke);
 
-    const animate = () => {
+    const animate = (now) => {
       if (!isAnimatingRef.current) return;
 
       ctx?.clearRect(0, 0, canvas.width, canvas.height);
-      const elapsed = Date.now() - startTimeRef.current;
+      const elapsed = now - startTimeRef.current;
+      const delta = Math.max(0, now - previousFrame);
+      previousFrame = now;
 
       const pool = poolRef.current;
       // Loop backwards to allow clean splicing and recycling
       for (let i = pool.active.length - 1; i >= 0; i--) {
         const p = pool.active[i];
-        p.update();
-        p.draw(ctx);
+        p.update(Math.max(0, Math.min(delta, now - p.createdAt)));
 
         if (p.opacity <= 0 || p.size > p.maxSize) {
           pool.recycle(i);
+        } else {
+          p.draw(ctx);
         }
       }
 
@@ -227,7 +251,10 @@ const SmokeTransition = () => {
     const handleLaunch = () => {
       poolRef.current.clear();
       ctx?.clearRect(0, 0, canvas.width, canvas.height);
-      startTimeRef.current = Date.now();
+      startTimeRef.current = performance.now();
+      previousFrame = startTimeRef.current;
+      previousEmission = null;
+      emissionRemainder = 0;
       scrollTriggeredRef.current = false;
 
       if (!isAnimatingRef.current) {

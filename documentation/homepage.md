@@ -23,8 +23,11 @@ align with the heading's left edge above that breakpoint. Buttons stack below
 1024, and 1440px rather than relying only on CSS declarations.
 
 The floating rocket's flame and local puffs share a zero-size exhaust anchor
-inside the rotating icon. Its position (25.5%, 74.5%) corresponds to the rear
-midpoint of the Font Awesome rocket's 512-unit viewBox. The canvas receives the
+inside the rotating icon. Its position (25.5859375%, 74.4140625%) maps exactly to
+the modeled rear midpoint (131, 381) in the Font Awesome rocket's 512-unit
+viewBox. Desktop/mobile launch tests require less than 0.1 CSS pixel of anchor
+error and verify the flame is centered on that anchor. Blur and animated flame
+shape are intentionally not a pixel-perfect outline of the nozzle. The canvas receives the
 anchor's transformed viewport coordinates, not the button's bounding box.
 Changing the rocket icon requires rechecking this anchor. Browser tests compare
 emissions with the SVG nozzle during launch on desktop and mobile and preserve
@@ -107,6 +110,18 @@ starts the original pooled cyan/magenta/violet/grey trail, and
 0.2s shake, 1s takeoff, color-to-background blending, and reset are preserved.
 After 550ms the transition uses the shared scroll helper to focus About below
 the header. Do not disconnect the smoke listener when changing ambient loading.
+
+Smoke movement, growth, damping and fade use elapsed milliseconds from the
+monotonic performance clock, preserving the original 60fps tuning. Emission is
+120 puffs per second rather than two per display frame; positions are interpolated
+between nozzle samples to fill dropped-frame gaps. New particles age only from
+their emission time. Gaps longer than 100ms restart at the current nozzle instead
+of producing a catch-up burst. Expired particles are recycled before drawing and
+relaunch returns active particles to the pool. Colors, flame, launch motion and
+About navigation timing are retained. Deterministic tests compare 30/60/120fps
+and uneven frame schedules, density, interpolation, stalls and cleanup. This
+removes frame-rate-dependent behavior, but is not a guarantee of smooth rendering
+on every device under CPU/GPU load.
 
 The footer separates identity and navigation from a collapsed `Display settings`
 disclosure. Opening it scrolls the expanded settings into view without changing
