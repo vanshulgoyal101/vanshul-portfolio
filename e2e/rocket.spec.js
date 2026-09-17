@@ -26,8 +26,12 @@ test('a partial tap resumes idle floating and the countdown resets', async ({ pa
 });
 
 test('smoke and flame stay anchored to the rotating rocket nozzle', async ({ page }, testInfo) => {
+  test.setTimeout(60000);
+  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-01-02T00:00:00Z'));
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
   await page.goto('/');
+  await page.clock.runFor(5000);
   await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
   const rocket = page.locator('[data-rocket]');
   await expect(rocket).toBeVisible();
@@ -53,6 +57,7 @@ test('smoke and flame stay anchored to the rotating rocket nozzle', async ({ pag
   await page.keyboard.press('Enter');
   await page.keyboard.press('Space');
   await page.keyboard.press('Enter');
+  await page.clock.runFor(1600);
   await expect.poll(() => page.evaluate(() => window.exhaustSamples.length)).toBeGreaterThan(6);
   await page.screenshot({ path: testInfo.outputPath('aligned-exhaust.png') });
   await expect(page.locator('#about h2')).toBeFocused();
