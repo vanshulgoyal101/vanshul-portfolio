@@ -23,11 +23,8 @@ align with the heading's left edge above that breakpoint. Buttons stack below
 1024, and 1440px rather than relying only on CSS declarations.
 
 The floating rocket's flame and local puffs share a zero-size exhaust anchor
-inside the rotating icon. Its position (25.5859375%, 74.4140625%) maps exactly to
-the modeled rear midpoint (131, 381) in the Font Awesome rocket's 512-unit
-viewBox. Desktop/mobile launch tests require less than 0.1 CSS pixel of anchor
-error and verify the flame is centered on that anchor. Blur and animated flame
-shape are intentionally not a pixel-perfect outline of the nozzle. The canvas receives the
+inside the rotating icon. Its position (25.5%, 74.5%) corresponds to the rear
+midpoint of the Font Awesome rocket's 512-unit viewBox. The canvas receives the
 anchor's transformed viewport coordinates, not the button's bounding box.
 Changing the rocket icon requires rechecking this anchor. Browser tests compare
 emissions with the SVG nozzle during launch on desktop and mobile and preserve
@@ -55,15 +52,13 @@ toggle focus. Returning to desktop clears the mobile scroll lock.
 
 ## Content and motion
 
-Work Experience uses a 40px desktop heading and a 32px heading through 768px;
-the larger mobile heading distinguishes the section from its employment cards.
-Other sections retain their existing heading sizes. Supporting typography uses
-20px desktop / 18px mobile job titles, 16px company names, subtitle and
-descriptions, and 14px date/location metadata. Sizes are rem
+Work Experience keeps the shared section-title size (40px desktop, 24px through
+768px). Its supporting typography has a separate, fixed responsive hierarchy:
+job titles are 24px desktop / 18px mobile, company names and the section subtitle
+18px / 16px, descriptions 16px, and date/location metadata 14px. Sizes are rem
 based and respect browser text preferences. Do not let fluid card-title tokens
 grow to match the mobile section heading. The browser regression checks heading
-order and text containment at 320, 390, 600, 768, 769 and 1440px, with a minimum
-1.75 section-heading-to-job-title size ratio.
+order and text containment at 320, 390, 600, 768, 769 and 1440px.
 Mobile descriptions use 1.6 line-height (desktop stays at 1.8), with 12px gaps
 below card headers and descriptions and a smaller gap before the first card.
 
@@ -79,12 +74,6 @@ greetings at 220ms intervals, then Welcome and a 500ms fade. Internal navigation
 does not replay it. The underlying app is inert and body scrolling is locked
 until completion; hash navigation waits until the overlay is gone. Reduced-motion
 visitors bypass the sequence. All greeting and exit timers are cleaned up.
-The same boot state sets the application wrapper opacity to zero until completion.
-`inert` alone does not hide content: loaded project images could otherwise appear
-through the loader's fading/scaling exit. Keeping the page mounted preserves image
-loading and layout without exposing it early. Desktop/mobile regressions sample
-frames with loaded images on initial navigation and reload, then assert the page
-is fully visible and its deep-link heading is focused after completion.
 
 The unframed hero sculpture loads after the greeting and browser idle only above
 1024px and without reduced motion. Its reserved area avoids layout
@@ -111,24 +100,6 @@ starts the original pooled cyan/magenta/violet/grey trail, and
 After 550ms the transition uses the shared scroll helper to focus About below
 the header. Do not disconnect the smoke listener when changing ambient loading.
 
-Tap counting is synchronous so activations batched before a React render are not
-lost. Partial-tap bounces resume the idle float when they finish; completion from
-an older tap or an unmounted rocket cannot restart floating over a newer animation
-or launch. Unit regressions cover these ordering cases and countdown resets;
-desktop/mobile browser checks measure resumed vertical movement after a partial tap.
-
-Smoke movement, growth, damping and fade use elapsed milliseconds from the
-monotonic performance clock, preserving the original 60fps tuning. Emission is
-120 puffs per second rather than two per display frame; positions are interpolated
-between nozzle samples to fill dropped-frame gaps. New particles age only from
-their emission time. Gaps longer than 100ms restart at the current nozzle instead
-of producing a catch-up burst. Expired particles are recycled before drawing and
-relaunch returns active particles to the pool. Colors, flame, launch motion and
-About navigation timing are retained. Deterministic tests compare 30/60/120fps
-and uneven frame schedules, density, interpolation, stalls and cleanup. This
-removes frame-rate-dependent behavior, but is not a guarantee of smooth rendering
-on every device under CPU/GPU load.
-
 The footer separates identity and navigation from a collapsed `Display settings`
 disclosure. Opening it scrolls the expanded settings into view without changing
 focus. Cursor and ambient preferences use labelled switches. The cursor defaults
@@ -136,19 +107,6 @@ on for mouse devices without browser or hardware heuristics; saved `vg.cursor`
 choices are preserved. Its control is omitted on touch devices, and both switches
 are disabled under reduced motion. The footer stacks at narrow widths and keeps
 navigation visible even when preferences are closed.
-
-The custom cursor mounts only after boot. It hides the native pointer only once
-a mouse-movement frame has rendered its replacement. Pointer leave and window
-blur cancel pending movement frames and restore the native pointer; re-entry or
-preference changes wait for fresh movement instead of displaying stale coordinates.
-Hover events with non-element targets are ignored safely.
-
-The interactive background schedules at most one animation frame at a time.
-Hidden-tab mounts wait for visibility before drawing, repeated visibility events
-cannot create parallel loops, and particle spawning is skipped while hidden.
-Unmount cancels the frame, spawning interval and listeners. Dedicated unit tests
-control the frame queue to verify these lifecycle contracts without relying on
-browser throttling; browser tests cover boot and pointer handoff with real motion.
 
 ## Project media
 

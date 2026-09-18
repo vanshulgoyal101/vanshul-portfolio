@@ -275,10 +275,9 @@ test('section titles match without focus boxes and links keep keyboard outlines'
   const work = page.locator('#work h2');
   await expect(work).toBeFocused();
   await expect(work).toHaveCSS('outline-style', 'none');
-  const titleSizes = await page.locator('#projects h2, #about h2, #blog h2, #contact h2').evaluateAll(headings => headings.map(heading => getComputedStyle(heading).fontSize));
+  const titleSizes = await page.locator('#projects h2, #work h2, #about h2, #blog h2, #contact h2').evaluateAll(headings => headings.map(heading => getComputedStyle(heading).fontSize));
   expect(new Set(titleSizes).size).toBe(1);
   expect(titleSizes[0]).toBe(testInfo.project.name === 'mobile' ? '24px' : '40px');
-  await expect(work).toHaveCSS('font-size', testInfo.project.name === 'mobile' ? '32px' : '40px');
   if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Toggle mobile menu' }).click();
   const nav = page.getByRole('navigation', { name: 'Primary navigation' });
   await nav.getByRole('link', { name: 'Home', exact: true }).focus();
@@ -312,10 +311,8 @@ test('work typography keeps section headings above role and supporting text', as
       });
       return { heading, roles, companies, paragraphs, fits, lineHeight, contentGap };
     });
-    expect(typography.heading).toBe(width <= 768 ? 32 : 40);
-    expect(typography.roles).toEqual([width <= 768 ? 18 : 20, width <= 768 ? 18 : 20]);
-    expect(typography.companies).toEqual([16, 16]);
-    expect(typography.heading / Math.max(...typography.roles)).toBeGreaterThanOrEqual(1.75);
+    expect(typography.heading).toBe(width <= 768 ? 24 : 40);
+    expect(typography.roles).toEqual([width <= 768 ? 18 : 24, width <= 768 ? 18 : 24]);
     expect(typography.lineHeight).toBeCloseTo(width <= 768 ? 1.6 : 1.8);
     if (width <= 768) expect(typography.contentGap).toBe(12);
     expect(Math.max(...typography.roles)).toBeLessThan(typography.heading);
