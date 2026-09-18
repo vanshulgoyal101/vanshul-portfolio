@@ -34,7 +34,10 @@ test('smoke and flame stay anchored to the rotating rocket nozzle', async ({ pag
   await page.clock.runFor(5000);
   await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
   const rocket = page.locator('[data-rocket]');
-  await expect(rocket).toBeVisible();
+  await expect.poll(async () => {
+    await page.clock.runFor(100);
+    return rocket.isVisible();
+  }, { timeout: 15000 }).toBe(true);
   await page.evaluate(() => {
     window.exhaustSamples = [];
     window.addEventListener('rocket-emit-smoke', event => {

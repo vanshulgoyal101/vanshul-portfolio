@@ -43,8 +43,8 @@ Programmatically focused headings and non-interactive section fallbacks receive
 removing the focus handoff. The skip-link destination `#main-content` also avoids
 a page-sized outline while remaining focusable.
 Interactive controls retain their keyboard outlines. Projects uses the same
-responsive heading-size tokens as About, Work, and Writings; browser tests
-compare their computed font sizes.
+responsive heading-size tokens as About and Writings; Work keeps a larger mobile
+heading. Browser tests compare their computed font sizes separately.
 
 The closed mobile menu is inert. Opening it focuses the first link, wraps Tab
 within its controls, and locks body scrolling. Escape closes it and restores
@@ -52,13 +52,14 @@ toggle focus. Returning to desktop clears the mobile scroll lock.
 
 ## Content and motion
 
-Work Experience keeps the shared section-title size (40px desktop, 24px through
-768px). Its supporting typography has a separate, fixed responsive hierarchy:
-job titles are 24px desktop / 18px mobile, company names and the section subtitle
-18px / 16px, descriptions 16px, and date/location metadata 14px. Sizes are rem
+Work Experience uses a 40px desktop heading and a 32px heading through 768px.
+Its supporting typography has a separate, fixed responsive hierarchy:
+job titles are 20px desktop / 18px mobile, company names and the section subtitle
+16px, descriptions 16px, and date/location metadata 14px. Sizes are rem
 based and respect browser text preferences. Do not let fluid card-title tokens
 grow to match the mobile section heading. The browser regression checks heading
-order and text containment at 320, 390, 600, 768, 769 and 1440px.
+order and text containment at 320, 390, 600, 768, 769 and 1440px, with a minimum
+1.75 section-heading-to-job-title size ratio.
 Mobile descriptions use 1.6 line-height (desktop stays at 1.8), with 12px gaps
 below card headers and descriptions and a smaller gap before the first card.
 
@@ -99,6 +100,13 @@ starts the original pooled cyan/magenta/violet/grey trail, and
 0.2s shake, 1s takeoff, color-to-background blending, and reset are preserved.
 After 550ms the transition uses the shared scroll helper to focus About below
 the header. Do not disconnect the smoke listener when changing ambient loading.
+
+The nozzle geometry browser test uses a controlled clock. After the intro it
+advances time until the idle-loaded rocket is visible, allowing idle callbacks,
+lazy imports and React commits to finish before activation. A fixed startup
+advance alone can leave the deferred subtree unmounted while the clock is paused.
+The test retains its emission sample count and 0.1 CSS pixel alignment tolerance;
+separate real-time browser tests cover repeated launches and colored smoke.
 
 The footer separates identity and navigation from a collapsed `Display settings`
 disclosure. Opening it scrolls the expanded settings into view without changing
