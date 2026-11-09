@@ -32,6 +32,20 @@ describe('view request lifecycle', () => {
     rerender(null);
     expect(result.current).toBeNull();
   });
+
+  it('ignores counts and failures that arrive for a post the reader has left', async () => {
+    const pending = {};
+    vi.spyOn(views, 'recordBlogView').mockImplementation(slug => new Promise((resolve, reject) => {
+      pending[slug] = { resolve, reject };
+    }));
+    const { result, rerender } = renderHook(slug => useBlogView(slug), { initialProps: 'first' });
+    rerender('second');
+    rerender('third');
+    await act(async () => pending.third.resolve(7));
+    await act(async () => pending.first.resolve(3));
+    await act(async () => pending.second.reject(new Error('offline')));
+    expect(result.current).toBe(7);
+  });
 });
 
 // The test env forces Supabase "unconfigured" (empty VITE_SUPABASE_* — see

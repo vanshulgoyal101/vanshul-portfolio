@@ -85,7 +85,31 @@ describe('scrollToSection', () => {
 
   it('returns false for missing targets', () => {
     expect(scrollToSection('missing')).toBe(false);
+    expect(scrollToSection('')).toBe(false);
+    expect(scrollToSection(null)).toBe(false);
     expect(window.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['without a fixed header', null],
+    ['when the header has scrolled out of view', -40],
+  ])('keeps only the breathing gap %s', (_case, headerBottom) => {
+    const section = document.createElement('section');
+    section.id = 'contact';
+    Object.defineProperty(section, 'offsetTop', { value: 500 });
+    document.body.appendChild(section);
+    const nav = document.createElement('nav');
+    if (headerBottom !== null) {
+      nav.setAttribute('data-site-header', '');
+      nav.getBoundingClientRect = () => ({ bottom: headerBottom });
+      document.body.appendChild(nav);
+    }
+
+    scrollToSection('contact');
+
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 480, behavior: 'smooth' });
+    section.remove();
+    nav.remove();
   });
 
   it('focuses the home h1 instead of outlining the entire home wrapper', () => {

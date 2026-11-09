@@ -35,6 +35,10 @@ describe('seo/parseFrontmatter', () => {
     const data = parseFrontmatter(`---\nwordCount: 2400\n---\nx`);
     expect(data.wordCount).toBe('2400');
   });
+
+  it('ignores lines that have no key', () => {
+    expect(parseFrontmatter(`---\ntitle: Hello\njust prose\n: orphan value\n---\nx`)).toEqual({ title: 'Hello' });
+  });
 });
 
 describe('seo/escaping', () => {

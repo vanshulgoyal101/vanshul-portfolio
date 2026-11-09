@@ -25,4 +25,10 @@ describe('sitemapIndex/buildSitemapIndex', () => {
     });
     expect((xml2.match(/<sitemap>/g) || []).length).toBe(1);
   });
+
+  it('produces an empty but well-formed index without a site list', () => {
+    const empty = buildSitemapIndex(null, { today: '2026-08-13' });
+    expect(empty).toContain('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+    expect(empty).not.toContain('<sitemap>');
+  });
 });

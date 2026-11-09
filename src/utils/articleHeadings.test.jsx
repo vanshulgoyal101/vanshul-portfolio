@@ -43,6 +43,12 @@ describe('rehypeHeadingIds', () => {
     );
   });
 
+  it('ignores inline HTML in a heading, so the anchor matches the contents link', () => {
+    const markdown = '## Hello <em>there</em>';
+    expect(articleHeadings(markdown)).toEqual([{ id: 'hello-there', text: 'Hello there', level: 2 }]);
+    expect(render(markdown).querySelector('h2').id).toBe('hello-there');
+  });
+
   it('matches for every published post', () => {
     for (const post of loadBlogPosts()) {
       const document = render(post.content);

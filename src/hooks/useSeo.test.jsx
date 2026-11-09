@@ -112,6 +112,45 @@ describe('useSeo', () => {
     meta.remove();
   });
 
+  it('points the page’s existing canonical link at the route and restores it afterwards', () => {
+    const canonical = document.createElement('link');
+    canonical.setAttribute('rel', 'canonical');
+    canonical.setAttribute('href', `${SITE_URL}/`);
+    document.head.appendChild(canonical);
+
+    const { unmount } = renderHook(() => useSeo({ title: 'T', path: '/blog/' }));
+    expect(document.head.querySelectorAll('link[rel="canonical"]')).toHaveLength(1);
+    expect(canonical).toHaveAttribute('href', `${SITE_URL}/blog/`);
+    unmount();
+    expect(canonical).toHaveAttribute('href', `${SITE_URL}/`);
+    canonical.remove();
+  });
+
+  it('leaves the title and title-based tags alone when no title is given', () => {
+    document.title = 'Original Title';
+    const { unmount } = renderHook(() => useSeo({ description: 'D' }));
+    expect(document.title).toBe('Original Title');
+    expect(metaContent('property', 'og:title')).toBeUndefined();
+    expect(metaContent('name', 'twitter:title')).toBeUndefined();
+    expect(metaContent('property', 'og:image:alt')).toBeUndefined();
+    expect(metaContent('name', 'description')).toBe('D');
+    unmount();
+  });
+
+  it('writes only the article metadata it is given, and none for other page types', () => {
+    const articleTags = () => [...document.head.querySelectorAll('meta[property^="article:"]')]
+      .map((meta) => meta.getAttribute('property'));
+    const { rerender, unmount } = renderHook((options) => useSeo(options), {
+      initialProps: { title: 'A', type: 'article', article: { modifiedTime: '2025-02-01' } },
+    });
+    expect(articleTags()).toEqual(['article:modified_time']);
+    rerender({ title: 'A', type: 'article', article: { publishedTime: '2025-01-01', section: 'AI' } });
+    expect(articleTags()).toEqual(['article:published_time', 'article:section']);
+    rerender({ title: 'A', type: 'website', article: { publishedTime: '2025-01-01', section: 'AI' } });
+    expect(articleTags()).toEqual([]);
+    unmount();
+  });
+
   it('replaces prerendered route schema and removes stale article metadata across routes', () => {
     const prerendered = document.createElement('script');
     prerendered.type = 'application/ld+json';

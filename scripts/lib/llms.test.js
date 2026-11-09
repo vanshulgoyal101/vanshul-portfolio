@@ -108,6 +108,11 @@ describe('llms/buildLlmsTxt', () => {
     ]);
   });
 
+  it('points a featured project without a public link at the homepage projects section', () => {
+    const unlinked = buildLlmsTxt(posts, { ...options, featuredProjects: [{ title: 'Rover', role: 'Team Lead', description: 'A rover.' }] });
+    expect(parse(unlinked).sections.Projects[0]).toEqual({ title: 'Rover', url: 'https://example.com/#projects', notes: 'A rover. Role: Team Lead.' });
+  });
+
   it('links the key pages by canonical URL, plus the feed and sitemap', () => {
     expect(sections.Pages.map((page) => [page.title, page.url])).toEqual([
       ['Home', 'https://example.com/'],

@@ -93,6 +93,14 @@ describe('structuredData/postJsonLd', () => {
     expect(p2.datePublished).toBeUndefined();
     expect(p2.timeRequired).toBeUndefined();
   });
+
+  it('leaves out optional fields a minimal post does not have', () => {
+    const [minimal] = postJsonLd({ title: 'Bare', slug: 'bare', date: '2025-08-27' }, identity);
+    expect(minimal.description).toBe('');
+    for (const field of ['wordCount', 'articleSection', 'keywords', 'timeRequired']) {
+      expect(minimal).not.toHaveProperty(field);
+    }
+  });
 });
 
 describe('structuredData/blogIndexJsonLd', () => {
@@ -124,6 +132,19 @@ describe('structuredData/blogIndexJsonLd', () => {
   it('links the blog to the WebSite and author to the Person', () => {
     expect(blog.isPartOf['@id']).toBe('https://example.com/#website');
     expect(blog.author['@id']).toBe('https://example.com/#person');
+  });
+
+  it('lists an undated post without a publication date', () => {
+    const [undated] = blogIndexJsonLd([{ title: 'Undated', slug: 'undated' }], {
+      ...identity,
+      title: 'Blog — Jane Doe',
+      description: 'Essays.',
+    });
+    expect(undated.blogPost[0]).toEqual({
+      '@type': 'BlogPosting',
+      headline: 'Undated',
+      url: 'https://example.com/blog/undated/',
+    });
   });
 });
 

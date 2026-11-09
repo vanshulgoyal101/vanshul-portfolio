@@ -46,6 +46,10 @@ describe('crawler-readable content', () => {
     expect(document.querySelector('img, script')).toBeNull();
     expect(document.querySelector('main a[href*="quoted"]').getAttribute('href')).toBe('/blog/quoted"slug/');
   });
+  it('lists a post without a summary as just its link', () => {
+    const document = parse({ page: 'blog', posts: [{ slug: 'bare', title: 'Bare post' }] });
+    expect(document.querySelector('a[href="/blog/bare/"]').closest('li').textContent).toBe('Bare post');
+  });
   it('publishes the full homepage content from the shared data modules', () => {
     const document = parse({ page: 'home', posts });
     const text = document.querySelector('main').textContent;

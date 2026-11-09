@@ -64,4 +64,12 @@ describe('feed/buildFeed', () => {
     expect(empty.querySelectorAll('item')).toHaveLength(0);
     expect(empty.getElementsByTagName('lastBuildDate')).toHaveLength(0);
   });
+
+  it('keeps a post without a summary or body well-formed and empty rather than "undefined"', () => {
+    const bare = parse(buildFeed([{ slug: 'bare', title: 'Bare', date: '2025-01-01' }], options));
+    expect(bare.querySelector('parsererror')).toBeNull();
+    const [item] = bare.querySelectorAll('item');
+    expect(child(item, 'description')).toBe('');
+    expect(child(item, 'content:encoded')).toBe('');
+  });
 });

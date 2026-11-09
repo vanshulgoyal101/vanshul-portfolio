@@ -222,6 +222,16 @@ describe('useContactForm', () => {
     expect(result.current.errors.message).toBeTruthy();
   });
 
+  it('clears a required-field error as soon as that field is edited', async () => {
+    const { result } = renderContactForm();
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: vi.fn() });
+    });
+    act(() => result.current.handleChange(changeEvent('name', 'G')));
+    expect(result.current.errors.name).toBe('');
+    expect(result.current.errors.message).toBe('Please enter a message.');
+  });
+
   it('exposes emailError as an alias of errors.email', () => {
     const { result } = renderContactForm();
     act(() => result.current.handleChange(changeEvent('email', 'bad')));

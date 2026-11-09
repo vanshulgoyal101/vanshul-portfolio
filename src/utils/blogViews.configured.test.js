@@ -49,6 +49,11 @@ describe('getAllBlogViews', () => {
     client.state.rows = { data: null, error: { message: 'down' } };
     await expect(getAllBlogViews(['a'])).resolves.toEqual({});
   });
+
+  it('treats an empty result as no counts', async () => {
+    client.state.rows = { data: null, error: null };
+    await expect(getAllBlogViews(['a'])).resolves.toEqual({});
+  });
 });
 
 describe('incrementBlogView and getBlogView', () => {
@@ -60,6 +65,11 @@ describe('incrementBlogView and getBlogView', () => {
     await expect(incrementBlogView('a')).resolves.toBeNull();
   });
 
+  it('rejects a count that is not a number', async () => {
+    client.state.rpc = { data: '5', error: null };
+    await expect(incrementBlogView('a')).resolves.toBeNull();
+  });
+
   it('reads a single count without incrementing', async () => {
     client.state.row = { data: { views: 9 }, error: null };
     await expect(getBlogView('a')).resolves.toBe(9);
@@ -67,6 +77,14 @@ describe('incrementBlogView and getBlogView', () => {
     expect(client.supabase.rpc).not.toHaveBeenCalled();
     client.state.row = { data: null, error: null };
     await expect(getBlogView('missing')).resolves.toBeNull();
+  });
+
+  it('reads nothing for an empty slug and logs a failed read', async () => {
+    await expect(getBlogView('')).resolves.toBeNull();
+    expect(client.supabase.from).not.toHaveBeenCalled();
+    client.state.row = { data: null, error: { message: 'permission denied' } };
+    await expect(getBlogView('a')).resolves.toBeNull();
+    expect(console.error).toHaveBeenCalledWith('Failed to load blog view:', 'permission denied');
   });
 });
 

@@ -53,6 +53,17 @@ describe('cursor preference', () => {
     expect(spy).toHaveBeenCalledTimes(1);
     window.removeEventListener(CURSOR_PREF_EVENT, spy);
   });
+
+  it('falls back to auto and still notifies listeners when storage is blocked', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('denied'); });
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('denied'); });
+    const spy = vi.fn();
+    window.addEventListener(CURSOR_PREF_EVENT, spy);
+    expect(getCursorPreference()).toBe('auto');
+    expect(() => setCursorPreference('off')).not.toThrow();
+    expect(spy).toHaveBeenCalledTimes(1);
+    window.removeEventListener(CURSOR_PREF_EVENT, spy);
+  });
 });
 
 describe('isAutoCursorCapable', () => {
