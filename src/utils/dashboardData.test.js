@@ -58,6 +58,17 @@ describe('fillDailySeries', () => {
     expect(series[1].pageviews).toBe(9);
     expect(series[1].label).toBe('01 Jan');
   });
+  it('treats missing counts as zero and a missing series as empty', () => {
+    vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-06-15T06:00:00Z'));
+    expect(fillDailySeries([{ day: '2026-06-15' }], 1)).toEqual([
+      expect.objectContaining({ day: '2026-06-15', pageviews: 0, events: 0 }),
+    ]);
+    expect(fillDailySeries(null, 3).map(day => day.pageviews)).toEqual([0, 0, 0]);
+  });
+  it('falls back to 30 days for a window that is not a finite number', () => {
+    expect(fillDailySeries([], 'a week')).toHaveLength(30);
+    expect(fillDailySeries([], Infinity)).toHaveLength(30);
+  });
 });
 
 describe('hourSeries', () => {
@@ -68,6 +79,10 @@ describe('hourSeries', () => {
     expect(s[23].hour).toBe(23);
     expect(s[5].pageviews).toBe(3);
     expect(s[6].pageviews).toBe(0);
+  });
+  it('zero-fills a missing series and rows without counts', () => {
+    expect(hourSeries(undefined).every((slot) => slot.pageviews === 0)).toBe(true);
+    expect(hourSeries([{ hour: 4 }])[4].pageviews).toBe(0);
   });
 });
 
@@ -84,6 +99,10 @@ describe('toBars', () => {
   it('never returns a zero max (avoids divide-by-zero)', () => {
     expect(toBars([], (r) => r.x, 'v').max).toBe(1);
   });
+  it('treats missing rows as an empty chart and non-numeric values as zero', () => {
+    expect(toBars(null, (r) => r.x, 'v')).toEqual({ items: [], max: 1 });
+    expect(toBars([{ x: 'a', v: 'many' }], (r) => r.x, 'v').items).toEqual([{ name: 'a', value: 0 }]);
+  });
 });
 
 describe('shortenUrl', () => {
@@ -95,6 +114,12 @@ describe('shortenUrl', () => {
     const out = shortenUrl(long);
     expect(out.length).toBeLessThanOrEqual(48);
     expect(out.endsWith('…')).toBe(true);
+  });
+  it('strips plain http, keeps a 48-character address whole and tolerates a missing url', () => {
+    expect(shortenUrl('http://example.com/a')).toBe('example.com/a');
+    const exact = 'example.com/' + 'a'.repeat(36);
+    expect(shortenUrl(`https://${exact}`)).toBe(exact);
+    expect(shortenUrl(null)).toBe('');
   });
 });
 
@@ -158,5 +183,16 @@ describe('statsToCsv', () => {
     const csv = statsToCsv({ range_pageviews: -1, per_link: [{ name: 'first\rsecond', clicks: 1 }] });
     expect(csv).toContain('metric,range_pageviews,-1');
     expect(csv).toContain('"first\rsecond"');
+  });
+  it('keeps zero-valued metrics and ignores a malformed arcade block', () => {
+    expect(statsToCsv({ range_pageviews: 0, arcade: 5 })).toBe('section,label,value\nmetric,range_pageviews,0');
+    expect(statsToCsv({ arcade: { total_plays: 0 } })).toBe('section,label,value\narcade,total_plays,0');
+  });
+  it('leaves a missing count as an empty cell rather than "undefined"', () => {
+    expect(statsToCsv({ per_site: [{ site: 'portfolio' }] })).toBe('section,label,value\nsite,portfolio,');
+  });
+  it('returns an empty string for a non-object result', () => {
+    expect(statsToCsv('stats')).toBe('');
+    expect(statsToCsv(42)).toBe('');
   });
 });

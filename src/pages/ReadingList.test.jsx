@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ReadingListPage from './ReadingList';
 import { BOOKS, ESSAYS, SHELF_ITEMS } from '../constants/books';
@@ -68,5 +68,64 @@ describe('ReadingList page', () => {
     expect(screen.getByRole('link', { name: 'Back to top' })).toHaveAttribute('href', '#shelf-top');
     expect(document.getElementById('shelf-top')).toContainElement(screen.getByRole('heading', { level: 1, name: 'From My Shelf' }));
     expect(screen.getByRole('main')).toContainElement(document.getElementById('essays'));
+  });
+
+  it('names each essay source by its site, without a "www." prefix', () => {
+    render(<MemoryRouter><ReadingListPage /></MemoryRouter>);
+    const essays = screen.getByRole('region', { name: 'Essays' });
+    expect(within(essays).getByText('quantamagazine.org')).toBeInTheDocument();
+    expect(within(essays).queryByText(/^www\./)).toBeNull();
+  });
+});
+
+describe('ReadingList page scroll position', () => {
+  const renderAt = (url) => {
+    window.history.replaceState(null, '', url);
+    return render(<MemoryRouter><ReadingListPage /></MemoryRouter>);
+  };
+
+  beforeEach(() => {
+    window.scrollTo.mockClear();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    window.history.replaceState(null, '', '/');
+  });
+
+  it.each(['/reading-list/', '/reading-list/#nowhere'])('starts %s at the top of the page', (url) => {
+    renderAt(url);
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
+  });
+
+  it.each([
+    ['#books', 'Books'],
+    ['#essays', 'Essays'],
+    ['#shelf-top', 'From My Shelf'],
+  ])('opens a %s link at that part of the shelf, focused', async (hash, heading) => {
+    renderAt(`/reading-list/${hash}`);
+    await waitFor(() => expect(screen.getByRole('heading', { name: heading })).toHaveFocus());
+    expect(window.scrollTo).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'instant' }));
+    expect(window.scrollTo).not.toHaveBeenCalledWith(0, 0);
+  });
+
+  it('drops a pending collection scroll when the page unmounts', async () => {
+    const pending = new Map();
+    let handle = 0;
+    vi.stubGlobal('requestAnimationFrame', (callback) => {
+      pending.set(++handle, callback);
+      return handle;
+    });
+    vi.stubGlobal('cancelAnimationFrame', (id) => pending.delete(id));
+
+    renderAt('/reading-list/#essays').unmount();
+    await act(async () => {});
+    expect(pending.size).toBe(0);
+
+    const { unmount } = renderAt('/reading-list/#essays');
+    await act(async () => {});
+    expect(pending.size).toBe(1);
+    unmount();
+    expect(pending.size).toBe(0);
   });
 });
