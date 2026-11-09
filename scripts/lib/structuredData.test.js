@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { postJsonLd, blogIndexJsonLd, breadcrumbList } from './structuredData.mjs';
+import { postJsonLd, blogIndexJsonLd, breadcrumbList, homeJsonLd } from './structuredData.mjs';
+import { PROFILE } from '../../src/constants/profile.js';
 
 const identity = {
   site: 'https://example.com',
@@ -124,5 +125,32 @@ describe('structuredData/blogIndexJsonLd', () => {
   it('links the blog to the WebSite and author to the Person', () => {
     expect(blog.isPartOf['@id']).toBe('https://example.com/#website');
     expect(blog.author['@id']).toBe('https://example.com/#person');
+  });
+});
+
+describe('structuredData/homeJsonLd', () => {
+  const graph = homeJsonLd({ ...identity, profile: PROFILE })['@graph'];
+  const byType = (type) => graph.find((node) => node['@type'] === type);
+
+  it('describes the WebSite, the Person and the homepage ProfilePage', () => {
+    expect(graph.map((node) => node['@type'])).toEqual(['WebSite', 'Person', 'ProfilePage']);
+  });
+
+  it('describes the person with facts rendered on the homepage', () => {
+    const person = byType('Person');
+    expect(person['@id']).toBe('https://example.com/#person');
+    expect(person.jobTitle).toBe(PROFILE.role);
+    expect(person.image).toBe(`https://example.com${PROFILE.photo}`);
+    expect(person.worksFor).toEqual({ '@type': 'Organization', name: PROFILE.employer.name, url: PROFILE.employer.url });
+    expect(person.alumniOf).toMatchObject({ '@type': 'CollegeOrUniversity', name: PROFILE.education.school });
+    expect(person.description).toContain(PROFILE.summary);
+    expect(person.sameAs).toEqual(identity.authorSameAs);
+  });
+
+  it('makes the person the main entity of the homepage', () => {
+    const page = byType('ProfilePage');
+    expect(page.url).toBe('https://example.com/');
+    expect(page.mainEntity).toEqual({ '@id': 'https://example.com/#person' });
+    expect(page.isPartOf).toEqual({ '@id': 'https://example.com/#website' });
   });
 });

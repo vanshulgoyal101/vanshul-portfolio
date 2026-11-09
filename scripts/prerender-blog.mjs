@@ -11,7 +11,8 @@ import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
 import { readPosts, byDateDesc, escapeXml as escAttr, escapeText as escText, parseTags, isoDate } from './lib/seo.mjs';
 import { prerenderContent } from './lib/prerenderContent.mjs';
-import { postJsonLd, blogIndexJsonLd } from './lib/structuredData.mjs';
+import { postJsonLd, blogIndexJsonLd, homeJsonLd } from './lib/structuredData.mjs';
+import { PROFILE } from '../src/constants/profile.js';
 import { READING_LIST_DESCRIPTION, READING_LIST_JSON_LD } from '../src/constants/readingListSeo.js';
 import { BLOG_INDEX_DESCRIPTION } from '../src/constants/blogConstants.js';
 import { BLOG_PATH, READING_LIST_PATH, postPath, absoluteUrl } from '../src/constants/routes.js';
@@ -105,7 +106,10 @@ const buildPageShell = ({ path, title, description: desc, jsonLd }) => {
 const posts = readPosts(blogsDir).sort(byDateDesc);
 const withContent = (html, options) => html.replace('<div id="root"></div>', () => `<div id="root">${prerenderContent({ ...options, posts })}</div>`);
 
-writeFileSync(join(distDir, 'index.html'), withContent(template));
+// Only the homepage carries the WebSite/Person/ProfilePage graph; the other
+// shells are built from the untouched template.
+const homeShell = template.replace('</head>', `  ${jsonLdScript(homeJsonLd({ ...identity, profile: PROFILE }))}</head>`);
+writeFileSync(join(distDir, 'index.html'), withContent(homeShell));
 
 for (const post of posts) {
   const dir = join(distDir, 'blog', post.slug);

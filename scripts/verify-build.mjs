@@ -34,7 +34,16 @@ for (const url of urls) {
   const image = new URL(document.querySelector('meta[property="og:image"]').content);
   assert.equal(image.origin, SITE_URL);
   assert(existsSync(new URL(image.pathname.slice(1), dist)), `Missing social image: ${image}`);
-  for (const script of document.querySelectorAll('script[type="application/ld+json"]')) JSON.parse(script.textContent);
+  const schemaTypes = [...document.querySelectorAll('script[type="application/ld+json"]')]
+    .flatMap(script => [JSON.parse(script.textContent)].flat())
+    .flatMap(schema => schema['@graph'] ?? [schema])
+    .map(schema => schema['@type']);
+  // The ProfilePage describes the homepage; any other page claiming it would
+  // contradict that page's canonical URL.
+  assert.equal(schemaTypes.includes('ProfilePage'), route.pathname === '/', `ProfilePage scope is wrong for ${url}`);
+  if (route.pathname.startsWith('/blog/') && route.pathname !== '/blog/') {
+    assert(schemaTypes.includes('BlogPosting'), `Missing BlogPosting for ${url}`);
+  }
   for (const anchor of document.querySelectorAll('#root a[href^="/"]')) {
     const target = new URL(anchor.getAttribute('href'), SITE_URL);
     assert(urls.includes(`${target.origin}${target.pathname}`), `Internal link ${target} in ${url} is not a published URL`);

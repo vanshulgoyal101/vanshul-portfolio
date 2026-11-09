@@ -10,6 +10,7 @@ import { IoGameController } from 'react-icons/io5';
 import Magnetic from '../FunElements/Magnetic';
 import { useIdle } from '../../hooks/useIdle';
 import ErrorBoundary from '../ErrorBoundary';
+import { PROFILE } from '../../constants/profile';
 
 const HeroScene = lazy(() => import('./HeroScene'));
 
@@ -305,7 +306,7 @@ const Hero = ({ sceneEnabled = true }) => {
           animate="visible"
         >
           <Greeting variants={itemVariants}>
-            Engineer &amp; independent builder
+            {PROFILE.headline}
           </Greeting>
 
           <Title variants={itemVariants}>
@@ -313,11 +314,11 @@ const Hero = ({ sceneEnabled = true }) => {
           </Title>
 
           <Subtitle variants={itemVariants}>
-            Associate Analyst at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">United Airlines</a> | NASA <a href="https://www.spaceappschallenge.org/collective/" target="_blank" rel="noopener noreferrer"> SpaceApps Collective</a>, <a href="https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge" target="_blank" rel="noopener noreferrer"> HERC 2023</a>
+            {PROFILE.role} at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">{PROFILE.employer.name}</a> | NASA <a href="https://www.spaceappschallenge.org/collective/" target="_blank" rel="noopener noreferrer"> SpaceApps Collective</a>, <a href="https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge" target="_blank" rel="noopener noreferrer"> HERC 2023</a>
           </Subtitle>
 
           <Description variants={itemVariants}>
-            I build software for real businesses, tools for curious people, and things that move beyond the screen.
+            {PROFILE.summary}
           </Description>
 
           <CTAContainer variants={itemVariants}>

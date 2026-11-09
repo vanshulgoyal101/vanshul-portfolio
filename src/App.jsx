@@ -8,8 +8,10 @@ import GlobalStyles from './styles/GlobalStyles';
 import { useIdle } from './hooks/useIdle';
 import { getHashTarget, scrollToSection as scrollToSectionUtil } from './utils/scrollToSection';
 import { useSeo } from './hooks/useSeo';
-import { AUTHOR_NAME, HOME_DESCRIPTION } from './constants/siteConfig';
-import { BLOG_PATH, postPath } from './constants/routes';
+import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS, HOME_DESCRIPTION } from './constants/siteConfig';
+import { PROFILE } from './constants/profile';
+import { homeJsonLd } from '../scripts/lib/structuredData.mjs';
+import { HOME_PATH, BLOG_PATH, postPath } from './constants/routes';
 import Navigation from './components/Navigation/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
@@ -86,13 +88,17 @@ const SectionWrapper = styled.div`
 // Helpers
 // ---------------------------------------------------------------------------
 
-// ScrollToHash: scrolls to a section when returning from a subroute, or when
-// the URL contains a hash on a direct hit.
+const HOME_JSON_LD = JSON.stringify(homeJsonLd({
+  site: SITE_URL, authorName: AUTHOR_NAME, authorSameAs: AUTHOR_SAME_AS, profile: PROFILE,
+}));
+
 const HomeMetadata = () => {
-  useSeo({ title: AUTHOR_NAME, description: HOME_DESCRIPTION, path: '/' });
+  useSeo({ title: AUTHOR_NAME, description: HOME_DESCRIPTION, path: HOME_PATH, jsonLd: HOME_JSON_LD });
   return null;
 };
 
+// ScrollToHash: scrolls to a section when returning from a subroute, or when
+// the URL contains a hash on a direct hit.
 const ScrollToHash = ({ isBooting }) => {
   const location = useLocation();
 

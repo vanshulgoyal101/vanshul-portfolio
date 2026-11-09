@@ -86,6 +86,59 @@ export const postJsonLd = (post, { site, authorName, authorSameAs }) => {
 };
 
 /**
+ * JSON-LD for the homepage only: the WebSite, the Person it is about and the
+ * ProfilePage describing them. Other pages reference the Person by `@id`
+ * instead of repeating a ProfilePage that would claim to be the homepage.
+ * @param {SeoIdentity & { profile: typeof import('../../src/constants/profile.js').PROFILE }} identity
+ * @returns {object}
+ */
+export const homeJsonLd = ({ site, authorName, authorSameAs, profile }) => {
+  const home = absoluteUrl(HOME_PATH, site);
+  const photo = `${site}${profile.photo}`;
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': websiteId(site),
+        name: authorName,
+        url: home,
+        inLanguage: 'en',
+        publisher: { '@id': personId(site) },
+      },
+      {
+        '@type': 'Person',
+        '@id': personId(site),
+        name: authorName,
+        url: home,
+        image: photo,
+        jobTitle: profile.role,
+        description: `${profile.headline}; ${profile.role} at ${profile.employer.name}. ${profile.summary}`,
+        worksFor: { '@type': 'Organization', name: profile.employer.name, url: profile.employer.url },
+        alumniOf: {
+          '@type': 'CollegeOrUniversity',
+          name: profile.education.school,
+          url: profile.education.schoolUrl,
+        },
+        knowsAbout: profile.knowsAbout,
+        sameAs: authorSameAs,
+      },
+      {
+        '@type': 'ProfilePage',
+        '@id': `${home}#webpage`,
+        url: home,
+        name: authorName,
+        inLanguage: 'en',
+        isPartOf: { '@id': websiteId(site) },
+        about: { '@id': personId(site) },
+        mainEntity: { '@id': personId(site) },
+        primaryImageOfPage: { '@type': 'ImageObject', url: photo },
+      },
+    ],
+  };
+};
+
+/**
  * JSON-LD for the /blog index: a Blog entity listing every post plus a
  * breadcrumb trail.
  * @param {Array<Record<string, unknown>>} posts  Newest-first

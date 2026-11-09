@@ -356,7 +356,13 @@ test('malformed fragments remain usable and direct subpage metadata follows navi
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://vanshul.com/');
     await expect(page.locator('meta[name="twitter:url"]')).toHaveAttribute('content', 'https://vanshul.com/');
     await expect(page.locator('meta[property^="article:"]')).toHaveCount(0);
-    await expect(page.locator('script[data-route-seo]')).toHaveCount(0);
+    // Only the homepage graph remains; the subpage's structured data is gone.
+    await expect(page.locator('script[data-route-seo]')).toHaveCount(1);
+    const types = await page.locator('script[data-route-seo]').evaluate(script => {
+      const data = JSON.parse(script.textContent);
+      return (data['@graph'] ?? [data].flat()).map(node => node['@type']);
+    });
+    expect(types).toEqual(['WebSite', 'Person', 'ProfilePage']);
   }
   expect(errors).toEqual([]);
 });

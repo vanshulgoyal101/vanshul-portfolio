@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { PROFILE } from '../../constants/profile';
 import {
   FaGraduationCap, FaCode, FaRocket, FaTrophy,
   FaReact, FaServer, FaTools, FaJava,
@@ -397,8 +398,8 @@ const About = () => {
               <ImageWrapper>
                 {!imageError && (
                   <ProfileImage
-                    src="/images/projects/profile2.webp"
-                    alt="Vanshul Goyal — Associate Analyst"
+                    src={PROFILE.photo}
+                    alt={PROFILE.photoAlt}
                     loading="lazy"
                     onLoad={() => setImageLoaded(true)}
                     onError={() => setImageError(true)}

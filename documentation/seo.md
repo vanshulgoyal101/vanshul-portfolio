@@ -88,9 +88,20 @@ in `scripts/lib/seo.test.js`), so the three generators can't drift apart.
   browser-safe value helpers from `src/utils/seoValues.js`. The shelf likewise
   shares `src/constants/readingListSeo.js`. Tests compare actual runtime output
   with the shared article builder.
-- The homepage ProfilePage identifies the author Person as `mainEntity`; entity
-  IDs connect the profile, site and articles without inventing qualifications,
-  reviews, awards or organizations.
+- The homepage graph (`homeJsonLd`) contains the `WebSite`, the `Person` and the
+  `ProfilePage` whose `mainEntity` is that person. It is emitted **only on the
+  homepage**: the prerender step injects it into `dist/index.html`, and
+  `HomeMetadata` in `App.jsx` adds it at runtime. `index.html` itself carries no
+  JSON-LD because every other shell is built from it; earlier builds leaked the
+  homepage `ProfilePage` onto every article, the archive and the shelf.
+  `src/seo.test.js` keeps the template clean and `verify:build` fails if a
+  `ProfilePage` appears on any page other than `/`.
+- `Person` facts come from [`src/constants/profile.js`](../src/constants/profile.js),
+  the same module the hero and About section render: `jobTitle`
+  (Associate Analyst), `worksFor` (United Airlines), `alumniOf` (Punjab
+  Engineering College), the About photo as `image`, `knowsAbout` and the
+  `sameAs` profiles. Entity IDs connect the profile, site and articles without
+  inventing qualifications, reviews, awards or organizations.
 
 ## Readable HTML and input validation
 
@@ -121,7 +132,8 @@ JavaScript disabled and check runtime metadata after direct subpage entry.
   and absent from the sitemap.
 - **`public/404.html`** — SPA fallback so deep links resolve on GitHub Pages
   (see [deployment.md](deployment.md)).
-- **`index.html`** — base meta plus the RSS `<link rel="alternate">`.
+- **`index.html`** — base meta plus the RSS `<link rel="alternate">`; no
+  structured data (see above).
 
 ## Internal linking
 

@@ -8,7 +8,7 @@ deployed and publicly reachable.
 
 | File | Used by |
 | --- | --- |
-| `profile2.webp` | About section photo |
+| `profile2.webp` | About section photo; `Person.image` in the homepage structured data |
 | `adbrain.webp`, `adbrain-icon.svg` | AdBrain featured project card and title mark |
 | `tiny-arcade.webp` | Tiny Arcade featured project card |
 | `nasa-herc.webp` | NASA HERC featured project card |

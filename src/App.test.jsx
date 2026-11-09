@@ -77,3 +77,24 @@ describe('App routing', () => {
     expect(robots()).toMatch(/noindex/);
   });
 });
+
+const schemaTypes = () =>
+  [...document.head.querySelectorAll('script[type="application/ld+json"]')]
+    .flatMap((script) => [JSON.parse(script.textContent)].flat())
+    .flatMap((schema) => schema['@graph'] ?? [schema])
+    .map((schema) => schema['@type']);
+
+describe('App structured data', () => {
+  beforeEach(preferReducedMotion);
+
+  it('describes the person and profile page only on the homepage', async () => {
+    const { unmount } = await renderAt('/');
+    expect(schemaTypes()).toEqual(expect.arrayContaining(['WebSite', 'Person', 'ProfilePage']));
+    unmount();
+
+    await renderAt('/blog/the-new-leverage/');
+    await screen.findByRole('heading', { level: 1, name: 'The New Leverage' });
+    expect(schemaTypes()).toContain('BlogPosting');
+    expect(schemaTypes()).not.toContain('ProfilePage');
+  });
+});
