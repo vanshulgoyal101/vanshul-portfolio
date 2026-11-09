@@ -20,6 +20,11 @@ describe('NotFound', () => {
     expect(screen.getByRole('link', { name: /reading list/i })).toHaveAttribute('href', '/reading-list/');
   });
 
+  it('renders inside the main landmark', () => {
+    renderAt('/missing');
+    expect(screen.getByRole('main')).toContainElement(screen.getByRole('heading', { level: 1 }));
+  });
+
   it('marks the page noindex', () => {
     renderAt('/nope');
     const robots = document.head.querySelector('meta[name="robots"]');

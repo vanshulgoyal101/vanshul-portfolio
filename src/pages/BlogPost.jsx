@@ -1,403 +1,333 @@
 import { useEffect, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaArrowLeft, FaShare } from 'react-icons/fa';
-import { BiTime } from 'react-icons/bi';
-import { MdDateRange } from 'react-icons/md';
-import { AiOutlineEye } from 'react-icons/ai';
+import { HiArrowLeft, HiArrowRight, HiOutlineShare } from 'react-icons/hi';
 import ReactMarkdown from 'react-markdown';
+
+import PageLayout from '../components/ui/PageLayout';
+import PageHeader from '../components/ui/PageHeader';
+import { Button, ButtonLink, TextLink } from '../components/ui/Button';
+import { eyebrow } from '../components/ui/typography';
+import PostList from '../components/Blog/PostList';
+import { useToast } from '../components/Toast';
 import { loadBlogBySlug, loadBlogPosts } from '../utils/blogLoader';
-import { getRelatedPosts } from '../utils/blogUtils';
+import { getRelatedPosts, formatPostDate } from '../utils/blogUtils';
 import { formatViews } from '../utils/blogViews';
-import { postPublishedAt } from '../utils/seoValues';
+import { postDate, postPublishedAt } from '../utils/seoValues';
 import { articleHeadings, rehypeHeadingIds, MIN_TOC_HEADINGS } from '../utils/articleHeadings';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
 import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';
-import { homeSectionPath, postPath } from '../constants/routes';
+import { PROFILE } from '../constants/profile';
+import { BLOG_PATH, homeSectionPath, postPath } from '../constants/routes';
 import { postJsonLd } from '../../scripts/lib/structuredData.mjs';
-import { useToast } from '../components/Toast';
-import Navigation from '../components/Navigation/Navigation';
 
-// Styled Components
-const PageWrapper = styled.div`
-  min-height: 100vh;
-  background: transparent;
-  position: relative;
-  overflow-x: hidden;
+const Back = styled(TextLink)`
+  margin-bottom: 1.5rem;
 `;
 
-
-const ContentWrapper = styled.div`
-  position: relative;
-  z-index: 10;
-  padding-top: 100px;
-  
-  @media (max-width: 768px) {
-    padding-top: 90px;
-  }
-`;
-
-const Container = styled.div`
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 var(--spacing-xl) var(--spacing-xl);
-  position: relative;
-  
-  @media (max-width: 768px) {
-    padding: 0 var(--spacing-md) var(--spacing-lg);
-  }
-`;
-
-const TopBar = styled.div`
+const Byline = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-md);
-  gap: var(--spacing-md);
-  
-  @media (max-width: 768px) {
-    margin-bottom: var(--spacing-sm);
-  }
+  gap: 0.875rem;
+  margin-top: 2rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-hairline);
+  border-bottom: 1px solid var(--color-hairline);
 `;
 
-const BackButton = styled(motion.button)`
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  min-height: 44px;
-  
-  &:hover {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: var(--color-accent-primary);
-    transform: translateX(-3px);
-  }
-  
-  svg {
-    font-size: 1rem;
-  }
-  
-  @media (max-width: 768px) {
-    min-height: 48px;
-    padding: var(--spacing-sm) var(--spacing-lg);
-  }
+const Avatar = styled.img`
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--color-bg-tertiary);
 `;
 
-const ShareButton = styled(motion.button)`
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  min-height: 44px;
-  
-  &:hover {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: var(--color-accent-primary);
-  }
-  
-  svg {
-    font-size: 1rem;
-  }
-  
-  @media (max-width: 768px) {
-    min-height: 48px;
-    padding: var(--spacing-sm) var(--spacing-lg);
-  }
+const BylineText = styled.div`
+  flex: 1;
+  min-width: 0;
 `;
 
-const Article = styled(motion.article)`
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-`;
-
-const Header = styled.div`
-  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-md);
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, transparent 100%);
-  border-bottom: 1px solid var(--color-border);
-  
-  @media (max-width: 768px) {
-    padding: var(--spacing-md);
-  }
-`;
-
-const Category = styled.span`
-  display: inline-block;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: rgba(99, 102, 241, 0.15);
-  color: var(--color-accent-primary);
-  border-radius: 20px;
-  font-size: var(--text-xs);
+const Author = styled.p`
+  font-size: 0.9375rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: var(--spacing-md);
+  line-height: 1.4;
+  color: var(--color-ink);
 `;
 
-const Title = styled.h1`
-  font-size: var(--text-4xl);
-  margin-bottom: var(--spacing-sm);
-  color: var(--color-text-primary);
-  line-height: 1.2;
-  font-weight: 700;
-  
-  @media (max-width: 768px) {
-    font-size: var(--text-2xl);
-  }
+const Facts = styled.p`
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
 `;
 
-const Meta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  margin-top: var(--spacing-sm);
-
-  span {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-  }
-
-  svg {
-    display: inline-block;
-    vertical-align: middle;
-    color: var(--color-accent-primary);
-  }
-`;
-
-const Body = styled.div`
-  padding: var(--spacing-lg) var(--spacing-xl);
-  
-  @media (max-width: 768px) {
-    padding: var(--spacing-md);
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    color: var(--color-text-primary);
-    margin-top: var(--spacing-lg);
-    margin-bottom: var(--spacing-sm);
-    font-weight: 600;
-    line-height: 1.3;
-  }
-  
-  h1 { font-size: var(--text-3xl); }
-  h2 { 
-    font-size: var(--text-2xl);
-    padding-bottom: var(--spacing-xs);
-    border-bottom: 2px solid var(--color-border);
-  }
-  h3 { font-size: var(--text-xl); }
-  h4 { font-size: var(--text-lg); }
-  h5 { font-size: var(--text-base); }
-  h6 { font-size: var(--text-sm); }
-  
-  p {
-    color: var(--color-text-secondary);
-    line-height: 1.7;
-    margin-bottom: var(--spacing-md);
-    font-size: var(--text-base);
-  }
-  
-  ul, ol {
-    color: var(--color-text-secondary);
-    line-height: 1.8;
-    margin-bottom: var(--spacing-md);
-    padding-left: var(--spacing-lg);
-  }
-  
-  li {
-    margin-bottom: var(--spacing-xs);
-  }
-  
-  a {
-    color: var(--color-accent-primary);
-    text-decoration: underline;
-    transition: opacity 0.3s ease;
-    
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-  
-  blockquote {
-    border-left: 4px solid var(--color-accent-primary);
-    padding-left: var(--spacing-md);
-    margin: var(--spacing-lg) 0;
-    color: var(--color-text-secondary);
-    font-style: italic;
-  }
-  
-  code {
-    background: rgba(99, 102, 241, 0.1);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.9em;
-    color: var(--color-accent-primary);
-  }
-  
-  pre {
-    background: rgba(0, 0, 0, 0.3);
-    padding: var(--spacing-md);
-    border-radius: 8px;
-    overflow-x: auto;
-    margin-bottom: var(--spacing-md);
-    
-    code {
-      background: none;
-      padding: 0;
-      color: var(--color-text-primary);
-    }
-  }
-  
-  img {
-    max-width: 100%;
-    border-radius: 8px;
-    margin: var(--spacing-lg) 0;
-  }
-  
-  hr {
-    border: none;
-    border-top: 1px solid var(--color-border);
-    margin: var(--spacing-xl) 0;
-  }
+const ShareButton = styled(Button)`
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 1.125rem;
+  font-size: 0.875rem;
 `;
 
 const Contents = styled.nav`
-  margin: var(--spacing-md) var(--spacing-xl) 0;
-  padding: var(--spacing-md);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-bg-secondary);
+  margin-bottom: 2.75rem;
+  padding: 1.25rem 1.5rem 0.75rem;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
 
   p {
-    margin: 0 0 var(--spacing-xs);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-text-secondary);
+    ${eyebrow}
+    margin-bottom: 0.25rem;
+    color: var(--color-text-muted);
   }
 
   ol {
-    margin: 0;
-    padding-left: 1.25rem;
-    color: var(--color-text-secondary);
+    padding-left: 2rem;
+    list-style: decimal-leading-zero;
   }
 
+  li::marker {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  /* Subsections are indented under their section and keep its numbering. */
   li[data-level='3'] {
-    margin-left: 1rem;
+    margin-left: 1.25rem;
+    list-style: none;
+    counter-increment: list-item 0;
   }
 
   a {
-    display: block;
-    padding: 0.35rem 0;
-    color: var(--color-accent-primary);
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--color-text-primary);
     text-decoration: none;
 
     &:hover {
-      text-decoration: underline;
+      color: var(--color-accent-primary);
+    }
+
+    /* Touch keeps 44px rows; a mouse pointer gets a tighter list. */
+    @media (hover: hover) and (pointer: fine) {
+      min-height: 2.25rem;
+    }
+  }
+`;
+
+// Long-form typography: an 18px body on a ~70 character measure.
+const Prose = styled.div`
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--color-text-primary);
+  overflow-wrap: break-word;
+
+  @media (max-width: 768px) {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  p,
+  ul,
+  ol,
+  blockquote,
+  pre {
+    margin-bottom: 1.4em;
+  }
+
+  p {
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+  }
+
+  h2,
+  h3 {
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    margin: 2.2em 0 0.7em;
+    font-size: clamp(1.5rem, 3.6vw, 1.875rem);
+    line-height: 1.25;
+  }
+
+  h3 {
+    margin: 1.8em 0 0.6em;
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+
+  strong {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  a {
+    font-weight: 500;
+    color: var(--color-accent-primary);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--color-accent-line);
+    text-underline-offset: 3px;
+
+    &:hover {
+      text-decoration-color: currentColor;
     }
   }
 
-  @media (max-width: 768px) {
-    margin: var(--spacing-md) var(--spacing-md) 0;
+  ul,
+  ol {
+    padding-left: 1.4em;
+  }
+
+  li {
+    margin: 0.4em 0;
+    padding-left: 0.2em;
+  }
+
+  li::marker {
+    color: var(--color-accent-primary);
+  }
+
+  blockquote {
+    margin-top: 1.8em;
+    padding-left: 1.25em;
+    border-left: 2px solid var(--color-accent-primary);
+    font-family: var(--font-display);
+    font-size: 1.1875em;
+    line-height: 1.55;
+    color: var(--color-ink);
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  code {
+    padding: 0.15em 0.4em;
+    border-radius: 6px;
+    background: var(--color-bg-tertiary);
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+
+  pre {
+    padding: 1.25rem;
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    background: var(--color-ink);
+    color: #e2e8f0;
+    font-size: 0.875rem;
+    line-height: 1.7;
+
+    code {
+      padding: 0;
+      background: none;
+      color: inherit;
+    }
+  }
+
+  img {
+    margin: 2em 0;
+    border-radius: var(--radius-md);
+  }
+
+  /* Section break: a centred dinkus instead of a full-width rule. */
+  hr {
+    margin: 2.5em 0;
+    border: 0;
+    text-align: center;
+
+    &::before {
+      content: '· · ·';
+      letter-spacing: 0.5em;
+      color: var(--color-text-muted);
+    }
   }
 `;
 
-const NotFound = styled.div`
-  text-align: center;
-  padding: var(--spacing-2xl);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 24px;
-  
-  h2 {
-    font-size: var(--text-3xl);
-    margin-bottom: var(--spacing-md);
-    color: var(--color-text-primary);
-  }
-  
-  p {
-    color: var(--color-text-secondary);
-    margin-bottom: var(--spacing-xl);
-  }
-`;
-
-const RelatedSection = styled.section`
-  margin-top: var(--spacing-xl);
-`;
-
-const RelatedHeading = styled.h2`
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  margin: 0 0 var(--spacing-md);
-`;
-
-const RelatedGrid = styled.div`
+const AuthorCard = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--spacing-md);
-`;
-
-const RelatedCard = styled(Link)`
-  display: block;
-  text-decoration: none;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  margin-top: 3.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
   background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: var(--spacing-md);
-  transition: border-color 0.2s ease, transform 0.2s ease;
 
-  &:hover {
-    border-color: var(--color-accent-primary);
-    transform: translateY(-3px);
+  ${Avatar} {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  @media (max-width: 480px) {
+    gap: 1rem;
+    padding: 1.25rem;
+
+    ${Avatar} {
+      width: 3rem;
+      height: 3rem;
+    }
   }
 `;
 
-const RelatedCategory = styled.span`
-  display: inline-block;
-  font-size: var(--text-sm);
-  color: var(--color-accent-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--spacing-xs);
+const CardLabel = styled.p`
+  ${eyebrow}
+  color: var(--color-text-muted);
 `;
 
-const RelatedCardTitle = styled.h3`
-  font-size: var(--text-lg);
-  color: var(--color-text-primary);
-  margin: 0 0 var(--spacing-xs);
+const CardName = styled.p`
+  margin-top: 0.25rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
   line-height: 1.3;
+  color: var(--color-ink);
 `;
 
-const RelatedMeta = styled.span`
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+const CardBio = styled.p`
+  margin: 0.5rem 0 0.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
 `;
+
+const Related = styled.section`
+  margin-top: 4.5rem;
+  border-top: 1px solid var(--color-ink);
+`;
+
+const RelatedHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.25rem;
+
+  h2 {
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+`;
+
+// Post links point to outside sources; open them without leaving the article.
+const markdownComponents = {
+  a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+};
 
 const BlogPost = () => {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const blog = loadBlogBySlug(slug);
   const views = useBlogView(blog ? slug : null);
@@ -439,10 +369,6 @@ const BlogPost = () => {
     window.scrollTo(0, 0);
   }, [slug]);
 
-  const handleBack = () => {
-    navigate(homeSectionPath('blog'));
-  };
-
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
@@ -466,108 +392,96 @@ const BlogPost = () => {
     }
   };
 
+  const backLink = (
+    <Back to={BLOG_PATH}>
+      <HiArrowLeft aria-hidden="true" data-arrow="back" /> Back to Blog
+    </Back>
+  );
+
   if (!blog) {
     return (
-      <PageWrapper>
-          <Navigation />
-        <ContentWrapper>
-          <Container>
-            <TopBar>
-              <BackButton onClick={handleBack} whileHover={{ scale: 1.05 }}>
-                <FaArrowLeft /> Back to Blog
-              </BackButton>
-            </TopBar>
-            <NotFound>
-              <h1>Blog Post Not Found</h1>
-              <p>The blog post you're looking for doesn't exist.</p>
-            </NotFound>
-          </Container>
-        </ContentWrapper>
-      </PageWrapper>
+      <PageLayout width="reading">
+        {backLink}
+        <PageHeader
+          label="Error 404"
+          title="Blog Post Not Found"
+          lede="The blog post you're looking for doesn't exist. It may have moved, or the link may be mistyped."
+        />
+        <ButtonLink to={BLOG_PATH}>
+          Browse all posts <HiArrowRight aria-hidden="true" data-arrow="forward" />
+        </ButtonLink>
+      </PageLayout>
     );
   }
 
+  const facts = [blog.readTime, views != null && `${formatViews(views)} views`].filter(Boolean);
+
   return (
-    <PageWrapper>
-      <Navigation />
-      <ContentWrapper>
-        <Container>
-          <TopBar>
-            <BackButton onClick={handleBack} whileHover={{ scale: 1.05 }}>
-              <FaArrowLeft /> Back to Blog
-            </BackButton>
-            <ShareButton onClick={handleShare} whileHover={{ scale: 1.05 }}>
-              <FaShare /> Share
+    <PageLayout width="reading">
+      {backLink}
+      <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+        <PageHeader label={blog.category} title={blog.title} lede={blog.summary}>
+          <Byline>
+            <Avatar src={PROFILE.avatar} alt="" width="44" height="44" decoding="async" />
+            <BylineText>
+              <Author>{AUTHOR_NAME}</Author>
+              <Facts>
+                <time dateTime={postDate(blog.date)}>{formatPostDate(blog.date)}</time>
+                {facts.map((fact) => ` · ${fact}`).join('')}
+              </Facts>
+            </BylineText>
+            <ShareButton type="button" $variant="secondary" onClick={handleShare}>
+              <HiOutlineShare aria-hidden="true" /> Share
             </ShareButton>
-          </TopBar>
-          
-          <Article
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-          >
-            <Header>
-              {blog.category && <Category>{blog.category}</Category>}
-              <Title>{blog.title}</Title>
-              <Meta>
-                <span>
-                  <MdDateRange /> {blog.date}
-                </span>
-                <span>
-                  <BiTime /> {blog.readTime}
-                </span>
-                {views != null && (
-                  <span>
-                    <AiOutlineEye /> {formatViews(views)} views
-                  </span>
-                )}
-              </Meta>
-            </Header>
+          </Byline>
+        </PageHeader>
 
-            {headings.length >= MIN_TOC_HEADINGS && (
-              <Contents aria-label="Table of contents">
-                <p>Contents</p>
-                <ol>
-                  {headings.map((heading) => (
-                    <li key={heading.id} data-level={heading.level}>
-                      <a href={`#${heading.id}`}>{heading.text}</a>
-                    </li>
-                  ))}
-                </ol>
-              </Contents>
-            )}
+        {headings.length >= MIN_TOC_HEADINGS && (
+          <Contents aria-label="Table of contents">
+            <p>On this page</p>
+            <ol>
+              {headings.map((heading) => (
+                <li key={heading.id} data-level={heading.level}>
+                  <a href={`#${heading.id}`}>{heading.text}</a>
+                </li>
+              ))}
+            </ol>
+          </Contents>
+        )}
 
-            <Body>
-              <ReactMarkdown
-                rehypePlugins={[rehypeHeadingIds]}
-                components={{
-                  a: ({ node, ...props }) => (
-                    <a {...props} target="_blank" rel="noopener noreferrer" />
-                  )
-                }}
-              >
-                {blog.content}
-              </ReactMarkdown>
-            </Body>
-          </Article>
+        <Prose>
+          <ReactMarkdown rehypePlugins={[rehypeHeadingIds]} components={markdownComponents}>
+            {blog.content}
+          </ReactMarkdown>
+        </Prose>
 
-          {related.length > 0 && (
-            <RelatedSection aria-label="More writing">
-              <RelatedHeading>More writing</RelatedHeading>
-              <RelatedGrid>
-                {related.map((post) => (
-                  <RelatedCard key={post.slug} to={postPath(post.slug)}>
-                    {post.category && <RelatedCategory>{post.category}</RelatedCategory>}
-                    <RelatedCardTitle>{post.title}</RelatedCardTitle>
-                    {post.readTime && <RelatedMeta>{post.readTime}</RelatedMeta>}
-                  </RelatedCard>
-                ))}
-              </RelatedGrid>
-            </RelatedSection>
-          )}
-        </Container>
-      </ContentWrapper>
-    </PageWrapper>
+        <AuthorCard>
+          <Avatar src={PROFILE.avatar} alt="" width="64" height="64" loading="lazy" decoding="async" />
+          <div>
+            <CardLabel>Written by</CardLabel>
+            <CardName>{AUTHOR_NAME}</CardName>
+            <CardBio>
+              {PROFILE.role} at {PROFILE.employer.name}. {PROFILE.summary}
+            </CardBio>
+            <TextLink to={homeSectionPath('about')}>
+              More about me <HiArrowRight aria-hidden="true" data-arrow="forward" />
+            </TextLink>
+          </div>
+        </AuthorCard>
+      </motion.article>
+
+      {related.length > 0 && (
+        <Related aria-labelledby="more-writing">
+          <RelatedHeader>
+            <h2 id="more-writing">More writing</h2>
+            <TextLink to={BLOG_PATH}>
+              All posts <HiArrowRight aria-hidden="true" data-arrow="forward" />
+            </TextLink>
+          </RelatedHeader>
+          <PostList posts={related} />
+        </Related>
+      )}
+    </PageLayout>
   );
 };
 

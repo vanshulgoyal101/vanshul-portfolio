@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useCallback } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { FaCheckCircle, FaExclamationCircle, FaInfoCircle, FaTimes } from 'react-icons/fa';
@@ -16,124 +16,88 @@ export const useToast = () => {
   return context;
 };
 
-// Styled Components
-const slideIn = keyframes`
-  from {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-`;
+// Status tones: each meets 4.5:1 on white, so icons and edges stay legible.
+const TONES = {
+  success: '#15803d',
+  error: '#b91c1c',
+  info: 'var(--color-accent-primary)',
+};
 
+// Always mounted, so screen readers announce toasts as they are added
+// (WCAG 4.1.3 status messages) without moving focus.
 const ToastContainer = styled.div`
   position: fixed;
-  top: 24px;
-  right: 24px;
+  top: 6rem;
+  right: 1.5rem;
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  max-width: 400px;
-  
+  gap: 0.75rem;
+  width: min(24rem, calc(100vw - 3rem));
+
   @media (max-width: 768px) {
-    top: 80px;
-    right: 16px;
-    left: 16px;
-    max-width: none;
+    top: 5.5rem;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
   }
 `;
 
 const ToastItem = styled(motion.div)`
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: var(--spacing-md);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-sm);
-  min-width: 300px;
-  backdrop-filter: blur(10px);
-  animation: ${slideIn} 0.3s ease-out;
-  
-  ${props => {
-    switch (props.$type) {
-      case 'success':
-        return `border-left: 4px solid #22c55e;`;
-      case 'error':
-        return `border-left: 4px solid #ef4444;`;
-      case 'info':
-        return `border-left: 4px solid #3b82f6;`;
-      default:
-        return `border-left: 4px solid var(--color-accent-primary);`;
-    }
-  }}
-  
-  @media (max-width: 768px) {
-    min-width: auto;
-    width: 100%;
-  }
+  gap: 0.75rem;
+  padding: 1rem 0.5rem 1rem 1rem;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-hairline);
+  border-left: 3px solid ${({ $type }) => TONES[$type]};
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 `;
 
 const IconWrapper = styled.div`
   flex-shrink: 0;
-  font-size: 20px;
-  margin-top: 2px;
-  
-  ${props => {
-    switch (props.$type) {
-      case 'success':
-        return `color: #22c55e;`;
-      case 'error':
-        return `color: #ef4444;`;
-      case 'info':
-        return `color: #3b82f6;`;
-      default:
-        return `color: var(--color-accent-primary);`;
-    }
-  }}
+  margin-top: 0.125rem;
+  font-size: 1.125rem;
+  color: ${({ $type }) => TONES[$type]};
 `;
 
 const ToastContent = styled.div`
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  min-width: 0;
 `;
 
-const ToastTitle = styled.h4`
-  font-size: var(--text-base);
+const ToastTitle = styled.p`
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0;
+  line-height: 1.4;
+  color: var(--color-ink);
 `;
 
 const ToastMessage = styled.p`
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  margin: 0;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
   line-height: 1.5;
 `;
 
 const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  
+  margin: -0.625rem 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+
   &:hover {
-    background: rgba(99, 102, 241, 0.1);
-    color: var(--color-text-primary);
+    background: var(--color-bg-tertiary);
+    color: var(--color-ink);
   }
 `;
 
@@ -155,17 +119,17 @@ const Toast = ({ id, type, title, message, onClose }) => {
   return (
     <ToastItem
       $type={type}
-      initial={{ opacity: 0, x: 400 }}
+      initial={{ opacity: 0, x: 24 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 400 }}
-      transition={{ duration: 0.3 }}
+      exit={{ opacity: 0, x: 24 }}
+      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
     >
-      <IconWrapper $type={type}>{getIcon()}</IconWrapper>
+      <IconWrapper $type={type} aria-hidden="true">{getIcon()}</IconWrapper>
       <ToastContent>
         {title && <ToastTitle>{title}</ToastTitle>}
         {message && <ToastMessage>{message}</ToastMessage>}
       </ToastContent>
-      <CloseButton onClick={() => onClose(id)} aria-label="Close notification">
+      <CloseButton type="button" onClick={() => onClose(id)} aria-label="Close notification">
         <FaTimes />
       </CloseButton>
     </ToastItem>
@@ -225,7 +189,7 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <ToastContainer>
+      <ToastContainer aria-live="polite">
         <AnimatePresence>
           {toasts.map(toast => (
             <Toast key={toast.id} {...toast} onClose={removeToast} />

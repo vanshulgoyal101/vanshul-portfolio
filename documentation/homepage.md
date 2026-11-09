@@ -48,13 +48,29 @@ Programmatically focused headings and non-interactive section fallbacks receive
 `data-section-focus`, which suppresses their decorative focus rectangle without
 removing the focus handoff. The skip-link destination `#main-content` also avoids
 a page-sized outline while remaining focusable.
-Interactive controls retain their keyboard outlines. Projects uses the same
-responsive heading-size tokens as About and Writings; Work keeps a larger mobile
-heading. Browser tests compare their computed font sizes separately.
+Interactive controls retain their keyboard outlines.
+
+Section titles come from `SectionHeader`. The mono `NN / label` eyebrow is an
+`aria-hidden` span inside the h2, not a sibling above it. Hash navigation
+places the h2 16–24px below the header, so an eyebrow above the heading would
+be hidden behind the header. Inside the h2 it stays visible, and the
+accessible name is still just the title. The lede is the h2's next sibling
+(`h2 + p`) and is centred at every size. All five section titles (Projects,
+About, Work, Writings, Contact) use `--text-section-title`: 40px on desktop and
+32px through 768px. The browser test asserts they are equal, Work included.
 
 The closed mobile menu is inert. Opening it focuses the first link, wraps Tab
 within its controls, and locks body scrolling. Escape closes it and restores
-toggle focus. Returning to desktop clears the mobile scroll lock.
+toggle focus. Returning to desktop clears the mobile scroll lock. The drawer
+becomes visible with no delay and hides only after its 0.35s slide-out. If
+`visibility` animated on open, the first frame would still be hidden and the
+focus call would silently fail.
+
+The active navigation item follows scroll-spy only on `/`. "Blog" stays
+active on `/blog*` and `/reading-list/`, and no item is active on other routes
+(such as the 404). The desktop header is a floating pill with its blur on a
+`::before` layer: `backdrop-filter` on the `nav` would become the containing
+block of the fixed drawer and clip it.
 
 ## Content and motion
 
@@ -114,8 +130,10 @@ advance alone can leave the deferred subtree unmounted while the clock is paused
 The test retains its emission sample count and 0.1 CSS pixel alignment tolerance;
 separate real-time browser tests cover repeated launches and colored smoke.
 
-The footer separates identity and navigation from a collapsed `Display settings`
-disclosure. Opening it scrolls the expanded settings into view without changing
+The footer ends every public route (home, archive, articles, shelf and 404),
+not only the homepage; `App` renders it through `RouteFooter` and skips the
+private dashboard. It separates identity and navigation from a collapsed
+`Display settings` disclosure. Opening it scrolls the expanded settings into view without changing
 focus. Cursor and ambient preferences use labelled switches. The cursor defaults
 on for mouse devices without browser or hardware heuristics; saved `vg.cursor`
 choices are preserved. Its control is omitted on touch devices, and both switches
@@ -143,7 +161,10 @@ landing page, not the authenticated creative workspace. The NASA photograph is
 preserved. Image frames use an 8:5 aspect ratio. Images are absolutely positioned
 inside the frame with `object-fit: cover` and a bottom-center anchor: the 8:5
 software captures remain complete, while the 4:3 HERC photo loses excess sky
-instead of the rover at the bottom. Images do not zoom on hover. Browser tests
-compare image/frame rectangles and frame heights on desktop and mobile.
+instead of the rover at the bottom. Images do not zoom on hover. The hairline
+between image and text is the content block's top border. A border on the
+frame would shrink the absolutely positioned image by 1px. Browser tests
+compare image/frame rectangles (within 1px) and frame heights on desktop and
+mobile.
 
 See [testing.md](testing.md) for production browser checks and their limits.

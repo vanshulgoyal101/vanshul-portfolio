@@ -1,481 +1,199 @@
-# Styling Documentation
-
-## Overview
-The project uses a hybrid styling approach combining CSS custom properties (CSS variables) for theming and `styled-components` for component-scoped styles. This provides the flexibility of CSS variables with the power of CSS-in-JS, enabling dynamic styling, theming, and encapsulation.
-
----
-
-## Design System
-
-### Color Palette
-A warm paper background with slate text and a single blue accent. Tokens are
-defined in [`src/styles/GlobalStyles.js`](../src/styles/GlobalStyles.js).
-
-**Background Colors**:
-- `--color-bg-primary`: `#f6f3eb` - Page background (warm paper)
-- `--color-bg-secondary`: `#f6f3eb` - Inputs and inset panels
-- `--color-bg-tertiary`: `#edeae0` - Subtle fills
-- `--color-bg-card`: `#ffffff` - Cards
-
-**Text Colors** (contrast on white / page / tertiary background):
-- `--color-text-primary`: `#1e293b` - Headings and primary text
-- `--color-text-secondary`: `#475569` - Body and descriptions (7.58 / 6.83 / 6.30)
-- `--color-text-muted`: `#5b6677` - Labels and metadata (5.81 / 5.24 / 4.83).
-  It was `#94a3b8` (2.56:1 on white) until browser accessibility scans caught
-  Contact labels failing WCAG AA; keep any replacement at 4.5:1 or above on all
-  three backgrounds.
-
-**Accent Colors**:
-- `--color-accent-primary`: `#1d4ed8` - Links, focus outlines, primary actions
-- `--color-accent-secondary`: `#3b82f6` - Gradient partner and highlights
-- `--color-accent-glow`: `rgba(29, 78, 216, 0.08)` - Soft glows
-
-**Gradients**:
-- `--color-gradient-1`: `linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)` - Buttons and section titles
-- `--color-gradient-2`: `linear-gradient(135deg, #f6f3eb 0%, #ffffff 100%)` - Light surface wash
-
-**Borders**:
-- `--color-border`: `rgba(30, 41, 59, 0.08)` - Default borders
-- `--color-border-hover`: `rgba(30, 41, 59, 0.15)` - Hover state borders
-
-### Spacing System
-Fluid spacing scales with viewport using `clamp()` for responsive consistency.
-
-**Spacing Tokens**:
-- `--spacing-xs`: `clamp(0.25rem, 0.5vw, 0.5rem)` - 4-8px
-- `--spacing-sm`: `clamp(0.5rem, 1vw, 1rem)` - 8-16px
-- `--spacing-md`: `clamp(1rem, 2vw, 2rem)` - 16-32px
-- `--spacing-lg`: `clamp(1.5rem, 3vw, 3rem)` - 24-48px
-- `--spacing-xl`: `clamp(2.5rem, 5vw, 5rem)` - 40-80px
-- `--spacing-2xl`: `clamp(4rem, 8vw, 8rem)` - 64-128px
-
-**Container Padding**:
-- `--container-padding`: `clamp(1rem, 5vw, 3rem)` - Responsive edge spacing
-
-**Usage**:
-```css
-padding: var(--spacing-xl); /* Fluid 40-80px */
-gap: var(--spacing-md);     /* Fluid 16-32px */
-```
-
-### Typography
-Three font families for hierarchy and visual interest.
-
-**Font Families**:
-- `--font-primary`: `'Inter'` - Body text, UI elements
-- `--font-display`: `'Space Grotesk'` - Headings, hero text
-- `--font-mono`: `'JetBrains Mono'` - Code, technical content
-
-**Font Sizes** (fluid with `clamp()`):
-- `--text-xs`: `clamp(0.75rem, 1.5vw, 0.875rem)` - 12-14px
-- `--text-sm`: `clamp(0.875rem, 2vw, 1rem)` - 14-16px
-- `--text-base`: `clamp(1rem, 2.5vw, 1.125rem)` - 16-18px (body)
-- `--text-lg`: `clamp(1.125rem, 3vw, 1.25rem)` - 18-20px
-- `--text-xl`: `clamp(1.25rem, 3.5vw, 1.5rem)` - 20-24px
-- `--text-2xl`: `clamp(1.5rem, 4vw, 1.875rem)` - 24-30px (mobile optimized)
-- `--text-3xl`: `clamp(1.875rem, 5vw, 2.25rem)` - 30-36px
-- `--text-4xl`: `clamp(2.25rem, 6vw, 3rem)` - 36-48px
-- `--text-5xl`: `clamp(3rem, 8vw, 4rem)` - 48-64px
-- `--text-6xl`: `clamp(3.75rem, 10vw, 6rem)` - 60-96px (hero)
-
-**Mobile Font Optimization**:
-- Headings reduced to `--text-2xl` on mobile (24-30px)
-- Prevents overly large text on small screens
-- Maintains readability and visual hierarchy
-
-### Container Widths
-Standardized max-widths for content sections.
-
-- `--container-xs`: `100%` - Full width
-- `--container-sm`: `640px` - Small
-- `--container-md`: `768px` - Medium
-- `--container-lg`: `1024px` - Large
-- `--container-xl`: `1280px` - Extra large (most sections)
-- `--container-2xl`: `1536px` - Maximum
-
-### Z-Index Layers
-Predictable stacking order.
-
-- `--z-base`: `0` - Default layer
-- `--z-dropdown`: `100` - Dropdowns, popovers
-- `--z-sticky`: `200` - Sticky elements
-- `--z-fixed`: `300` - Fixed navigation
-- `--z-modal`: `400` - Modals, overlays
-- `--z-tooltip`: `500` - Tooltips, highest priority
-
-### Breakpoints
-Media query reference points.
-
-- `--breakpoint-sm`: `640px` - Small tablets
-- `--breakpoint-md`: `768px` - Tablets
-- `--breakpoint-lg`: `1024px` - Laptops
-- `--breakpoint-xl`: `1280px` - Desktops
-- `--breakpoint-2xl`: `1536px` - Large desktops
-
-**Usage in styled-components**:
-```javascript
-@media (max-width: 768px) {
-  font-size: var(--text-sm);
-}
-```
-
----
-
-## Accessibility Features (WCAG 2.1 Level AA)
-
-### Focus-Visible States
-Keyboard navigation indicators with high contrast.
-
-**Global Focus Styles** (`src/index.css`):
-```css
-*:focus-visible {
-  outline: 3px solid #6366f1;
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-button:focus-visible,
-a:focus-visible {
-  outline: 3px solid #6366f1;
-  outline-offset: 3px;
-}
-```
-
-**Requirements**:
-- 3px minimum outline width (WCAG 2.1)
-- 2-3px offset for visual separation
-- Only visible on keyboard navigation (`:focus-visible`, not `:focus`)
-- High contrast color (#6366f1 indigo)
-
-**Component Implementation**:
-```javascript
-const Button = styled.button`
-  &:focus-visible {
-    outline: 3px solid var(--color-accent-primary);
-    outline-offset: 3px;
-  }
-`;
-```
-
-### Touch Targets
-Minimum 44-48px interactive area for mobile accessibility.
-
-**WCAG Guideline**: 44x44px minimum for touch targets
-
-**Implementation**:
-```javascript
-const NavLink = styled.a`
-  padding: 0.75rem 1rem; /* ~48px height */
-  
-  @media (max-width: 768px) {
-    padding: 1rem 1.5rem; /* Larger on mobile */
-  }
-`;
-```
-
-**Applied To**:
-- Navigation links (48px)
-- Buttons (48px minimum)
-- Form inputs (44px minimum)
-- Cards/clickable areas (48px minimum)
-- Close buttons in modals (44px)
-
-### Color Contrast
-Text and background combinations meet WCAG AA standards.
-
-**Primary Text**: White (#ffffff) on dark backgrounds (21:1 contrast ratio)
-**Secondary Text**: Light gray (#a0a0a0) on dark backgrounds (8:1 contrast ratio)
-**Links**: Indigo (#6366f1) with white text or hover states for distinction
-
----
-
-## Patterns & Utilities
-
-### Text Clamping
-Consistent card heights with overflow ellipsis.
-
-**CSS Implementation**:
-```javascript
-const Title = styled.h3`
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2; /* Limit to 2 lines */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: 2.8em; /* Reserve space even if 1 line */
-`;
-
-const Summary = styled.p`
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3; /* Limit to 3 lines */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: 4.8em; /* Reserve space */
-`;
-```
-
-**Use Cases**:
-- Blog card titles (2 lines)
-- Blog card summaries (3 lines)
-- Project descriptions (3-4 lines)
-- Any dynamic content requiring consistent layout
-
-**Fallback**: 
-- Safari, Firefox, Chrome support `-webkit-line-clamp`
-- Fallback to single-line ellipsis on older browsers
-
-### Hover Effects
-Consistent lift animation across interactive elements.
-
-**Standard Pattern**:
-```javascript
-const Card = styled.div`
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
-  }
-`;
-```
-
-**Applied To**:
-- All cards (blog, project, work)
-- Navigation links
-- Buttons
-- Interactive elements
-
-**Timing**: 0.3s ease transition
-
-### Animation Patterns
-
-**Slide-In** (Toast Notifications):
-```javascript
-const slideIn = keyframes`
-  from {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-`;
-```
-
-**Fade & Scale** (Framer Motion):
-```javascript
-<motion.div
-  initial={{ opacity: 0, scale: 0.9 }}
-  animate={{ opacity: 1, scale: 1 }}
-  transition={{ duration: 0.3 }}
->
-```
-
-### Transitions
-Standardized timing functions.
-
-- `--transition-base`: `all 0.3s cubic-bezier(0.4, 0, 0.2, 1)` - Default
-- `--transition-slow`: `all 0.6s cubic-bezier(0.4, 0, 0.2, 1)` - Slow/dramatic
-
-**Easing**: `cubic-bezier(0.4, 0, 0.2, 1)` - Material Design standard
-
----
-
-## Responsive Design
-
-### Mobile-First Approach
-Base styles target mobile, progressively enhance for larger screens.
-
-**Breakpoint Strategy**:
-```javascript
-/* Mobile (default) */
-font-size: var(--text-base);
-
-/* Tablet */
-@media (min-width: 768px) {
-  font-size: var(--text-lg);
-}
-
-/* Desktop */
-@media (min-width: 1024px) {
-  font-size: var(--text-xl);
-}
-```
-
-### Grid Layouts
-Responsive column counts.
-
-```javascript
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr; /* Mobile: 1 column */
-  gap: var(--spacing-lg);
-  
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr); /* Tablet: 2 columns */
-  }
-  
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr); /* Desktop: 3 columns */
-  }
-`;
-```
-
-### Fluid Typography
-Scales smoothly between min/max based on viewport.
-
-**Example**:
-```css
-font-size: clamp(1.5rem, 4vw, 1.875rem);
-/* 
-  Mobile (320px): 1.5rem (24px)
-  Mid (800px):    4vw (32px)
-  Desktop:        1.875rem (30px)
-*/
-```
-
----
-
-## Global Styles
-
-### Location
-- `src/index.css` - Base CSS reset, focus states, font imports
-- `src/styles/GlobalStyles.js` - CSS variables, global styles via `styled-components`
-
-### Global Resets
-```css
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  font-size: 100%; /* Respects user preferences */
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-}
-```
-
-### Scrollbar Styles
-Hidden scrollbars for cleaner aesthetic.
-
-```css
-::-webkit-scrollbar {
-  width: 0px;
-  display: none;
-}
-
-* {
-  scrollbar-width: none; /* Firefox */
-}
-
-body {
-  -ms-overflow-style: none; /* IE/Edge */
-}
-```
-
-### Font Loading
-Google Fonts via `@import` in `index.css`:
-```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-```
-
-**Optimization**: `display=swap` prevents FOIT (Flash of Invisible Text)
-
----
-
-## styled-components Usage
-
-### Component Scoping
-Styles are scoped to components, preventing global conflicts.
-
-```javascript
-import styled from 'styled-components';
-
-const Card = styled.div`
-  background: var(--color-bg-card);
-  padding: var(--spacing-lg);
-  border-radius: 8px;
-`;
-```
-
-### Dynamic Styling
-Props-based conditional styling.
-
-```javascript
-const Button = styled.button`
-  background: ${props => props.$primary 
-    ? 'var(--color-accent-primary)' 
-    : 'transparent'};
-  color: ${props => props.$primary 
-    ? 'white' 
-    : 'var(--color-text-primary)'};
-`;
-
-// Usage
-<Button $primary>Submit</Button>
-```
-
-**Note**: Use `$` prefix for transient props (not passed to DOM)
-
-### Theme Integration
-Access CSS variables within styled-components.
-
-```javascript
-const Section = styled.section`
-  background: var(--color-bg-secondary);
-  padding: var(--spacing-2xl) var(--container-padding);
-  max-width: var(--container-xl);
-  margin: 0 auto;
-`;
-```
-
----
-
-## Performance Considerations
-
-### CSS-in-JS Optimization
-- Server-side rendering (SSR) support with `styled-components`
-- Critical CSS extraction
-- Minimal runtime overhead
-
-### Animation Performance
-- Use `transform` and `opacity` for GPU acceleration
-- Avoid animating `width`, `height`, `top`, `left` (causes reflow)
-- Prefer `translateY` over `margin-top` for movement
-
-### Layout Shifts
-- Reserved space with `min-height` on text-clamped elements
-- Image frames reserve space with `aspect-ratio` before media loads
-- Prevents Cumulative Layout Shift (CLS)
-
----
+# Styling
+
+How the site looks and why. Everything here is read from the code. When a
+value changes, update this file in the same commit.
+
+## Where styles live
+
+| Layer | File | Holds |
+| --- | --- | --- |
+| Reset and focus | [`src/index.css`](../src/index.css) | Box sizing, margin reset, media defaults, the global `:focus-visible` ring, the custom-cursor rule, print styles |
+| Tokens and element defaults | [`src/styles/GlobalStyles.js`](../src/styles/GlobalStyles.js) | CSS custom properties, heading/paragraph/link defaults, tap targets, scrollbars, reduced motion |
+| Shared primitives | [`src/components/ui/`](../src/components/ui) | `SectionHeader`, `PageHeader`, `PageLayout`, `Button`/`ButtonLink`/`TextLink`, the `eyebrow` mixin |
+| Component styles | `styled-components` next to each component | Layout and details local to one component |
+
+Fonts load from Google Fonts in [`index.html`](../index.html). The page
+preconnects, loads the stylesheet with `media="print"` and swaps it to `all`
+on load, so it does not block rendering. `display=swap` avoids invisible text,
+and a `<noscript>` link covers visitors without JavaScript.
+
+## Visual language
+
+- **Paper, ink, one accent.** A warm paper page (`#f6f3eb`), near-black ink
+  headings, slate body text and a single blue accent (`#1d4ed8`) for links,
+  labels and focus. The redesign removed gradient text, gradient buttons and
+  their tokens.
+- **Hairlines over shadows.** Surfaces are separated by 1px hairlines. Only
+  cards that lift on hover get `--shadow-md`. Strong 1px ink rules divide major
+  groups: archive years, shelf collections and "More writing".
+- **Mono eyebrows.** Small uppercase JetBrains Mono labels sit above titles
+  (`01 / Selected work`, `Archive · 8 posts`) and carry metadata (dates, read
+  times, tech chips).
+- **Display headings.** Space Grotesk for headings, Inter for text,
+  `text-wrap: balance` on headings and `pretty` on paragraphs.
+- **Short, small motion.** Reveals travel 14px over 0.4s. Hovers move 3–4px
+  over 160–240ms. Only `transform` and `opacity` animate.
+
+## Tokens
+
+All tokens are defined in `:root` in `GlobalStyles.js`.
+
+### Colour
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--color-bg-primary` | `#f6f3eb` | Page background |
+| `--color-bg-secondary` | `#f6f3eb` | Inputs and inset panels |
+| `--color-bg-tertiary` | `#edeae0` | Subtle fills, chips, inline code |
+| `--color-bg-card` | `#ffffff` | Cards and panels |
+| `--color-ink` | `#0f172a` | Headings, primary buttons, the shelf banner |
+| `--color-text-primary` | `#1e293b` | Article body, strong text |
+| `--color-text-secondary` | `#475569` | Paragraphs and ledes (default `p` colour) |
+| `--color-text-muted` | `#5b6677` | Metadata and labels |
+| `--color-accent-primary` | `#1d4ed8` | Links, eyebrows, focus ring, list markers |
+| `--color-accent-secondary` | `#3b82f6` | Decorative only: scroll-ring gradient, background glow, boot loader |
+| `--color-accent-soft` | `rgba(29, 78, 216, 0.07)` | Tinted fills (hero dot halo) |
+| `--color-accent-line` | `rgba(29, 78, 216, 0.24)` | Resting underline of prose links |
+| `--color-border` / `--color-border-hover` | slate at 8% / 15% | Card borders |
+| `--color-hairline` | `rgba(15, 23, 42, 0.12)` | Separators, secondary buttons, pills |
+
+Contrast, measured on white, the page and tertiary backgrounds:
+
+- secondary text: 7.58 / 6.83 / 6.30
+- muted text: 5.81 / 5.24 / 4.83
+- accent on the page: 6.04
+
+Muted was `#94a3b8` (2.56:1) until browser accessibility scans caught it. Any
+replacement must stay at or above 4.5:1 on all three backgrounds. Form errors
+use `#b91c1c`, because the earlier `#ef4444` failed AA on the page. Light text
+on the ink shelf banner is at least 6.7:1.
+
+### Shape, depth and motion
+
+| Token | Value |
+| --- | --- |
+| `--radius-sm` / `-md` / `-lg` / `-pill` | 8px / 12px / 18px / 999px |
+| `--shadow-sm` | `0 1px 2px rgba(15, 23, 42, 0.05)` |
+| `--shadow-md` | `0 18px 40px -24px rgba(15, 23, 42, 0.35)` (hover lift) |
+| `--ease-out` | `cubic-bezier(0.22, 1, 0.36, 1)` |
+| `--duration-fast` / `-base` | 160ms / 240ms |
+
+### Spacing and layout
+
+- `--spacing-xs` … `--spacing-2xl`: fluid `clamp()` steps from 4px to 128px.
+- `--container-padding`: `clamp(1rem, 5vw, 3rem)`, the page gutter everywhere.
+- `--container-xl` (1280px) bounds homepage sections and the navigation.
+  `--container-lg` (1024px) is the `PageLayout` "wide" width (see below).
+- `--header-offset` on `html` (`clamp(5rem, 8vw, 7rem)`) is the
+  `scroll-padding-top`, so native anchor jumps clear the fixed header.
+- Homepage sections pad `clamp(3.5rem, 7vw, 6rem)` top and bottom.
+- `--z-fixed` (300) is the only shared layer. Components set other z-indexes
+  locally.
+
+### Type
+
+- Families: `--font-primary` (Inter), `--font-display` (Space Grotesk) and
+  `--font-mono` (JetBrains Mono).
+- Fluid scale: `--text-xs` … `--text-6xl` (`clamp()`; base 16–18px).
+- `--text-section-title`: 2.5rem, and 2rem at 768px and below. Every homepage
+  section title uses it, Work included (40px desktop / 32px mobile, an e2e
+  contract).
+- `--text-lede`: 1.125rem, and 1rem at 768px and below.
+- Headings: display font, 700, `-0.02em` tracking, ink, balanced wrapping.
+- Paragraphs: secondary colour, line-height 1.7, `text-wrap: pretty`.
+- Long-form articles: 18px (17px mobile) on a 1.8 line-height in
+  `--color-text-primary`, on a ~70 character measure (see `PageLayout`).
+
+Responsive breakpoints are plain media queries; CSS variables cannot be used in
+them. The values in use are 1024px (hero scene, two-column grids), 900px,
+768px (the main mobile switch, 37 uses), 640px, 600px and 480px.
+
+## Shared primitives (`src/components/ui`)
+
+| Primitive | Renders | Notes |
+| --- | --- | --- |
+| `SectionHeader` | `header > h2 + p` | Centered homepage title. The `NN / label` eyebrow is an `aria-hidden` span *inside* the h2, so hash navigation (which aligns the h2 below the header) keeps it visible and the accessible name stays the title. |
+| `PageHeader` | `header > p? + h1 + p? + children` | Left-aligned subpage title with an optional eyebrow `label`, a lede and extras (byline, feed links, collection index). Extra props (e.g. `id`) go on the `header`. |
+| `PageLayout` | `Navigation` + `main` | The single `<main>` landmark for subpages. `width="wide"` (1024px) for listings, `width="reading"` (46rem) for articles and the 404. Top padding 8rem (6.5rem mobile) clears the floating header. |
+| `ButtonLink` / `Button` | router `Link` / `button` | Pill, 48px tall. `$variant="primary"` (ink, accent on hover) or `"secondary"` (hairline outline). |
+| `TextLink` | router `Link` | Quiet secondary-colour link ("Back to Blog", "All posts"). Use `as="a"` for in-page anchors and files (`#shelf-top`, `/feed.xml`). |
+| `eyebrow` (`typography.js`) | css mixin | Mono 12px uppercase, 0.14em tracking, accent colour. Override `color` for muted labels. |
+
+Icons with `data-arrow="forward" | "back" | "up"` inside `Button`,
+`ButtonLink` or `TextLink` nudge 3px in that direction on hover.
+
+## Recurring patterns
+
+- **Cards** (projects, homepage posts, contact form): white, a 1px
+  `--color-border` border and `--radius-lg`. Hover lifts use Framer Motion
+  `whileHover={{ y: -4 }}`, never CSS `:hover` transforms, because Framer's
+  inline transform would override them.
+- **Editorial lists** (`Blog/PostList`, the archive, "More writing", the
+  shelf):
+  - rows are separated by hairlines, with a mono date column and an h3 title
+  - the title link stretches over the row with `::after`, so the whole row is
+    clickable while the link's name stays the title alone
+  - the focus ring is drawn on that `::after`, around the row
+- **Chips**: a 1px `--color-border` outline. Work tech chips are mono 12px on
+  the page colour; About skill chips are 14px Inter on white.
+- **Text clamping**: `-webkit-line-clamp` on card and list summaries (2–3
+  lines). Real overflow is still tested at 320px in e2e.
+- **Prose** (`BlogPost`):
+  - accent links with a soft underline that turns solid on hover
+  - accent list markers
+  - display-font block quotes with a 2px accent rule
+  - ink code blocks
+  - `hr` drawn as a centred `· · ·`
+
+## Global behaviour
+
+- **Focus**: `src/index.css` gives every `:focus-visible` element a 3px
+  `#1d4ed8` outline (offset 3px on links and buttons, 2px on fields). Mouse
+  focus shows no outline. Components override it only when the ring needs a
+  different shape (`PostList` rows). Focus moved to section headings by
+  in-page navigation (`[data-section-focus]`) and `#main-content` shows no
+  outline.
+- **Tap targets**: `button, a, input, textarea, select` have
+  `min-height: 44px`. Only buttons also get `min-width: 44px`, so short text
+  links ("Blog") keep natural spacing. Icon-only links size themselves to 44px.
+  Inline links inside text are unaffected because `min-height` does not apply
+  to inline boxes.
+- **Scrollbars**: thin with an accent thumb on desktop, hidden at 768px and
+  below (scrolling still works).
+- **Background**: `body` paints a faint 80px engineering-paper grid
+  (`background-attachment: fixed`).
+- **Selection**: accent background, white text.
+
+## Motion
+
+- Variants live in
+  [`src/constants/motionVariants.js`](../src/constants/motionVariants.js):
+  - `containerVariants` staggers children by 0.06s
+  - `itemVariants` fades in and rises 14px over 0.4s on `--ease-out`
+- The app is wrapped in `<MotionConfig reducedMotion="user">`. With reduced
+  motion, Framer drops transforms but keeps opacity fades. Browser tests that
+  check visibility therefore wait for opacity to settle.
+- The CSS reduced-motion block sets `transition-duration` and
+  `transition-delay` to `0s` and shortens animations to one 0.01ms run. A
+  non-zero transition duration there would turn every property of every
+  element into a one-frame transition, because the initial
+  `transition-property` is `all`. That leaves stale layout for a frame after
+  breakpoint changes.
+- The navigation pill's frosted blur is on a `::before` pseudo-element.
+  `backdrop-filter` on the `nav` itself would become the containing block for
+  the fixed mobile drawer and clip it.
+- The mobile drawer hides with `visibility 0s linear 0.35s` (after the slide
+  out) and shows with no delay, so its first link can take focus in the same
+  frame it opens.
 
 ## Extending
 
-### Adding New Colors
-1. Define in `GlobalStyles.js` `:root` block
-2. Use semantic naming (purpose, not value)
-3. Provide dark/light variants if needed
-
-```javascript
---color-success: #10b981;
---color-error: #ef4444;
---color-warning: #f59e0b;
-```
-
-### Creating New Components
-1. Import `styled` from `styled-components`
-2. Use CSS variables for theming
-3. Include responsive breakpoints
-4. Add focus-visible states
-5. Ensure touch target sizes
-
-### Modifying Design System
-1. Update variables in `GlobalStyles.js`
-2. Test across all components
-3. Verify accessibility (contrast, focus states)
-4. Document changes in this file
+1. Reach for a token before a literal. If a new colour is needed, add a
+   semantic token in `:root`, check contrast on all three backgrounds and list
+   it above.
+2. Build pages from `PageLayout` + `PageHeader`, actions from `Button`,
+   `ButtonLink` and `TextLink`, and homepage sections from `SectionHeader`.
+3. Animate only `transform` and `opacity`. Use Framer `whileHover` for lifts
+   on motion elements, and keep durations within the motion tokens.
+4. Run `npm run check`. The axe scans and layout contracts in `e2e/` catch
+   contrast, overflow and alignment regressions.

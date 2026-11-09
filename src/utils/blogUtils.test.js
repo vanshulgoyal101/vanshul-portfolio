@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sortBlogsByDate, getRelatedPosts } from './blogUtils';
+import { sortBlogsByDate, getRelatedPosts, formatPostDate, groupPostsByYear } from './blogUtils';
 
 describe('sortBlogsByDate', () => {
   it('returns an empty array for non-array input', () => {
@@ -111,3 +111,50 @@ describe('getRelatedPosts', () => {
   });
 });
 
+describe('formatPostDate', () => {
+  it('formats both frontmatter styles the same way', () => {
+    expect(formatPostDate('29 Jul, 2026')).toBe('29 Jul 2026');
+    expect(formatPostDate('2026-07-29')).toBe('29 Jul 2026');
+    expect(formatPostDate('8 February 2026')).toBe('8 Feb 2026');
+  });
+
+  it('can omit the year', () => {
+    expect(formatPostDate('29 Jul, 2026', { year: false })).toBe('29 Jul');
+  });
+
+  it('does not depend on the reader timezone', () => {
+    // 1 Jan at midnight IST is still 31 Dec in UTC; the calendar date must win.
+    expect(formatPostDate('2026-01-01')).toBe('1 Jan 2026');
+  });
+
+  it('returns values that are not real dates unchanged', () => {
+    expect(formatPostDate('Jan 1, 2024')).toBe('Jan 1, 2024');
+    expect(formatPostDate('31 Feb, 2026')).toBe('31 Feb, 2026');
+    expect(formatPostDate(undefined)).toBe('');
+  });
+});
+
+describe('groupPostsByYear', () => {
+  it('groups sorted posts by year, newest year first, keeping post order', () => {
+    const posts = sortBlogsByDate([
+      { slug: 'a', date: '29 Jul, 2026' },
+      { slug: 'b', date: '12 Oct, 2025' },
+      { slug: 'c', date: '8 Feb, 2026' },
+      { slug: 'd', date: '16 Nov, 2023' },
+    ]);
+    expect(groupPostsByYear(posts)).toEqual([
+      { year: '2026', posts: [posts[0], posts[1]] },
+      { year: '2025', posts: [posts[2]] },
+      { year: '2023', posts: [posts[3]] },
+    ]);
+    expect(posts.map((post) => post.slug)).toEqual(['a', 'c', 'b', 'd']);
+  });
+
+  it('collects posts without a real date under "Undated"', () => {
+    expect(groupPostsByYear([{ slug: 'x', date: 'soon' }])).toEqual([{ year: 'Undated', posts: [{ slug: 'x', date: 'soon' }] }]);
+  });
+
+  it('returns no groups for no posts', () => {
+    expect(groupPostsByYear([])).toEqual([]);
+  });
+});

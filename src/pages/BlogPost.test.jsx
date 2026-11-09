@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import BlogPost from './BlogPost';
 import { ToastProvider } from '../components/Toast';
@@ -7,6 +7,9 @@ import { loadBlogPosts } from '../utils/blogLoader';
 import { postJsonLd } from '../../scripts/lib/structuredData.mjs';
 import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';
 import { articleHeadings, MIN_TOC_HEADINGS } from '../utils/articleHeadings';
+import { formatPostDate } from '../utils/blogUtils';
+import { postDate } from '../utils/seoValues';
+import { PROFILE } from '../constants/profile';
 
 const renderAt = (path) =>
   render(
@@ -46,6 +49,31 @@ describe('BlogPost', () => {
     renderAt(`/blog/${sample.slug}`);
     expect(screen.getByText(/Back to Blog/i)).toBeInTheDocument();
     expect(screen.getByText(/Share/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back to Blog' })).toHaveAttribute('href', '/blog/');
+    expect(screen.getByRole('button', { name: 'Share' })).toHaveAttribute('type', 'button');
+  });
+
+  it('bylines the post with the author, a machine-readable date and the read time', () => {
+    renderAt(`/blog/${sample.slug}`);
+    const article = screen.getByRole('article');
+    expect(within(article).getByText(formatPostDate(sample.date))).toHaveAttribute('datetime', postDate(sample.date));
+    expect(within(article).getAllByText(AUTHOR_NAME).length).toBeGreaterThan(0);
+  });
+
+  it('ends the article with an author card that links to the About section', () => {
+    renderAt(`/blog/${sample.slug}`);
+    const article = screen.getByRole('article');
+    expect(within(article).getByText('Written by')).toBeInTheDocument();
+    expect(within(article).getByText(new RegExp(PROFILE.summary.slice(0, 40)))).toBeInTheDocument();
+    expect(within(article).getByRole('link', { name: 'More about me' })).toHaveAttribute('href', '/#about');
+  });
+
+  it('keeps the article and related writing in one main landmark', () => {
+    renderAt(`/blog/${sample.slug}`);
+    expect(screen.getAllByRole('main')).toHaveLength(1);
+    const related = screen.getByRole('region', { name: 'More writing' });
+    expect(screen.getByRole('main')).toContainElement(related);
+    expect(within(related).getByRole('link', { name: 'All posts' })).toHaveAttribute('href', '/blog/');
   });
 
   it('injects BlogPosting and BreadcrumbList structured data', () => {

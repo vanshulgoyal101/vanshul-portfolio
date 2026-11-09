@@ -54,7 +54,10 @@ export const useContactForm = (initialState = { name: '', email: '', message: ''
       message: fieldError('message', formState.message),
     };
     setErrors(next);
-    if (next.name || next.email || next.message) {
+    const firstInvalid = ['name', 'email', 'message'].find((field) => next[field]);
+    if (firstInvalid) {
+      // Take keyboard and screen-reader users straight to the first problem.
+      e.currentTarget?.elements?.namedItem(firstInvalid)?.focus();
       showError('Missing details', 'Please add your name, a valid email, and a message.');
       return;
     }

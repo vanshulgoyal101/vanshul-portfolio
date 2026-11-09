@@ -37,23 +37,6 @@ p, h1, h2, h3, h4, h5, h6 {
   isolation: isolate;
 }
 
-/* Hide scrollbar for IE and Edge */
-body {
-  -ms-overflow-style: none;
-}
-
-/* Loading animation for React */
-.react-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #f6f3eb;
-  color: #1d4ed8;
-  font-family: 'Inter', sans-serif;
-  font-size: 1.5rem;
-}
-
 /* Disable default cursor on elements with custom cursor */
 body.has-custom-cursor * {
   cursor: none !important;

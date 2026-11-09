@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { eyebrow } from './typography';
 
 const Header = styled.header`
   max-width: 46rem;
@@ -20,15 +21,9 @@ const Title = styled.h2`
 // the fixed header, keeps the label visible. aria-hidden keeps the heading's
 // accessible name to the title alone.
 const Eyebrow = styled.span`
+  ${eyebrow}
   display: block;
   margin-bottom: 0.875rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-accent-primary);
 `;
 
 const Lede = styled.p`

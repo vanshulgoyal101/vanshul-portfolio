@@ -18,6 +18,17 @@
 - ✅ Original multilingual intro, three-tap rocket/smoke/About transition,
   desktop sculpture and persistent display preferences are retained.
 - ✅ Featured projects plus a keyboard-operable, initially collapsed directory.
+- ✅ **Editorial design system**: one palette of paper, ink and a single blue
+  accent; hairline surfaces; mono eyebrows; motion tokens; shared
+  `SectionHeader`, `PageHeader`, `PageLayout` and `Button`/`ButtonLink`/
+  `TextLink` primitives
+  ([documentation/styles.md](documentation/styles.md)).
+- ✅ Floating frosted navigation. On `/` the active item follows scroll-spy;
+  "Blog" is active on `/blog*` and `/reading-list`. On mobile, a numbered,
+  focus-managed drawer. The site footer ends every public route.
+- ✅ Screen-reader-announced notifications (polite live region). Failed contact
+  submits move focus to the first invalid field. Every page has one `main`
+  landmark.
 - ✅ Separate Books (12) and Essays (8) at `/reading-list/`, with external sources.
 - ✅ Private analytics dashboard: owner-gated SQL aggregates, time ranges, IST
   charts, safe CSV export, loading/error/empty states and sign-out invalidation.
@@ -31,9 +42,14 @@
 - ✅ Canonical URLs, sitemap entries and internal links use the final
   trailing-slash form, so no advertised URL redirects on GitHub Pages.
 - ✅ Homepage writing preview features the three newest posts and links to the full archive.
+- ✅ Archive at `/blog/`: grouped by year (sticky year labels on wide screens),
+  with links to the RSS feed and the reading list.
+- ✅ Articles: a ~70-character reading measure, a byline (avatar, date, read
+  time, live views, Share), "On this page" contents, an author card and
+  "More writing" related posts.
 - ✅ Article sections have stable deep-link ids; posts with three or more
   sections show a table of contents (also in the no-JavaScript HTML).
-- ✅ Frontmatter schema (id, title, slug, summary, date, readTime, category).
+- ✅ Frontmatter schema (title, slug, summary, date, readTime, category).
 - ✅ Readable static article bodies, writing index, shelf and basic homepage;
   public navigation works without JavaScript. Per-post OG images, RSS, sitemap.
 

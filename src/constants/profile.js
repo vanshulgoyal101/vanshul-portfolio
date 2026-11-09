@@ -19,6 +19,8 @@ export const PROFILE = {
   languages: ['English', 'Hindi'],
   photo: '/images/projects/profile2.webp',
   photoAlt: 'Vanshul Goyal — Associate Analyst',
+  // 160px face crop of `photo` for article bylines and author cards.
+  avatar: '/images/profile-avatar.webp',
   knowsAbout: [
     'Artificial Intelligence',
     'Software Engineering',

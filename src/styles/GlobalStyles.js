@@ -17,12 +17,8 @@ const GlobalStyles = createGlobalStyle`
 
     --color-accent-primary: #1d4ed8;
     --color-accent-secondary: #3b82f6;
-    --color-accent-glow: rgba(29, 78, 216, 0.08);
     --color-accent-soft: rgba(29, 78, 216, 0.07);
     --color-accent-line: rgba(29, 78, 216, 0.24);
-
-    --color-gradient-1: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
-    --color-gradient-2: linear-gradient(135deg, #f6f3eb 0%, #ffffff 100%);
 
     --color-border: rgba(30, 41, 59, 0.08);
     --color-border-hover: rgba(30, 41, 59, 0.15);
@@ -50,12 +46,8 @@ const GlobalStyles = createGlobalStyle`
     --spacing-2xl: clamp(4rem, 8vw, 8rem);
 
     /* Container widths */
-    --container-xs: 100%;
-    --container-sm: 640px;
-    --container-md: 768px;
     --container-lg: 1024px;
     --container-xl: 1280px;
-    --container-2xl: 1536px;
 
     /* Fluid container padding */
     --container-padding: clamp(1rem, 5vw, 3rem);
@@ -85,12 +77,7 @@ const GlobalStyles = createGlobalStyle`
     }
 
     /* Z-index layers */
-    --z-base: 0;
-    --z-dropdown: 100;
-    --z-sticky: 200;
     --z-fixed: 300;
-    --z-modal: 400;
-    --z-tooltip: 500;
   }
 
   *, *::before, *::after {

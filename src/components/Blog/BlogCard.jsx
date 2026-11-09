@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import { HiArrowRight } from 'react-icons/hi2';
 import { AiOutlineEye } from 'react-icons/ai';
 import { formatViews } from '../../utils/blogViews';
+import { formatPostDate } from '../../utils/blogUtils';
+import { postDate } from '../../utils/seoValues';
 import { postPath } from '../../constants/routes';
 
 const CardLink = styled(Link)`
@@ -50,14 +52,14 @@ const Meta = styled.div`
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 
-  span {
+  > * {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
     white-space: nowrap;
   }
 
-  span + span::before {
+  > * + *::before {
     content: '·';
     margin-right: 0.5rem;
   }
@@ -135,7 +137,7 @@ const BlogCard = ({ blog, index, variants, views }) => {
         aria-label={`Blog post: ${blog.title}`}
       >
         <Meta>
-          <span>{blog.date}</span>
+          <time dateTime={postDate(blog.date)}>{formatPostDate(blog.date)}</time>
           <span>{blog.readTime}</span>
           {views != null && (
             <span>

@@ -1,93 +1,49 @@
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaArrowLeft } from 'react-icons/fa';
+import { HiArrowLeft } from 'react-icons/hi';
+
+import PageLayout from '../components/ui/PageLayout';
+import { ButtonLink } from '../components/ui/Button';
+import { eyebrow } from '../components/ui/typography';
 import { useSeo } from '../hooks/useSeo';
 import { HOME_PATH, BLOG_PATH, READING_LIST_PATH } from '../constants/routes';
-import Navigation from '../components/Navigation/Navigation';
 
-const Wrap = styled.div`
-  min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
+const Center = styled(motion.div)`
+  padding: clamp(1rem, 6vh, 4rem) 0 clamp(1rem, 4vh, 2rem);
+  text-align: center;
 `;
 
-const Center = styled(motion.main)`
-  position: relative;
-  z-index: 2;
-  max-width: 640px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 160px var(--spacing-lg) var(--spacing-2xl);
-
-  @media (max-width: 768px) {
-    padding-top: 120px;
-  }
+const Label = styled.p`
+  ${eyebrow}
+  margin-bottom: 1rem;
 `;
 
 const Code = styled.p`
-  font-size: clamp(4rem, 14vw, 9rem);
-  font-weight: 800;
-  line-height: 1;
-  background: var(--color-gradient-1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-display);
+  font-size: clamp(6rem, 26vw, 11rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  color: var(--color-ink);
 `;
 
 const Title = styled.h1`
-  font-size: var(--text-2xl);
-  color: var(--color-text-primary);
-  margin: var(--spacing-md) 0 var(--spacing-sm);
+  margin: 1.5rem 0 0.75rem;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  letter-spacing: -0.03em;
 `;
 
 const Text = styled.p`
-  color: var(--color-text-secondary);
-  line-height: 1.7;
-  margin-bottom: var(--spacing-xl);
+  max-width: 30rem;
+  margin: 0 auto 2.25rem;
 `;
 
 const Actions = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-md);
   justify-content: center;
-`;
-
-const HomeLink = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: 12px 24px;
-  min-height: 44px;
-  border: none;
-  border-radius: 8px;
-  background: var(--color-gradient-1);
-  color: #fff;
-  font-weight: 600;
-  text-decoration: none;
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-`;
-
-const QuietLink = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  padding: 12px 20px;
-  min-height: 44px;
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  text-decoration: none;
-  font-weight: 600;
-  transition: border-color 0.2s ease;
-
-  &:hover {
-    border-color: var(--color-accent-primary);
-  }
+  gap: 0.75rem;
 `;
 
 const NotFound = () => {
@@ -101,23 +57,23 @@ const NotFound = () => {
   });
 
   return (
-    <Wrap>
-      <Navigation />
-      <Center initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+    <PageLayout width="reading">
+      <Center initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+        <Label>Page not found</Label>
         <Code>404</Code>
         <Title>This page wandered off.</Title>
         <Text>
           The link may be broken or the page may have moved. Let&apos;s get you back on track.
         </Text>
         <Actions>
-          <HomeLink to={HOME_PATH}>
-            <FaArrowLeft aria-hidden="true" /> Back home
-          </HomeLink>
-          <QuietLink to={BLOG_PATH}>Read the blog</QuietLink>
-          <QuietLink to={READING_LIST_PATH}>Reading list</QuietLink>
+          <ButtonLink to={HOME_PATH}>
+            <HiArrowLeft aria-hidden="true" data-arrow="back" /> Back home
+          </ButtonLink>
+          <ButtonLink $variant="secondary" to={BLOG_PATH}>Read the blog</ButtonLink>
+          <ButtonLink $variant="secondary" to={READING_LIST_PATH}>Reading list</ButtonLink>
         </Actions>
       </Center>
-    </Wrap>
+    </PageLayout>
   );
 };
 

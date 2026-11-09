@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, act, renderHook } from '@testing-library/react';
+import { render, screen, act, renderHook, fireEvent } from '@testing-library/react';
 import { ToastProvider, useToast } from './index';
 
 // framer-motion is mocked globally in src/test/setup.js so AnimatePresence
@@ -128,5 +128,36 @@ describe('ToastProvider', () => {
     expect(screen.getByText('One')).toBeInTheDocument();
     expect(screen.getByText('Two')).toBeInTheDocument();
     expect(screen.getByText('Three')).toBeInTheDocument();
+  });
+
+  it('announces toasts from a live region that exists before any toast', () => {
+    const { result } = renderHook(() => useToast(), { wrapper });
+    const region = document.querySelector('[aria-live="polite"]');
+    expect(region).toBeInTheDocument();
+    expect(region).toBeEmptyDOMElement();
+    act(() => {
+      result.current.showSuccess('Message sent!', "I'll reply soon.");
+    });
+    expect(region).toContainElement(screen.getByText('Message sent!'));
+    expect(region).toContainElement(screen.getByText("I'll reply soon."));
+  });
+
+  it('keeps toast titles out of the page heading outline', () => {
+    const { result } = renderHook(() => useToast(), { wrapper });
+    act(() => {
+      result.current.showError('Failed', 'Something broke');
+    });
+    expect(screen.queryAllByRole('heading')).toHaveLength(0);
+  });
+
+  it('closes a toast from its close button', () => {
+    const { result } = renderHook(() => useToast(), { wrapper });
+    act(() => {
+      result.current.showInfo('Closable', 'body', 0);
+    });
+    const close = screen.getByRole('button', { name: 'Close notification' });
+    expect(close).toHaveAttribute('type', 'button');
+    fireEvent.click(close);
+    expect(screen.queryByText('Closable')).not.toBeInTheDocument();
   });
 });

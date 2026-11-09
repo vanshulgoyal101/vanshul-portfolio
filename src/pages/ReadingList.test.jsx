@@ -61,4 +61,12 @@ describe('ReadingList page', () => {
     expect(within(index).getByRole('link', { name: `Books ${BOOKS.length}` })).toHaveAttribute('href', '#books');
     expect(within(index).getByRole('link', { name: `Essays ${ESSAYS.length}` })).toHaveAttribute('href', '#essays');
   });
+
+  it('ends with links back to Writings and to the top of the shelf', () => {
+    render(<MemoryRouter><ReadingListPage /></MemoryRouter>);
+    expect(screen.getByRole('link', { name: 'Writings' })).toHaveAttribute('href', '/#blog');
+    expect(screen.getByRole('link', { name: 'Back to top' })).toHaveAttribute('href', '#shelf-top');
+    expect(document.getElementById('shelf-top')).toContainElement(screen.getByRole('heading', { level: 1, name: 'From My Shelf' }));
+    expect(screen.getByRole('main')).toContainElement(document.getElementById('essays'));
+  });
 });

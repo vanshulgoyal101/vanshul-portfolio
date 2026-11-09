@@ -16,6 +16,15 @@ deployed and publicly reachable.
 `node scripts/capture-projects.mjs [adbrain] [tiny-arcade]` refreshes the AdBrain and
 Tiny Arcade screenshots from their live sites (see [homepage.md](homepage.md)).
 
+`public/images/profile-avatar.webp` (160×160, about 5 KB) is a face crop of
+`profile2.webp` for the article byline (44px) and the end-of-article author
+card (64px). It is referenced as `PROFILE.avatar`. To regenerate it after
+replacing the photo, run this from the repository root and check the crop:
+
+```bash
+node -e "require('sharp')('public/images/projects/profile2.webp').extract({ left: 235, top: 185, width: 360, height: 360 }).resize(160, 160).webp({ quality: 82 }).toFile('public/images/profile-avatar.webp')"
+```
+
 ## Icons and social images
 
 - `panda.svg`: the source favicon. `panda-32.png`, `panda-192.png`,

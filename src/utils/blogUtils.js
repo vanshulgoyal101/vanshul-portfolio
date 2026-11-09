@@ -1,7 +1,7 @@
 /**
  * Utility functions for blog operations.
  */
-import { compareNewestFirst } from './seoValues';
+import { compareNewestFirst, parsePostDate } from './seoValues';
 
 /**
  * Sort blog posts by date in descending order (newest first).
@@ -38,4 +38,37 @@ export const getRelatedPosts = (posts, current, limit = 3) => {
   return [...sortBlogsByDate(sameCategory), ...sortBlogsByDate(rest)].slice(0, Math.max(0, limit));
 };
 
+const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+/**
+ * Display a frontmatter date as "29 Jul 2026", or "29 Jul" when the year is
+ * shown elsewhere. Values that are not real dates are returned unchanged.
+ *
+ * @param {string} value - Frontmatter date ("29 Jul, 2026" or "2026-07-29")
+ * @param {{ year?: boolean }} [options]
+ * @returns {string}
+ */
+export const formatPostDate = (value, { year = true } = {}) => {
+  const parts = parsePostDate(value);
+  if (!parts) return String(value ?? '');
+  const dayMonth = `${parts.day} ${MONTH_LABELS[parts.month - 1]}`;
+  return year ? `${dayMonth} ${parts.year}` : dayMonth;
+};
+
+/**
+ * Split posts that are already sorted newest first into consecutive groups by
+ * publication year, for the archive.
+ *
+ * @param {Array} posts - Posts sorted with `sortBlogsByDate`
+ * @returns {Array<{ year: string, posts: Array }>}
+ */
+export const groupPostsByYear = (posts) => {
+  const groups = [];
+  for (const post of posts) {
+    const year = String(parsePostDate(post.date)?.year ?? 'Undated');
+    const current = groups.at(-1);
+    if (current?.year === year) current.posts.push(post);
+    else groups.push({ year, posts: [post] });
+  }
+  return groups;
+};

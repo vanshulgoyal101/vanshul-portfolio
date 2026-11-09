@@ -52,6 +52,11 @@ describe('BlogCard', () => {
     expect(screen.getByText(/5 min read/)).toBeInTheDocument();
   });
 
+  it('shows real dates in the site format with a machine-readable datetime', () => {
+    renderCard({ ...baseBlog, date: '29 Jul, 2026' });
+    expect(screen.getByText('29 Jul 2026')).toHaveAttribute('datetime', '2026-07-29');
+  });
+
   it('renders a "Read More" affordance', () => {
     renderCard();
     expect(screen.getByText(/Read More/)).toBeInTheDocument();

@@ -1,6 +1,28 @@
 import styled, { css } from 'styled-components';
 import { Link } from 'react-router-dom';
 
+// Focus rings come from the global :focus-visible rule in src/index.css.
+
+// Arrow icons marked with data-arrow nudge in their direction on hover.
+const arrowNudge = css`
+  svg {
+    flex-shrink: 0;
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  &:hover svg[data-arrow='forward'] {
+    transform: translateX(3px);
+  }
+
+  &:hover svg[data-arrow='back'] {
+    transform: translateX(-3px);
+  }
+
+  &:hover svg[data-arrow='up'] {
+    transform: translateY(-3px);
+  }
+`;
+
 // One button vocabulary for the whole site: a solid ink primary action and a
 // hairline secondary action, both pill-shaped with 48px targets.
 const base = css`
@@ -25,26 +47,10 @@ const base = css`
     color var(--duration-fast) ease,
     transform var(--duration-fast) var(--ease-out);
 
-  svg {
-    flex-shrink: 0;
-    transition: transform var(--duration-fast) var(--ease-out);
-  }
-
-  &:hover svg[data-arrow='forward'] {
-    transform: translateX(3px);
-  }
-
-  &:hover svg[data-arrow='back'] {
-    transform: translateX(-3px);
-  }
+  ${arrowNudge}
 
   &:active {
     transform: translateY(1px);
-  }
-
-  &:focus-visible {
-    outline: 3px solid var(--color-accent-primary);
-    outline-offset: 3px;
   }
 
   &:disabled {
@@ -87,4 +93,22 @@ export const ButtonLink = styled(Link)`
 export const Button = styled.button`
   ${base}
   ${variant}
+`;
+
+// Quiet navigation link ("Back to Blog", "Back to top"): secondary text that
+// darkens on hover. Render with as="a" for in-page anchors.
+export const TextLink = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-ink);
+  }
+
+  ${arrowNudge}
 `;
