@@ -5,11 +5,12 @@
 A single-page React application built with Vite. It renders a one-page portfolio
 (hero, projects, about, work, blog, contact) plus blog, shelf and dashboard routes.
 Styling is CSS-in-JS via styled-components on top of CSS custom properties;
-animation is handled by Framer Motion; the hero and background use three.js via
-`@react-three/fiber`. The app is a static SPA with generated readable public
+animation is handled by Framer Motion; the desktop hero sculpture uses three.js
+via `@react-three/fiber`, while the starfield and rocket smoke are 2D
+canvases. The app is a static SPA with generated readable public
 HTML for GitHub Pages, with an emphasis on tested WCAG 2.1 AA practices,
-responsiveness, and perceived
-performance (deferred decorative work + skeleton loaders).
+responsiveness, and perceived performance (deferred decorative work, lazy
+routes and a "Loading page..." fallback).
 
 ## Directory layout
 
@@ -20,8 +21,10 @@ src/
   index.css            # Base reset; GlobalStyles owns the design tokens
   blogs/               # One Markdown file per post (frontmatter + body)
   components/          # Homepage sections (Hero, Projects, About, Work, Blog,
-                       # Contact), Navigation, SiteFooter, Toast, ErrorBoundary,
-                       # FunElements (decorative), socialIcons.js
+                       # Contact), Navigation, SiteFooter, CursorToggle, Toast,
+                       # ErrorBoundary, BackgroundElements, Analytics
+                       # (GoatCounter), ui/ (shared primitives), FunElements/
+                       # (decorative), socialIcons.js
   constants/           # Content and config data (see data.md): siteConfig,
                        # profile, projects, experience, books, blogConstants,
                        # routes, readingListSeo, motionVariants
@@ -30,9 +33,9 @@ src/
   pages/               # BlogIndex, BlogPost, ReadingList, Dashboard, NotFound
   styles/              # GlobalStyles.js
   test/                # Vitest setup
-  utils/               # blogLoader, blogUtils, blogViews, seoValues,
-                       # scrollToSection, cursorPreference, magnetic,
-                       # dashboardData
+  utils/               # articleHeadings, blogLoader, blogUtils, blogViews,
+                       # seoValues, scrollToSection, cursorPreference,
+                       # magnetic, dashboardData (see the module table below)
 scripts/               # Build steps (sitemap, OG images, feed, prerender,
                        # sitemap index, verify-build), asset generators and
                        # the database runner; shared pure helpers in lib/
@@ -54,7 +57,7 @@ documentation/         # This documentation
   - Unknown paths/posts - friendly noindex recovery.
 - **Public publishing**: prebuild validates Markdown metadata and generates
   sitemap, social images and feed. Postbuild uses ReactMarkdown to emit readable
-  articles, indexes, shelf and basic homepage content inside `#root`. These are
+  articles, indexes, shelf and homepage content inside `#root`. These are
   fallback documents, not full SSR: React `createRoot` replaces them on startup.
   Public URLs end in `/` because GitHub Pages redirects the slash-less form;
   [`constants/routes.js`](../src/constants/routes.js) builds every path (see
@@ -65,14 +68,23 @@ documentation/         # This documentation
     and redirects to `index.html`.
   - A snippet in `index.html` restores the real URL before React boots.
 - **Section navigation**:
-  - `Navigation.jsx` renders anchor links and a scroll-spy that highlights the
-    active section.
-  - Same page: `scrollToSection(id)` calculates header clearance, moves with
-    `window.scrollTo`, and optionally focuses the destination heading.
-  - From a blog route: navigation goes home first; the hash helper waits for
-    the boot loader and fonts before finding and focusing the destination.
-  - `ScrollToHash` in `App.jsx` scrolls to `location.hash` on direct hits once
-    the boot loader has finished.
+  - `Navigation.jsx` renders `/#section` links (`/#home` … `/#contact`) and,
+    on `/` only, a scroll-spy that highlights the active section.
+  - A plain left click calls `navigate('/#section')` from any route, the
+    homepage included; modified clicks (new tab, new window) keep the browser
+    default.
+  - `ScrollToHash` in `App.jsx` handles every location that has a hash:
+    direct hits, cross-route links and same-page clicks. Once the boot loader
+    has finished and `document.fonts.ready` resolves, it calls
+    `scrollToSection(target, { focus: true })` on the next animation frame.
+    There is no fixed delay; a target that is not in the DOM yet is skipped.
+  - `scrollToSection` ([`utils/scrollToSection.js`](../src/utils/scrollToSection.js))
+    finds the section's first `h1`/`h2`, subtracts the fixed header's bottom
+    edge plus 20px, scrolls with `window.scrollTo` (instant under reduced
+    motion, smooth otherwise) and focuses the heading, marking it with
+    `data-section-focus`. `#home` scrolls to the top. The rocket's smoke
+    transition and the reading list's `#books`/`#essays`/`#shelf-top`
+    handling call it directly.
 
 ## State management
 
@@ -82,15 +94,29 @@ documentation/         # This documentation
   `useToast()` hook. Toasts auto-dismiss after a configurable duration
   (default 5s).
 - **URL state** — route params via react-router.
+- **Browser storage**:
+  - `localStorage`: `vg.ambient` (`on`/`off`, the ambient-motion switch, read
+    by `App`) and `vg.cursor` (`on`/`off`, the custom-cursor switch; absent
+    means the default) from `utils/cursorPreference.js`.
+  - `sessionStorage`: `vg.viewedPosts`, the slugs already counted in this
+    browser session (`utils/blogViews.js`).
+  - The dashboard's supabase-js client keeps its auth session in
+    `localStorage` under the library's default `sb-<project-ref>-auth-token`
+    key. The `a.js` beacon, which this site does not load, uses `vg.vid`.
 
 ## Data flow
 
 1. `main.jsx` mounts `App` in `React.StrictMode`.
-2. `App` wraps everything in `ToastProvider`, renders `GlobalStyles`, the boot
-   loader, decorative background, and the routes.
-3. Blog data is loaded synchronously at import time:
-   - `utils/blogLoader.js` uses `import.meta.glob('../blogs/*.md', { query: '?raw', eager: true })`
-     to inline every post's raw markdown at build time.
+2. `App` wraps the tree in `MotionConfig reducedMotion="user"`, the router and
+   `ToastProvider`. It renders `ScrollToHash`, the GoatCounter `Analytics`
+   loader, `GlobalStyles`, the boot loader, the skip link, the custom cursor,
+   the background wash, the idle decorative layer, the routes (inside a
+   `Suspense` loading fallback and an `ErrorBoundary`) and the footer.
+3. Blog data is bundled at build time and parsed synchronously on first use:
+   - `utils/blogLoader.js` uses
+     `import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true })`
+     to inline every post's raw markdown at build time, and caches the parsed
+     posts after the first `loadBlogPosts()` call.
    - A small in-house parser extracts YAML-style frontmatter (no `gray-matter`
      dependency); the body is kept as a markdown string.
    - `utils/blogUtils.js` → `sortBlogsByDate` orders posts newest-first.
@@ -101,17 +127,25 @@ documentation/         # This documentation
 ## Performance strategy
 
 - **Deferred decorative work**: `useIdle` + `Suspense`/`lazy` load
-  `FloatingRocket`, `RandomTelemetry`, and `InteractiveSpaceBackground` only
-  after first paint.
-- **Manual chunking**: `vite.config.js` splits vendors (react, framer-motion,
-  styled-components, three core, three-react, icons, markdown, supabase) for
-  better caching. three.js is unavoidably the largest chunk and is isolated.
+  `SmokeTransition`, `FloatingRocket`, `RandomTelemetry` and
+  `InteractiveSpaceBackground` (in `App`) and `HeroScene` (in `Hero`) only
+  after the browser is idle. None of them load for reduced motion; the
+  ambient four also wait for the boot loader and the ambient-motion switch,
+  and the hero scene only loads above 1024px.
+- **Lazy routes**: `BlogPost`, `BlogIndex`, `ReadingList` and `Dashboard` are
+  `React.lazy` chunks, so the markdown renderer and the dashboard stay off the
+  homepage bundle.
+- **Manual chunking**: `vite.config.js` splits vendors (`vite-preload`, react,
+  framer-motion, styled-components, three core, three-react, icons, markdown,
+  supabase) for better caching. three.js is unavoidably the largest chunk and
+  is isolated.
 - **Lazy services**: supabase-js loads on first use through `getSupabase()`,
   never on first paint. `verify:build` fails the build if any published page
   eagerly loads the three.js, markdown, supabase, dashboard or hero-scene
   chunks.
-- **Error boundaries** wrap each section so a failure in one does not blank the
-  page.
+- **Error boundaries** wrap each homepage section, the routes as a whole and
+  the hero scene (with a `null` fallback), so a failure in one does not blank
+  the page.
 
 ## External boundaries
 
@@ -124,6 +158,29 @@ documentation/         # This documentation
 - Optional GoatCounter and the separately installed first-party beacon have
   distinct data flows. See [analytics.md](analytics.md) for privacy and grants.
 - Database scripts require verified TLS. SQL tests run in PGlite, not production.
+
+## Utility and library modules
+
+Every module in `src/utils/` and `src/lib/`, with the document that covers it
+in detail.
+
+| Module | Exports | Details |
+| --- | --- | --- |
+| [`utils/articleHeadings.js`](../src/utils/articleHeadings.js) | `headingSlug`, `rehypeHeadingIds`, `articleHeadings`, `MIN_TOC_HEADINGS` | [data.md](data.md#section-headings-and-the-table-of-contents) |
+| [`utils/blogLoader.js`](../src/utils/blogLoader.js) | `parseFrontmatter`, `loadBlogPosts`, `loadBlogBySlug` | [data.md](data.md#loading--parsing) |
+| [`utils/blogUtils.js`](../src/utils/blogUtils.js) | `sortBlogsByDate`, `getRelatedPosts`, `formatPostDate`, `groupPostsByYear` | [data.md](data.md#loading--parsing) |
+| [`utils/blogViews.js`](../src/utils/blogViews.js) | `incrementBlogView`, `getBlogView`, `recordBlogView`, `getAllBlogViews`, `formatViews` | [data.md](data.md#client-code) |
+| [`utils/seoValues.js`](../src/utils/seoValues.js) | `parsePostDate`, `postDate`, `postPublishedAt`, `postTimestamp`, `compareNewestFirst`, `PUBLICATION_TIMEZONE_OFFSET`, `parseTags`, `postKeywords` | [data.md](data.md#frontmatter-schema), [seo.md](seo.md) |
+| [`utils/scrollToSection.js`](../src/utils/scrollToSection.js) | `scrollToSection`, `getHashTarget`, `getScrollOffset`, `getSectionScrollTop` | [Routing & navigation](#routing--navigation) above |
+| [`utils/cursorPreference.js`](../src/utils/cursorPreference.js) | `getCursorPreference`, `setCursorPreference`, `isPointerFine`, `isAutoCursorCapable`, `isCustomCursorEnabled`, `CURSOR_PREF_EVENT` | [components.md](components.md#shared-ui) |
+| [`utils/magnetic.js`](../src/utils/magnetic.js) | `magneticOffset`, `FOLLOW_RATIO` | [components.md](components.md#decorative-elements--componentsfunelements) |
+| [`utils/dashboardData.js`](../src/utils/dashboardData.js) | `formatNumber`, `fillDailySeries`, `hourSeries`, `toBars`, `shortenUrl`, `percentDelta`, `statsToCsv` | [analytics.md](analytics.md#4-the-dashboard--dashboard) |
+| [`lib/supabaseClient.js`](../src/lib/supabaseClient.js) | `isSupabaseConfigured`, `getSupabase` (lazy view-count client) | [data.md](data.md#view-counts-supabase) |
+| [`lib/analyticsClient.js`](../src/lib/analyticsClient.js) | `analytics` (supabase-js client for the dashboard), `OWNER_EMAIL` | [analytics.md](analytics.md#4-the-dashboard--dashboard) |
+
+Content and configuration modules in `src/constants/` are listed in
+[data.md](data.md#portfolio-content-modules); `motionVariants.js` is covered in
+[styles.md](styles.md#motion).
 
 ## Tech stack
 
@@ -145,4 +202,6 @@ documentation/         # This documentation
   `App.jsx`, and wrap it in `<ErrorBoundary><SectionWrapper id="…">`.
 - **New route**: add a `<Route>` in `App.jsx` and a component in `src/pages/`.
 - **New blog post**: drop a `.md` file into `src/blogs/` (see [data.md](data.md)).
-- **Global styles/tokens**: edit `src/index.css` or `src/styles/GlobalStyles.js`.
+- **Global styles/tokens**: tokens and element defaults live in
+  `src/styles/GlobalStyles.js`; `src/index.css` holds the reset, the focus
+  ring and print rules (see [styles.md](styles.md)).

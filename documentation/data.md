@@ -13,22 +13,29 @@ maps to an icon component.
 
 | Module | Exports | Rendered by |
 | --- | --- | --- |
-| [`constants/siteConfig.js`](../src/constants/siteConfig.js) | `SITE_URL`, `AUTHOR_NAME`, `HOME_DESCRIPTION`, `DEFAULT_OG_IMAGE`, `SOCIAL_LINKS`, `AUTHOR_SAME_AS`, `SOCIAL_PROFILES` | Hero, Contact, footer, SEO and build scripts |
-| [`constants/profile.js`](../src/constants/profile.js) | `PROFILE` (headline, role, employer, education, summary, location, languages, photo, `knowsAbout`), `HIGHLIGHTS`, `SKILL_GROUPS` | Hero, About, Contact, homepage JSON-LD |
+| [`constants/siteConfig.js`](../src/constants/siteConfig.js) | `SITE_URL`, `AUTHOR_NAME`, `HOME_DESCRIPTION`, `DEFAULT_OG_IMAGE`, `SOCIAL_LINKS`, `AUTHOR_SAME_AS`, `SOCIAL_PROFILES` | Hero, Contact, footer, dashboard footer, SEO and build scripts |
+| [`constants/profile.js`](../src/constants/profile.js) | `PROFILE` (headline, role, employer, education, summary, location, languages, photo, `photoAlt`, `avatar`, `knowsAbout`), `HIGHLIGHTS`, `SKILL_GROUPS` | Hero, About, Contact, article byline and author card, homepage JSON-LD |
 | [`constants/projects.js`](../src/constants/projects.js) | `FEATURED_PROJECTS`, `CASE_STUDY_FIELDS`, `PROJECT_DIRECTORY` | Projects |
 | [`constants/experience.js`](../src/constants/experience.js) | `EXPERIENCE` (newest first; the first entry is the current role) | Work, About |
-| [`constants/books.js`](../src/constants/books.js) | `BOOKS`, `ESSAYS`, `SHELF_ITEMS` | Reading list, shelf card |
+| [`constants/books.js`](../src/constants/books.js) | `BOOKS`, `ESSAYS`, `SHELF_ITEMS` (books then essays) | Reading list, shelf card |
+| [`constants/readingListSeo.js`](../src/constants/readingListSeo.js) | `READING_LIST_DESCRIPTION`, `READING_LIST_JSON_LD` (an `ItemList` of `SHELF_ITEMS` plus a `BreadcrumbList`) | Reading list page metadata and its prerendered shell (`verify:build` checks that shell's `ItemList` against `books.js`) |
 | [`constants/blogConstants.js`](../src/constants/blogConstants.js) | `BLOG_CONTENT`, `BLOG_INDEX_DESCRIPTION` | Blog preview, archive |
-| [`constants/routes.js`](../src/constants/routes.js) | Public URL paths and `absoluteUrl` | Links, canonicals, sitemap, feed |
+| [`constants/routes.js`](../src/constants/routes.js) | `HOME_PATH`, `BLOG_PATH`, `READING_LIST_PATH`, `postPath`, `homeSectionPath`, `absoluteUrl` | Links, canonicals, sitemap, feed |
+
+`prerenderContent.mjs` also renders the site, profile, project, experience,
+shelf and blog-copy modules into the static fallback HTML. The motion presets
+in `constants/motionVariants.js` are covered in [styles.md](styles.md#motion).
 
 Rules:
 
 - Only publish facts that are true and visible on the site; structured data is
   generated from these modules, so an inaccurate entry becomes an inaccurate
   claim to search engines.
-- `scripts/lib/prerenderContent.test.js` and `npm run verify:build` fail if a
-  featured project, directory entry, job, highlight or skill is missing from
-  the static homepage HTML.
+- `scripts/lib/prerenderContent.test.js` fails if a featured project
+  (title, description, outcome, link), directory entry, job, highlight, skill,
+  the school, the summary or a social profile is missing from the static
+  homepage HTML. `npm run verify:build` re-checks the built homepage for every
+  featured project, directory entry and job title.
 - Editing a module updates the UI, the fallback HTML and the structured data
   together; no other file needs to change unless a new icon key is introduced
   (add it to the component's `ICONS` map).
@@ -62,12 +69,19 @@ Body content in Markdown…
 
 | Field      | Type   | Notes |
 | ---------- | ------ | ----- |
-| `title`    | string | Display title. |
-| `slug`     | string | Must match the filename; lowercase kebab-case, at most 120 characters, unique. Drives the URL and is the post's identity. |
-| `summary`  | string | Shown on the blog card. |
-| `date`     | string | Publication date as `27 Aug, 2025` (also accepts `2025-08-27`). A calendar date in India Standard Time; see below. Displayed as written. |
-| `readTime` | string | e.g. `"4 min read"`. Displayed as-is. |
-| `category` | string | Optional grouping label. |
+| `title`    | string | Required. Display title. |
+| `slug`     | string | Required. Must match the filename; lowercase kebab-case, at most 120 characters, unique. Drives the URL and is the post's identity. |
+| `summary`  | string | Required. Card, archive and article dek; the meta description. |
+| `date`     | string | Required. Publication date as `27 Aug, 2025` (also accepts `2025-08-27`, full month names and no comma). A calendar date in India Standard Time; see below. Displayed by `formatPostDate` as `27 Aug 2025` (`27 Aug` in the archive, under its year heading). |
+| `readTime` | string | Required. e.g. `"4 min read"`. Displayed as-is; its number becomes the JSON-LD `timeRequired`. |
+| `category` | string | Optional. Article eyebrow, related-post grouping, archive row facts, feed `<category>`, `article:section`, JSON-LD `articleSection` and `keywords`, and the per-post social card label. |
+| `tags`     | string | Optional comma-separated list (no post uses it yet). Added to the JSON-LD `keywords` after the category and emitted as `article:tag` meta tags in the prerendered article; the runtime `useSeo` does not add `article:tag`. |
+
+The content tests (`src/blogs/blogContent.test.js`) require `title`, `slug`,
+`summary`, `date` and `readTime` on every post. The build's post reader fails
+on a missing title, an invalid or duplicate slug, or an invalid date. Each
+frontmatter line is split at its first colon and surrounding quotes are
+removed; YAML features such as lists or multi-line values are not supported.
 
 Publication dates are parsed by `parsePostDate` in
 [`src/utils/seoValues.js`](../src/utils/seoValues.js), never by `new Date(string)`,
@@ -87,8 +101,9 @@ The build fails on an impossible date such as `31 Feb, 2026`.
 
 ### Section headings and the table of contents
 
-Use `##` for an article's sections (and `###` for subsections). Each `h2`/`h3`
-gets an id derived from its text by `headingSlug` in
+Use `##` for an article's sections (and `###` for subsections). The content
+tests reject a heading that skips a level (the post title is the page `h1`).
+Each `h2`/`h3` gets an id derived from its text by `headingSlug` in
 [`src/utils/articleHeadings.js`](../src/utils/articleHeadings.js) — lowercase,
 accents and punctuation removed, words joined by hyphens, with `-1`, `-2`
 suffixes for repeats. For example `## The counter-force` becomes
@@ -97,8 +112,9 @@ suffixes for repeats. For example `## The counter-force` becomes
 - The same rehype plugin (`rehypeHeadingIds`) runs in the app and in the build
   renderer, so prerendered and React ids are identical (a test checks every
   published post).
-- Posts with at least `MIN_TOC_HEADINGS` (3) sections show a "Contents" list
-  linking to each section, in the app and in the static HTML.
+- Posts with at least `MIN_TOC_HEADINGS` (3) `h2`/`h3` headings show a
+  contents list linking to each one: "On this page" in the app, "Contents" in
+  the static HTML (both are a `nav` labelled "Table of contents").
 - Renaming a heading changes its anchor and breaks existing deep links to that
   section.
 
@@ -108,16 +124,26 @@ suffixes for repeats. For example `## The counter-force` becomes
 
 - `import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true })`
   inlines every post's raw markdown at build time.
-- A small in-house `parseFrontmatter` function extracts the frontmatter (quoted
-  strings are unquoted, numeric values are coerced to numbers). **No
-  `gray-matter` dependency is used.**
-- `loadBlogPosts()` returns an array of `{ ...frontmatter, content, filename }`.
+- A small in-house `parseFrontmatter(markdown)` function returns
+  `{ data, content }`: it splits each frontmatter line on its first colon,
+  unquotes quoted strings and coerces numeric values to numbers. **No
+  `gray-matter` dependency is used.** The build scripts use their own copy in
+  `scripts/lib/seo.mjs`, which keeps every value a string.
+- `loadBlogPosts()` returns an array of `{ ...frontmatter, content, filename }`,
+  parsed on the first call and cached.
 - `loadBlogBySlug(slug)` returns a single post or `null`.
 
 [`src/utils/blogUtils.js`](../src/utils/blogUtils.js):
 
 - `sortBlogsByDate(posts)` returns a new array sorted newest-first (does not
   mutate its input; returns `[]` for non-array input).
+- `getRelatedPosts(posts, current, limit = 3)` returns same-category posts
+  first, then the newest others, never the current post ("More writing").
+- `formatPostDate(value, { year = true })` formats a frontmatter date as
+  `29 Jul 2026` (or `29 Jul`); unparseable values are returned unchanged.
+- `groupPostsByYear(posts)` splits newest-first posts into
+  `{ year, posts }` groups for the archive (`Undated` for posts without a
+  valid date).
 
 ### Rendering
 
@@ -125,15 +151,19 @@ suffixes for repeats. For example `## The counter-force` becomes
   loads posts with `useMemo`, sorts them, and renders the three newest as
   `BlogCard`s plus a link to the full archive (or an empty state).
 - `BlogCard` links to the canonical `/blog/<slug>/` URL.
+- The archive ([`pages/BlogIndex.jsx`](../src/pages/BlogIndex.jsx)) groups
+  the sorted posts by year and lists them with `PostList`.
 - The full post renders in [`pages/BlogPost.jsx`](../src/pages/BlogPost.jsx) using
-  `react-markdown`. Links inside
-  rendered markdown open in a new tab with `rel="noopener noreferrer"`.
+  `react-markdown` with the `rehypeHeadingIds` plugin. Raw HTML in a post is
+  not rendered. Links inside rendered markdown open in a new tab with
+  `rel="noopener noreferrer"`.
 
 ### Adding a post
 
 1. Create `src/blogs/<slug>.md`.
-2. Add frontmatter with a **unique `id`** and a `slug` equal to `<slug>`.
-3. Write the body in Markdown.
+2. Add the required frontmatter (`title`, `slug` equal to `<slug>`, `summary`,
+   `date`, `readTime`) and, optionally, `category` and `tags`.
+3. Write the body in Markdown, starting section headings at `##`.
 
 That's it — the glob import picks it up automatically on the next build/dev
 reload. Run `npm test` to confirm the content-integrity checks still pass.
@@ -175,8 +205,9 @@ counts are shown — the site builds and runs exactly as before.
   returns a `{ slug: views }` map for the published posts; `useBlogView(slug)`
   records the article view and returns the current count.
 
-The homepage preview and the archive pass each count to `BlogCard`;
-`BlogPost.jsx` shows the count in the article header. Counts are popularity
+The homepage preview passes each count to `BlogCard` and the archive passes
+the map to `PostList`; `BlogPost.jsx` shows the count in the article byline.
+"More writing" lists show no counts. Counts are popularity
 signals for display, not unique-reader measurements: the endpoint is anonymous
 and can be called directly.
 
@@ -210,6 +241,29 @@ all table privileges from `public`, `anon` and `authenticated`, grants read-only
 kebab-case or longer than 120 characters and runs with a fixed `search_path`.
 `scripts/database.test.js` executes the schema in an isolated PGlite database
 and checks these grants, the validation and idempotent re-application.
+
+#### Database runner
+
+[`scripts/db.mjs`](../scripts/db.mjs) runs SQL against the Postgres database
+with `pg`; it never prints the credentials:
+
+```bash
+node --env-file=.env scripts/db.mjs path/to/file.sql
+node --env-file=.env scripts/db.mjs -e "select * from blog_views;"
+echo "select 1;" | node --env-file=.env scripts/db.mjs
+```
+
+- Credentials come from `.env`: either `SUPABASE_DB_URL` (a `postgres://` or
+  `postgresql://` URL) or the libpq variables `PGHOST`, `PGPORT`, `PGUSER`,
+  `PGPASSWORD` and `PGDATABASE` (`PGHOST` and `PGPASSWORD` must be set).
+- [`scripts/lib/databaseConfig.mjs`](../scripts/lib/databaseConfig.mjs)
+  builds the connection settings. TLS certificate verification is always on
+  and the connection attempt times out after 10 seconds. `PGSSLMODE` and any
+  URL `sslmode` must be `verify-full`; URL `ssl`, `sslcert` and `sslkey`
+  parameters are rejected. A trusted CA file can be supplied with
+  `PGSSLROOTCERT` or a URL `sslrootcert`.
+- Command tags and row counts go to stderr and result rows to stdout as JSON.
+  A database error sets a non-zero exit code.
 
 Residual risk: an anonymous caller can still create rows for slugs that are not
 posts. The bounded client query makes such rows invisible on the site. A

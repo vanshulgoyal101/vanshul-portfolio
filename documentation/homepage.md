@@ -15,11 +15,13 @@ collapsed default supersedes the earlier always-visible design preference.
 Case-study text should describe supported project facts, not inferred customer
 results or invented metrics.
 
-Only one MCP server is listed: `ctx` was chosen as the stronger of the two
-(more code, six tools versus four). The other server, `mcp`
-(https://mcp.vanshul.com, source `vanshulgoyal101/mcp`, "reads the live web as
-clean Markdown for AI agents"), is still live; restore it by adding an entry to
-the "Live products & tools" group.
+Of the two standalone MCP servers, only `ctx` is listed (in "Live products &
+tools"); it was chosen as the stronger of the two. `vbrain`, in "Open source &
+packages", also exposes an MCP server as part of its second-brain engine. The
+other standalone server, `mcp` (https://mcp.vanshul.com, source
+`vanshulgoyal101/mcp`, "reads the live web as clean Markdown for AI agents"),
+was live when checked on 9 November 2026; restore it by adding an entry to the
+"Live products & tools" group in `src/constants/projects.js`.
 
 ## Navigation contract
 
@@ -29,7 +31,8 @@ align with the heading's left edge above that breakpoint. Buttons stack below
 1024, and 1440px rather than relying only on CSS declarations.
 
 The floating rocket's flame and local puffs share a zero-size exhaust anchor
-inside the rotating icon. Its position (25.5%, 74.5%) corresponds to the rear
+inside the rotating icon. Its position (`left: 25.5859375%`,
+`top: 74.4140625%`, i.e. 131/512 and 381/512) corresponds to the rear
 midpoint of the Font Awesome rocket's 512-unit viewBox. The canvas receives the
 anchor's transformed viewport coordinates, not the button's bounding box.
 Changing the rocket icon requires rechecking this anchor. Browser tests compare
@@ -76,8 +79,9 @@ block of the fixed drawer and clip it.
 
 Work Experience uses a 40px desktop heading and a 32px heading through 768px.
 Its supporting typography has a separate, fixed responsive hierarchy:
-job titles are 20px desktop / 18px mobile, company names and the section subtitle
-16px, descriptions 16px, and date/location metadata 14px. Sizes are rem
+job titles are 20px desktop / 18px mobile, company names 16px, the section
+lede 18px desktop / 16px mobile (`--text-lede`), descriptions 16px, and
+date/location metadata 14px. Sizes are rem
 based and respect browser text preferences. Do not let fluid card-title tokens
 grow to match the mobile section heading. The browser regression checks heading
 order and text containment at 320, 390, 600, 768, 769 and 1440px, with a minimum
@@ -109,7 +113,8 @@ disposed on unmount. Rotation and floating motion are restrained, with no partic
 Separate ambient decorations default to enabled and retain idle loading. The
 footer switch persists an explicit choice in `vg.ambient`; reduced motion always
 disables them. That setting does not control the desktop hero.
-Lazy routes show a loading state and share an error boundary.
+Lazy routes show a "Loading page..." state (the dashboard's is empty) and share
+an error boundary.
 
 The floating rocket and `SmokeTransition` load together inside the idle ambient
 boundary. On desktop the rocket remains fixed in the lower-right corner; on
@@ -156,15 +161,16 @@ can contain old branding even when the surrounding title icon is correct;
 inspect the actual image after an identity release.
 Version the project image URL when replacing a public screenshot; GitHub Pages
 can retain the previous bytes at an unchanged CDN URL after a successful deploy.
-never capture authenticated customer data. AdBrain currently shows its public
+Never capture authenticated customer data. AdBrain currently shows its public
 landing page, not the authenticated creative workspace. The NASA photograph is
-preserved. Image frames use an 8:5 aspect ratio. Images are absolutely positioned
-inside the frame with `object-fit: cover` and a bottom-center anchor: the 8:5
-software captures remain complete, while the 4:3 HERC photo loses excess sky
-instead of the rover at the bottom. Images do not zoom on hover. The hairline
-between image and text is the content block's top border. A border on the
-frame would shrink the absolutely positioned image by 1px. Browser tests
-compare image/frame rectangles (within 1px) and frame heights on desktop and
-mobile.
+preserved. Image frames use an 8:5 aspect ratio. Images are absolutely
+positioned inside the frame with `object-fit: cover` and a bottom-center anchor:
+the software captures stay essentially complete (Tiny Arcade is exactly
+1280×800; the 1265×800 AdBrain capture loses under 1% at the top), while the 4:3
+HERC photo loses excess sky instead of the rover at the bottom. Images do not
+zoom on hover. The hairline between image and text is the content block's top
+border. A border on the frame would shrink the absolutely positioned image by
+1px. Browser tests compare image/frame rectangles (within 1px) and frame heights
+on desktop and mobile.
 
 See [testing.md](testing.md) for production browser checks and their limits.

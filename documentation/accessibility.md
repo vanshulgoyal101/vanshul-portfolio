@@ -22,9 +22,9 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
   `maximum-scale` and no `user-scalable=no`.
 - **Landmarks**: the header `nav` is labelled "Primary navigation" and each
   page has exactly one `main`. The homepage's comes from `App`; subpages get
-  theirs from `PageLayout`. The footer (`contentinfo`) contains a "Footer
-  links" nav. Named regions include "More things I've built", "More writing",
-  and the Books and Essays collections.
+  theirs from `PageLayout`, and the dashboard renders its own. The footer
+  (`contentinfo`) contains a "Footer links" nav. Named regions include "More
+  things I've built", "More writing", and the Books and Essays collections.
 - **Headings**: one `h1` per page (the name on the homepage; the page or
   article title elsewhere). Then `h2` for sections (homepage sections, archive
   years, article sections, "More writing") and `h3` for items. Section
@@ -34,7 +34,8 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
 - **Lists**: timelines, post lists, the shelf and stat tiles are real
   `ol`/`ul` elements. Contact facts are a `dl`.
 - **Lazy routes**: while a page chunk loads, the fallback is a `role="status"`
-  "Loading page..." message.
+  "Loading page..." message. The dashboard route's own fallback is empty;
+  once loaded, the dashboard shows "Loading…" while it restores the session.
 
 ## Keyboard and focus
 
@@ -42,9 +43,11 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
   on focus and targets `#main-content` (`tabindex="-1"`).
 - **Focus ring**: `src/index.css` gives every `:focus-visible` element a 3px
   `#1d4ed8` outline (6.04:1 on the page). The offset is 3px on links and
-  buttons and 2px on fields, and mouse focus shows none. `PostList` rows
-  redraw the ring around the whole row, because their title link stretches
-  over it.
+  buttons and 2px on fields, and mouse focus shows none. Several components
+  restate the ring with a different offset. `PostList` rows redraw the ring
+  around the whole row, because their title link stretches over it. The
+  footer's links, Display settings summary and switches, and the dashboard's
+  chart region use a 2px ring.
 - **In-page navigation**: `/#section` links and the hash handler scroll the
   section's `h1`/`h2` below the fixed header and move focus to it. Focused
   headings, section fallbacks and `#main-content` carry `data-section-focus`
@@ -128,12 +131,17 @@ Tokens are in `src/styles/GlobalStyles.js` (see [styles.md](styles.md#colour)).
   non-zero transition duration would make every property of every element
   transition for a stale frame, because the initial `transition-property` is
   `all`. No code depends on `transitionend`.
-- Decorative layers are `aria-hidden`, never needed for a task, and do not
-  load under reduced motion. They are the starfield, smoke, telemetry glyphs,
-  custom cursor and 3D hero sculpture. The footer's Display settings switches
-  turn off the ambient layer (starfield, smoke, telemetry and rocket; stored
-  in `vg.ambient`) and the custom cursor (`vg.cursor`). The desktop-only hero
-  sculpture is not affected by either switch.
+- Decorative layers are never needed for a task and do not load under
+  reduced motion. They are the starfield, smoke, telemetry glyphs, custom
+  cursor and 3D hero sculpture. The smoke canvas and the hero scene area are
+  `aria-hidden`; the starfield canvas and the cursor carry no content. The
+  telemetry overlay is not `aria-hidden`, so its text glyphs (π, Σ, `{ }`,
+  binary digits, a haiku and a code fragment) are exposed to assistive
+  technology.
+- The footer's Display settings switches turn off the ambient layer
+  (starfield, smoke, telemetry and rocket; stored in `vg.ambient`) and the
+  custom cursor (`vg.cursor`). The desktop-only hero sculpture is not
+  affected by either switch.
 - `Magnetic` and the custom cursor turn off for reduced motion and for coarse
   pointers. The Display settings switches (`role="switch"`) are disabled while
   reduced motion is on.

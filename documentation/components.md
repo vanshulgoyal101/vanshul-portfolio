@@ -1,28 +1,40 @@
 # Components
 
 Every component lives in `src/components/` (sections and shared UI) or
-`src/pages/` (routes). Styling is co-located with styled-components; content
-comes from the plain data modules in `src/constants/` (see
-[data.md](data.md#portfolio-content-modules)), never from JSX literals, so the
-prerendered fallback HTML and the React UI cannot drift apart.
+`src/pages/` (routes). Styling is co-located with styled-components. Facts
+(profile, projects, jobs, shelf, blog copy, posts) come from the plain data
+modules in `src/constants/` and the Markdown posts in `src/blogs/` (see
+[data.md](data.md#portfolio-content-modules)), so the prerendered fallback
+HTML and the React UI share them. Some copy is still written in JSX and does
+not appear in the fallback HTML: the Projects, About, Work and Contact ledes,
+the About greeting and its last two paragraphs, the Contact introduction, the
+shelf's "Books and essays that shaped how I think." line and the hero's
+credentials line beyond "Associate Analyst at United Airlines".
 
 ## App shell — `src/App.jsx`
 
 - Wraps the app in `MotionConfig reducedMotion="user"`, `BrowserRouter` and
   `ToastProvider`, renders `GlobalStyles`, the boot loader, a skip link, the
-  custom cursor, one `BackgroundElements` wash for every route and the deferred
-  decorative layer.
+  custom cursor (once the boot loader has finished), one `BackgroundElements`
+  wash for every route and the deferred decorative layer. The GoatCounter
+  loader (`Analytics`, below) is mounted inside the router.
 - Routes: `/` (portfolio), `/blog/` (archive), `/blog/:slug` (article),
   `/reading-list/`, `/dashboard` (private), `/blogs` and `/blogs/:slug`
   (redirect aliases) and `*` (noindex 404). Long-form pages and the dashboard
-  are lazy-loaded.
+  are lazy-loaded. React Router matches each path with or without the
+  trailing slash.
+- While a lazy page loads, `PageLoading` (a `role="status"` "Loading page..."
+  block, 70vh tall so the footer does not jump) fills the page. The dashboard
+  route has its own empty `Suspense` fallback. All routes sit inside one
+  `ErrorBoundary`, and each homepage section has its own.
 - `HomeMetadata` sets the homepage title, description, canonical and the
   homepage-only JSON-LD graph through `useSeo`.
 - `ScrollToHash` scrolls to `#section` targets after the boot loader and fonts
   are ready.
 - `IdleBackground` lazy-loads the rocket, smoke, telemetry and starfield after
-  the browser is idle, only when ambient motion is enabled and the visitor has
-  not asked for reduced motion.
+  the browser is idle (`useIdle(1200)`), only once the boot loader has
+  finished, ambient motion is enabled and the visitor has not asked for
+  reduced motion.
 - The "Ambient motion" preference is stored in `localStorage` (`vg.ambient`).
 
 ## Homepage sections
@@ -45,8 +57,11 @@ a numbered mono eyebrow inside a centred h2, followed by a lede.
   h1. Centred at 768px and below; stacked 280px buttons at 480px and below.
   These are e2e contracts.
 - `HeroScene.jsx` (lazy) mounts the three.js sculpture (`FloatingShape.jsx`)
-  only on desktop (≥1025px), after idle, without reduced motion. It pauses
-  rendering when off-screen or when the tab is hidden.
+  only on desktop (≥1025px), after the boot loader and browser idle, without
+  reduced motion. It pauses rendering when off-screen or when the tab is
+  hidden. `FloatingShape` is a gradient torus knot with a wireframe overlay
+  and two rings; visitors can drag to rotate it (`OrbitControls`, no zoom or
+  pan).
 
 ### Projects — `components/Projects/Projects.jsx` (01 / Selected work)
 - Three featured cards from `FEATURED_PROJECTS`. Each has:
@@ -64,7 +79,8 @@ a numbered mono eyebrow inside a centred h2, followed by a lede.
 
 ### About — `components/About/About.jsx` (02 / Background)
 - Biography from `PROFILE` and the current `EXPERIENCE` role, with highlights
-  set as ink `strong` text.
+  set as semibold `strong` text in `--color-text-primary` (emphasis, not
+  links).
 - A hairline-framed profile photo with a placeholder until it loads.
 - Four `HIGHLIGHTS` stat tiles (`ul`) and `SKILL_GROUPS` as neutral chips.
 
@@ -104,8 +120,8 @@ page's single `<main>`. Their titles use `PageHeader`.
 
 | Page | File | Notes |
 | --- | --- | --- |
-| Archive | `pages/BlogIndex.jsx` | "Archive · N posts" eyebrow; links to the RSS feed (`/feed.xml`) and the reading list. Posts are grouped by year (h2, sticky on wide screens) and listed newest first with `PostList`. Uses the shared `blogIndexJsonLd`. |
-| Article | `pages/BlogPost.jsx` | Opens with "Back to Blog" (`/blog/`), the category eyebrow, the title and the summary as a dek. Then a byline (avatar, author, `<time>`, read time, live view count, Share via the Web Share API or clipboard) and an "On this page" list for posts with three or more sections. The markdown body has stable `h2`/`h3` ids. It ends with an author card linking to `/#about` and "More writing" (three related posts and an "All posts" link). Emits `postJsonLd`. Unknown slugs get a noindex "Blog Post Not Found" state. |
+| Archive | `pages/BlogIndex.jsx` | "Archive · N posts" eyebrow above the "Writings" title; links to the RSS feed (`/feed.xml`) and the reading list. Posts are grouped by year (h2, sticky above 640px) and listed newest first with `PostList`, with view counts when available. Uses the shared `blogIndexJsonLd`. |
+| Article | `pages/BlogPost.jsx` | Opens with "Back to Blog" (`/blog/`), the category eyebrow, the title and the summary as a dek. Then a byline (avatar, author, `<time>`, read time, live view count, Share via the Web Share API or clipboard) and an "On this page" list for posts with three or more `h2`/`h3` headings. The markdown body has stable `h2`/`h3` ids. It ends with an author card linking to `/#about` and "More writing" (three related posts from `getRelatedPosts` and an "All posts" link). Emits `postJsonLd`. Unknown slugs get a noindex "Blog Post Not Found" state with a "Browse all posts" button. |
 | Reading list | `pages/ReadingList.jsx` | "Back to Writings" (`/#blog`), a header with Books/Essays pills, a numbered two-column book catalogue and an essay list with source hostnames from `constants/books.js`. Deep links to `#books`, `#essays` and `#shelf-top`. |
 | Dashboard | `pages/Dashboard.jsx` | Private analytics UI; see [analytics.md](analytics.md). |
 | Not found | `pages/NotFound.jsx` | noindex 404 with a large "404", "This page wandered off." and buttons home, to the blog and to the shelf. |
@@ -121,12 +137,16 @@ page's single `<main>`. Their titles use `PageHeader`.
     a two-line summary and "category · read time · views"
   - the title link covers the whole row but is named by the title alone
 - **Navigation** (`components/Navigation/Navigation.jsx`):
-  - a floating frosted pill with a scroll-progress ring around the "VG" logo
-    and an underline indicator on the active link
+  - a floating pill (frosted once the page scrolls past 50px) with a
+    scroll-progress ring around the "VG" logo and an underline indicator on
+    the active link, which also gets `aria-current`
   - the active item comes from scroll-spy on `/` only; "Blog" is active on
     `/blog*` and `/reading-list`, and nothing on other routes
+  - every link is a `/#section` URL; a plain click calls
+    `navigate('/#section')` and `ScrollToHash` in `App` does the scrolling
   - at 768px and below, a numbered drawer that locks body scroll, focuses its
-    first link, traps focus, closes on Escape and is `inert` while closed
+    first link, traps focus, closes on Escape or a click on the overlay and is
+    `inert` while closed; widening past 768px closes it
   - it keeps `--header-offset` in sync with its height for anchor scrolling
 - **SiteFooter** (`components/SiteFooter.jsx`):
   - name, "© YEAR · vanshul.com" and the four footer links
@@ -135,8 +155,17 @@ page's single `<main>`. Their titles use `PageHeader`.
   - `App` renders it after every public route through `RouteFooter`; the
     private dashboard has its own chrome
 - **CursorToggle** (`components/CursorToggle.jsx`): custom-cursor switch, shown
-  only for fine pointers; stored through `utils/cursorPreference.js`.
-- **ToastProvider** (`components/Toast/ToastProvider.jsx`): context exposing
+  only for fine pointers and disabled under reduced motion. It is stored
+  through `utils/cursorPreference.js`: `getCursorPreference()` reads
+  `vg.cursor` (`on`, `off` or `auto` when unset), `setCursorPreference()`
+  writes it and dispatches the `vg:cursorpref` event (`CURSOR_PREF_EVENT`),
+  and `isCustomCursorEnabled()` is true for a hover-capable fine pointer
+  without reduced motion unless the preference is `off`.
+- **socialIcons** (`components/socialIcons.js`): `SOCIAL_ICONS`, the
+  react-icons component for each `SOCIAL_PROFILES` id (X, LinkedIn,
+  Instagram, GitHub, games controller), shared by the hero and Contact.
+- **ToastProvider** (`components/Toast/ToastProvider.jsx`, re-exported with
+  `useToast` from `components/Toast/index.js`): context exposing
   `showSuccess`, `showError`, `showInfo` and `removeToast` via `useToast()`;
   toasts auto-dismiss after five seconds by default.
 - **ErrorBoundary** (`components/ErrorBoundary.jsx`): per-section fallback with
@@ -144,30 +173,50 @@ page's single `<main>`. Their titles use `PageHeader`.
   scene).
 - **BackgroundElements** (`components/BackgroundElements.jsx`): fixed,
   `aria-hidden`, pointer-transparent gradient wash rendered once by `App`.
+- **Analytics** (`components/Analytics.jsx`): renders nothing. When
+  `VITE_GOATCOUNTER_CODE` is set (letters, digits and hyphens only) it injects
+  GoatCounter's `count.js` once and counts each new pathname. It stays off on
+  `/dashboard` and when Do Not Track or Global Privacy Control is on. See
+  [analytics.md](analytics.md#optional-goatcounter-integration).
 
 ## Decorative elements — `components/FunElements/`
 
-All are hidden from assistive technology and skipped for reduced motion.
+Each one is skipped or switched off under reduced motion. The smoke canvas,
+the rocket's flame and tooltip, and the greeting words are `aria-hidden`; the
+boot overlay is a labelled `role="status"` and the rocket is a real button.
+The starfield canvas and the cursor dot and ring carry no content. The
+telemetry overlay is not `aria-hidden`, so its text glyphs (π, Σ, `{ }`,
+binary digits, a haiku and a code fragment) reach assistive technology.
 
 - **BootLoader**: multilingual greeting shown before the page is revealed;
   completes immediately for reduced-motion visitors.
-- **CustomCursor**: dot-and-ring cursor for fine pointers when enabled.
-- **Magnetic**: pulls its child toward the pointer on hover-capable devices.
+- **CustomCursor**: dot-and-ring cursor for fine pointers when enabled. It
+  adds `has-custom-cursor` to `body` (which hides the native cursor) only once
+  it has a pointer position.
+- **Magnetic**: pulls its child toward the pointer on hover-capable,
+  fine-pointer devices without reduced motion; elsewhere it renders the child
+  unchanged. The child follows 15% of the cursor's offset from its centre
+  (`FOLLOW_RATIO`), and the pull stops growing once the cursor is `range` px
+  away (default 40). `magneticOffset` in `utils/magnetic.js` does the maths.
 - **FloatingRocket**: three taps launch the rocket (keyboard accessible); it
   dispatches `rocket-launch` and `rocket-emit-smoke` events.
 - **SmokeTransition**: canvas smoke driven by those events, then scrolls to and
   focuses About.
-- **InteractiveSpaceBackground**: canvas starfield with occasional shooting
-  stars and click "tracking" rings; pauses while the tab is hidden.
-- **RandomTelemetry**: up to seven subtle code/maths glyphs spawned across a
-  3×3 grid of screen zones.
+- **InteractiveSpaceBackground**: canvas starfield (90 stars and two faint
+  planets) with occasional shooting stars and click "tracking" rings; pauses
+  while the tab is hidden.
+- **RandomTelemetry**: up to seven subtle code/maths glyphs at a time, spawned
+  every 700ms across eight screen zones (a 3×3 grid without the centre).
 
 ## Conventions
 
-- Hover lifts move only `transform`, through Framer `whileHover` on motion
-  elements. Interactive targets are at least 44px tall.
+- Hover lifts move only `transform`: Framer `whileHover` on motion elements
+  (project and post cards), CSS on the shelf banner, which is not a motion
+  element. Interactive targets are at least 44px tall.
 - The global `:focus-visible` ring in `src/index.css` covers every control.
-  Override it only to change its shape.
+  Several components restate it with their own offset; `PostList` draws it on
+  the row, and the footer and the dashboard chart use a 2px ring (see
+  [styles.md](styles.md#global-behaviour)).
 - Text clamping (`-webkit-line-clamp`) keeps card grids even. Image frames
   reserve space with `aspect-ratio`.
 - New content belongs in a `src/constants/` data module. Components map icon

@@ -8,9 +8,10 @@
 
 ## Site (✅ shipped)
 
-- ✅ **3D space-themed hero** (three.js / @react-three/fiber + drei), Framer-Motion
+- ✅ **Desktop 3D hero sculpture** (three.js / @react-three/fiber + drei) with a
+  space-themed ambient layer (starfield, telemetry glyphs, rocket), Framer-Motion
   section animations, smooth in-page navigation.
-- ✅ Sections: Home · About · Work · Projects · Blog · Contact.
+- ✅ Sections, in page order: Home · Projects · About · Work · Blog · Contact.
 - ✅ **Contact form** (`useContactForm`) → Formspree, with validation, duplicate-submit
   guarding, cancellation and visible failures; Toast + ErrorBoundary.
 - ✅ **Accessible + responsive** design; SPA routing (react-router 7) with a
@@ -48,17 +49,21 @@
   time, live views, Share), "On this page" contents, an author card and
   "More writing" related posts.
 - ✅ Article sections have stable deep-link ids; posts with three or more
-  sections show a table of contents (also in the no-JavaScript HTML).
-- ✅ Frontmatter schema (title, slug, summary, date, readTime, category).
-- ✅ Readable static article bodies, writing index, shelf and basic homepage;
+  `h2`/`h3` headings show a table of contents (also in the no-JavaScript HTML).
+- ✅ Frontmatter schema (title, slug, summary, date, readTime, category, optional
+  tags).
+- ✅ Readable static article bodies, writing index, shelf and homepage content;
   public navigation works without JavaScript. Per-post OG images, RSS, sitemap.
 
 ## SEO (✅ strong)
 
-- ✅ Per-page title/description/canonical/OG/Twitter; **`@graph` JSON-LD**
-  (WebSite + Person + ProfilePage; BlogPosting + BreadcrumbList per post).
-- ✅ **PNG OG images** generated via `sharp` (scrapers don't render SVG); sitemap +
-  robots; RSS. Build-time scripts under `scripts/` (shared `scripts/lib/*`).
+- ✅ Per-page title/description/canonical/OG/Twitter; **JSON-LD** (an `@graph`
+  of WebSite + Person + ProfilePage on the homepage only; BlogPosting +
+  BreadcrumbList per post; Blog + BreadcrumbList on the archive; ItemList +
+  BreadcrumbList on the shelf).
+- ✅ **PNG OG images** generated via `sharp` (scrapers don't render SVG); sitemap,
+  sitemap index and robots; RSS. Build-time scripts under `scripts/` (shared
+  `scripts/lib/*`).
 - ✅ **`/llms.txt`** for AI assistants, built from the same posts and data modules.
 
 ## Engineering (✅)
@@ -68,12 +73,14 @@
   desktop/mobile Playwright interaction and canvas checks, axe accessibility scans.
 - ✅ Verified database TLS, least-privilege schema grants, DNT/GPC privacy gates,
   sanitized analytics URLs and shared build/runtime article structured data.
-- ✅ **Auto-deploy** to GitHub Pages on push to `main` (validate before pushing).
+- ✅ **Auto-deploy** to GitHub Pages on push to `main`, only after the audit,
+  lint, unit, build, build-verification and browser gates pass in CI.
 
 ## Proposed / potential 🔜
 
-- Search Console and field Core Web Vitals monitoring: establish ownership,
-  submit the generated sitemap, inspect representative indexed URLs and measure
+- Search Console and field Core Web Vitals monitoring: `index.html` already
+  carries the Search Console verification tag; confirm the property, submit the
+  generated sitemap index, inspect representative indexed URLs and measure
   real-user performance before making further performance changes.
 - Database allowlist for view counts: a `blog_posts` table of published slugs
   checked by `increment_blog_view`, synced after each publish. Blocks rows for

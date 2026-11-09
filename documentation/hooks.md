@@ -9,29 +9,37 @@ Custom hooks live in `src/hooks/`. Two additional hooks used across the app
 
 **Location**: [`src/hooks/useContactForm.js`](../src/hooks/useContactForm.js)
 
-Encapsulates all state and logic for the contact form: field state, inline email
-validation, submission to [Formspree](https://formspree.io/), and success/error
-toasts.
+Encapsulates all state and logic for the contact form: field state, validation,
+submission to [Formspree](https://formspree.io/), and success/error toasts.
 
 ```javascript
 const {
   formState,      // { name, email, message }
   isSubmitting,   // boolean — true while the request is in flight
-  emailError,     // string — inline validation message ('' when valid)
+  errors,         // { name?, email?, message? } — per-field messages ('' or absent when valid)
+  emailError,     // string — errors.email, or '' when valid
   handleChange,   // (event) => void — controlled-input change handler
-  handleSubmit,   // (event) => Promise<void> — submits to Formspree
-} = useContactForm(initialState);
+  handleSubmit,   // (event) => Promise<void> — validates, then submits
+} = useContactForm(initialState); // default { name: '', email: '', message: '' }
 ```
+
+**Endpoint**: `VITE_CONTACT_ENDPOINT` when set at build time, otherwise the
+site's Formspree form (`https://formspree.io/f/xgvzkqob`).
 
 **Behaviour**
 
-- `handleChange` updates the field and, for the `email` field, validates against
-  a simple regex, setting `emailError` when invalid (empty is not treated as
-  invalid).
-- `handleSubmit` calls `preventDefault`, validates all required fields using trimmed values,
-  POSTs normalized JSON to the Formspree endpoint, and shows a success or
-  error toast. On success it resets the form; on failure or network error it
-  keeps the entered values so the user can retry.
+- `handleChange` updates the field. For `email` it checks the format against a
+  simple regex as you type (an empty value is not flagged); for the other
+  fields it clears that field's existing error.
+- `handleSubmit` calls `preventDefault` and validates all three fields on
+  trimmed values: each is required and the email must look like an address.
+  If any field is invalid it sets `errors`, moves focus to the first invalid
+  field (name, then email, then message) and shows a "Missing details" error
+  toast without sending anything.
+- A valid form POSTs JSON with the trimmed fields plus `_replyto` (the email)
+  and `_subject` (`Portfolio Contact: <name>`). Success shows a "Message
+  Sent!" toast and resets the form; an error response or a network failure
+  shows an error toast and keeps the entered values so the user can retry.
 - An in-flight ref prevents duplicate requests before React renders the disabled
   button. Unmount aborts the client request and suppresses late toasts/state updates.
   Aborting the client does not guarantee a message already received by the server
@@ -43,18 +51,57 @@ const {
 
 ## useSeo
 
+**Location**: [`src/hooks/useSeo.js`](../src/hooks/useSeo.js) (named and
+default export)
+
+Sets the document head for the active route and restores it on unmount.
+
+```javascript
+useSeo({
+  title,        // document.title, og:title, twitter:title, og:image:alt
+  description,  // description, og:description, twitter:description
+  path,         // canonical, og:url and twitter:url = SITE_URL + path (default '/')
+  image,        // og:image and twitter:image (default DEFAULT_OG_IMAGE)
+  type,         // og:type (default 'website')
+  jsonLd,       // pre-serialized JSON-LD string, added as script[data-route-seo]
+  robots,       // default 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+  article,      // { publishedTime, modifiedTime, author, section } when type is 'article'
+});
+```
+
+It also sets `og:image:width` 1200 and `og:image:height` 630. Existing tags from
+`index.html` are updated in place (created only when missing), so there are
+never duplicate title or description tags.
+
 Runtime route metadata replaces prerendered `script[data-route-seo]` nodes and
-article tags while the route is active, preserving the global site identity graph.
+`article:*` tags while the route is active; every JSON-LD block the build
+emits carries `data-route-seo`, so none leaks onto another route.
 The hook updates canonical, Open Graph, and Twitter URLs together. Home mounts its
 own metadata so navigating from a directly loaded subpage cannot leave that
 subpage's original HTML title/canonical on Home. Missing posts use `noindex, follow`.
 Cleanup restores the previous head state for the next route's hook to replace.
+Used by `HomeMetadata` in `App.jsx` and by every page in `src/pages/`.
+
+---
 
 ## useBlogViews / useBlogView
 
+**Location**: [`src/hooks/useBlogViews.js`](../src/hooks/useBlogViews.js)
+
+```javascript
+const views = useBlogViews();     // { [slug]: views } for the published posts; {} until loaded
+const count = useBlogView(slug);  // records a view (once per session), returns the count or null
+```
+
+- `useBlogViews()` fetches the counts of the published slugs once on mount
+  (`getAllBlogViews`). The homepage writing preview and the archive use it.
+- `useBlogView(slug)` calls `recordBlogView(slug)` whenever the slug changes;
+  `BlogPost` passes `null` for an unknown post, which records nothing.
+
 Optional view requests return empty/null UI states when unavailable or rejected.
 Effect guards ignore late responses, and clearing or changing a slug clears the
-previous post's count. Tests do not write to the live Supabase database.
+previous post's count. Tests do not write to the live Supabase database. See
+[data.md](data.md#view-counts-supabase) for the counting rules.
 
 ---
 
@@ -103,23 +150,23 @@ removeToast(id);
 
 ## react-router hooks (used in Navigation)
 
-- **`useNavigate`** — programmatic navigation, e.g. `navigate('/')` before
-  scrolling to a section from a blog route.
-- **`useLocation`** — reads `pathname`/`hash` to decide between same-page
-  scrolling and cross-page navigation, and to keep the "blog" nav item active on
-  `/blog/*` routes.
+- **`useNavigate`** — every plain click on a navigation link calls
+  ``navigate(`/#${id}`)``, from the homepage and from any other route. Clicks
+  with a modifier key or a non-primary button keep the browser default.
+- **`useLocation`** — `pathname` decides the active item (scroll-spy on `/`,
+  "Blog" on `/blog*` and `/reading-list`, nothing elsewhere) and re-runs the
+  scroll-spy effect after route changes.
 
 ```javascript
-const navigate = useNavigate();
-const location = useLocation();
-
-if (location.pathname === '/') {
-  scrollToSection(id);           // already home → scroll
-} else {
-  navigate(`/#${id}`);
-}
+const handleNavClick = (event, sectionId) => {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  setIsMobileMenuOpen(false);
+  navigate(`/#${sectionId}`); // ScrollToHash in App.jsx scrolls and focuses
+};
 ```
 
-The route hash helper waits for intro completion and fonts, tolerates malformed
-percent encoding, and applies measured header clearance and focus. Lazy page
-targets must also exist before restoration; fixed-delay navigation is not used.
+The route hash helper (`ScrollToHash` in `App.jsx`) waits for intro completion
+and fonts, tolerates malformed percent encoding, and applies measured header
+clearance and focus. Lazy page targets must also exist before restoration;
+fixed-delay navigation is not used.

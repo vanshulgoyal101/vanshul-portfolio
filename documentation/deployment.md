@@ -2,9 +2,11 @@
 
 ## Overview
 This project deploys to **GitHub Pages** through `.github/workflows/deploy.yml`.
-Public blog and reading-list routes have generated HTML shells. A custom SPA
-fallback supports other client-side routes but is not a substitute for a public
-page returning HTTP 200.
+The domain is served through Cloudflare in front of GitHub Pages (see
+[DNS and Cloudflare](#dns-and-cloudflare)). Public routes (`/`, `/blog/`, every
+post and `/reading-list/`) have generated HTML files. A custom SPA fallback
+supports other client-side routes (such as `/dashboard`), but those responses
+carry HTTP status 404; it is not a substitute for a generated page.
 
 ---
 
@@ -16,17 +18,38 @@ page returning HTTP 200.
 **Deployment Source**: GitHub Actions artifact built from `main`
 **Custom Domain**: `vanshul.com`
 
+The Pages API reported `build_type: "workflow"`, `cname: "vanshul.com"` and
+`https_enforced: true` when checked on 9 November 2026
+(`gh api repos/vanshulgoyal101/vanshul-portfolio/pages`).
+
 ### GitHub Settings
 1. Navigate to repository **Settings** → **Pages**
 2. **Source**: GitHub Actions
-3. **Artifact**: `dist/` from the deployment workflow
-4. **Custom domain**: `vanshul.com`
-5. **Enforce HTTPS**: ✅ Enabled
+3. **Custom domain**: `vanshul.com` (stored in the Pages settings; GitHub
+   ignores a `CNAME` file for Actions deployments, so `public/CNAME` only
+   matters for the legacy branch deploy)
+4. **Enforce HTTPS**: ✅ Enabled
 
-### DNS Configuration
-External DNS provider must point to GitHub Pages:
+### DNS and Cloudflare
+DNS is not managed in this repository. Observed on 9 November 2026:
 
-**A Records**:
+- `vanshul.com` and `www.vanshul.com` resolve to Cloudflare addresses, and
+  responses carry `server: cloudflare`, so Cloudflare proxies the domain in
+  front of GitHub Pages.
+- `http://vanshul.com/` answers with a 301 to `https://vanshul.com/`.
+- The live `/robots.txt` begins with a Cloudflare-managed block
+  (`Content-Signal` rules and `Disallow: /` for AI-training and other
+  crawlers such as GPTBot, ClaudeBot, Google-Extended and GoogleOther) before
+  the repository's own rules. Change that block in Cloudflare, not in
+  `public/robots.txt`.
+- HTML was served with `cache-control: max-age=600` and hashed JavaScript with
+  `max-age=14400`, both gzip-compressed on request.
+
+GitHub's documented records for an apex domain are the A records below (or
+`ALIAS`/`ANAME` to `vanshulgoyal101.github.io`); a `www` subdomain uses a
+`CNAME` to `vanshulgoyal101.github.io`
+([GitHub docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)):
+
 ```
 185.199.108.153
 185.199.109.153
@@ -34,21 +57,30 @@ External DNS provider must point to GitHub Pages:
 185.199.111.153
 ```
 
-**Or CNAME Record**:
-```
-vanshulgoyal101.github.io
-```
-
-**Verification**: Takes 24-48 hours for DNS propagation
+DNS changes can take time to propagate.
 
 ---
 
 ## Deployment Process
 
 ### Automated Deployment
-Push validated changes to `main`. GitHub Actions installs dependencies, runs
-lint and unit tests, builds the site, verifies the generated routes, and runs
-desktop/mobile Playwright checks before uploading and deploying `dist/`.
+Push validated changes to `main`. The workflow runs on pushes to `main` and
+`feature/theme-improvements` and on manual `workflow_dispatch`:
+
+1. **build** (ubuntu-latest, Node `lts/*`): checkout → `npm ci` →
+   `npm audit --audit-level=moderate` → `npm run lint` → `npm test` →
+   `npm run build` (with the `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+   and `VITE_GOATCOUNTER_CODE` repository secrets) → `npm run verify:build` →
+   `npx playwright install --with-deps chromium` → `npm run test:e2e` →
+   configure Pages → upload `./dist` as the Pages artifact.
+2. **deploy**: runs only for `refs/heads/main`, after `build`, and publishes
+   the artifact to the `github-pages` environment with
+   `actions/deploy-pages`.
+
+Any failing step stops the run, so nothing is deployed. Runs on other
+branches build and test without deploying. The `pages` concurrency group
+queues a new run behind one in progress instead of cancelling it. Follow runs
+in the Actions tab or with `gh run list --limit 4`.
 
 Local release checks (the same gates CI runs, in order):
 ```bash
@@ -58,55 +90,61 @@ npm run check
 
 `npm run check` runs `npm audit --audit-level=moderate`, `npm run lint`,
 `npm test`, `npm run build`, `npm run verify:build` and `npm run test:e2e`, and
-stops at the first failure.
+stops at the first failure. A local build reads `.env`; the CI build uses the
+repository secrets.
 
 The prebuild sitemap generator (`scripts/generate-sitemap.mjs`) is the only
 sitemap source. Postbuild creates the page shells and the separate family
 sitemap index.
 
 ### Legacy Branch Deployment
-`npm run deploy` still publishes through the `gh-pages` package, but is not the
-current Actions deployment path and does not run all release gates. Do not use
-it alongside the Actions workflow for routine releases.
+`npm run deploy` builds (`predeploy`) and pushes `dist/` to the `gh-pages`
+branch with the `gh-pages` package. While the Pages source is GitHub Actions,
+the live site is not served from that branch, and the command skips the
+audit, tests and build verification. Do not use it for releases.
 
 ---
 
 ## Build Configuration
 
 ### Vite Build Output
-**Output Directory**: `dist/`
+**Output Directory**: `dist/` (after `npm run build`, including `prebuild` and
+`postbuild`)
 
 **Structure**:
 ```
 dist/
-├── index.html              # Entry point with SPA routing script
-├── 404.html                # SPA routing fallback for GitHub Pages
-├── CNAME                   # Custom domain configuration
-├── robots.txt              # Search engine crawling rules
-├── sitemap.xml             # Site structure for SEO
-├── assets/
-│   ├── index-[hash].js     # Main application bundle
-│   ├── index-[hash].css    # Compiled styles
-│   ├── react-vendor-[hash].js        # react-dom + router
-│   ├── framer-[hash].js              # framer-motion
-│   ├── three-core-[hash].js          # three.js core
-│   └── three-react-[hash].js         # react-three-fiber / drei
-└── images/
-    └── projects/           # Project images
+├── index.html              # Homepage shell: SPA restore script, homepage JSON-LD, readable content
+├── 404.html                # SPA fallback for routes without a shell
+├── blog/
+│   ├── index.html          # Archive shell
+│   └── <slug>/index.html   # One shell per post
+├── reading-list/
+│   └── index.html          # Shelf shell
+├── sitemap.xml             # Generated in prebuild
+├── sitemap-index.xml       # Generated in postbuild
+├── feed.xml                # Generated in prebuild
+├── og/<slug>.png           # Per-post social cards (prebuild)
+├── robots.txt, site.webmanifest, CNAME, a.js
+├── og-image.png, favicon.ico, panda.svg, panda-*.png
+├── images/                 # profile-avatar.webp and projects/
+└── assets/
+    ├── index-[hash].js     # Entry chunk
+    ├── index-[hash].css    # src/index.css
+    ├── <vendor>-[hash].js  # Manual vendor chunks (below)
+    └── <Name>-[hash].js    # Lazy chunks, e.g. BlogPost, Dashboard, HeroScene
 ```
 
 ### Code Splitting
-Optimized vendor bundles for better caching (see `manualChunks` in
-`vite.config.js`):
-
-**react-vendor** — `react-dom`, `react-router-dom`; **react-core** — `react`.
-
-**framer** — `framer-motion`; **styled** — `styled-components`;
-**icons** — `react-icons`; **markdown** — `react-markdown` and its transitive
-markdown libraries.
-
-**three-core** — `three`; **three-react** — `@react-three/fiber`,
-`@react-three/drei`.
+`manualChunks` in `vite.config.js` creates `vite-preload`, `react-vendor`
+(`react-dom`, `react-router-dom`), `react-core` (`react`), `framer`, `styled`,
+`icons`, `markdown` (react-markdown and its unified/remark/rehype/micromark
+dependencies), `three-core` (`three`), `three-react` (`@react-three/fiber`,
+`@react-three/drei`) and `supabase`. Pages, the hero scene and the ambient
+decorations are separate lazy chunks. `npm run verify:build` fails if a
+published page loads `three-core`, `three-react`, `markdown`, `supabase`,
+`Dashboard` or `HeroScene` eagerly. Details in
+[config.md](config.md#viteconfigjs).
 
 **Benefits**:
 - Smaller main bundle size
@@ -116,18 +154,26 @@ markdown libraries.
 ### Build Optimization
 - **Minification**: JS/CSS minified
 - **Tree-shaking**: Unused code removed
-- **Asset hashing**: Cache busting with content-based hashes
-- **Gzip compression**: Automatic on GitHub Pages
-- **Code splitting**: Manual chunks for optimal loading
+- **Asset hashing**: content hashes in `assets/` file names, so a new build
+  never reuses an old URL
+- **Compression**: responses are gzip-encoded on request (observed above)
+- **Code splitting**: manual vendor chunks and lazy routes
+
+Files outside `assets/` keep fixed names. Version their URLs when replacing
+them (see [homepage.md](homepage.md#project-media)).
 
 ---
 
 ## SPA Routing Workaround
 
 ### Problem
-GitHub Pages serves static files only. An application route without a generated
-HTML file returns HTTP 404 on a direct visit. The build emits shells for `/blog/`,
-each published post, and `/reading-list/` so these public routes avoid the fallback.
+GitHub Pages serves static files only. A request for a path without a file
+gets `404.html` with HTTP status 404. The build emits files for `/`, `/blog/`,
+each published post and `/reading-list/`; GitHub Pages answers the slash-less
+form of those with a 301 to the trailing-slash URL (see
+[seo.md](seo.md#url-and-canonical-policy)). Every other path, such as
+`/dashboard`, the `/blogs` aliases and unknown URLs, goes through the
+fallback below.
 
 ### Solution
 Two-script system that intercepts 404s and restores client-side routing:
@@ -141,15 +187,15 @@ Two-script system that intercepts 404s and restores client-side routing:
 
 **Process**:
 ```
-User navigates to: vanshul.com/blog/health-post-agi
+User navigates to: vanshul.com/dashboard
         ↓
-GitHub Pages: "404 - No file found"
+GitHub Pages: no file for that path
         ↓
-Serves: 404.html
+Serves: 404.html (HTTP 404)
         ↓
 Script runs: Converts path to query string
         ↓
-Redirects to: vanshul.com/?/blog/health-post-agi
+Redirects to: vanshul.com/?/dashboard
 ```
 
 **Script Logic**:
@@ -168,7 +214,8 @@ l.replace(
 
 **Key Features**:
 - Encodes `&` as `~and~` to preserve query strings
-- Preserves hash fragments (`#section`)
+- Preserves hash fragments (`#section`), which is how the OAuth result in the
+  dashboard sign-in redirect survives the bounce
 - Minimal redirect (no page reload after restoration)
 
 ---
@@ -180,7 +227,7 @@ l.replace(
 
 **Process**:
 ```
-Page loads: vanshul.com/?/blog/health-post-agi
+Page loads: vanshul.com/?/dashboard
         ↓
 Script runs: Detects /?/... pattern
         ↓
@@ -188,7 +235,7 @@ Decodes: ~and~ → &
         ↓
 history.replaceState: Restores clean URL
         ↓
-Final URL: vanshul.com/blog/health-post-agi
+Final URL: vanshul.com/dashboard
         ↓
 React Router: Renders correct page
 ```
@@ -242,50 +289,59 @@ export default defineConfig({
 ## SEO Configuration
 
 ### sitemap.xml
-**Location**: `public/sitemap.xml` (generated — do not edit by hand)
+**Location**: `public/sitemap.xml` (generated and git-ignored — do not edit by
+hand)
 
 **Purpose**: Help search engines discover and index all pages.
 
-**Generation**: Built from the blog markdown files by
-[`scripts/generate-sitemap.mjs`](../scripts/generate-sitemap.mjs), which runs
-automatically via the `prebuild` npm script before every `npm run build` (and
-therefore before `npm run deploy`). It emits the home URL plus one entry per
-post, with `lastmod` taken from each post's `date`. Adding a new post and
-building regenerates the sitemap — no manual edits needed.
+**Generation**: [`scripts/generate-sitemap.mjs`](../scripts/generate-sitemap.mjs)
+runs in `prebuild` before every `npm run build`. It lists the home page,
+`/blog/`, `/reading-list/` and one entry per post, all with trailing-slash
+URLs. Each post entry has its own date as `lastmod` and its social card as an
+image entry; the home page and `/blog/` take the newest post's date; the
+reading list has no `lastmod`. Adding a post and building regenerates it.
 
-**Submission**: Submit to Google Search Console for faster indexing.
+`postbuild` also writes `dist/sitemap-index.xml`, which lists the sitemaps of
+the vanshul.com family from `sitemap-sites.json`.
+
+**Submission**: submit `https://vanshul.com/sitemap-index.xml` in Google
+Search Console (see [seo.md](seo.md#owner-operations-and-limitations)).
 
 ---
 
-### Per-page metadata (client-rendered)
+### Per-page metadata (runtime)
 
-This is a client-rendered SPA, so a single static `index.html` is served for
-every route. To give each blog post its own SEO identity, the
-[`useSeo`](../src/hooks/useSeo.js) hook (used in
-[`pages/BlogPost.jsx`](../src/pages/BlogPost.jsx)) updates the document head at
-runtime and restores the defaults on navigation away. Per post it sets:
+Every public route is first served from a prerendered file with its own
+metadata (next section). After React starts, the
+[`useSeo`](../src/hooks/useSeo.js) hook (used by `HomeMetadata` in `App.jsx`
+and by every page) updates the document head for the current route and
+restores the previous values when the route unmounts. For a post it sets:
 
 - a unique `<title>` and `<meta name="description">`,
 - `<link rel="canonical">` to the post URL,
-- Open Graph + Twitter tags (title/description/url/image/type=article),
-- a `BlogPosting` **JSON-LD** structured-data block (headline, description,
-  `datePublished`, author, publisher) for rich results.
+- Open Graph + Twitter tags (title/description/url/image/type=article) and
+  `article:*` tags,
+- the post's `BlogPosting` and `BreadcrumbList` **JSON-LD** (headline,
+  description, `datePublished`, author, publisher, …).
 
-It mutates the existing tags from `index.html` in place, so there are never
+It updates the existing tags from `index.html` in place, so there are never
 duplicate `<title>`/description tags.
 
-### Prerendered meta shells (for non-JS crawlers)
+### Prerendered shells (for non-JS crawlers)
 
-Because runtime tags are only visible to crawlers that execute JS, a post-build
-step writes a **static shell per post** so social scrapers and non-JS bots get
-real per-post metadata (and the URLs return a direct `200`).
+[`scripts/prerender-blog.mjs`](../scripts/prerender-blog.mjs) runs as the
+`postbuild` npm script. It reads the built `dist/index.html` and writes:
 
-- [`scripts/prerender-blog.mjs`](../scripts/prerender-blog.mjs) runs as the
-  `postbuild` npm script. It reads the built `dist/index.html`, swaps in each
-  post's title/description/canonical/OG/Twitter tags and JSON-LD, and writes
-  `dist/blog/<slug>/index.html`.
-- The SPA still boots from these shells and renders the post normally; `useSeo`
-  then sets the same values at runtime (no duplicates).
+- `dist/index.html`: the same file plus the homepage JSON-LD;
+- `dist/blog/<slug>/index.html`: the post's title, description, canonical,
+  Open Graph, Twitter and `article:*` tags and its JSON-LD;
+- `dist/blog/index.html` and `dist/reading-list/index.html`: their own
+  metadata and JSON-LD.
+
+Every file also gets readable content inside `#root` (see
+[seo.md](seo.md#readable-html-and-input-validation)), and these URLs return a
+direct `200`. The SPA still boots from them; `useSeo` then sets the same values
+at runtime.
 
 ### Per-post social cards
 
@@ -305,28 +361,33 @@ real per-post metadata (and the URLs return a direct `200`).
 ```
 User-agent: *
 Allow: /
-
 Sitemap: https://vanshul.com/sitemap.xml
+Sitemap: https://vanshul.com/sitemap-index.xml
 ```
 
 **Rules**:
 - `Allow: /` - All pages crawlable
-- Points to sitemap for discovery
+- Points to the sitemap and the family sitemap index
+
+On the live site Cloudflare prepends its own managed rules to this file (see
+[DNS and Cloudflare](#dns-and-cloudflare)).
 
 ---
 
 ### Base meta tags
 **Location**: `index.html`
 
-Defaults for the home page (and the fallback for non-JS crawlers): title,
-description, keywords, author, canonical, Open Graph, and Twitter Card tags.
-Open Graph/Twitter image URLs are **absolute** (`https://vanshul.com/...`), which
-social scrapers require.
+Defaults for the home page (and the template every prerendered file starts
+from): title, description, keywords, author, a `robots` directive with
+`max-image-preview:large`, canonical, the RSS `alternate` link, the Google
+Search Console verification tag, Open Graph tags and Twitter Card tags with
+`twitter:site`/`twitter:creator` handles. Open Graph/Twitter image URLs are
+**absolute** (`https://vanshul.com/...`), which social scrapers require.
 
-The home page also ships **`Person`** and **`WebSite`** JSON-LD (entity data for
-Google), a `robots` directive with `max-image-preview:large`, and
-`twitter:site`/`twitter:creator` handles. Blog posts additionally emit a
-`BreadcrumbList` alongside their `BlogPosting` data.
+`index.html` carries no JSON-LD. The homepage's `WebSite`, `Person` and
+`ProfilePage` graph is added to `dist/index.html` by the prerender step and by
+`HomeMetadata` at runtime; blog posts emit a `BreadcrumbList` alongside their
+`BlogPosting` data.
 
 ### Icons & manifest
 
@@ -335,8 +396,10 @@ Google), a `robots` directive with `max-image-preview:large`, and
   renders the raster set (`panda-32.png`, `panda-apple-touch.png`,
   `panda-192.png`, `panda-512.png`) from it via `sharp` — rerun after changing the
   SVG.
-- [`public/site.webmanifest`](../public/site.webmanifest) wires those icons plus
-  name/theme for installable/PWA and richer mobile results.
+- [`public/site.webmanifest`](../public/site.webmanifest) lists `panda.svg`,
+  `panda-192.png` and `panda-512.png` (also as a maskable icon) with the site
+  name, description and theme colours. `index.html` links `panda.svg`,
+  `panda-32.png` and `panda-apple-touch.png` directly.
 - The social preview card [`public/og-image.png`](../public/og-image.png) is
   generated by [`scripts/generate-og-image.mjs`](../scripts/generate-og-image.mjs).
 
@@ -345,32 +408,28 @@ Google), a `robots` directive with `max-image-preview:large`, and
 ## Deployment Checklist
 
 ### Before First Deployment
-- [ ] Configure DNS records (A or CNAME)
-- [ ] Add CNAME file to `public/` directory
-- [ ] Create 404.html in `public/` directory
-- [ ] Add SPA routing script to index.html
-- [ ] Update sitemap.xml with all pages
-- [ ] Configure GitHub Pages settings (branch, custom domain)
-- [ ] Test build locally: `npm run build && npm run preview`
+Already done for vanshul.com; listed for a new setup.
+- [ ] Set **Settings → Pages → Source** to GitHub Actions
+- [ ] Set the custom domain and enable **Enforce HTTPS**
+- [ ] Point DNS at GitHub Pages (see [DNS and Cloudflare](#dns-and-cloudflare))
+- [ ] Add the `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and (optional)
+  `VITE_GOATCOUNTER_CODE` repository secrets
+- [ ] Test the build locally: `npm run build && npm run preview`
 
 ### Before Each Deployment
 - [ ] Test changes locally: `npm run dev`
-- [ ] Run linter: `npm run lint`
-- [ ] Build and preview: `npm run build && npm run preview`
-- [ ] Commit changes to `main` branch
-- [ ] Push to GitHub: `git push origin main`
-- [ ] Deploy: `npm run deploy`
-- [ ] Wait 1-2 minutes for GitHub Pages rebuild
-- [ ] Test live site (home page, blog posts, navigation)
-- [ ] Check browser console for errors
+- [ ] Run the release gate: `npm run check`
+- [ ] Commit changes to `main` and push: `git push origin main`
+- [ ] Watch the workflow run until the `deploy` job succeeds
+- [ ] Test the live site (home page, blog posts, navigation)
+- [ ] Check the browser console for errors
 
 ### After Deployment
-- [ ] Verify custom domain works (http and https)
-- [ ] Test direct blog post URLs (e.g., vanshul.com/blog/slug)
+- [ ] Verify the custom domain over https
+- [ ] Test direct post URLs with the trailing slash (`vanshul.com/blog/<slug>/`)
 - [ ] Check mobile responsiveness
 - [ ] Verify SEO meta tags (View Source)
-- [ ] Test performance (Lighthouse)
-- [ ] Check sitemap.xml accessibility
+- [ ] Check that `sitemap.xml` and `sitemap-index.xml` load
 
 ---
 
@@ -380,10 +439,12 @@ Google), a `robots` directive with `max-image-preview:large`, and
 **Symptom**: Direct URLs to blog posts return 404.
 
 **Solutions**:
-1. Verify `404.html` exists in `public/` directory
-2. Check `pathSegmentsToKeep = 0` in 404.html script
-3. Ensure `base: '/'` in vite.config.js
-4. Redeploy: `npm run deploy`
+1. Confirm the slug is published: `dist/blog/<slug>/index.html` must exist after
+   `npm run build`, and `npm run verify:build` must pass
+2. Remember that `/blog/<slug>` redirects to `/blog/<slug>/` (expected)
+3. For client-only routes, check `public/404.html` exists with
+   `pathSegmentsToKeep = 0`, and `base: '/'` in `vite.config.js`
+4. Check that the latest workflow run on `main` deployed
 5. Clear browser cache and test in incognito
 
 ---
@@ -392,11 +453,10 @@ Google), a `robots` directive with `max-image-preview:large`, and
 **Symptom**: Site loads at `username.github.io` but not custom domain.
 
 **Solutions**:
-1. Check CNAME file exists in `public/CNAME` with correct domain
-2. Verify DNS records point to GitHub Pages IPs
-3. Wait 24-48 hours for DNS propagation
-4. Check GitHub Pages settings (custom domain field)
-5. Enable "Enforce HTTPS" (may take up to 1 hour)
+1. Check the custom domain in **Settings → Pages**
+2. Check that the DNS records (in Cloudflare) point at GitHub Pages
+3. Allow time for DNS changes to propagate
+4. Check that **Enforce HTTPS** is still enabled
 
 ---
 
@@ -404,10 +464,12 @@ Google), a `robots` directive with `max-image-preview:large`, and
 **Symptom**: `npm run build` errors out.
 
 **Solutions**:
-1. Check Node.js version (requires 20.9+; the `sharp` OG-image step in `prebuild` needs it)
-2. Clear cache: `rm -rf node_modules dist && npm install`
-3. Fix ESLint errors: `npm run lint`
-4. Check for missing dependencies
+1. Check the Node.js version against `package.json` engines
+   (`^22.12.0 || ^24.0.0 || >=26.0.0`)
+2. Reinstall the locked dependencies: `rm -rf node_modules dist && npm ci`
+3. Read the `prebuild` error: a post with a missing title, an invalid or
+   duplicate slug, or an invalid date fails the build on purpose
+4. Fix ESLint errors: `npm run lint`
 5. Review error stack trace for specific file/line
 
 ---
@@ -416,11 +478,12 @@ Google), a `robots` directive with `max-image-preview:large`, and
 **Symptom**: Changes not visible on live site.
 
 **Solutions**:
-1. Wait 1-2 minutes (GitHub Pages rebuild time)
+1. Check that the workflow run finished and its `deploy` job ran (it runs only
+   for `main`)
 2. Hard refresh browser: `Cmd+Shift+R` (Mac) or `Ctrl+Shift+R` (Windows)
-3. Clear browser cache
-4. Check `gh-pages` branch has new commit
-5. Verify build succeeded (check GitHub Actions tab)
+3. Allow for caching: HTML was served with `max-age=600` and hashed assets with
+   `max-age=14400`
+4. Files with fixed names (images) need a new URL when their bytes change
 
 ---
 
@@ -428,82 +491,31 @@ Google), a `robots` directive with `max-image-preview:large`, and
 **Symptom**: Slow page loads, large bundle size.
 
 **Solutions**:
-1. Check bundle size: `npm run build` (review output)
-2. Analyze bundle: `npx vite-bundle-visualizer`
-3. Lazy load components: `React.lazy()` and `Suspense`
-4. Optimize images (compress, use WebP)
-5. Review code splitting in vite.config.js
+1. Check bundle sizes in the `npm run build` output
+2. List what the entry HTML loads up front:
+   `grep -o 'assets/[a-zA-Z0-9._-]*\.js' dist/index.html | sort -u`
+3. Run `npm run verify:build`, which rejects eagerly loaded heavy chunks
+4. Lazy load components: `React.lazy()` and `Suspense`
+5. Optimize images (compress, use WebP)
 
 ---
 
-## Continuous Deployment (Optional)
+## Performance
 
-### GitHub Actions Workflow
-Automate deployment on every push to `main`:
+What the build and app already do:
+1. **Code splitting**: manual vendor chunks and lazy routes, guarded by
+   `verify:build`
+2. **Deferred work**: decorative layers and the hero scene load after idle
+3. **Images**: WebP, with `loading="lazy"` on project images and the About
+   photo
+4. **Fonts**: the Google Fonts stylesheet does not block rendering (see
+   [styles.md](styles.md#where-styles-live))
+5. **Minification and tree-shaking**: Vite production defaults
 
-**File**: `.github/workflows/deploy.yml`
-
-```yaml
-name: Deploy to GitHub Pages
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Build
-        run: npm run build
-      
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          cname: vanshul.com
-```
-
-**Benefits**:
-- Automatic deployment on every commit
-- No manual `npm run deploy` needed
-- Consistent build environment
-
----
-
-## Performance Optimization
-
-### Lighthouse Targets
-- **Performance**: 90+
-- **Accessibility**: 95+
-- **Best Practices**: 95+
-- **SEO**: 100
-
-### Optimization Strategies
-1. **Code Splitting**: Vendor chunks (react, animations, three.js)
-2. **Image Optimization**: WebP format, lazy loading
-3. **Caching**: Asset hashing, long cache times
-4. **Minification**: Vite auto-minifies JS/CSS
-5. **Tree-shaking**: Dead code elimination
-6. **Gzip**: GitHub Pages auto-compresses
-
-### Monitoring
-- Google PageSpeed Insights
-- Lighthouse CI (optional)
-- Web Vitals (CLS, FID, LCP)
+### Measuring
+No Lighthouse run or field monitoring is part of CI. Use PageSpeed Insights or
+Lighthouse by hand. Monitoring field Core Web Vitals (LCP, INP, CLS) is listed
+as a proposal in [FEATURES.md](../FEATURES.md).
 
 ---
 
@@ -511,36 +523,29 @@ jobs:
 
 ### Revert to Previous Deployment
 ```bash
-# Method 1: Redeploy specific commit
-git checkout <previous-commit-hash>
-npm run deploy
-
-# Method 2: Force push old gh-pages
-git push -f origin <old-commit>:gh-pages
+git revert <bad-commit>     # creates a new commit that undoes it
+git push origin main        # the workflow tests and deploys the reverted state
 ```
 
-### Emergency Rollback
-1. Identify working commit in `gh-pages` branch
-2. Reset `gh-pages` to that commit
-3. GitHub Pages auto-rebuilds from reset commit
+Do not push to the `gh-pages` branch to roll back: the live site is not served
+from it.
 
 ---
 
 ## Best Practices
 
-1. **Test Locally First**: Always run `npm run preview` before deploying
-2. **Commit Before Deploy**: Ensure `main` branch is up to date
-3. **Update Sitemap**: Add new blog posts to sitemap.xml
-4. **Monitor Errors**: Check browser console on live site
-5. **Cache Awareness**: Hard refresh when testing updates
-6. **DNS Changes**: Allow 24-48 hours for propagation
-7. **HTTPS Only**: Always use HTTPS (enforced by GitHub Pages)
-8. **Version Control**: Tag releases with `git tag v1.0.0`
+1. **Test Locally First**: run `npm run check` before pushing to `main`
+2. **One Path to Production**: deploy only through the workflow
+3. **Monitor Errors**: Check browser console on live site
+4. **Cache Awareness**: Hard refresh when testing updates
+5. **DNS Changes**: Allow time for propagation
+6. **HTTPS Only**: Always use HTTPS (enforced by GitHub Pages)
 
 ---
 
 ## Related Documentation
-- `config.md` - Configuration files and build settings
-- `architecture.md` - Project structure and routing
+- [config.md](config.md) - Configuration files, environment variables and scripts
+- [architecture.md](architecture.md) - Project structure and routing
+- [seo.md](seo.md) - URL policy, metadata and owner operations
 - GitHub Pages docs: https://docs.github.com/en/pages
 - spa-github-pages: https://github.com/rafgraph/spa-github-pages

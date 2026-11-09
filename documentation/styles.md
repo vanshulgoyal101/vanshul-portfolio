@@ -31,16 +31,21 @@ party. To update a font, copy the `*-latin-wght-normal.woff2` and
   headings, slate body text and a single blue accent (`#1d4ed8`) for links,
   labels and focus. The redesign removed gradient text, gradient buttons and
   their tokens.
-- **Hairlines over shadows.** Surfaces are separated by 1px hairlines. Only
-  cards that lift on hover get `--shadow-md`. Strong 1px ink rules divide major
-  groups: archive years, shelf collections and "More writing".
+- **Hairlines over shadows.** Surfaces are separated by 1px hairlines. Cards
+  rest on `--shadow-sm` and take `--shadow-md` on hover; only the contact form
+  card, the About photo, the shelf banner and toasts carry `--shadow-md` at
+  rest. Strong 1px ink rules divide major groups: archive years, shelf
+  collections and "More writing".
 - **Mono eyebrows.** Small uppercase JetBrains Mono labels sit above titles
   (`01 / Selected work`, `Archive · 8 posts`) and carry metadata (dates, read
   times, tech chips).
 - **Display headings.** Space Grotesk for headings, Inter for text,
   `text-wrap: balance` on headings and `pretty` on paragraphs.
-- **Short, small motion.** Reveals travel 14px over 0.4s. Hovers move 3–4px
-  over 160–240ms. Only `transform` and `opacity` animate.
+- **Short, small motion.** Most reveals fade in while travelling 12–16px over
+  0.4s (14px in the shared variants). Hover nudges move 2–6px over the
+  160–240ms duration tokens, and cards lift 4px. Movement uses only
+  `transform` and `opacity`; colours, borders and shadows change with short
+  transitions, mostly on the duration tokens.
 
 ## Tokens
 
@@ -50,9 +55,9 @@ All tokens are defined in `:root` in `GlobalStyles.js`.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--color-bg-primary` | `#f6f3eb` | Page background |
-| `--color-bg-secondary` | `#f6f3eb` | Inputs and inset panels |
-| `--color-bg-tertiary` | `#edeae0` | Subtle fills, chips, inline code |
+| `--color-bg-primary` | `#f6f3eb` | Page background, contact-form fields, Work tech chips |
+| `--color-bg-secondary` | `#f6f3eb` | Footer switch track (same value as the page) |
+| `--color-bg-tertiary` | `#edeae0` | Subtle fills: image frames, Work icon tiles, avatar placeholders, inline code |
 | `--color-bg-card` | `#ffffff` | Cards and panels |
 | `--color-ink` | `#0f172a` | Headings, primary buttons, the shelf banner |
 | `--color-text-primary` | `#1e293b` | Article body, strong text |
@@ -60,9 +65,9 @@ All tokens are defined in `:root` in `GlobalStyles.js`.
 | `--color-text-muted` | `#5b6677` | Metadata and labels |
 | `--color-accent-primary` | `#1d4ed8` | Links, eyebrows, focus ring, list markers |
 | `--color-accent-secondary` | `#3b82f6` | Decorative only: scroll-ring gradient, background glow, boot loader |
-| `--color-accent-soft` | `rgba(29, 78, 216, 0.07)` | Tinted fills (hero dot halo) |
-| `--color-accent-line` | `rgba(29, 78, 216, 0.24)` | Resting underline of prose links |
-| `--color-border` / `--color-border-hover` | slate at 8% / 15% | Card borders |
+| `--color-accent-soft` | `rgba(29, 78, 216, 0.07)` | Tinted fills (hero dot halo, form-field focus halo) |
+| `--color-accent-line` | `rgba(29, 78, 216, 0.24)` | Resting underline of prose links; hover border of project, post and work cards |
+| `--color-border` / `--color-border-hover` | slate at 8% / 15% | Card and field borders / form-field hover border |
 | `--color-hairline` | `rgba(15, 23, 42, 0.12)` | Separators, secondary buttons, pills |
 
 Contrast, measured on white, the page and tertiary backgrounds:
@@ -82,7 +87,7 @@ on the ink shelf banner is at least 6.7:1.
 | --- | --- |
 | `--radius-sm` / `-md` / `-lg` / `-pill` | 8px / 12px / 18px / 999px |
 | `--shadow-sm` | `0 1px 2px rgba(15, 23, 42, 0.05)` |
-| `--shadow-md` | `0 18px 40px -24px rgba(15, 23, 42, 0.35)` (hover lift) |
+| `--shadow-md` | `0 18px 40px -24px rgba(15, 23, 42, 0.35)` (card hover; resting depth of the contact form, About photo, shelf banner and toasts) |
 | `--ease-out` | `cubic-bezier(0.22, 1, 0.36, 1)` |
 | `--duration-fast` / `-base` | 160ms / 240ms |
 
@@ -94,7 +99,10 @@ on the ink shelf banner is at least 6.7:1.
   `--container-lg` (1024px) is the `PageLayout` "wide" width (see below).
 - `--header-offset` on `html` (`clamp(5rem, 8vw, 7rem)`) is the
   `scroll-padding-top`, so native anchor jumps clear the fixed header.
-- Homepage sections pad `clamp(3.5rem, 7vw, 6rem)` top and bottom.
+  `Navigation` overwrites it at runtime with the nav's bottom edge plus 20px.
+- About, Work, Writings and Contact pad `clamp(3.5rem, 7vw, 6rem)` top and
+  bottom. Projects pads 2rem on top (1rem at 768px and below) and the same
+  clamp below.
 - `--z-fixed` (300) is the only shared layer. Components set other z-indexes
   locally.
 
@@ -109,12 +117,15 @@ on the ink shelf banner is at least 6.7:1.
 - `--text-lede`: 1.125rem, and 1rem at 768px and below.
 - Headings: display font, 700, `-0.02em` tracking, ink, balanced wrapping.
 - Paragraphs: secondary colour, line-height 1.7, `text-wrap: pretty`.
-- Long-form articles: 18px (17px mobile) on a 1.8 line-height in
-  `--color-text-primary`, on a ~70 character measure (see `PageLayout`).
+- Long-form articles: 18px on a 1.8 line-height (17px on 1.75 at 768px and
+  below) in `--color-text-primary`, on a ~70 character measure (see
+  `PageLayout`).
 
 Responsive breakpoints are plain media queries; CSS variables cannot be used in
-them. The values in use are 1024px (hero scene, two-column grids), 900px,
-768px (the main mobile switch, 37 uses), 640px, 600px and 480px.
+them. The `max-width` values in use are 1024px (hero scene, two-column grids),
+900px, 768px (the main mobile switch), 640px, 600px and 480px. Their
+counterparts are `min-width: 769px` (desktop navigation links) and the hero's
+`matchMedia('(min-width: 1025px)')` scene gate.
 
 ## Shared primitives (`src/components/ui`)
 
@@ -132,16 +143,19 @@ Icons with `data-arrow="forward" | "back" | "up"` inside `Button`,
 
 ## Recurring patterns
 
-- **Cards** (projects, homepage posts, contact form): white, a 1px
-  `--color-border` border and `--radius-lg`. Hover lifts use Framer Motion
-  `whileHover={{ y: -4 }}`, never CSS `:hover` transforms, because Framer's
-  inline transform would override them.
-- **Editorial lists** (`Blog/PostList`, the archive, "More writing", the
-  shelf):
-  - rows are separated by hairlines, with a mono date column and an h3 title
-  - the title link stretches over the row with `::after`, so the whole row is
-    clickable while the link's name stays the title alone
-  - the focus ring is drawn on that `::after`, around the row
+- **Cards** (projects, homepage posts, work timeline, contact form): white, a
+  1px `--color-border` border and `--radius-lg`. Project and post cards lift
+  4px on hover; work cards only change border and shadow; the contact card
+  does not react. Hover lifts use Framer Motion `whileHover={{ y: -4 }}`,
+  never CSS `:hover` transforms, because Framer's inline transform would
+  override them.
+- **Editorial lists** (`Blog/PostList` in the archive and "More writing"; the
+  shelf's essay list):
+  - rows are separated by hairlines with an h3 title
+  - `PostList` adds a mono date column and stretches the title link over the
+    row with `::after`, so the whole row is clickable while the link's name
+    stays the title alone
+  - its focus ring is drawn on that `::after`, around the row
 - **Chips**: a 1px `--color-border` outline. Work tech chips are mono 12px on
   the page colour; About skill chips are 14px Inter on white.
 - **Text clamping**: `-webkit-line-clamp` on card and list summaries (2–3
@@ -157,10 +171,12 @@ Icons with `data-arrow="forward" | "back" | "up"` inside `Button`,
 
 - **Focus**: `src/index.css` gives every `:focus-visible` element a 3px
   `#1d4ed8` outline (offset 3px on links and buttons, 2px on fields). Mouse
-  focus shows no outline. Components override it only when the ring needs a
-  different shape (`PostList` rows). Focus moved to section headings by
-  in-page navigation (`[data-section-focus]`) and `#main-content` shows no
-  outline.
+  focus shows no outline. Many components restate the 3px ring with their own
+  offset (2px to 4px, or -3px inside the 44px directory icon links).
+  `PostList` draws it around the whole row. The footer's links, Display
+  settings summary and switches, and the dashboard's chart region use a 2px
+  ring. Focus moved to section headings by in-page navigation
+  (`[data-section-focus]`) and `#main-content` shows no outline.
 - **Tap targets**: `button, a, input, textarea, select` have
   `min-height: 44px`. Only buttons also get `min-width: 44px`, so short text
   links ("Blog") keep natural spacing. Icon-only links size themselves to 44px.

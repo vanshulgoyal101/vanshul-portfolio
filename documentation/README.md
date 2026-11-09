@@ -8,18 +8,18 @@ then dive into specific areas.
 
 | Document | Contents |
 | -------- | -------- |
-| [architecture.md](architecture.md) | Project structure, routing, SPA/GitHub Pages setup, state management, data flow, tech stack, performance strategy. |
-| [components.md](components.md) | Every React component: homepage sections, pages, shared UI primitives, Blog system, Toast, Navigation, footer, FunElements. |
-| [hooks.md](hooks.md) | Custom hooks (`useContactForm`, `useIdle`), the `useToast` context hook, and the react-router hooks used in navigation. |
-| [data.md](data.md) | The markdown blog system: frontmatter schema, loading/parsing, sorting, and how to add posts. |
+| [architecture.md](architecture.md) | Project structure, routing, SPA/GitHub Pages setup, section navigation, state and browser storage, data flow, utility and library modules, tech stack, performance strategy. |
+| [components.md](components.md) | Every React component: app shell, homepage sections, pages, shared UI primitives, Blog system, Toast, Navigation, footer, GoatCounter loader, FunElements. |
+| [hooks.md](hooks.md) | Custom hooks (`useContactForm`, `useSeo`, `useBlogViews`/`useBlogView`, `useIdle`), the `useToast` context hook, and the react-router hooks used in navigation. |
+| [data.md](data.md) | Portfolio content modules, the markdown blog system (frontmatter schema, dates, headings, loading/parsing, sorting, adding posts) and Supabase view counts (client, schema, database runner). |
 | [styles.md](styles.md) | Design system: visual language, tokens, shared primitives (`components/ui`), recurring patterns, focus/tap-target rules, motion and reduced motion. |
 | [assets.md](assets.md) | Images, public assets, and file organisation. |
-| [testing.md](testing.md) | Vitest + React Testing Library setup, conventions, mocks, and how to run/extend tests. |
-| [config.md](config.md) | `package.json`, `vite.config.js`, `eslint.config.js`, `Makefile`, and SEO/hosting files. |
-| [deployment.md](deployment.md) | GitHub Pages deployment, the SPA routing workaround, build process, and troubleshooting. |
+| [testing.md](testing.md) | Vitest + React Testing Library setup, PGlite SQL tests, Playwright and axe browser checks, conventions, mocks, and how to run/extend tests. |
+| [config.md](config.md) | `package.json`, `vite.config.js`, `eslint.config.js`, `playwright.config.js`, `Makefile`, environment variables, every script in `scripts/`, and hosting files. |
+| [deployment.md](deployment.md) | GitHub Pages deployment through GitHub Actions, the Cloudflare-fronted domain, the SPA routing workaround, build output, rollback and troubleshooting. |
 | [accessibility.md](accessibility.md) | WCAG 2.1 AA as implemented and tested: automated checks, landmarks and headings, keyboard and focus, forms, status messages, contrast, targets, motion. |
 | [seo.md](seo.md) | Runtime meta (`useSeo`), build-time generation (sitemap, OG images, RSS feed, blog pre-rendering), JSON-LD, and static SEO files. |
-| [analytics.md](analytics.md) | First-party usage analytics: the `a.js` beacon, the `web_events` schema + RLS, the owner-gated `web_stats()` RPC, and the private `/dashboard`. |
+| [analytics.md](analytics.md) | Optional GoatCounter page counts, the first-party `a.js` beacon, the `web_events` schema + RLS, the owner-gated `web_stats()` RPC, and the private `/dashboard`. |
 | [homepage.md](homepage.md) | Preserved loader, layout, disclosure, rocket/exhaust and responsive contracts. |
 | [audit-2026-09.md](audit-2026-09.md) | Verified fixes, evidence, coverage boundaries and operational follow-up. |
 | [../FEATURES.md](../FEATURES.md) | Shipped capabilities, proposed work and deliberate non-goals. |

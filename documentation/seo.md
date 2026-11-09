@@ -71,8 +71,9 @@ runs SEO generators around the Vite build:
 | `scripts/prerender-blog.mjs` | Home, blog index, article and shelf HTML | Readable static content, metadata and JSON-LD from the existing Markdown and constants. |
 | `scripts/gen-sitemap-index.mjs` | `dist/sitemap-index.xml` | Master sitemap index referencing every sitemap in the vanshul.com family (edit `sitemap-sites.json`). Runs in `postbuild`; XML shape in `scripts/lib/sitemapIndex.mjs` (unit-tested). Submit this one URL to Search Console. |
 
-`scripts/generate-icons.mjs` regenerates the favicon/app-icon PNG set from
-`public/favicon.svg`.
+`scripts/generate-icons.mjs` regenerates the favicon/app-icon PNG set
+(`panda-32.png`, `panda-apple-touch.png`, `panda-192.png`, `panda-512.png`)
+from `public/panda.svg`.
 
 The frontmatter parser, XML escaping and post-reading logic shared by the feed,
 OG-image and prerender scripts live once in **`scripts/lib/seo.mjs`** (unit-tested
@@ -155,7 +156,9 @@ JavaScript disabled and check runtime metadata after direct subpage entry.
 
 ## Static SEO files
 
-- **`public/robots.txt`** — allows crawling and points at `sitemap.xml`.
+- **`public/robots.txt`** — allows crawling and points at `sitemap.xml` and
+  `sitemap-index.xml`. On the live site Cloudflare prepends its managed
+  AI-crawler rules (see [deployment.md](deployment.md#dns-and-cloudflare)).
 - **Unknown routes** render a real `NotFound` page (`src/pages/NotFound.jsx`) that
   sets `robots: noindex, follow` via `useSeo` and offers recovery links, so soft-404s
   aren't indexed. The private `/dashboard` is likewise `noindex, nofollow`, unlinked
@@ -167,8 +170,9 @@ JavaScript disabled and check runtime metadata after direct subpage entry.
 
 ## Internal linking
 
-Article sections have stable ids and long posts list them in a "Contents"
-navigation, so sections can be deep-linked (`/blog/<slug>/#<section>`) from
+Article sections have stable ids and long posts list them in an "On this
+page" navigation ("Contents" in the static HTML), so sections can be
+deep-linked (`/blog/<slug>/#<section>`) from
 search results, shares and other posts. `verify:build` fails on any in-page
 link without a matching id.
 
@@ -182,7 +186,7 @@ engines discover and relate the content.
 ## Blog frontmatter
 
 Posts live in `src/blogs/*.md`. The SEO output is derived from their frontmatter
-(`id`, `title`, `slug`, `summary`, `date`, `readTime`, `category`) — see
+(`title`, `slug`, `summary`, `date`, `readTime`, `category`, optional `tags`) — see
 [data.md](data.md) for the full schema and how loading/parsing works.
 
 ## Keeping it in sync

@@ -53,7 +53,7 @@ asserted, without retry-based success or relaxed pixel bounds.
 ```bash
 npm test               # run once
 npm run test:watch     # watch mode
-npm run test:ui        # Vitest UI
+npm run test:ui        # Vitest UI (offers to install @vitest/ui, not a dependency)
 npm run test:coverage  # coverage report (text + html in coverage/)
 ```
 
@@ -69,7 +69,10 @@ npm run test:e2e
 ```
 
 `verify:build` parses the final sitemap and requires a matching HTML shell and
-canonical URL for every listed route, including the reading list. Playwright
+canonical URL for every listed route, including the reading list. It also
+fails on an eagerly loaded lazy-only chunk, a fallback link to an unpublished
+URL or a missing in-page anchor, and feed items that differ from the published
+articles or lack full content. Playwright
 starts a production preview on port 4327 and tests desktop and mobile Chromium.
 The suite covers unique section IDs, heading clearance under the fixed header,
 reduced motion, cross-route links, skip-link focus, mobile menu focus and Escape,
@@ -121,8 +124,9 @@ destinations are asserted from the curated data, not loaded by these tests.
 
 Homepage and selected-work screenshots are written under `test-results/` for
 visual inspection. Failures retain screenshots and traces. These are not pixel
-baseline comparisons. CI runs lint, unit tests, build verification, and browser
-tests before uploading the Pages artifact.
+baseline comparisons. CI runs the dependency audit, lint, unit tests, the
+build, build verification, and browser tests before uploading the Pages
+artifact.
 
 ## Layout & conventions
 
@@ -176,6 +180,7 @@ container.querySelector('button[aria-label="Toggle mobile menu"]');
 | Blog data: loader, frontmatter, content integrity, sorting/related/date formatting/year grouping, headings and ids | `src/utils/{blogLoader,parseFrontmatter,blogUtils,articleHeadings}.test.*`, `src/blogs/blogContent.test.js` |
 | Dates and SEO values (timezone-independent) | `src/utils/seoValues.test.js`, `src/seo.test.js` |
 | View counting (unconfigured and fake-client paths) | `src/utils/blogViews.test.js`, `src/utils/blogViews.configured.test.js` |
+| Lazy Supabase client (unconfigured, created once and shared, retry after a failed load) | `src/lib/supabaseClient.test.js` |
 | Analytics beacon and dashboard data shaping | `src/utils/analyticsBeacon.test.js`, `src/utils/dashboardData.test.js`, `src/components/Analytics.test.jsx` |
 | Scrolling, cursor preference and magnetic maths | `src/utils/{scrollToSection,cursorPreference,magnetic}.test.js` |
 | Decorative elements (boot greeting, rocket, smoke, starfield, cursor, magnetic) | `src/components/FunElements/*.test.jsx`, `src/components/BackgroundElements.test.jsx` |

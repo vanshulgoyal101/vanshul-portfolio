@@ -55,6 +55,10 @@ property opts in with a tag identifying the site:
 <script defer src="https://vanshul.com/a.js" data-site="tools"></script>
 ```
 
+Without `data-site`, the site id comes from the hostname: `portfolio` for
+`vanshul.com`, `arcade` for `games.vanshul.com`, otherwise the first subdomain
+label (`tools.vanshul.com` → `tools`), cut to 32 characters.
+
 The portfolio entry document does not currently include this beacon. Serving
 the file does not prove it is installed on this or any other property.
 
@@ -63,9 +67,9 @@ What it records:
 | Event `kind` | When | `name` holds |
 | ------------ | ---- | ------------ |
 | `pageview` | initial load **and** SPA route/hash changes | — |
-| `link`     | click on an outbound `<a href>` (different origin) | the URL |
+| `link`     | click on an absolute `http(s)` `<a href>` to a different hostname | the URL (origin + path) |
 | `tool`     | click on any `[data-track]` element, or `window.vtrack(id)` | the tool id |
-| `action`   | `window.vtrack(id, 'action')` | the action label |
+| `action`   | `window.vtrack(id, 'action')`, or a `[data-track]` element with `data-track-kind="action"` | the action label |
 
 Each row also carries: `site`, `path` (pathname plus a known section anchor), `referrer`
 (referring **host** only — never query strings), and a pseudonymous per-device
@@ -88,17 +92,18 @@ Design notes:
 - **Resilient** — every call is wrapped so a blocked network or missing API
   never affects the host page.
 - **Manual instrumentation** — `window.vtrack('jwt')` logs a tool event;
-  elements with `data-track="…"` are auto-tracked (optionally
-  `data-track-kind="link|action"`).
+  `window.vtrack(name, kind)` also accepts `link`, `action` or `pageview` as
+  the kind (anything else becomes `tool`). Elements with `data-track="…"` are
+  auto-tracked (optionally `data-track-kind="link|action"`).
 
 ### Cross-property integration inventory
 
-Previously documented integration targets include `portfolio`, `tools`, `cron`, `json`,
-`regex`, `tokens`, `links`, `blog`, `solaride`, `adbrain`, `reader`, `mcp`.
-Games (`arcade`) keep their existing `arcade_events` log, which `web_stats()`
-folds into the same dashboard. Installation on these other repositories was not
-verified in this portfolio audit; confirm their script tags before relying on
-this list as a current deployment inventory.
+The `site` column comment in the schema lists `portfolio`, `tools`, `cron`,
+`json`, `regex`, `tokens`, `links`, `blog`, `solaride`, `adbrain`, `reader`
+and `arcade`. Games also keep their own `arcade_events` log, which
+`web_stats()` folds into the same dashboard. Installation on these other
+repositories was not verified in this portfolio audit; confirm their script
+tags before relying on this list as a current deployment inventory.
 
 ---
 
@@ -124,15 +129,19 @@ create table public.web_events (
   (`pageview`, `tool`, `link`, `action`).
 - There is **no SELECT policy** — the raw event log is never publicly readable.
   All reads go through `web_stats()`.
-- A `CHECK` constraint bounds the free-text field lengths so anonymous inserts
-  can't store oversized rows.
+- A `CHECK` constraint (`web_events_bounds`) bounds the field lengths so
+  anonymous inserts can't store oversized rows: `site` 32, `kind` 16, `name`
+  200, `path` 300, `referrer` 200 and `visitor` 64 characters. It is added
+  `not valid`, so rows stored before it existed are not re-checked.
+- Indexes cover `ts`, `(site, kind)` and `(kind, name)`.
 
 The checked-in schema grants clients INSERT only on `site`, `kind`, `name`,
-`path`, `referrer`, and `visitor`. Identity, timestamp and `user_id` are not
-client-writable. Raw SELECT/UPDATE/DELETE privileges are revoked from browser
-roles; the aggregate RPC grants EXECUTE to authenticated users only and still
-checks the owner UID internally. Its search path puts `pg_temp` last to prevent
-temporary-table shadowing of public relations.
+`path`, `referrer`, and `visitor` (plus `usage` on the id sequence). Identity,
+timestamp and `user_id` are not client-writable. Raw SELECT/UPDATE/DELETE
+privileges are revoked from browser roles; the aggregate RPC grants EXECUTE to
+authenticated users only and still checks the owner UID internally. Its search
+path puts `pg_temp` last to prevent temporary-table shadowing of public
+relations.
 
 Repository migrations must be reviewed and applied explicitly to the intended
 Supabase project. Local SQL tests do not establish the current production
@@ -145,14 +154,16 @@ provider controls before traffic warrants that change.
 
 ## 3. Reporting — `web_stats(window_hours int default 720)`
 
-A `security definer` function that **only the owner** may call. Everything is
-filtered to a rolling window (default 30 days = 720 h; clamped to 1 h – 365 d).
+A `security definer` function that **only the owner** may call. The range
+totals and every breakdown are filtered to a rolling window (default 30 days =
+720 h; clamped to 1 h – 365 d). The lifetime totals and the arcade
+`total_visits`/`total_plays` are not.
 
 > **Security:** the owner guard uses `auth.uid() is distinct from '<owner-uid>'`,
 > **not** `<>`. With the anon key `auth.uid()` is `NULL`, and `NULL <> uuid`
 > evaluates to `NULL` (falsy) — so a `<>` check would silently leak data to
 > anonymous callers. `is distinct from` returns `TRUE` for `NULL` and correctly
-> rejects them. The sibling `arcade_stats()` was hardened the same way.
+> rejects them.
 
 Returned JSON:
 
@@ -187,7 +198,12 @@ idempotent: the table uses `create if not exists`, the function is
 A lazy-loaded React route ([`src/pages/Dashboard.jsx`](../src/pages/Dashboard.jsx))
 that is `noindex, nofollow` while mounted. It uses a dedicated Supabase client
 ([`src/lib/analyticsClient.js`](../src/lib/analyticsClient.js)) with the public
-project URL + anon key hardcoded, so it works regardless of build-time env vars.
+project URL + publishable (anon) key hardcoded, so it works regardless of
+build-time env vars. The module also exports `OWNER_EMAIL`, the address the UI
+compares with the signed-in user. The client uses supabase-js defaults, so the
+signed-in session persists in `localStorage` (`sb-<project-ref>-auth-token`).
+The page has its own `main`, header and footer links (Home, Blog, Games,
+LinkedIn, GitHub, Links) instead of the site navigation and footer.
 
 **Auth flow**
 
@@ -200,13 +216,14 @@ project URL + anon key hardcoded, so it works regardless of build-time env vars.
 The client-side owner check is only for UX; the real enforcement is the
 server-side RPC guard.
 
-> The Google OAuth redirect must be allow-listed in Supabase
-> (**Auth → URL Configuration**): `https://vanshul.com/**`. The GitHub Pages SPA
-> 404-redirect preserves the URL hash, so the OAuth token survives the bounce to
-> the virtual `/dashboard` route.
+> Sign-in redirects to `window.location.origin + '/dashboard'`
+> (`https://vanshul.com/dashboard` in production), which must be allow-listed in
+> Supabase (**Auth → URL Configuration**). Prefer that exact URL to a wildcard
+> such as `https://vanshul.com/**`. The repository cannot show which value is
+> configured. The GitHub Pages SPA 404-redirect preserves the URL hash, so the
+> OAuth token survives the bounce to the virtual `/dashboard` route.
 
-Prefer an exact `https://vanshul.com/dashboard` OAuth redirect allowlist rather
-than a wildcard. The client excludes this route from beacon collection.
+The beacon and the GoatCounter loader both exclude this route from collection.
 Server-side UID checks remain the authorization boundary; matching the owner
 email in React is presentation logic only.
 
@@ -217,10 +234,13 @@ be paired with previous data. Dashboard metadata uses the shared `useSeo` hook.
 
 **Features**
 
-- **Time range** selector: last 24 hours / 7 / 30 / 90 days / 1 year. Every
-  metric and breakdown re-queries for that window.
-- **Summary cards** with **period-over-period deltas** (▲/▼ % vs the previous
-  equal-length window; shows "new" when there's no prior baseline).
+- **Time range** selector: last 24 hours / 7 / 30 / 90 days / 1 year
+  (default 30 days). Changing it, or pressing **Refresh**, re-queries
+  `web_stats()` for that window.
+- **Summary cards**: pageviews, visitors and events in the range, pageviews
+  today, and all-time pageviews and visitors. Range pageviews and visitors
+  carry **period-over-period deltas** (▲/▼ % vs the previous equal-length
+  window; "new" when there's no prior baseline).
 - **Breakdowns**: pageviews by site, top pages, top tools, top outbound links,
   top referrers, plays per game.
 - **Arcade section**: summary cards for game plays (current range + all-time) and
@@ -229,7 +249,10 @@ be paired with previous data. Dashboard metadata uses the shared `useSeo` hook.
   there's no data vs. no plays in the selected window. Links out to the arcade's
   own richer stats dashboard at `games.vanshul.com/stats/`.
 - **Charts**: hour-of-day and daily pageview histograms.
-- **CSV export** of the current stats (`statsToCsv` → downloaded file).
+- **CSV export** of the current stats (`statsToCsv` →
+  `vanshul-analytics-YYYY-MM-DD.csv`). It covers the scalar metrics, every
+  breakdown and the arcade totals, not the hourly or daily series.
+- **Sign out** clears the statistics and the session.
 
 CSV strings that could be interpreted as spreadsheet formulas are prefixed with
 an apostrophe before normal CSV quoting; numeric metrics remain numeric. Daily
