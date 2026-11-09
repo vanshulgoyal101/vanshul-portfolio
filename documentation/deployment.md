@@ -50,20 +50,19 @@ Push validated changes to `main`. GitHub Actions installs dependencies, runs
 lint and unit tests, builds the site, verifies the generated routes, and runs
 desktop/mobile Playwright checks before uploading and deploying `dist/`.
 
-Local release checks:
+Local release checks (the same gates CI runs, in order):
 ```bash
-npm run lint
-npm test
-npx playwright install chromium
-npm run build
-npm run verify:build
-npm run test:e2e
+npx playwright install chromium   # once per machine
+npm run check
 ```
 
-The prebuild sitemap generator is authoritative. Do not run
-`scripts/gen-sitemap.mjs` after the build: its HTML scan replaces the tested
-sitemap and omits routes outside its configured include list. Postbuild creates
-the page shells and the separate family sitemap index.
+`npm run check` runs `npm audit --audit-level=moderate`, `npm run lint`,
+`npm test`, `npm run build`, `npm run verify:build` and `npm run test:e2e`, and
+stops at the first failure.
+
+The prebuild sitemap generator (`scripts/generate-sitemap.mjs`) is the only
+sitemap source. Postbuild creates the page shells and the separate family
+sitemap index.
 
 ### Legacy Branch Deployment
 `npm run deploy` still publishes through the `gh-pages` package, but is not the

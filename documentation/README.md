@@ -9,7 +9,7 @@ then dive into specific areas.
 | Document | Contents |
 | -------- | -------- |
 | [architecture.md](architecture.md) | Project structure, routing, SPA/GitHub Pages setup, state management, data flow, tech stack, performance strategy. |
-| [components.md](components.md) | Every React component: sections, Blog system, Toast, Skeleton loaders, Navigation, Contact, ErrorBoundary, FunElements. |
+| [components.md](components.md) | Every React component: sections, Blog system, Toast, Navigation, Contact, ErrorBoundary, FunElements. |
 | [hooks.md](hooks.md) | Custom hooks (`useContactForm`, `useIdle`), the `useToast` context hook, and the react-router hooks used in navigation. |
 | [data.md](data.md) | The markdown blog system: frontmatter schema, loading/parsing, sorting, and how to add posts. |
 | [styles.md](styles.md) | Design system: tokens, typography, colour, animation patterns, responsive breakpoints, styled-components usage. |

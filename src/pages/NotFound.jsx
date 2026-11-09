@@ -97,7 +97,7 @@ const NotFound = () => {
 
   return (
     <Wrap>
-      <Navigation scrollToSection={(id) => navigate(`/#${id}`)} />
+      <Navigation />
       <Center initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <Code>404</Code>
         <Title>This page wandered off.</Title>

@@ -246,25 +246,6 @@ const Card = styled.div`
 
 ### Animation Patterns
 
-**Shimmer Effect** (Skeleton Loaders):
-```javascript
-const shimmer = keyframes`
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-`;
-
-const SkeletonCard = styled.div`
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 25%,
-    #e0e0e0 50%,
-    #f0f0f0 75%
-  );
-  background-size: 200% 100%;
-  animation: ${shimmer} 1.5s infinite;
-`;
-```
-
 **Slide-In** (Toast Notifications):
 ```javascript
 const slideIn = keyframes`
@@ -464,7 +445,7 @@ const Section = styled.section`
 
 ### Layout Shifts
 - Reserved space with `min-height` on text-clamped elements
-- Skeleton loaders match exact dimensions
+- Image frames reserve space with `aspect-ratio` before media loads
 - Prevents Cumulative Layout Shift (CLS)
 
 ---

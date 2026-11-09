@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import BlogCard from './BlogCard';
-import { BLOG_ANIMATION_VARIANTS } from '../../constants/blogConstants';
+import { itemVariants } from '../../constants/motionVariants';
 
 const baseBlog = {
   id: 1,
@@ -20,7 +20,7 @@ const renderCard = (blog = baseBlog, props = {}) =>
       <BlogCard
         blog={blog}
         index={0}
-        variants={BLOG_ANIMATION_VARIANTS.item}
+        variants={itemVariants}
         {...props}
       />
     </MemoryRouter>
@@ -30,7 +30,7 @@ describe('BlogCard', () => {
   it('returns null when no blog is provided', () => {
     const { container } = render(
       <MemoryRouter>
-        <BlogCard blog={null} index={0} variants={BLOG_ANIMATION_VARIANTS.item} />
+        <BlogCard blog={null} index={0} variants={itemVariants} />
       </MemoryRouter>
     );
     expect(container).toBeEmptyDOMElement();

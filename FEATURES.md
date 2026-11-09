@@ -12,7 +12,7 @@
   section animations, smooth in-page navigation.
 - ✅ Sections: Home · About · Work · Projects · Blog · Contact.
 - ✅ **Contact form** (`useContactForm`) → Formspree, with validation, duplicate-submit
-  guarding, cancellation and visible failures; Toast + Skeleton + ErrorBoundary.
+  guarding, cancellation and visible failures; Toast + ErrorBoundary.
 - ✅ **Accessible + responsive** design; SPA routing (react-router 7) with a
   `404.html` GitHub-Pages shim.
 - ✅ Original multilingual intro, three-tap rocket/smoke/About transition,

@@ -1,25 +1,33 @@
 import { test, expect } from '@playwright/test';
 
 test('a partial tap resumes idle floating and the countdown resets', async ({ page }) => {
+  // Drive animation time explicitly so the check cannot be starved of frames
+  // when parallel workers keep the CPU busy. Fast-forwarding renders every
+  // frame (including the WebGL hero), hence the longer budget.
+  test.setTimeout(60000);
+  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-01-02T00:00:00Z'));
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
   await page.goto('/');
+  await page.clock.runFor(5000);
   await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
   const rocket = page.locator('[data-rocket]');
-  await expect(rocket).toBeVisible();
+  await expect.poll(async () => {
+    await page.clock.runFor(100);
+    return rocket.isVisible();
+  }, { timeout: 15000 }).toBe(true);
   await rocket.focus();
   await page.keyboard.press('Enter');
   await expect(rocket).toHaveAccessibleName('Launch rocket: 2 taps remaining');
-  const travel = await rocket.evaluate(element => new Promise(resolve => {
-    const positions = [];
-    const started = performance.now();
-    const sample = now => {
-      if (now - started > 600) positions.push(new DOMMatrix(getComputedStyle(element).transform).m42);
-      if (now - started < 1800) requestAnimationFrame(sample);
-      else resolve(Math.max(...positions) - Math.min(...positions));
-    };
-    requestAnimationFrame(sample);
-  }));
-  expect(travel).toBeGreaterThan(1);
+  const offsetY = () => rocket.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m42);
+  // The 0.3s hop ends, then the 3s float cycle rises toward its -10px crest.
+  await page.clock.runFor(700);
+  const early = await offsetY();
+  await page.clock.runFor(600);
+  const later = await offsetY();
+  expect(Math.abs(later - early)).toBeGreaterThan(1);
+  // The partial-tap countdown resets three seconds after the tap.
+  await page.clock.runFor(2000);
   await expect(rocket).toHaveAccessibleName('Launch rocket: 3 taps remaining');
   await page.keyboard.press('Enter');
   await expect(rocket).toHaveAccessibleName('Launch rocket: 2 taps remaining');

@@ -15,6 +15,12 @@ collapsed default supersedes the earlier always-visible design preference.
 Case-study text should describe supported project facts, not inferred customer
 results or invented metrics.
 
+Only one MCP server is listed: `ctx` was chosen as the stronger of the two
+(more code, six tools versus four). The other server, `mcp`
+(https://mcp.vanshul.com, source `vanshulgoyal101/mcp`, "reads the live web as
+clean Markdown for AI agents"), is still live; restore it by adding an entry to
+the "Live products & tools" group.
+
 ## Navigation contract
 
 Hero buttons and social links center at widths up to and including 768px and

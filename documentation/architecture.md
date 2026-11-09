@@ -21,10 +21,9 @@ src/
   blogs/               # One markdown file per blog post (frontmatter + body)
   components/          # Feature-grouped components
     About/ Work/ Projects/ Hero/ Contact/   # content sections
-    Blog/                                              # Blog, BlogCard, BlogModal
+    Blog/                                              # Blog preview, BlogCard, ReadingList card
     Navigation/                                        # top nav + scroll spy
     Toast/                                             # global notification context
-    Skeleton/                                          # loading placeholders
     FunElements/                                       # decorative animations
     ErrorBoundary.jsx                                  # section-level error boundary
   constants/           # blogConstants.js (animation variants, copy, config)
@@ -87,7 +86,7 @@ documentation/         # this documentation
    - A small in-house parser extracts YAML-style frontmatter (no `gray-matter`
      dependency); the body is kept as a markdown string.
    - `utils/blogUtils.js` → `sortBlogsByDate` orders posts newest-first.
-   - `react-markdown` renders the body in `BlogModal` and `BlogPost`.
+   - `react-markdown` renders the body in `BlogPost`.
 4. Decorative 3D/telemetry elements are deferred until the browser is idle via
    the `useIdle` hook and `React.lazy`, keeping them off the critical path.
 
@@ -99,7 +98,6 @@ documentation/         # this documentation
 - **Manual chunking**: `vite.config.js` splits vendors (react, framer-motion,
   styled-components, three core, three-react, icons, markdown) for better
   caching. three.js is unavoidably the largest chunk and is isolated.
-- **Skeleton loaders** provide perceived performance for async-feeling UI.
 - **Error boundaries** wrap each section so a failure in one does not blank the
   page.
 

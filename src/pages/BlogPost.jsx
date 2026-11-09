@@ -423,15 +423,11 @@ const BlogPost = () => {
     }
   };
 
-  const scrollToSection = (sectionId) => {
-    navigate(`/#${sectionId}`);
-  };
-
   if (!blog) {
     return (
       <PageWrapper>
         <BackgroundElements />
-        <Navigation scrollToSection={scrollToSection} />
+        <Navigation />
         <ContentWrapper>
           <Container>
             <TopBar>
@@ -452,7 +448,7 @@ const BlogPost = () => {
   return (
     <PageWrapper>
       <BackgroundElements />
-      <Navigation scrollToSection={scrollToSection} />
+      <Navigation />
       <ContentWrapper>
         <Container>
           <TopBar>

@@ -59,11 +59,11 @@ Body content in Markdown…
 ## Rendering
 
 - The **Blog section** ([`components/Blog/Blog.jsx`](../src/components/Blog/Blog.jsx))
-  loads posts with `useMemo`, sorts them, and renders a `BlogCard` grid (or an
-  empty state).
+  loads posts with `useMemo`, sorts them, and renders the three newest as
+  `BlogCard`s plus a link to the full archive (or an empty state).
 - `BlogCard` links to `/blog/:slug`.
 - The full post renders in [`pages/BlogPost.jsx`](../src/pages/BlogPost.jsx) using
-  `react-markdown`; `BlogModal` offers an in-page modal view. Links inside
+  `react-markdown`. Links inside
   rendered markdown open in a new tab with `rel="noopener noreferrer"`.
 
 ## Adding a post

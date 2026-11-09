@@ -26,21 +26,21 @@ All UI and logic are organized into feature-based React components under `src/co
 ### Blog.jsx
 **Location**: `src/components/Blog/Blog.jsx`
 
-**Purpose**: Blog listing page displaying all blog posts.
+**Purpose**: Homepage writing preview: the shelf card, the three newest posts, and a link to the full `/blog` archive.
 
 **Features**:
 - Dynamically loads Markdown files from `src/blogs/` using `import.meta.glob`
 - Parses frontmatter metadata (title, slug, summary, date, readTime, category)
   with the in-house parser in `utils/blogLoader.js`
-- Renders `BlogCard` components in responsive grid
-- Skeleton loaders during async loading
+- Renders the `ReadingList` card plus the three newest `BlogCard`s in a responsive grid
+- Links to the complete archive when more posts exist
 - Sorts posts by date (newest first) via `sortBlogsByDate`
 
 **Data Flow**: 
 1. `import.meta.glob('../blogs/*.md', { query: '?raw', eager: true })` loads raw markdown
 2. `parseFrontmatter` (in `blogLoader.js`) extracts frontmatter
 3. Posts sorted by date (newest first)
-4. Maps to `BlogCard` components
+4. The first three map to `BlogCard` components
 
 ### BlogCard.jsx
 **Location**: `src/components/Blog/BlogCard.jsx`
@@ -66,18 +66,6 @@ All UI and logic are organized into feature-based React components under `src/co
 - Semantic HTML (`<article>`)
 - Focus-visible outline (3px offset)
 - Touch target size: 48px minimum
-
-### BlogModal.jsx
-**Location**: `src/components/Blog/BlogModal.jsx`
-
-**Purpose**: Modal for displaying full blog post content.
-
-**Features**:
-- Overlay with backdrop blur
-- Close button and ESC key support
-- Scroll lock on body when open
-- Renders Markdown content with `react-markdown`
-- Responsive padding and max-width
 
 ### ReadingList.jsx
 **Location**: `src/components/Blog/ReadingList.jsx`
@@ -215,48 +203,11 @@ item names, category types, counts, and essay URLs.
 - Project cards with hover effects
 - GitHub and live demo links
 - Project images from `public/images/projects/`
-- Skeleton loaders during image loading
 - Responsive grid layout (3 columns → 2 → 1)
 - Tech stack badges
 - Framer Motion stagger animations
 
 **Data Source**: `src/constants/` or inline project array
-
----
-
-## Skeleton Loaders
-
-### SkeletonCard.jsx
-**Location**: `src/components/Skeleton/SkeletonCard.jsx`
-
-**Purpose**: Loading state placeholders for async content.
-
-**Variants**:
-- **BlogSkeletonCard**: Matches `BlogCard` dimensions (320px height, title/summary placeholders)
-- **ProjectSkeletonCard**: Matches project card layout (image, title, description areas)
-- **WorkSkeletonCard**: Matches work experience card layout
-
-**Features**:
-- Shimmer animation with CSS gradient
-- Pulse effect using `@keyframes`
-- Exact dimensional matching to actual cards
-- Prevents layout shift during loading
-
-**Implementation**:
-```jsx
-import { BlogSkeletonCard } from '../Skeleton';
-
-{loading ? (
-  Array(6).fill().map((_, i) => <BlogSkeletonCard key={i} />)
-) : (
-  posts.map(post => <BlogCard key={post.slug} {...post} />)
-)}
-```
-
-**Animation**: 
-- Linear gradient: `linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)`
-- Animation: 1.5s infinite
-- Background-size: 200% 100%
 
 ---
 
@@ -353,12 +304,6 @@ showInfo('Heads up', 'Something informational', 0); // duration 0 = no auto-dism
 - Uses `-webkit-line-clamp` with `display: -webkit-box`
 - Fallback: `text-overflow: ellipsis` with `overflow: hidden`
 - Ensures uniform card heights across dynamic content
-
-### Skeleton Loading Pattern
-- 1:1 dimensional match to actual component
-- Shows during async operations (data fetching, image loading)
-- Prevents cumulative layout shift (CLS)
-- Shimmer animation for visual feedback
 
 ---
 

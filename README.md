@@ -52,7 +52,7 @@ src/
   blogs/               # Markdown blog posts (one file per post)
   components/          # Feature-grouped React components
     Blog/  Contact/  Hero/  Navigation/  Projects/
-    Work/  About/  Toast/  Skeleton/  FunElements/
+    Work/  About/  Toast/  FunElements/
     ErrorBoundary.jsx
   constants/           # Static config (blog constants)
   hooks/               # Custom hooks (useContactForm, useIdle)

@@ -6,9 +6,9 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['**/dist', 'coverage', 'space-portfolio', 'archive', 'documentation']),
+  globalIgnores(['**/dist', 'coverage', 'playwright-report', 'test-results', 'documentation']),
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['**/*.{js,jsx,mjs}'],
     extends: [
       js.configs.recommended,
       reactHooks.configs['recommended-latest'],
@@ -37,6 +37,17 @@ export default defineConfig([
       globals: {
         ...globals.node,
         ...globals.vitest,
+      },
+    },
+  },
+  {
+    // Build scripts and tool configuration run in Node; Playwright specs run in
+    // Node but evaluate callbacks inside the browser page.
+    files: ['scripts/**/*.{js,mjs}', 'e2e/**/*.js', '*.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.browser,
       },
     },
   },

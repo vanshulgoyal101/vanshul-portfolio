@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 
@@ -75,7 +74,6 @@ const isoOrUndef = (value) => {
 };
 
 const BlogIndex = () => {
-  const navigate = useNavigate();
   const posts = useMemo(() => sortBlogsByDate(loadBlogPosts()), []);
   const views = useBlogViews();
 
@@ -117,12 +115,10 @@ const BlogIndex = () => {
     jsonLd,
   });
 
-  const scrollToSection = (sectionId) => navigate(`/#${sectionId}`);
-
   return (
     <PageWrapper>
       <BackgroundElements />
-      <Navigation scrollToSection={scrollToSection} />
+      <Navigation />
       <ContentWrapper>
         <Container>
           <Header>

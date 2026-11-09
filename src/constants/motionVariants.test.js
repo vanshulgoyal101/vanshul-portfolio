@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { containerVariants, itemVariants, pageVariants } from './motionVariants';
+import { containerVariants, itemVariants } from './motionVariants';
 
 describe('motionVariants', () => {
   it('containerVariants staggers its children on show', () => {
@@ -13,12 +13,5 @@ describe('motionVariants', () => {
     expect(itemVariants.hidden.y).toBeGreaterThan(0);
     expect(itemVariants.visible).toMatchObject({ opacity: 1, y: 0 });
     expect(itemVariants.visible.transition.duration).toBeGreaterThan(0);
-  });
-
-  it('pageVariants defines initial, animate and exit phases', () => {
-    expect(pageVariants.initial).toEqual({ opacity: 0 });
-    expect(pageVariants.animate.opacity).toBe(1);
-    expect(pageVariants.exit.opacity).toBe(0);
-    expect(pageVariants.exit.transition.duration).toBeGreaterThan(0);
   });
 });

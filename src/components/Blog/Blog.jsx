@@ -1,20 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaPen, FaQuoteLeft } from 'react-icons/fa';
 import { MdArrowForward } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 
-// Component imports
 import BlogCard from './BlogCard';
 import ReadingList from './ReadingList';
-import { BlogSkeletonCard } from '../Skeleton';
-
-// Utility imports
 import { sortBlogsByDate } from '../../utils/blogUtils';
 import { loadBlogPosts } from '../../utils/blogLoader';
 import { useBlogViews } from '../../hooks/useBlogViews';
-import { BLOG_ANIMATION_VARIANTS, BLOG_CONTENT } from '../../constants/blogConstants';
+import { BLOG_CONTENT } from '../../constants/blogConstants';
+import { containerVariants, itemVariants } from '../../constants/motionVariants';
 
 // Styled Components
 const BlogSection = styled.section`
@@ -152,62 +149,39 @@ const QuoteAuthor = styled.cite`
   }
 `;
 
-/**
- * Blog Component
- * Main blog section displaying blog posts with modal functionality
- */
+// Homepage writing preview: the shelf card, the newest posts and a link to the
+// full archive.
 const Blog = () => {
-
-  // Load blog posts from markdown files (now synchronous)
-  const blogPosts = useMemo(() => {
-    try {
-      return loadBlogPosts();
-    } catch (error) {
-      console.error('Error loading blog posts:', error);
-      return [];
-    }
-  }, []);
-
-  // Sort blog posts by date (newest first)
-  const sortedBlogPosts = useMemo(() => sortBlogsByDate(blogPosts), [blogPosts]);
+  const sortedBlogPosts = useMemo(() => sortBlogsByDate(loadBlogPosts()), []);
   const featuredPosts = sortedBlogPosts.slice(0, 3);
 
   // View counts keyed by slug (empty until loaded / when Supabase is unconfigured)
   const views = useBlogViews();
 
-  // Blog posts loaded synchronously — no artificial delay needed
-  const [isLoading] = useState(false);
-
   return (
     <BlogSection>
       <Container>
         <SectionHeader
-          variants={BLOG_ANIMATION_VARIANTS.container}
+          variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
         >
-          <motion.div variants={BLOG_ANIMATION_VARIANTS.item}>
+          <motion.div variants={itemVariants}>
             <SectionTitle>{BLOG_CONTENT.sectionTitle}</SectionTitle>
             <SectionSubtitle>{BLOG_CONTENT.sectionSubtitle}</SectionSubtitle>
           </motion.div>
         </SectionHeader>
 
-        {isLoading ? (
+        {sortedBlogPosts.length > 0 ? (
           <BlogGrid>
-            {[...Array(3)].map((_, index) => (
-              <BlogSkeletonCard key={`skeleton-${index}`} />
-            ))}
-          </BlogGrid>
-        ) : sortedBlogPosts && sortedBlogPosts.length > 0 ? (
-          <BlogGrid>
-            <ReadingList variants={BLOG_ANIMATION_VARIANTS.item} />
+            <ReadingList variants={itemVariants} />
             {featuredPosts.map((blog, index) => (
               <BlogCard
-                key={blog.id}
+                key={blog.slug}
                 blog={blog}
                 index={index}
-                variants={BLOG_ANIMATION_VARIANTS.item}
+                variants={itemVariants}
                 views={views[blog.slug]}
               />
             ))}
@@ -228,7 +202,7 @@ const Blog = () => {
         )}
 
         <QuoteSection
-          variants={BLOG_ANIMATION_VARIANTS.item}
+          variants={itemVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
