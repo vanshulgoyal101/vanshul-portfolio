@@ -110,15 +110,9 @@ describe('App structured data', () => {
 describe('App footer', () => {
   beforeEach(preferReducedMotion);
 
-  it.each(['/', '/blog/', '/blog/the-new-leverage/', '/reading-list/', '/no-such-page'])('ends %s with the site footer', async (path) => {
+  it.each(['/', '/blog/', '/blog/the-new-leverage/', '/reading-list/', '/no-such-page', '/dashboard'])('ends %s with the site footer', async (path) => {
     await renderAt(path);
     expect(await screen.findByRole('contentinfo')).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Footer links' })).toBeInTheDocument();
-  });
-
-  it('leaves the private dashboard without the public footer', async () => {
-    await renderAt('/dashboard');
-    expect(await screen.findByRole('heading', { name: 'Owner dashboard' }, LAZY)).toBeInTheDocument();
-    expect(screen.queryByRole('contentinfo')).toBeNull();
   });
 });

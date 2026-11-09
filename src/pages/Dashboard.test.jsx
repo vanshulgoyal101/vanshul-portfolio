@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 // Mock the analytics client so no network/auth happens in tests.
 const mockGetSession = vi.fn();
@@ -22,6 +23,12 @@ vi.mock('../lib/analyticsClient', () => ({
 }));
 
 import Dashboard from './Dashboard';
+
+// Metric labels read "<name> <scope>", e.g. "Game plays all-time".
+const metric = (label) => screen.getByText((_, element) => element.tagName === 'DT' && element.textContent === label);
+
+// The page renders inside the shared layout, whose navigation needs a router.
+const renderDashboard = () => render(<MemoryRouter initialEntries={['/dashboard']}><Dashboard /></MemoryRouter>);
 
 const sessionFor = (email) => ({ data: { session: email ? { user: { email } } : null } });
 
@@ -54,22 +61,47 @@ describe('Dashboard', () => {
 
   it('prompts for sign-in when signed out', async () => {
     mockGetSession.mockResolvedValue(sessionFor(null));
-    render(<Dashboard />);
+    renderDashboard();
     await waitFor(() => expect(screen.getByText('Sign in with Google')).toBeInTheDocument());
     expect(mockRpc).not.toHaveBeenCalled();
   });
 
   it('blocks a non-owner account', async () => {
     mockGetSession.mockResolvedValue(sessionFor('someone@else.com'));
-    render(<Dashboard />);
+    renderDashboard();
     await waitFor(() => expect(screen.getByText('Not authorized')).toBeInTheDocument());
+    expect(screen.getByText('someone@else.com does not have access to this dashboard.')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Time range')).not.toBeInTheDocument();
     expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  it('lets a non-owner account sign out', async () => {
+    mockGetSession.mockResolvedValue(sessionFor('someone@else.com'));
+    mockSignOut.mockResolvedValueOnce({ error: null });
+    renderDashboard();
+    fireEvent.click(await screen.findByRole('button', { name: 'Sign out' }));
+    expect(await screen.findByRole('button', { name: 'Sign in with Google' })).toBeEnabled();
+    expect(mockSignOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('names the selected window on range-bound metrics', async () => {
+    mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
+    mockRpc.mockResolvedValue({ data: sampleStats, error: null });
+    renderDashboard();
+    await screen.findByText('Pageviews by site');
+    expect(metric('Pageviews 30 days')).toBeInTheDocument();
+    expect(metric('Game plays 30 days')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Time range'), { target: { value: '24' } });
+    await waitFor(() => expect(metric('Pageviews 24 hours')).toBeInTheDocument());
+    expect(metric('Visitors 24 hours')).toBeInTheDocument();
+    expect(screen.queryByText((_, element) => element.tagName === 'DT' && element.textContent === 'Pageviews 30 days')).not.toBeInTheDocument();
   });
 
   it('loads and renders stats for the owner', async () => {
     mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
     mockRpc.mockResolvedValue({ data: sampleStats, error: null });
-    render(<Dashboard />);
+    renderDashboard();
 
     await waitFor(() => expect(screen.getByText('Pageviews by site')).toBeInTheDocument());
     expect(mockRpc).toHaveBeenCalledWith('web_stats', { window_hours: 720 });
@@ -78,8 +110,8 @@ describe('Dashboard', () => {
     expect(screen.getByText('Plays per game')).toBeInTheDocument();
     // Arcade totals surfaced as cards (not just the per-game breakdown).
     expect(screen.getByText('Arcade')).toBeInTheDocument();
-    expect(screen.getByText('Game plays · all-time')).toBeInTheDocument();
-    expect(screen.getByText('Arcade visits · all-time')).toBeInTheDocument();
+    expect(metric('Game plays all-time')).toBeInTheDocument();
+    expect(metric('Arcade visits all-time')).toBeInTheDocument();
     expect(screen.getByText('400')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /full arcade dashboard/i })).toHaveAttribute(
       'href',
@@ -92,7 +124,7 @@ describe('Dashboard', () => {
   it('re-queries with a 24-hour window when the range changes', async () => {
     mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
     mockRpc.mockResolvedValue({ data: sampleStats, error: null });
-    render(<Dashboard />);
+    renderDashboard();
     await waitFor(() => expect(screen.getByText('Pageviews by site')).toBeInTheDocument());
 
     fireEvent.change(screen.getByLabelText('Time range'), { target: { value: '24' } });
@@ -102,14 +134,14 @@ describe('Dashboard', () => {
   it('surfaces an RPC error', async () => {
     mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
     mockRpc.mockResolvedValue({ data: null, error: { message: 'not authorized' } });
-    render(<Dashboard />);
+    renderDashboard();
     await waitFor(() => expect(screen.getByText('not authorized')).toBeInTheDocument());
   });
 
   it('retains all daily values in a keyboard-focusable year chart', async () => {
     mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
     mockRpc.mockResolvedValue({ data: sampleStats, error: null });
-    render(<Dashboard />);
+    renderDashboard();
     await screen.findByText('Pageviews by site');
     fireEvent.change(screen.getByLabelText('Time range'), { target: { value: '8760' } });
     const chart = await screen.findByRole('region', { name: 'Daily pageviews chart' });
@@ -126,7 +158,7 @@ describe('Dashboard', () => {
     URL.revokeObjectURL = vi.fn();
     const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
 
-    render(<Dashboard />);
+    renderDashboard();
     // Wait for the stats to load — the Export button is disabled until then.
     await waitFor(() => expect(screen.getByText('Pageviews by site')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Export CSV'));
@@ -138,7 +170,7 @@ describe('Dashboard', () => {
 
   it('recovers from a rejected session restore', async () => {
     mockGetSession.mockRejectedValueOnce(new Error('offline'));
-    render(<Dashboard />);
+    renderDashboard();
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not restore your session');
     expect(screen.getByText('Sign in with Google')).toBeEnabled();
   });
@@ -146,7 +178,7 @@ describe('Dashboard', () => {
   it('handles rejected stats and permits retry', async () => {
     mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
     mockRpc.mockRejectedValueOnce(new Error('offline')).mockResolvedValue({ data: sampleStats });
-    render(<Dashboard />);
+    renderDashboard();
     expect(await screen.findByRole('alert')).toHaveTextContent('offline');
     fireEvent.click(screen.getByText('Refresh'));
     expect(await screen.findByText('Pageviews by site')).toBeInTheDocument();
@@ -157,7 +189,7 @@ describe('Dashboard', () => {
     mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
     mockRpc.mockImplementationOnce(() => new Promise(resolve => { resolveOld = resolve; }))
       .mockResolvedValue({ data: { ...sampleStats, total_pageviews: 987 } });
-    render(<Dashboard />);
+    renderDashboard();
     fireEvent.change(await screen.findByLabelText('Time range'), { target: { value: '24' } });
     expect(await screen.findByText('987')).toBeInTheDocument();
     await act(async () => resolveOld({ data: sampleStats }));
@@ -168,7 +200,7 @@ describe('Dashboard', () => {
   it('does not let session restoration overwrite a newer auth event', async () => {
     let resolveSession;
     mockGetSession.mockImplementationOnce(() => new Promise(resolve => { resolveSession = resolve; }));
-    render(<Dashboard />);
+    renderDashboard();
     act(() => mockOnAuthStateChange.mock.calls[0][0]('SIGNED_OUT', null));
     await act(async () => resolveSession(sessionFor('vanshulg101@gmail.com')));
     expect(screen.getByText('Sign in with Google')).toBeInTheDocument();
@@ -180,7 +212,7 @@ describe('Dashboard', () => {
     mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
     mockRpc.mockImplementationOnce(() => new Promise(resolve => { resolveStats = resolve; }));
     mockSignOut.mockResolvedValueOnce({ error: null });
-    render(<Dashboard />);
+    renderDashboard();
     fireEvent.click(await screen.findByText('Sign out'));
     await screen.findByText('Sign in with Google');
     await act(async () => resolveStats({ data: sampleStats }));
@@ -190,7 +222,7 @@ describe('Dashboard', () => {
   it('surfaces OAuth errors instead of silently failing', async () => {
     mockGetSession.mockResolvedValue(sessionFor(null));
     mockSignIn.mockRejectedValueOnce(new Error('offline'));
-    render(<Dashboard />);
+    renderDashboard();
     fireEvent.click(await screen.findByText('Sign in with Google'));
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not start sign-in');
     expect(screen.getByText('Sign in with Google')).toBeEnabled();

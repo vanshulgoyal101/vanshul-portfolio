@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { FaChartBar, FaGamepad } from 'react-icons/fa';
+import { HiArrowUpRight } from 'react-icons/hi2';
 import { analytics, OWNER_EMAIL } from '../lib/analyticsClient';
 import { SOCIAL_LINKS } from '../constants/siteConfig';
 import useSeo from '../hooks/useSeo';
+import PageLayout from '../components/ui/PageLayout';
+import PageHeader from '../components/ui/PageHeader';
+import { Button, TextLink } from '../components/ui/Button';
 import {
   formatNumber,
   fillDailySeries,
@@ -14,282 +17,361 @@ import {
   statsToCsv,
 } from '../utils/dashboardData';
 
-// ---------------------------------------------------------------------------
-// Styles (reuse the portfolio design tokens from GlobalStyles)
-// ---------------------------------------------------------------------------
-const Page = styled.main`
-  min-height: 100vh;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: var(--spacing-2xl) var(--container-padding);
+// `short` names the window on range-bound metrics ("Pageviews · 30 days").
+const RANGES = [
+  { hours: 24, label: 'Last 24 hours', short: '24 hours' },
+  { hours: 168, label: 'Last 7 days', short: '7 days' },
+  { hours: 720, label: 'Last 30 days', short: '30 days' },
+  { hours: 2160, label: 'Last 90 days', short: '90 days' },
+  { hours: 8760, label: 'Last year', short: '12 months' },
+];
+
+const CHEVRON = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%230f172a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`;
+
+const Toolbar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+
+  > :last-child {
+    margin-left: auto;
+  }
 `;
 
-const Header = styled.header`
+const RangeSelect = styled.select`
+  appearance: none;
+  min-height: 48px;
+  padding: 0 2.75rem 0 1.25rem;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-card) ${CHEVRON} no-repeat right 1.125rem center / 12px 8px;
+  font-family: var(--font-primary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease;
+
+  &:hover {
+    border-color: var(--color-ink);
+  }
+`;
+
+const Stack = styled.div`
+  display: grid;
+  gap: clamp(3rem, 7vw, 4.5rem);
+`;
+
+const Status = styled.p`
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+`;
+
+const Notice = styled.p`
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(185, 28, 28, 0.2);
+  border-left: 3px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  background: rgba(185, 28, 28, 0.04);
+  color: var(--color-danger);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+`;
+
+// Signed-out and not-authorized states share one quiet card.
+const Gate = styled.section`
+  max-width: 36rem;
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-sm);
+
+  h2 {
+    font-size: 1.25rem;
+    letter-spacing: -0.015em;
+  }
+
+  > p {
+    margin-top: 0.5rem;
+  }
+
+  > button {
+    margin-top: 1.5rem;
+  }
+
+  > ${Notice} {
+    margin-top: 1.25rem;
+  }
+`;
+
+const Block = styled.section`
+  min-width: 0;
+`;
+
+const BlockHead = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
+  gap: 0.25rem 1.5rem;
+  margin-bottom: 1rem;
 
-  h1 {
-    font-size: var(--text-3xl);
-    margin: 0;
+  h2 {
+    font-size: 1.25rem;
+    letter-spacing: -0.015em;
+  }
+`;
 
-    svg {
-      color: var(--color-accent-primary);
-      margin-right: 0.45em;
-      vertical-align: -0.08em;
+const Caption = styled.span`
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+`;
+
+// Hairline-divided metric grid. On phones an odd last metric spans the row
+// so the grid never ends in a gap.
+const Stats = styled.dl`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  background: var(--color-hairline);
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    > :last-child:nth-child(odd) {
+      grid-column: 1 / -1;
     }
   }
 `;
 
-const Actions = styled.div`
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-`;
-
-const Button = styled.button`
-  font: inherit;
-  font-weight: 600;
-  color: #fff;
-  background: var(--color-accent-primary);
-  border: none;
-  border-radius: 10px;
-  padding: 10px 18px;
-  cursor: pointer;
-  min-height: 44px;
-  transition: opacity 0.2s ease;
-
-  &:hover { opacity: 0.9; }
-  &:disabled { opacity: 0.5; cursor: default; }
-`;
-
-const GhostButton = styled(Button)`
-  background: transparent;
-  color: var(--color-text-secondary);
-  border: 1px solid var(--color-border);
-`;
-
-const Select = styled.select`
-  font: inherit;
-  color: var(--color-text-primary);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 8px 12px;
-  min-height: 44px;
-`;
-
-const Message = styled.div`
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: var(--spacing-2xl);
-  text-align: center;
-  color: var(--color-text-secondary);
-
-  h2 { color: var(--color-text-primary); margin-top: 0; }
-`;
-
-const Cards = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-`;
-
-const Card = styled.div`
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: var(--spacing-lg);
-  /* Grid children default to min-width:auto, which lets long values escape the card. */
+const Stat = styled.div`
   min-width: 0;
+  padding: clamp(1.125rem, 3vw, 1.5rem);
+  background: var(--color-bg-card);
 
-  .n {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 8px;
-    min-width: 0;
-    font-size: var(--text-3xl);
-    font-weight: 800;
-    letter-spacing: -0.02em;
+  dt {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
   }
-  .l { color: var(--color-text-secondary); font-size: var(--text-sm); margin-top: 4px; }
+
+  dt span {
+    color: var(--color-text-muted);
+
+    &::before {
+      content: '· ';
+    }
+
+    @media (max-width: 640px) {
+      display: block;
+      margin-top: 0.25rem;
+
+      &::before {
+        content: none;
+      }
+    }
+  }
+
+  dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.75rem 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--color-ink);
+  }
 `;
 
-const Section = styled.section`
-  margin-bottom: var(--spacing-2xl);
+const DELTA_TONES = {
+  up: { color: 'var(--color-success)', background: 'rgba(21, 128, 61, 0.1)' },
+  down: { color: 'var(--color-danger)', background: 'rgba(185, 28, 28, 0.08)' },
+  flat: { color: 'var(--color-text-muted)', background: 'rgba(15, 23, 42, 0.05)' },
+};
 
-  h2 { font-size: var(--text-xl); margin: 0 0 var(--spacing-md); }
-`;
-
-// Link out to the arcade's own, richer stats dashboard (games.vanshul.com/stats).
-const ArcadeLink = styled.a`
-  display: inline-block;
-  margin-top: var(--spacing-sm);
-  color: var(--color-accent-primary);
+const DeltaBadge = styled.span`
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
   font-weight: 600;
-  text-decoration: none;
-
-  &:hover { text-decoration: underline; }
+  letter-spacing: 0;
+  white-space: nowrap;
+  color: ${({ $tone }) => DELTA_TONES[$tone].color};
+  background: ${({ $tone }) => DELTA_TONES[$tone].background};
 `;
 
-const Row = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: 6px;
-  font-size: var(--text-sm);
+const Panels = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(3rem, 7vw, 4.5rem) clamp(2rem, 5vw, 3.5rem);
+
+  @media (max-width: 860px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+`;
+
+const Ranked = styled.ol`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-hairline);
+
+  li {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) 4rem;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.875rem;
+  }
 
   .k {
-    flex: 0 1 180px;
-    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
   }
+
   .bar {
-    flex: 1;
-    height: 22px;
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
+    display: block;
+    height: 6px;
     overflow: hidden;
-    position: relative;
+    border-radius: var(--radius-pill);
+    background: var(--color-border);
   }
+
   .bar > span {
-    position: absolute;
-    inset: 0 auto 0 0;
-    background: var(--color-accent-primary);
-    border-radius: 6px;
+    display: block;
+    height: 100%;
     min-width: 2px;
+    border-radius: inherit;
+    background: var(--color-accent-primary);
   }
-  .v { min-width: 64px; flex: none; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .v {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: var(--color-ink);
+  }
 `;
 
-const Hours = styled.div`
+const Empty = styled.p`
+  padding: 0.875rem 0;
+  border-top: 1px solid var(--color-hairline);
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+`;
+
+const Columns = styled.div`
   display: grid;
-  grid-template-columns: repeat(24, 1fr);
-  grid-template-rows: 120px;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  grid-template-rows: clamp(120px, 16vw, 168px);
   gap: 3px;
+  border-bottom: 1px solid var(--color-hairline);
 
-  .h { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 4px 4px 0 0; position: relative; }
-  .h > span { position: absolute; inset: auto 0 0 0; background: var(--color-accent-primary); border-radius: 4px 4px 0 0; }
+  > div {
+    position: relative;
+    border-radius: 3px 3px 0 0;
+    background: rgba(15, 23, 42, 0.04);
+  }
+
+  > div > span {
+    position: absolute;
+    inset: auto 0 0;
+    border-radius: inherit;
+    background: var(--color-accent-primary);
+  }
 `;
 
+// Long ranges keep every day at a legible width and scroll sideways.
 const ChartViewport = styled.div`
   max-width: 100%;
   overflow-x: auto;
-
-  &:focus-visible {
-    outline: 2px solid var(--color-accent-primary);
-    outline-offset: 4px;
-  }
 `;
 
-const HourLabels = styled.div`
+const Axis = styled.div`
   display: grid;
-  grid-template-columns: repeat(24, 1fr);
+  grid-template-columns: repeat(24, minmax(0, 1fr));
   gap: 3px;
-  margin-top: 4px;
-  color: var(--color-text-muted);
-  font-size: 0.58rem;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
   text-align: center;
+  color: var(--color-text-muted);
 `;
 
 const Foot = styled.p`
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-hairline);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
   color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  margin-top: var(--spacing-xl);
 `;
 
-const SiteFooter = styled.footer`
-  margin-top: var(--spacing-2xl);
-  padding-top: var(--spacing-lg);
-  border-top: 1px solid var(--color-border);
-  text-align: center;
-`;
-
-const FooterLinks = styled.nav`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--spacing-lg);
-
-  a {
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.2s ease;
-
-    &:hover { color: var(--color-accent-primary); }
-  }
-`;
-
-// Network links shown at the bottom of every dashboard state.
-const DashboardFooter = () => (
-  <SiteFooter>
-    <FooterLinks aria-label="Vanshul Goyal network">
-      <a href="/">Home</a>
-      <a href="/#blog">Blog</a>
-      <a href={SOCIAL_LINKS.games} target="_blank" rel="noopener noreferrer">Games</a>
-      <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-      <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-      <a href="https://links.vanshul.com" target="_blank" rel="noopener noreferrer">Links</a>
-    </FooterLinks>
-  </SiteFooter>
-);
-
-// ---------------------------------------------------------------------------
-// Small presentational helpers
-// ---------------------------------------------------------------------------
 const BarList = ({ title, bars, empty }) => (
-  <Section>
-    <h2>{title}</h2>
+  <Block>
+    <BlockHead><h2>{title}</h2></BlockHead>
     {bars.items.length === 0 ? (
-      <Message>{empty}</Message>
+      <Empty>{empty}</Empty>
     ) : (
-      bars.items.map((it, i) => (
-        <Row key={`${it.name}-${i}`}>
-          <span className="k" title={it.name}>{it.name}</span>
-          <div className="bar" role="img" aria-label={`${it.name}: ${it.value}`}>
-            <span style={{ width: `${(it.value / bars.max) * 100}%` }} />
-          </div>
-          <span className="v">{formatNumber(it.value)}</span>
-        </Row>
-      ))
+      <Ranked>
+        {bars.items.map((it, i) => (
+          <li key={`${it.name}-${i}`}>
+            <span className="k" title={it.name}>{it.name}</span>
+            <span className="bar" role="img" aria-label={`${it.name}: ${it.value}`}>
+              <span style={{ width: `${(it.value / bars.max) * 100}%` }} />
+            </span>
+            <span className="v">{formatNumber(it.value)}</span>
+          </li>
+        ))}
+      </Ranked>
     )}
-  </Section>
+  </Block>
 );
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-const DeltaBadge = styled.span`
-  font-size: var(--text-xs);
-  font-weight: 700;
-  white-space: nowrap;
-  color: ${(p) => (p.$dir > 0 ? '#15803d' : p.$dir < 0 ? '#dc2626' : 'var(--color-text-muted)')};
-`;
 
 // Trend badge comparing the current window to the previous equal-length one.
 const Delta = ({ current, previous }) => {
   const pct = percentDelta(current, previous);
-  if (pct === null) return <DeltaBadge $dir={1} title="No prior data">new</DeltaBadge>;
-  if (pct === 0) return <DeltaBadge $dir={0}>±0%</DeltaBadge>;
-  const dir = pct > 0 ? 1 : -1;
+  if (pct === null) return <DeltaBadge $tone="up" title="No prior data">new</DeltaBadge>;
+  if (pct === 0) return <DeltaBadge $tone="flat">±0%</DeltaBadge>;
+  const up = pct > 0;
   return (
-    <DeltaBadge $dir={dir} title="vs previous period">
-      {dir > 0 ? '▲' : '▼'} {Math.abs(pct)}%
+    <DeltaBadge $tone={up ? 'up' : 'down'} title="vs previous period">
+      {up ? '▲' : '▼'} {Math.abs(pct)}%
     </DeltaBadge>
   );
 };
+
+// `scope` says which window the value covers; phones stack it under the name.
+const Metric = ({ name, scope, value, children }) => (
+  <Stat>
+    <dt>{name} <span>{scope}</span></dt>
+    <dd>{formatNumber(value)}{children}</dd>
+  </Stat>
+);
 
 const Dashboard = () => {
   const [session, setSession] = useState(undefined); // undefined = loading
@@ -409,137 +491,142 @@ const Dashboard = () => {
     };
   }, [stats, windowHours]);
 
-  // ---- render states ----
+  const range = RANGES.find((r) => r.hours === windowHours);
+  let body;
+
   if (session === undefined) {
-    return <Page><Message>Loading…</Message></Page>;
-  }
+    body = <Status role="status">Loading…</Status>;
+  } else if (!session) {
+    body = (
+      <Gate aria-labelledby="dashboard-gate">
+        <h2 id="dashboard-gate">Sign in required</h2>
+        <p>This dashboard is private. Sign in with the owner Google account to continue.</p>
+        <Button type="button" onClick={signIn} disabled={authBusy}>Sign in with Google</Button>
+        {error && <Notice role="alert">{error}</Notice>}
+      </Gate>
+    );
+  } else if (!isOwner) {
+    body = (
+      <Gate aria-labelledby="dashboard-gate">
+        <h2 id="dashboard-gate">Not authorized</h2>
+        <p>{email} does not have access to this dashboard.</p>
+        <Button type="button" $variant="secondary" onClick={signOut} disabled={authBusy}>Sign out</Button>
+        {error && <Notice role="alert">{error}</Notice>}
+      </Gate>
+    );
+  } else {
+    const hourMax = derived ? Math.max(1, ...derived.hours.map((h) => h.pageviews)) : 1;
+    const dayMax = derived ? Math.max(1, ...derived.daily.map((d) => d.pageviews)) : 1;
 
-  if (!session) {
-    return (
-      <Page>
-        <Header><h1><FaChartBar aria-hidden="true" />Dashboard</h1></Header>
-        <Message>
-          <h2>Sign in required</h2>
-          <p>This dashboard is private. Sign in with the owner Google account to continue.</p>
-          <Button onClick={signIn} disabled={authBusy}>Sign in with Google</Button>
-          {error && <p role="alert">{error}</p>}
-        </Message>
-        <DashboardFooter />
-      </Page>
+    body = (
+      <Stack>
+        {error && <Notice role="alert">{error}</Notice>}
+        {!stats && !error && <Status role="status">Loading stats…</Status>}
+
+        {stats && derived && (
+          <>
+            <Stats>
+              <Metric name="Pageviews" scope={range.short} value={stats.range_pageviews}>
+                <Delta current={stats.range_pageviews} previous={stats.prev_pageviews} />
+              </Metric>
+              <Metric name="Visitors" scope={range.short} value={stats.range_visitors}>
+                <Delta current={stats.range_visitors} previous={stats.prev_visitors} />
+              </Metric>
+              <Metric name="Events" scope={range.short} value={stats.range_events} />
+              <Metric name="Pageviews" scope="today" value={stats.pageviews_today} />
+              <Metric name="Pageviews" scope="all-time" value={stats.total_pageviews} />
+              <Metric name="Visitors" scope="all-time" value={stats.unique_visitors} />
+            </Stats>
+
+            <Block>
+              <BlockHead>
+                <h2>Daily pageviews</h2>
+                <Caption>{derived.daily[0].label} – {derived.daily[derived.daily.length - 1].label}</Caption>
+              </BlockHead>
+              <ChartViewport role="region" aria-label="Daily pageviews chart" tabIndex={0}>
+                <Columns style={{ gridTemplateColumns: `repeat(${derived.daily.length}, minmax(4px, 1fr))` }}>
+                  {derived.daily.map((d) => (
+                    <div key={d.day} role="img" aria-label={`${d.label} — ${d.pageviews} pageviews`} title={`${d.label}: ${d.pageviews}`}>
+                      <span style={{ height: `${(d.pageviews / dayMax) * 100}%` }} />
+                    </div>
+                  ))}
+                </Columns>
+              </ChartViewport>
+            </Block>
+
+            <Block>
+              <BlockHead>
+                <h2>Pageviews by hour (IST)</h2>
+                <Caption>{range.short}</Caption>
+              </BlockHead>
+              <Columns>
+                {derived.hours.map((h) => (
+                  <div key={h.hour} role="img" aria-label={`${h.hour}:00 — ${h.pageviews} pageviews`} title={`${h.hour}:00: ${h.pageviews}`}>
+                    <span style={{ height: `${(h.pageviews / hourMax) * 100}%` }} />
+                  </div>
+                ))}
+              </Columns>
+              <Axis aria-hidden="true">
+                {derived.hours.map((h) => (
+                  <span key={h.hour}>{h.hour % 3 === 0 ? h.hour : ''}</span>
+                ))}
+              </Axis>
+            </Block>
+
+            <BarList title="Top pages" bars={derived.topPages} empty="No page views yet." />
+
+            <Panels>
+              <BarList title="Pageviews by site" bars={derived.perSite} empty="No pageviews yet." />
+              <BarList title="Top referrers" bars={derived.referrers} empty="No referrers yet." />
+              <BarList title="Top outbound links" bars={derived.perLink} empty="No link clicks yet." />
+              <BarList title="Top tools used" bars={derived.perTool} empty="No tool usage yet." />
+            </Panels>
+
+            {/* Arcade totals come from the same RPC; the arcade hosts a richer dashboard. */}
+            <Block>
+              <BlockHead>
+                <h2>Arcade</h2>
+                <TextLink as="a" href={`${SOCIAL_LINKS.games}/stats/`} target="_blank" rel="noopener noreferrer">
+                  Open the full arcade dashboard
+                  <HiArrowUpRight aria-hidden="true" data-arrow="forward" />
+                </TextLink>
+              </BlockHead>
+              <Stats>
+                <Metric name="Game plays" scope={range.short} value={stats.arcade?.range_plays ?? 0} />
+                <Metric name="Game plays" scope="all-time" value={stats.arcade?.total_plays ?? 0} />
+                <Metric name="Arcade visits" scope="all-time" value={stats.arcade?.total_visits ?? 0} />
+              </Stats>
+            </Block>
+
+            <BarList title="Plays per game" bars={derived.perGame} empty="No game plays in this range." />
+
+            <Foot>Private · pseudonymous analytics · times in IST (Asia/Kolkata). Signed in as {email}.</Foot>
+          </>
+        )}
+      </Stack>
     );
   }
-
-  if (!isOwner) {
-    return (
-      <Page>
-        <Header>
-          <h1><FaChartBar aria-hidden="true" />Dashboard</h1>
-          <Actions><GhostButton onClick={signOut} disabled={authBusy}>Sign out</GhostButton></Actions>
-        </Header>
-        <Message>
-          <h2>Not authorized</h2>
-          <p>{email} does not have access to this dashboard.</p>
-          {error && <p role="alert">{error}</p>}
-        </Message>
-        <DashboardFooter />
-      </Page>
-    );
-  }
-
-  const hourMax = derived ? Math.max(1, ...derived.hours.map((h) => h.pageviews)) : 1;
-  const dayMax = derived ? Math.max(1, ...derived.daily.map((d) => d.pageviews)) : 1;
 
   return (
-    <Page>
-      <Header>
-        <h1><FaChartBar aria-hidden="true" />Dashboard</h1>
-        <Actions>
-          <Select
-            aria-label="Time range"
-            value={windowHours}
-            onChange={(e) => setWindowHours(Number(e.target.value))}
-          >
-            <option value={24}>Last 24 hours</option>
-            <option value={168}>Last 7 days</option>
-            <option value={720}>Last 30 days</option>
-            <option value={2160}>Last 90 days</option>
-            <option value={8760}>Last year</option>
-          </Select>
-          <GhostButton onClick={loadStats} disabled={busy}>{busy ? 'Refreshing…' : 'Refresh'}</GhostButton>
-          <GhostButton onClick={exportCsv} disabled={!stats}>Export CSV</GhostButton>
-          <GhostButton onClick={signOut} disabled={authBusy}>Sign out</GhostButton>
-        </Actions>
-      </Header>
-
-      {error && <Message role="alert"><h2>Error</h2><p>{error}</p></Message>}
-
-      {!stats && !error && <Message>Loading stats…</Message>}
-
-      {stats && derived && (
-        <>
-          <Cards>
-            <Card><div className="n">{formatNumber(stats.range_pageviews)}<Delta current={stats.range_pageviews} previous={stats.prev_pageviews} /></div><div className="l">Pageviews · range</div></Card>
-            <Card><div className="n">{formatNumber(stats.range_visitors)}<Delta current={stats.range_visitors} previous={stats.prev_visitors} /></div><div className="l">Visitors · range</div></Card>
-            <Card><div className="n">{formatNumber(stats.range_events)}</div><div className="l">Events · range</div></Card>
-            <Card><div className="n">{formatNumber(stats.pageviews_today)}</div><div className="l">Pageviews today</div></Card>
-            <Card><div className="n">{formatNumber(stats.total_pageviews)}</div><div className="l">Pageviews · all-time</div></Card>
-            <Card><div className="n">{formatNumber(stats.unique_visitors)}</div><div className="l">Visitors · all-time</div></Card>
-          </Cards>
-
-          <BarList title="Pageviews by site" bars={derived.perSite} empty="No pageviews yet." />
-          <BarList title="Top pages" bars={derived.topPages} empty="No page views yet." />
-          <BarList title="Top tools used" bars={derived.perTool} empty="No tool usage yet." />
-          <BarList title="Top outbound links" bars={derived.perLink} empty="No link clicks yet." />
-          <BarList title="Top referrers" bars={derived.referrers} empty="No referrers yet." />
-
-          {/* Arcade / games — surface the totals the RPC returns, not just the breakdown. */}
-          <Section>
-            <h2><FaGamepad aria-hidden="true" /> Arcade</h2>
-            <Cards>
-              <Card><div className="n">{formatNumber(stats.arcade?.range_plays ?? 0)}</div><div className="l">Game plays · range</div></Card>
-              <Card><div className="n">{formatNumber(stats.arcade?.total_plays ?? 0)}</div><div className="l">Game plays · all-time</div></Card>
-              <Card><div className="n">{formatNumber(stats.arcade?.total_visits ?? 0)}</div><div className="l">Arcade visits · all-time</div></Card>
-            </Cards>
-            <ArcadeLink href={`${SOCIAL_LINKS.games}/stats/`} target="_blank" rel="noopener noreferrer">
-              Open the full arcade dashboard ↗
-            </ArcadeLink>
-          </Section>
-          <BarList title="Plays per game" bars={derived.perGame} empty="No game plays in this range." />
-
-          <Section>
-            <h2>Pageviews by hour (IST)</h2>
-            <Hours>
-              {derived.hours.map((h) => (
-                <div className="h" key={h.hour} role="img" aria-label={`${h.hour}:00 — ${h.pageviews} pageviews`}>
-                  <span style={{ height: `${(h.pageviews / hourMax) * 100}%` }} />
-                </div>
-              ))}
-            </Hours>
-            <HourLabels>
-              {derived.hours.map((h) => (
-                <span key={h.hour}>{h.hour % 3 === 0 ? h.hour : ''}</span>
-              ))}
-            </HourLabels>
-          </Section>
-
-          <Section>
-            <h2>Daily pageviews</h2>
-            <ChartViewport role="region" aria-label="Daily pageviews chart" tabIndex={0}>
-            <Hours style={{ gridTemplateColumns: `repeat(${derived.daily.length}, minmax(4px, 1fr))` }}>
-              {derived.daily.map((d) => (
-                <div className="h" key={d.day} role="img" aria-label={`${d.label} — ${d.pageviews} pageviews`} title={`${d.label}: ${d.pageviews}`}>
-                  <span style={{ height: `${(d.pageviews / dayMax) * 100}%` }} />
-                </div>
-              ))}
-            </Hours>
-            </ChartViewport>
-          </Section>
-
-          <Foot>Private · pseudonymous analytics · times in IST (Asia/Kolkata). Signed in as {email}.</Foot>
-        </>
-      )}
-      <DashboardFooter />
-    </Page>
+    <PageLayout>
+      <PageHeader label="Analytics" title="Dashboard" lede="Private usage analytics for the vanshul.com network.">
+        {isOwner && (
+          <Toolbar>
+            <RangeSelect
+              aria-label="Time range"
+              value={windowHours}
+              onChange={(e) => setWindowHours(Number(e.target.value))}
+            >
+              {RANGES.map((r) => <option key={r.hours} value={r.hours}>{r.label}</option>)}
+            </RangeSelect>
+            <Button type="button" $variant="secondary" onClick={loadStats} disabled={busy}>{busy ? 'Refreshing…' : 'Refresh'}</Button>
+            <Button type="button" $variant="secondary" onClick={exportCsv} disabled={!stats}>Export CSV</Button>
+            <Button type="button" $variant="secondary" onClick={signOut} disabled={authBusy}>Sign out</Button>
+          </Toolbar>
+        )}
+      </PageHeader>
+      {body}
+    </PageLayout>
   );
 };
 

@@ -18,8 +18,8 @@ export const useToast = () => {
 
 // Status tones: each meets 4.5:1 on white, so icons and edges stay legible.
 const TONES = {
-  success: '#15803d',
-  error: '#b91c1c',
+  success: 'var(--color-success)',
+  error: 'var(--color-danger)',
   info: 'var(--color-accent-primary)',
 };
 

@@ -148,12 +148,6 @@ const IdleBackground = () => {
   );
 };
 
-// Every public page ends with the site footer; the private dashboard has its own.
-const RouteFooter = (props) => {
-  const { pathname } = useLocation();
-  return /^\/dashboard(\/|$)/.test(pathname) ? null : <SiteFooter {...props} />;
-};
-
 // Redirect legacy/plural blog URLs (/blogs, /blogs/:slug) to the canonical /blog/.
 const RedirectBlogSlug = () => {
   const { slug } = useParams();
@@ -291,7 +285,7 @@ function App() {
           </ErrorBoundary>
           </Suspense>
           </div>
-          <RouteFooter ambientEnabled={ambientEnabled} reducedMotion={reducedMotion} onAmbientChange={changeAmbient} />
+          <SiteFooter ambientEnabled={ambientEnabled} reducedMotion={reducedMotion} onAmbientChange={changeAmbient} />
         </AppWrapper>
       </ToastProvider>
     </Router>

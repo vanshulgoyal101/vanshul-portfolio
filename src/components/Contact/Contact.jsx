@@ -12,8 +12,6 @@ import { SOCIAL_PROFILES } from '../../constants/siteConfig';
 import { PROFILE } from '../../constants/profile';
 import { SOCIAL_ICONS } from '../socialIcons';
 
-// #b91c1c keeps error text above 4.5:1 on white and on the input background.
-const ERROR = '#b91c1c';
 
 const ContactSection = styled.section`
   position: relative;
@@ -189,7 +187,7 @@ const field = `
   }
 
   &[aria-invalid='true'] {
-    border-color: ${ERROR};
+    border-color: var(--color-danger);
   }
 
   &[aria-invalid='true']:focus {
@@ -215,7 +213,7 @@ const FormTextarea = styled.textarea`
 const ValidationError = styled.p`
   font-size: 0.8125rem;
   line-height: 1.4;
-  color: ${ERROR};
+  color: var(--color-danger);
 `;
 
 const SubmitButton = styled(Button)`

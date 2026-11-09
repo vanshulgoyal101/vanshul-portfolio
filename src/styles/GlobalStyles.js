@@ -20,6 +20,10 @@ const GlobalStyles = createGlobalStyle`
     --color-accent-soft: rgba(29, 78, 216, 0.07);
     --color-accent-line: rgba(29, 78, 216, 0.24);
 
+    /* Status tones; both meet 4.5:1 on white and on the page. */
+    --color-success: #15803d;
+    --color-danger: #b91c1c;
+
     --color-border: rgba(30, 41, 59, 0.08);
     --color-border-hover: rgba(30, 41, 59, 0.15);
     --color-hairline: rgba(15, 23, 42, 0.12);
