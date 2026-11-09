@@ -39,6 +39,13 @@ class ErrorBoundary extends React.Component {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
+  // A new resetKey (e.g. the route) gives the children another chance.
+  componentDidUpdate(prevProps) {
+    if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
+      this.setState({ hasError: false });
+    }
+  }
+
   handleRetry = () => {
     this.setState({ hasError: false });
     window.location.reload();
@@ -63,6 +70,7 @@ class ErrorBoundary extends React.Component {
 ErrorBoundary.propTypes = {
   children: PropTypes.node.isRequired,
   fallback: PropTypes.node,
+  resetKey: PropTypes.string,
 };
 
 export default ErrorBoundary;

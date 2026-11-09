@@ -14,6 +14,8 @@ import { homeJsonLd } from '../scripts/lib/structuredData.mjs';
 import { HOME_PATH, BLOG_PATH, postPath } from './constants/routes';
 import Navigation from './components/Navigation/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
+import RouteError from './components/RouteError';
+import PageLayout from './components/ui/PageLayout';
 import { ToastProvider } from './components/Toast';
 import BackgroundElements from './components/BackgroundElements';
 import NotFound from './pages/NotFound';
@@ -61,11 +63,10 @@ const MainContent = styled.main`
 
 // Holds the page's height while a lazy route loads, so the footer does not
 // jump up and back down.
-const PageLoading = styled.div`
+const PageLoading = styled.p`
   display: grid;
   place-items: center;
-  min-height: 70vh;
-  padding: 8rem var(--container-padding);
+  min-height: 50vh;
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   letter-spacing: 0.12em;
@@ -148,6 +149,13 @@ const IdleBackground = () => {
   );
 };
 
+// A page that fails to load or render is replaced by a full error page, which
+// clears again as soon as the visitor navigates elsewhere.
+const RouteBoundary = ({ children }) => {
+  const { pathname } = useLocation();
+  return <ErrorBoundary resetKey={pathname} fallback={<RouteError />}>{children}</ErrorBoundary>;
+};
+
 // Redirect legacy/plural blog URLs (/blogs, /blogs/:slug) to the canonical /blog/.
 const RedirectBlogSlug = () => {
   const { slug } = useParams();
@@ -193,8 +201,8 @@ function App() {
           {!isBooting && ambientEnabled && !reducedMotion && <IdleBackground />}
           
           <div id="main-content" tabIndex={-1}>
-          <Suspense fallback={<PageLoading role="status">Loading page...</PageLoading>}>
-          <ErrorBoundary>
+          <Suspense fallback={<PageLayout><PageLoading role="status">Loading page...</PageLoading></PageLayout>}>
+          <RouteBoundary>
           <Routes>
             {/* Main portfolio page */}
             <Route path="/" element={
@@ -282,7 +290,7 @@ function App() {
             {/* Catch-all: friendly, noindex 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          </ErrorBoundary>
+          </RouteBoundary>
           </Suspense>
           </div>
           <SiteFooter ambientEnabled={ambientEnabled} reducedMotion={reducedMotion} onAmbientChange={changeAmbient} />

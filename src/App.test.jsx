@@ -1,9 +1,17 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
 import App from './App';
+import { RETRY_KEY } from './utils/routeRetry';
 
-// The private dashboard talks to Supabase auth; routing tests only need its shell.
-vi.mock('./pages/Dashboard', () => ({ default: () => <h1>Owner dashboard</h1> }));
+// The private dashboard talks to Supabase auth; routing tests only need its
+// shell. `fail` makes it throw like a page whose code could not be loaded.
+const dashboard = vi.hoisted(() => ({ fail: false }));
+vi.mock('./pages/Dashboard', () => ({
+  default: () => {
+    if (dashboard.fail) throw new Error('Failed to fetch dynamically imported module');
+    return <h1>Owner dashboard</h1>;
+  },
+}));
 
 // Reduced motion completes the greeting immediately and skips decorative work,
 // so the tests exercise routing and page composition only.
@@ -104,6 +112,36 @@ describe('App structured data', () => {
     await findPageHeading('The New Leverage');
     expect(schemaTypes()).toContain('BlogPosting');
     expect(schemaTypes()).not.toContain('ProfilePage');
+  });
+});
+
+describe('App page failures', () => {
+  beforeEach(() => {
+    preferReducedMotion();
+    dashboard.fail = true;
+    // Pretend the one automatic reload already happened.
+    sessionStorage.setItem(RETRY_KEY, String(Date.now()));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    dashboard.fail = false;
+    sessionStorage.clear();
+    vi.restoreAllMocks();
+  });
+
+  it('replaces a failed page with an error page that keeps the navigation', async () => {
+    await renderAt('/dashboard');
+    expect(await findPageHeading("This page didn't load")).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument();
+    expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+  });
+
+  it('recovers as soon as the visitor navigates elsewhere', async () => {
+    await renderAt('/dashboard');
+    fireEvent.click(await screen.findByRole('link', { name: 'Back home' }, LAZY));
+    expect(await findPageHeading('Vanshul Goyal')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: "This page didn't load" })).toBeNull();
   });
 });
 

@@ -58,6 +58,19 @@ describe('ErrorBoundary', () => {
     expect(screen.queryByText('Something went wrong here')).toBeNull();
   });
 
+  it('retries its children when the reset key changes', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { rerender } = render(<ErrorBoundary resetKey="/a"><Boom /></ErrorBoundary>);
+    expect(screen.getByText('Something went wrong here')).toBeInTheDocument();
+
+    rerender(<ErrorBoundary resetKey="/a"><Safe /></ErrorBoundary>);
+    expect(screen.getByText('Something went wrong here')).toBeInTheDocument();
+
+    rerender(<ErrorBoundary resetKey="/b"><Safe /></ErrorBoundary>);
+    expect(screen.getByText('safe content')).toBeInTheDocument();
+    expect(screen.queryByText('Something went wrong here')).toBeNull();
+  });
+
   it('shows a reload button that triggers window.location.reload', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const reload = vi.fn();
