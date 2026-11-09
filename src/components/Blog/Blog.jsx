@@ -1,24 +1,22 @@
 import { useMemo } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { FaPen, FaQuoteLeft } from 'react-icons/fa';
-import { MdArrowForward } from 'react-icons/md';
-import { Link } from 'react-router-dom';
+import { FaPen } from 'react-icons/fa';
+import { HiArrowRight } from 'react-icons/hi2';
 
 import BlogCard from './BlogCard';
 import ReadingList from './ReadingList';
+import SectionHeader from '../ui/SectionHeader';
+import { ButtonLink } from '../ui/Button';
 import { sortBlogsByDate } from '../../utils/blogUtils';
 import { loadBlogPosts } from '../../utils/blogLoader';
 import { useBlogViews } from '../../hooks/useBlogViews';
 import { BLOG_CONTENT } from '../../constants/blogConstants';
-import { containerVariants, itemVariants } from '../../constants/motionVariants';
+import { itemVariants } from '../../constants/motionVariants';
 import { BLOG_PATH } from '../../constants/routes';
 
-// Styled Components
 const BlogSection = styled.section`
-  padding: var(--spacing-2xl) 0;
   position: relative;
-  background: transparent;
+  padding: clamp(3.5rem, 7vw, 6rem) 0;
   overflow: hidden;
 `;
 
@@ -28,130 +26,90 @@ const Container = styled.div`
   padding: 0 var(--container-padding);
 `;
 
-const SectionHeader = styled(motion.div)`
-  text-align: center;
-  margin-bottom: var(--spacing-xl);
-`;
-
-const SectionTitle = styled.h2`
-  font-size: var(--text-section-title);
-  margin-bottom: var(--spacing-md);
-  background: var(--color-gradient-1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  
-`;
-
-const SectionSubtitle = styled.p`
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
-  
-  @media (max-width: 768px) {
-    font-size: var(--text-base);
-  }
-`;
-
-const BlogGrid = styled.div`
+const PostGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spacing-lg);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: var(--spacing-md);
   }
 `;
 
-const ArchiveLink = styled(Link)`
+const ArchiveRow = styled.div`
   display: flex;
-  width: fit-content;
-  align-items: center;
-  gap: 0.5rem;
-  margin: var(--spacing-lg) auto 0;
-  padding: 0.75rem 1rem;
-  color: var(--color-accent-primary);
-  font-weight: 600;
-  border-radius: 8px;
-
-  svg {
-    transition: transform 0.2s ease;
-  }
-
-  &:hover svg {
-    transform: translateX(4px);
-  }
-
-  &:focus-visible {
-    outline: 3px solid var(--color-accent-primary);
-    outline-offset: 3px;
-  }
+  justify-content: center;
+  margin: clamp(1.75rem, 3vw, 2.25rem) 0 clamp(2.5rem, 5vw, 3.5rem);
 `;
 
 const EmptyState = styled.div`
+  padding: var(--spacing-2xl) 0;
   text-align: center;
-  padding: var(--spacing-2xl);
-  
+
   svg {
-    font-size: 4rem;
+    margin: 0 auto 1.5rem;
+    font-size: 3rem;
     color: var(--color-accent-primary);
     opacity: 0.3;
-    margin-bottom: var(--spacing-lg);
   }
-  
+
   h3 {
+    margin-bottom: 1rem;
     font-size: var(--text-2xl);
-    margin-bottom: var(--spacing-md);
-    color: var(--color-text-primary);
   }
-  
+
   p {
-    color: var(--color-text-secondary);
     max-width: 400px;
     margin: 0 auto;
   }
 `;
 
-const QuoteSection = styled(motion.div)`
-  max-width: 700px;
-  margin: var(--spacing-2xl) auto;
+const Quote = styled.figure`
+  max-width: 44rem;
+  margin: clamp(4rem, 8vw, 6rem) auto 0;
+  padding-top: 2rem;
   text-align: center;
-  position: relative;
-  padding: var(--spacing-xl);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-`;
+  border-top: 1px solid var(--color-hairline);
 
-const QuoteIcon = styled.div`
-  font-size: 3rem;
-  color: var(--color-accent-primary);
-  opacity: 0.2;
-  margin-bottom: var(--spacing-md);
-`;
+  blockquote {
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 3vw, 1.875rem);
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    quotes: '“' '”';
+    text-wrap: balance;
+  }
 
-const Quote = styled.blockquote`
-  font-size: var(--text-xl);
-  color: var(--color-text-secondary);
-  font-style: italic;
-  line-height: 1.8;
-  margin-bottom: var(--spacing-md);
-`;
+  blockquote::before {
+    content: open-quote;
+  }
 
-const QuoteAuthor = styled.cite`
-  font-size: var(--text-base);
-  color: var(--color-accent-primary);
-  font-style: normal;
-  
-  &::before {
+  blockquote::after {
+    content: close-quote;
+  }
+
+  figcaption {
+    margin-top: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  cite {
+    font-style: normal;
+  }
+
+  cite::before {
     content: '— ';
   }
 `;
 
-// Homepage writing preview: the shelf card, the newest posts and a link to the
-// full archive.
+// Homepage writing preview: the newest posts, a link to the full archive and
+// the reading-list banner.
 const Blog = () => {
   const sortedBlogPosts = useMemo(() => sortBlogsByDate(loadBlogPosts()), []);
   const featuredPosts = sortedBlogPosts.slice(0, 3);
@@ -163,57 +121,51 @@ const Blog = () => {
     <BlogSection>
       <Container>
         <SectionHeader
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-        >
-          <motion.div variants={itemVariants}>
-            <SectionTitle>{BLOG_CONTENT.sectionTitle}</SectionTitle>
-            <SectionSubtitle>{BLOG_CONTENT.sectionSubtitle}</SectionSubtitle>
-          </motion.div>
-        </SectionHeader>
+          index="04"
+          eyebrow="Essays"
+          title={BLOG_CONTENT.sectionTitle}
+          lede={BLOG_CONTENT.sectionSubtitle}
+        />
 
         {sortedBlogPosts.length > 0 ? (
-          <BlogGrid>
-            <ReadingList variants={itemVariants} />
-            {featuredPosts.map((blog, index) => (
-              <BlogCard
-                key={blog.slug}
-                blog={blog}
-                index={index}
-                variants={itemVariants}
-                views={views[blog.slug]}
-              />
-            ))}
-          </BlogGrid>
+          <>
+            <PostGrid>
+              {featuredPosts.map((blog, index) => (
+                <BlogCard
+                  key={blog.slug}
+                  blog={blog}
+                  index={index}
+                  variants={itemVariants}
+                  views={views[blog.slug]}
+                />
+              ))}
+            </PostGrid>
+
+            <ArchiveRow>
+              {sortedBlogPosts.length > featuredPosts.length && (
+                <ButtonLink $variant="secondary" to={BLOG_PATH}>
+                  View all {sortedBlogPosts.length} posts
+                  <HiArrowRight aria-hidden="true" data-arrow="forward" />
+                </ButtonLink>
+              )}
+            </ArchiveRow>
+          </>
         ) : (
           <EmptyState>
-            <FaPen />
+            <FaPen aria-hidden="true" />
             <h3>{BLOG_CONTENT.emptyStateTitle}</h3>
             <p>{BLOG_CONTENT.emptyStateMessage}</p>
           </EmptyState>
         )}
 
-        {sortedBlogPosts.length > featuredPosts.length && (
-          <ArchiveLink to={BLOG_PATH}>
-            View all {sortedBlogPosts.length} posts
-            <MdArrowForward aria-hidden="true" />
-          </ArchiveLink>
-        )}
+        <ReadingList />
 
-        <QuoteSection
-          variants={itemVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-        >
-          <QuoteIcon>
-            <FaQuoteLeft />
-          </QuoteIcon>
-          <Quote>{BLOG_CONTENT.quote.text}</Quote>
-          <QuoteAuthor>{BLOG_CONTENT.quote.author}</QuoteAuthor>
-        </QuoteSection>
+        <Quote>
+          <blockquote>{BLOG_CONTENT.quote.text}</blockquote>
+          <figcaption>
+            <cite>{BLOG_CONTENT.quote.author}</cite>
+          </figcaption>
+        </Quote>
       </Container>
     </BlogSection>
   );

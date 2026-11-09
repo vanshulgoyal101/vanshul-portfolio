@@ -4,20 +4,21 @@ import { FaPaperPlane } from 'react-icons/fa';
 import { MdLocationOn, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
 import Magnetic from '../FunElements/Magnetic';
+import SectionHeader from '../ui/SectionHeader';
+import { Button } from '../ui/Button';
 import { useContactForm } from '../../hooks/useContactForm';
 import { containerVariants, itemVariants } from '../../constants/motionVariants';
 import { SOCIAL_PROFILES } from '../../constants/siteConfig';
 import { PROFILE } from '../../constants/profile';
 import { SOCIAL_ICONS } from '../socialIcons';
 
+// #b91c1c keeps error text above 4.5:1 on white and on the input background.
+const ERROR = '#b91c1c';
 
-// Styled Components
 const ContactSection = styled.section`
-  padding: var(--spacing-2xl) 0;
   position: relative;
-  background: transparent;
+  padding: clamp(3.5rem, 7vw, 6rem) 0;
   overflow: hidden;
-  min-height: 80vh;
 `;
 
 const Container = styled.div`
@@ -26,324 +27,237 @@ const Container = styled.div`
   padding: 0 var(--container-padding);
 `;
 
-const SectionHeader = styled(motion.div)`
-  text-align: center;
-  margin-bottom: var(--spacing-xl);
-`;
-
-const SectionTitle = styled.h2`
-  font-size: var(--text-section-title);
-  margin-bottom: var(--spacing-md);
-  background: var(--color-gradient-1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  
-`;
-
-const SectionSubtitle = styled.p`
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
-`;
-
 const ContactGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-xl);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
   align-items: start;
-  
+  max-width: 64rem;
+  margin: 0 auto;
+
   @media (max-width: 1024px) {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 1fr;
   }
 `;
 
 const ContactInfo = styled(motion.div)`
   min-width: 0;
-  padding: var(--spacing-lg);
-  @media (max-width: 480px) { padding: 0; }
 `;
 
 const InfoTitle = styled.h3`
-  font-size: var(--text-2xl);
-  margin-bottom: var(--spacing-md);
-  color: var(--color-text-primary);
+  margin-bottom: 1rem;
+  font-size: clamp(1.375rem, 2.5vw, 1.75rem);
+  letter-spacing: -0.02em;
 `;
 
 const InfoText = styled.p`
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
-  line-height: 1.8;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 2rem;
+  font-size: 1.0625rem;
+  line-height: 1.7;
 `;
 
-const InfoItem = styled(motion.div)`
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-  padding: var(--spacing-md);
-  background: var(--color-bg-card);
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: var(--color-accent-primary);
-    transform: translateX(10px);
+const Facts = styled.dl`
+  margin-bottom: 2rem;
+  border-top: 1px solid var(--color-hairline);
+`;
+
+const Fact = styled(motion.div)`
+  position: relative;
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem 0 1rem 3.25rem;
+  border-bottom: 1px solid var(--color-hairline);
+
+  dt {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* The icon lives in the dt for valid markup but centres on the whole row. */
+  dt svg {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.625rem;
+    color: var(--color-accent-primary);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    transform: translateY(-50%);
+  }
+
+  dd {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-ink);
   }
 `;
 
-const InfoIcon = styled.div`
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-accent-primary);
-  font-size: 1.25rem;
-`;
-
-const InfoContent = styled.div`
-  flex: 1;
-  min-width: 0;
-  overflow-wrap: anywhere;
-`;
-
-const InfoLabel = styled.p`
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  margin-bottom: 2px;
-`;
-
-const InfoValue = styled.p`
-  font-size: var(--text-base);
-  color: var(--color-text-primary);
+const SocialLabel = styled.p`
+  margin-bottom: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
 `;
 
-const SocialLinks = styled(motion.div)`
+const SocialLinks = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-lg);
+  gap: 0.625rem;
 `;
 
-const SocialLink = styled(motion.a)`
-  width: 48px;
-  height: 48px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 50%;
+const SocialLink = styled.a`
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 44px;
+  height: 44px;
+  font-size: 1.125rem;
   color: var(--color-text-secondary);
-  font-size: 1.25rem;
-  transition: all 0.3s ease;
-  
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+
   &:hover {
-    color: var(--color-accent-primary);
-    border-color: var(--color-accent-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+    color: var(--color-ink);
+    border-color: var(--color-ink);
   }
-  
+
   &:focus-visible {
     outline: 3px solid var(--color-accent-primary);
-    outline-offset: 4px;
-    color: var(--color-accent-primary);
-    border-color: var(--color-accent-primary);
+    outline-offset: 3px;
   }
+`;
+
+const ContactFormWrapper = styled(motion.div)`
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+`;
+
+const ContactForm = styled.form`
+  display: grid;
+  gap: 1.25rem;
+`;
+
+const FormGroup = styled.div`
+  display: grid;
+  gap: 0.5rem;
+`;
+
+const FormLabel = styled.label`
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+`;
+
+const field = `
+  width: 100%;
+  padding: 0.8125rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-ink);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease, background-color var(--duration-fast) ease;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-border-hover);
+  }
+
+  &:focus {
+    outline: none;
+    background: var(--color-bg-card);
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 0 4px var(--color-accent-soft);
+  }
+
+  &[aria-invalid='true'] {
+    border-color: ${ERROR};
+  }
+
+  &[aria-invalid='true']:focus {
+    box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.12);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+`;
+
+const FormInput = styled.input`
+  ${field}
+`;
+
+const FormTextarea = styled.textarea`
+  ${field}
+  min-height: 140px;
+  resize: vertical;
+`;
+
+const ValidationError = styled.p`
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: ${ERROR};
+`;
+
+const SubmitButton = styled(Button)`
+  width: 100%;
+  min-height: 52px;
+  margin-top: 0.25rem;
+  border-radius: var(--radius-md);
 `;
 
 const spin = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
   to {
     transform: rotate(360deg);
   }
 `;
 
-const Spinner = styled.div`
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
+const Spinner = styled.span`
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
   border-radius: 50%;
   animation: ${spin} 0.8s linear infinite;
 `;
 
-const ContactFormWrapper = styled(motion.div)`
-  min-width: 0;
-  background: var(--color-bg-card);
-  padding: var(--spacing-xl);
-  border-radius: 20px;
-  border: 1px solid var(--color-border);
-  position: relative;
-  overflow: hidden;
-  @media (max-width: 480px) { padding: var(--spacing-md); }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background: var(--color-gradient-1);
-    opacity: 0.05;
-    border-radius: 50%;
-    transform: translate(50%, -50%);
-  }
-`;
-
-const ContactForm = styled.form`
-  position: relative;
-  z-index: 2;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: var(--spacing-md);
-`;
-
-const FormLabel = styled.label`
-  display: block;
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-sm);
-  font-weight: 500;
-`;
-
-const FormInput = styled.input`
-  width: 100%;
-  padding: 12px 20px;
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  color: var(--color-text-primary);
-  font-size: var(--text-base);
-  transition: all 0.3s ease;
-  
-  &::placeholder {
-    color: var(--color-text-muted);
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: var(--color-accent-primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: var(--color-bg-primary);
-  }
-`;
-
-const FormTextarea = styled.textarea`
-  width: 100%;
-  padding: 12px 20px;
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  color: var(--color-text-primary);
-  font-size: var(--text-base);
-  resize: vertical;
-  min-height: 120px;
-  transition: all 0.3s ease;
-  
-  &::placeholder {
-    color: var(--color-text-muted);
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: var(--color-accent-primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: var(--color-bg-primary);
-  }
-`;
-
-const SubmitButton = styled(motion.button)`
-  width: 100%;
-  padding: 14px 28px;
-  background: var(--color-gradient-1);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: var(--text-base);
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  transition: all 0.3s ease;
-  min-height: 48px;
-  position: relative;
-  
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.6) 0%, rgba(168, 85, 247, 0.6) 100%);
-  }
-  
-  @media (max-width: 768px) {
-    min-height: 52px;
-  }
-`;
-
-const ValidationError = styled.p`
-  font-size: var(--text-xs);
-  color: #ef4444;
-  margin-top: 4px;
-`;
-
 const contactInfo = [
-  { icon: <MdLocationOn />, label: 'Location', value: PROFILE.location },
-  { icon: <MdWork />, label: 'Current Position', value: PROFILE.employer.name },
-  { icon: <BiWorld />, label: 'Languages', value: PROFILE.languages.join(', ') },
+  { icon: <MdLocationOn aria-hidden="true" />, label: 'Location', value: PROFILE.location },
+  { icon: <MdWork aria-hidden="true" />, label: 'Current Position', value: PROFILE.employer.name },
+  { icon: <BiWorld aria-hidden="true" />, label: 'Languages', value: PROFILE.languages.join(', ') },
 ];
 
 const Contact = () => {
   const { formState, isSubmitting, errors, handleChange, handleSubmit } = useContactForm();
 
-
-
-
   return (
     <ContactSection>
       <Container>
         <SectionHeader
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-        >
-          <motion.div variants={itemVariants}>
-            <SectionTitle>Get In Touch</SectionTitle>
-            <SectionSubtitle>
-              Let's connect and build something amazing together
-            </SectionSubtitle>
-          </motion.div>
-        </SectionHeader>
+          index="05"
+          eyebrow="Say hello"
+          title="Get In Touch"
+          lede="Let's connect and build something amazing together"
+        />
 
         <ContactGrid>
           <ContactInfo
@@ -353,43 +267,31 @@ const Contact = () => {
             viewport={{ once: true, amount: 0.2 }}
           >
             <motion.div variants={itemVariants}>
-              <InfoTitle>Let's Connect</InfoTitle>
+              <InfoTitle>Let&apos;s Connect</InfoTitle>
               <InfoText>
-                Whether you want to discuss technology, engineering, or just say hello, 
-                I'd love to hear from you. Feel free to reach out through the form or connect 
+                Whether you want to discuss technology, engineering, or just say hello,
+                I&apos;d love to hear from you. Feel free to reach out through the form or connect
                 on social media.
               </InfoText>
             </motion.div>
 
-            {contactInfo.map((info) => (
-              <InfoItem
-                key={info.label}
-                variants={itemVariants}
-                whileHover={{ scale: 1.02 }}
-              >
-                <InfoIcon>{info.icon}</InfoIcon>
-                <InfoContent>
-                  <InfoLabel>{info.label}</InfoLabel>
-                  <InfoValue>{info.value}</InfoValue>
-                </InfoContent>
-              </InfoItem>
-            ))}
+            <Facts>
+              {contactInfo.map((info) => (
+                <Fact key={info.label} variants={itemVariants}>
+                  <dt>{info.icon}{info.label}</dt>
+                  <dd>{info.value}</dd>
+                </Fact>
+              ))}
+            </Facts>
 
             <motion.div variants={itemVariants}>
-              <InfoText>Connect with me on social media:</InfoText>
+              <SocialLabel>Connect with me on social media</SocialLabel>
               <SocialLinks>
                 {SOCIAL_PROFILES.map(({ id, label, url }) => {
                   const Icon = SOCIAL_ICONS[id];
                   return (
                     <Magnetic key={id} range={35}>
-                      <SocialLink
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={label}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
+                      <SocialLink href={url} target="_blank" rel="noopener noreferrer" aria-label={label}>
                         <Icon />
                       </SocialLink>
                     </Magnetic>
@@ -399,19 +301,20 @@ const Contact = () => {
             </motion.div>
           </ContactInfo>
 
-                    <ContactFormWrapper
+          <ContactFormWrapper
             variants={itemVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
           >
-            <ContactForm onSubmit={handleSubmit}>
+            <ContactForm onSubmit={handleSubmit} noValidate>
               <FormGroup>
                 <FormLabel htmlFor="name">Your Name</FormLabel>
                 <FormInput
                   type="text"
                   id="name"
                   name="name"
+                  autoComplete="name"
                   value={formState.name}
                   onChange={handleChange}
                   placeholder="John Doe"
@@ -419,7 +322,6 @@ const Contact = () => {
                   disabled={isSubmitting}
                   aria-invalid={errors.name ? 'true' : undefined}
                   aria-describedby={errors.name ? 'name-error' : undefined}
-                  style={errors.name ? { borderColor: '#ef4444' } : {}}
                 />
                 {errors.name && <ValidationError id="name-error">{errors.name}</ValidationError>}
               </FormGroup>
@@ -430,6 +332,7 @@ const Contact = () => {
                   type="email"
                   id="email"
                   name="email"
+                  autoComplete="email"
                   value={formState.email}
                   onChange={handleChange}
                   placeholder="john@example.com"
@@ -437,7 +340,6 @@ const Contact = () => {
                   disabled={isSubmitting}
                   aria-invalid={errors.email ? 'true' : undefined}
                   aria-describedby={errors.email ? 'email-error' : undefined}
-                  style={errors.email ? { borderColor: '#ef4444' } : {}}
                 />
                 {errors.email && <ValidationError id="email-error">{errors.email}</ValidationError>}
               </FormGroup>
@@ -455,25 +357,19 @@ const Contact = () => {
                   disabled={isSubmitting}
                   aria-invalid={errors.message ? 'true' : undefined}
                   aria-describedby={errors.message ? 'message-error' : undefined}
-                  style={errors.message ? { borderColor: '#ef4444' } : {}}
                 />
                 {errors.message && <ValidationError id="message-error">{errors.message}</ValidationError>}
               </FormGroup>
 
-              <SubmitButton
-                type="submit"
-                disabled={isSubmitting}
-                whileHover={!isSubmitting ? { scale: 1.02 } : {}}
-                whileTap={!isSubmitting ? { scale: 0.98 } : {}}
-              >
+              <SubmitButton type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
-                    <Spinner />
+                    <Spinner aria-hidden="true" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <FaPaperPlane />
+                    <FaPaperPlane aria-hidden="true" />
                     Send Message
                   </>
                 )}

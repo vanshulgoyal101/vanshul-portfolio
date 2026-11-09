@@ -1,19 +1,17 @@
 // src/components/Work/Work.jsx
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaPlane, FaLaptopCode, FaExternalLinkAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaPlane, FaLaptopCode } from 'react-icons/fa';
+import { HiArrowUpRight } from 'react-icons/hi2';
+import SectionHeader from '../ui/SectionHeader';
 import { EXPERIENCE } from '../../constants/experience';
 
-// ─── Styled Components ────────────────────────────────────────────────────────
+// Typography sizes here are a tested contract (see documentation/homepage.md):
+// role 20px / 18px mobile, company 16px, description 16px, metadata 14px.
 
 const WorkSection = styled.section`
-  padding: var(--spacing-2xl) 0;
   position: relative;
-  background: transparent;
-
-  @media (max-width: 768px) {
-    padding: var(--spacing-xl) 0;
-  }
+  padding: clamp(3.5rem, 7vw, 6rem) 0;
 `;
 
 const Container = styled.div`
@@ -22,115 +20,80 @@ const Container = styled.div`
   padding: 0 var(--container-padding);
 `;
 
-const SectionHeader = styled(motion.div)`
-  text-align: center;
-  margin-bottom: var(--spacing-lg);
-
-  @media (max-width: 768px) {
-    margin-bottom: var(--spacing-md);
-  }
-`;
-
-const SectionTitle = styled.h2`
-  font-size: var(--text-section-title);
-  margin-bottom: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  background: var(--color-gradient-1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
-    letter-spacing: 0;
-  }
-`;
-
-const SectionSubtitle = styled.p`
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
-
-  @media (max-width: 768px) {
-    font-size: 1rem;
-  }
-`;
-
-const ExperienceGrid = styled.div`
+const Timeline = styled.ol`
+  position: relative;
   display: grid;
-  gap: var(--spacing-md);
-  max-width: 900px;
+  gap: 1.25rem;
+  max-width: 56rem;
   margin: 0 auto;
+  list-style: none;
+
+  @media (max-width: 768px) {
+    gap: 1rem;
+  }
 `;
 
-const ExperienceCard = styled(motion.div)`
+const ExperienceCard = styled(motion.li)`
+  position: relative;
+  padding: clamp(1.25rem, 3vw, 2rem);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-left: 3px solid transparent;
-  border-radius: 16px;
-  padding: var(--spacing-lg);
-  position: relative;
-  transition: border-color 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-              border-left-color 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--duration-base) ease, box-shadow var(--duration-base) ease;
 
   &:hover {
-    border-color: rgba(29, 78, 216, 0.4);
-    border-left-color: var(--color-accent-primary);
-    box-shadow: 0 20px 40px rgba(29, 78, 216, 0.08);
-    transform: translateY(-4px);
-  }
-
-  @media (max-width: 768px) {
-    padding: var(--spacing-md);
+    border-color: var(--color-accent-line);
+    box-shadow: var(--shadow-md);
   }
 `;
 
 const CardHeader = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1.25rem;
 
   @media (max-width: 768px) {
-    margin-bottom: 0.75rem;
+    gap: 0.875rem;
+    margin-bottom: 12px;
   }
 `;
 
 const CardIcon = styled.div`
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  border-radius: 12px;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-accent-primary);
-  font-size: 1.1rem;
-  transition: background 0.3s ease;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-tertiary);
+  color: var(--color-ink);
+  font-size: 1.0625rem;
 
-  ${ExperienceCard}:hover & {
-    background: rgba(99, 102, 241, 0.18);
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
   }
 `;
 
 const CardInfo = styled.div`
-  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1.5rem;
+  row-gap: 0.25rem;
   min-width: 0;
-  overflow-wrap: anywhere;
+
+  @media (max-width: 768px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
 `;
 
 const JobTitle = styled.h3`
   font-size: 1.25rem;
   line-height: 1.3;
-  letter-spacing: 0;
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-xs);
+  letter-spacing: -0.02em;
 
   @media (max-width: 768px) {
     font-size: 1.125rem;
@@ -138,180 +101,173 @@ const JobTitle = styled.h3`
 `;
 
 const CompanyName = styled.h4`
+  grid-column: 1;
+  font-family: var(--font-primary);
   font-size: 1rem;
+  font-weight: 500;
   line-height: 1.5;
   letter-spacing: 0;
-  color: var(--color-accent-primary);
-  font-weight: 500;
-  margin-bottom: var(--spacing-xs);
-
-  @media (max-width: 768px) {
-    font-size: 1rem;
-  }
+  color: var(--color-text-secondary);
 `;
 
 const MetaInfo = styled.div`
+  grid-column: 2;
+  grid-row: 1 / span 2;
   display: flex;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  font-family: var(--font-mono);
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  align-items: center;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  white-space: nowrap;
 
-  svg {
-    font-size: 0.75rem;
-    opacity: 0.7;
+  @media (max-width: 768px) {
+    grid-column: 1;
+    grid-row: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    margin-top: 0.25rem;
+    white-space: normal;
   }
-`;
-
-const MetaChip = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 4px;
 `;
 
 const Description = styled.p`
+  margin-bottom: 1.25rem;
   font-size: 1rem;
-  color: var(--color-text-secondary);
   line-height: 1.8;
-  margin-bottom: var(--spacing-md);
 
   @media (max-width: 768px) {
     line-height: 1.6;
-    margin-bottom: 0.75rem;
+    margin-bottom: 12px;
   }
 `;
 
-const TechStack = styled.div`
+const CardFooter = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
 `;
 
-const TechTag = styled.span`
-  background: rgba(99, 102, 241, 0.08);
-  color: var(--color-accent-primary);
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: var(--text-xs);
-  border: 1px solid rgba(99, 102, 241, 0.18);
+const TechStack = styled.ul`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+`;
+
+const TechTag = styled.li`
+  padding: 0.25rem 0.625rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
 `;
 
 const CompanyLink = styled.a`
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  color: var(--color-accent-primary);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  margin-top: var(--spacing-sm);
-  padding: var(--spacing-xs) 0;
+  gap: 0.375rem;
   min-height: 44px;
-  transition: gap 0.2s ease;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-accent-primary);
 
   svg {
-    transition: transform 0.2s ease;
+    transition: transform var(--duration-fast) var(--ease-out);
   }
 
-  &:hover {
-    text-decoration: underline;
-    
-    svg {
-      transform: translateX(4px);
-    }
+  &:hover svg {
+    transform: translate(2px, -2px);
   }
 
-  @media (max-width: 768px) {
-    min-height: 48px;
+  &:focus-visible {
+    outline: 3px solid var(--color-accent-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 `;
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
 
 // Data in constants/experience.js refers to icons by key.
 const ICONS = { plane: FaPlane, laptop: FaLaptopCode };
 
-// ─── Animation variants ───────────────────────────────────────────────────────
+const hostname = (url) => new URL(url).hostname.replace(/^www\./, '');
 
 const cardVariants = {
-  hidden: { opacity: 0, x: -24 },
+  hidden: { opacity: 0, y: 16 },
   visible: (i) => ({
     opacity: 1,
-    x: 0,
-    transition: { duration: 0.5, delay: i * 0.12, ease: 'easeOut' },
+    y: 0,
+    transition: { duration: 0.4, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] },
   }),
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
+const Work = () => (
+  <WorkSection>
+    <Container>
+      <SectionHeader
+        index="03"
+        eyebrow="Experience"
+        title="Work Experience"
+        lede="Building impactful solutions across aviation and healthcare"
+      />
 
-const Work = () => {
-  return (
-    <WorkSection>
-      <Container>
-        <SectionHeader
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-        >
-          <SectionTitle>Work Experience</SectionTitle>
-          <SectionSubtitle>
-            Building impactful solutions across aviation and healthcare
-          </SectionSubtitle>
-        </SectionHeader>
+      <Timeline>
+        {EXPERIENCE.map((exp, i) => {
+          const Icon = ICONS[exp.icon];
+          return (
+            <ExperienceCard
+              key={exp.id}
+              custom={i}
+              variants={cardVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <CardHeader>
+                <CardIcon aria-hidden="true"><Icon /></CardIcon>
+                <CardInfo>
+                  <JobTitle>{exp.title}</JobTitle>
+                  <CompanyName>
+                    {exp.company}
+                    {exp.department && ` · ${exp.department}`}
+                  </CompanyName>
+                  <MetaInfo>
+                    <span>{exp.duration}</span>
+                    <span>{exp.location}</span>
+                  </MetaInfo>
+                </CardInfo>
+              </CardHeader>
 
-        <ExperienceGrid>
-          {EXPERIENCE.map((exp, i) => {
-            const Icon = ICONS[exp.icon];
-            return (
-              <ExperienceCard
-                key={exp.id}
-                custom={i}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.2 }}
-                whileHover={{ x: 4 }}
-              >
-                <CardHeader>
-                  <CardIcon><Icon /></CardIcon>
-                  <CardInfo>
-                    <JobTitle>{exp.title}</JobTitle>
-                    <CompanyName>
-                      {exp.company}
-                      {exp.department && ` • ${exp.department}`}
-                    </CompanyName>
-                    <MetaInfo>
-                      <MetaChip>{exp.duration}</MetaChip>
-                      <MetaChip>
-                        <FaMapMarkerAlt />
-                        {exp.location}
-                      </MetaChip>
-                    </MetaInfo>
-                  </CardInfo>
-                </CardHeader>
+              <Description>{exp.description}</Description>
 
-                <Description>{exp.description}</Description>
-
-                <TechStack>
+              <CardFooter>
+                <TechStack aria-label="Tools">
                   {exp.tech.map((tech) => (
                     <TechTag key={tech}>{tech}</TechTag>
                   ))}
                 </TechStack>
-
                 {exp.link && (
-                  <CompanyLink href={exp.link} target="_blank" rel="noopener noreferrer">
-                    Visit Website
-                    <FaExternalLinkAlt size={11} />
+                  <CompanyLink href={exp.link} target="_blank" rel="noopener noreferrer" aria-label={`Visit the ${exp.company} website`}>
+                    {hostname(exp.link)}
+                    <HiArrowUpRight aria-hidden="true" />
                   </CompanyLink>
                 )}
-              </ExperienceCard>
-            );
-          })}
-        </ExperienceGrid>
-      </Container>
-    </WorkSection>
-  );
-};
+              </CardFooter>
+            </ExperienceCard>
+          );
+        })}
+      </Timeline>
+    </Container>
+  </WorkSection>
+);
 
 export default Work;

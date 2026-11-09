@@ -2,27 +2,20 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { FaGraduationCap, FaCode, FaRocket, FaTrophy, FaReact, FaServer, FaTools, FaJava } from 'react-icons/fa';
+import SectionHeader from '../ui/SectionHeader';
 import { PROFILE, HIGHLIGHTS, SKILL_GROUPS } from '../../constants/profile';
 import { EXPERIENCE } from '../../constants/experience';
 import { AUTHOR_NAME } from '../../constants/siteConfig';
 
 const [CURRENT_ROLE] = EXPERIENCE;
-import {
-  FaGraduationCap, FaCode, FaRocket, FaTrophy,
-  FaReact, FaServer, FaTools, FaJava,
-} from 'react-icons/fa';
 
-// ─── Styled Components ────────────────────────────────────────────────────────
+// ─── Layout ───────────────────────────────────────────────────────────────────
 
 const AboutSection = styled.section`
-  padding: var(--spacing-2xl) 0;
   position: relative;
-  background: transparent;
+  padding: clamp(3.5rem, 7vw, 6rem) 0;
   overflow: hidden;
-
-  @media (max-width: 768px) {
-    padding: var(--spacing-xl) 0;
-  }
 `;
 
 const Container = styled.div`
@@ -31,55 +24,19 @@ const Container = styled.div`
   padding: 0 var(--container-padding);
 `;
 
-const SectionHeader = styled.div`
-  text-align: center;
-  margin-bottom: var(--spacing-xl);
-
-  @media (max-width: 768px) {
-    margin-bottom: var(--spacing-lg);
-  }
-`;
-
-const SectionTitle = styled.h2`
-  font-size: var(--text-section-title);
-  margin-bottom: var(--spacing-md);
-  background: var(--color-gradient-1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-
-`;
-
-const SectionSubtitle = styled.p`
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
-
-  @media (max-width: 768px) {
-    font-size: var(--text-base);
-  }
-`;
-
 const AboutGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-xl);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
   align-items: center;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: clamp(3rem, 6vw, 4.5rem);
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
-  }
-
-  @media (max-width: 768px) {
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
   }
 `;
 
-const AboutContent = styled.div`
+const AboutContent = styled(motion.div)`
   order: 1;
 
   @media (max-width: 1024px) {
@@ -87,219 +44,194 @@ const AboutContent = styled.div`
   }
 `;
 
-const AboutImageContainer = styled.div`
+const AboutText = styled.div`
+  h3 {
+    margin-bottom: 1.25rem;
+    font-size: clamp(1.375rem, 2.5vw, 1.75rem);
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin-bottom: 1.125rem;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  a {
+    color: var(--color-accent-primary);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+`;
+
+// Emphasis, not links: ink and weight, so blue always means "clickable".
+const HighlightText = styled.strong`
+  font-weight: 600;
+  color: var(--color-text-primary);
+`;
+
+const AboutImageContainer = styled(motion.div)`
   order: 2;
-  position: relative;
+  width: 100%;
+  max-width: 30rem;
+  justify-self: end;
 
   @media (max-width: 1024px) {
     order: 1;
-    max-width: 500px;
-    margin: 0 auto;
-  }
-
-  @media (max-width: 768px) {
-    max-width: 300px;
+    justify-self: center;
+    max-width: 22rem;
   }
 `;
 
 const ImageWrapper = styled.div`
   position: relative;
-  border-radius: 20px;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
-  aspect-ratio: 4/5;
-  background: var(--color-gradient-1);
-  padding: 3px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 
   @media (max-width: 768px) {
-    aspect-ratio: 1/1;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--color-gradient-1);
-    opacity: 0.5;
-    filter: blur(20px);
-    transform: scale(1.1);
-    z-index: -1;
+    aspect-ratio: 1 / 1;
   }
 `;
 
 const ProfileImage = styled.img`
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 17px;
-  display: block;
+  transition: opacity 0.4s ease;
 `;
 
 const ImagePlaceholder = styled.div`
-  width: 100%;
-  height: 100%;
-  background: var(--color-bg-card);
-  border-radius: 17px;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--text-6xl);
+  width: 100%;
+  height: 100%;
+  font-size: 3rem;
   color: var(--color-accent-primary);
 `;
 
-const AboutText = styled.div`
-  h3 {
-    font-size: var(--text-2xl);
-    margin-bottom: var(--spacing-md);
-    color: var(--color-text-primary);
-  }
+// ─── Highlights ───────────────────────────────────────────────────────────────
 
-  p {
-    font-size: var(--text-base);
-    line-height: 1.8;
-    color: var(--color-text-secondary);
-    margin-bottom: var(--spacing-md);
-  }
-
-  a {
-    color: var(--color-accent-primary);
-    text-decoration: none;
-    &:hover { text-decoration: underline; }
-  }
-`;
-
-const HighlightText = styled.span`
-  color: var(--color-accent-primary);
-  font-weight: 500;
-`;
-
-// ─── Stats ────────────────────────────────────────────────────────────────────
-
-const StatsGrid = styled.div`
+const StatsGrid = styled.ul`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.5vw, 1rem);
+  list-style: none;
 
-  @media (max-width: 768px) {
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-lg);
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
 
-const StatCard = styled(motion.div)`
+const StatCard = styled(motion.li)`
+  padding: clamp(1.125rem, 2vw, 1.5rem);
   background: var(--color-bg-card);
-  padding: var(--spacing-lg);
-  border-radius: 16px;
   border: 1px solid var(--color-border);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  cursor: default;
-
-  @media (max-width: 768px) {
-    padding: var(--spacing-md);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--color-gradient-1);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.5s ease;
-  }
-
-  &:hover::before {
-    transform: scaleX(1);
-  }
+  border-radius: var(--radius-md);
 `;
 
-const StatIcon = styled.div`
-  font-size: var(--text-3xl);
+const StatIcon = styled.span`
+  display: block;
+  margin-bottom: 0.875rem;
+  font-size: 1.125rem;
   color: var(--color-accent-primary);
-  margin-bottom: var(--spacing-sm);
 `;
 
-const StatNumber = styled.h4`
-  font-size: var(--text-3xl);
+const StatValue = styled.span`
+  display: block;
+  margin-bottom: 0.375rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
   font-weight: 700;
-  margin-bottom: var(--spacing-xs);
-  color: var(--color-text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
 `;
 
-const StatLabel = styled.p`
-  font-size: var(--text-sm);
+const StatLabel = styled.span`
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.5;
   color: var(--color-text-secondary);
 `;
 
 // ─── Skills ───────────────────────────────────────────────────────────────────
 
 const SkillsContainer = styled.div`
-  margin-top: var(--spacing-2xl);
+  margin-top: clamp(3rem, 6vw, 4.5rem);
 `;
 
 const SkillsTitle = styled.h3`
-  font-size: var(--text-2xl);
+  margin-bottom: 1.75rem;
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  letter-spacing: -0.02em;
   text-align: center;
-  margin-bottom: var(--spacing-lg);
 `;
 
 const SkillsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--color-hairline);
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 480px) {
     grid-template-columns: 1fr;
   }
 `;
 
 const SkillCategory = styled(motion.div)`
-  background: var(--color-bg-card);
-  padding: var(--spacing-lg);
-  border-radius: 16px;
-  border: 1px solid var(--color-border);
-  transition: border-color 0.3s ease;
-
-  &:hover {
-    border-color: var(--color-accent-primary);
-  }
+  min-width: 0;
 `;
 
 const SkillCategoryTitle = styled.h4`
-  font-size: var(--text-lg);
-  margin-bottom: var(--spacing-md);
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  color: var(--color-accent-primary);
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+
+  svg {
+    color: var(--color-accent-primary);
+  }
 `;
 
 const SkillsList = styled.ul`
-  list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: 0.5rem;
+  list-style: none;
 `;
 
 const SkillTag = styled.li`
-  background: rgba(99, 102, 241, 0.08);
+  padding: 0.3125rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
   color: var(--color-text-primary);
-  padding: 5px 14px;
-  border-radius: 20px;
-  font-size: var(--text-sm);
-  border: 1px solid rgba(99, 102, 241, 0.18);
-  transition: all 0.25s ease;
-
-  &:hover {
-    background: rgba(99, 102, 241, 0.18);
-    border-color: var(--color-accent-primary);
-    transform: translateY(-2px);
-  }
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
 `;
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -317,134 +249,100 @@ const ICONS = {
 
 const DataIcon = ({ name }) => {
   const Icon = ICONS[name];
-  return <Icon />;
+  return <Icon aria-hidden="true" />;
 };
 
-// ─── Animation variants ───────────────────────────────────────────────────────
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i) => ({
+const reveal = {
+  hidden: { opacity: 0, y: 14 },
+  visible: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, delay: i * 0.1, ease: 'easeOut' },
+    transition: { duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] },
   }),
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const About = () => {
-
   // Start false — set true only on successful load; show placeholder on error
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError]   = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   return (
     <AboutSection>
       <Container>
-        <SectionHeader>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.15 }}
-            transition={{ duration: 0.6 }}
-          >
-            <SectionTitle>About Me</SectionTitle>
-            <SectionSubtitle>
-              Engineer and a passionate learner.
-            </SectionSubtitle>
-          </motion.div>
-        </SectionHeader>
+        <SectionHeader index="02" eyebrow="Background" title="About Me" lede="Engineer and a passionate learner." />
 
         <AboutGrid>
-          {/* Text content */}
-          <AboutContent>
-            <motion.div
-              initial={{ opacity: 0, x: -24 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.15 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-            >
-              <AboutText>
-                <h3>Hey There!</h3>
-                <p>
-                  I'm <HighlightText>{AUTHOR_NAME}</HighlightText>, a recent graduate from{' '}
-                  {PROFILE.education.school} with a {PROFILE.education.degree} in{' '}
-                  <HighlightText>{PROFILE.education.field}</HighlightText> and a minor in{' '}
-                  {PROFILE.education.minor}.
-                </p>
-                <p>
-                  Currently, I work as an <HighlightText>{PROFILE.role} at{' '}
-                  <a href={PROFILE.employer.url} target="_blank" rel="noopener noreferrer">
-                    {PROFILE.employer.name}
-                  </a></HighlightText> in the {CURRENT_ROLE.department} department.
-                </p>
-                <p>
-                  My journey has been shaped by incredible experiences — from leading a team to{' '}
-                  <HighlightText>NASA's Human Exploration Rover Challenge</HighlightText> to being
-                  selected among <HighlightText>30 global space leaders</HighlightText> for the
-                  NASA Space Apps Collective. Innovation happens at the intersection of technology,
-                  teamwork, and purpose.
-                </p>
-                <p>
-                  When I'm not coding or optimizing business operations, you'll find me lost in
-                  books or playing cricket in the park.
-                </p>
-              </AboutText>
-            </motion.div>
+          <AboutContent variants={reveal} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }}>
+            <AboutText>
+              <h3>Hey There!</h3>
+              <p>
+                I&apos;m <HighlightText>{AUTHOR_NAME}</HighlightText>, a recent graduate from{' '}
+                {PROFILE.education.school} with a {PROFILE.education.degree} in{' '}
+                <HighlightText>{PROFILE.education.field}</HighlightText> and a minor in{' '}
+                {PROFILE.education.minor}.
+              </p>
+              <p>
+                Currently, I work as an <HighlightText>{PROFILE.role}</HighlightText> at{' '}
+                <a href={PROFILE.employer.url} target="_blank" rel="noopener noreferrer">
+                  {PROFILE.employer.name}
+                </a>{' '}
+                in the {CURRENT_ROLE.department} department.
+              </p>
+              <p>
+                My journey has been shaped by incredible experiences — from leading a team to{' '}
+                <HighlightText>NASA&apos;s Human Exploration Rover Challenge</HighlightText> to being
+                selected among <HighlightText>30 global space leaders</HighlightText> for the
+                NASA Space Apps Collective. Innovation happens at the intersection of technology,
+                teamwork, and purpose.
+              </p>
+              <p>
+                When I&apos;m not coding or optimizing business operations, you&apos;ll find me lost in
+                books or playing cricket in the park.
+              </p>
+            </AboutText>
           </AboutContent>
 
-          {/* Profile image */}
-          <AboutImageContainer>
-            <motion.div
-              initial={{ opacity: 0, x: 24 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.15 }}
-              transition={{ duration: 0.6, delay: 0.25 }}
-            >
-              <ImageWrapper>
-                {!imageError && (
-                  <ProfileImage
-                    src={PROFILE.photo}
-                    alt={PROFILE.photoAlt}
-                    loading="lazy"
-                    onLoad={() => setImageLoaded(true)}
-                    onError={() => setImageError(true)}
-                    style={{ opacity: imageLoaded ? 1 : 0, transition: 'opacity 0.4s ease' }}
-                  />
-                )}
-                {(imageError || !imageLoaded) && (
-                  <ImagePlaceholder style={{ position: imageLoaded ? 'absolute' : 'relative', opacity: imageLoaded ? 0 : 1 }}>
-                    <FaCode />
-                  </ImagePlaceholder>
-                )}
-              </ImageWrapper>
-            </motion.div>
+          <AboutImageContainer variants={reveal} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }}>
+            <ImageWrapper>
+              {!imageError && (
+                <ProfileImage
+                  src={PROFILE.photo}
+                  alt={PROFILE.photoAlt}
+                  loading="lazy"
+                  decoding="async"
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageError(true)}
+                  style={{ opacity: imageLoaded ? 1 : 0 }}
+                />
+              )}
+              {(imageError || !imageLoaded) && (
+                <ImagePlaceholder style={{ position: imageLoaded ? 'absolute' : 'relative', opacity: imageLoaded ? 0 : 1 }}>
+                  <FaCode aria-hidden="true" />
+                </ImagePlaceholder>
+              )}
+            </ImageWrapper>
           </AboutImageContainer>
         </AboutGrid>
 
-        {/* Stats */}
-        <div>
-          <StatsGrid>
-            {HIGHLIGHTS.map((stat, i) => (
-              <StatCard
-                key={stat.label}
-                custom={i}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.2 }}
-                whileHover={{ y: -4 }}
-              >
-                <StatIcon><DataIcon name={stat.icon} /></StatIcon>
-                <StatNumber>{stat.value}</StatNumber>
-                <StatLabel>{stat.label}</StatLabel>
-              </StatCard>
-            ))}
-          </StatsGrid>
-        </div>
+        <StatsGrid>
+          {HIGHLIGHTS.map((stat, i) => (
+            <StatCard
+              key={stat.label}
+              custom={i}
+              variants={reveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <StatIcon><DataIcon name={stat.icon} /></StatIcon>
+              <StatValue>{stat.value}</StatValue>
+              <StatLabel>{stat.label}</StatLabel>
+            </StatCard>
+          ))}
+        </StatsGrid>
 
-        {/* Skills */}
         <SkillsContainer>
           <SkillsTitle>Technical Skills</SkillsTitle>
           <SkillsGrid>
@@ -452,7 +350,7 @@ const About = () => {
               <SkillCategory
                 key={category}
                 custom={i}
-                variants={cardVariants}
+                variants={reveal}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.2 }}

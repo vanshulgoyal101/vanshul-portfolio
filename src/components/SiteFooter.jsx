@@ -8,20 +8,21 @@ import { SOCIAL_LINKS } from '../constants/siteConfig';
 const Footer = styled.footer`
   position: relative;
   z-index: 2;
-  border-top: 1px solid var(--color-border);
-  padding: 1.5rem var(--container-padding);
+  padding: 2.5rem var(--container-padding) 1.5rem;
+  font-size: 0.9375rem;
   color: var(--color-text-secondary);
-  font-size: var(--text-sm);
 `;
 
 const Inner = styled.div`
-  max-width: var(--container-xl);
-  margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 2rem;
-  row-gap: 0.5rem;
+  row-gap: 0.75rem;
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-hairline);
 
   a {
     display: inline-flex;
@@ -30,7 +31,11 @@ const Inner = styled.div`
     color: inherit;
     text-decoration: none;
   }
-  a:hover { color: var(--color-accent-primary); }
+
+  a:hover {
+    color: var(--color-ink);
+  }
+
   a:focus-visible, summary:focus-visible, input:focus-visible {
     outline: 2px solid var(--color-accent-primary);
     outline-offset: 4px;
@@ -38,7 +43,7 @@ const Inner = styled.div`
 
   @media (max-width: 640px) {
     grid-template-columns: minmax(0, 1fr);
-    row-gap: 0;
+    row-gap: 0.25rem;
   }
 `;
 
@@ -46,15 +51,28 @@ const Identity = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
-  a { font-weight: 600; color: var(--color-text-primary); }
-  span { color: var(--color-text-muted); }
+  gap: 0.25rem 0.875rem;
+
+  a {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+
+  span {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+  }
 `;
 
 const Links = styled.nav`
   display: flex;
   flex-wrap: wrap;
-  gap: 0 1.5rem;
+  gap: 0 1.75rem;
 `;
 
 const Preferences = styled.details`
@@ -73,7 +91,7 @@ const Preferences = styled.details`
     color: var(--color-text-muted);
   }
   summary::-webkit-details-marker { display: none; }
-  summary:hover, &[open] summary { color: var(--color-accent-primary); }
+  summary:hover, &[open] summary { color: var(--color-ink); }
   summary svg { width: 1.125rem; height: 1.125rem; flex-shrink: 0; }
   > div { border-top: 1px solid var(--color-border); padding-top: 0.5rem; }
   label {
@@ -124,7 +142,7 @@ const SiteFooter = ({ ambientEnabled, reducedMotion, onAmbientChange }) => (
     <Inner>
       <Identity>
         <Link to={homeSectionPath('home')}>Vanshul Goyal</Link>
-        <span>&copy; {new Date().getFullYear()}</span>
+        <span>&copy; {new Date().getFullYear()} · vanshul.com</span>
       </Identity>
       <Links aria-label="Footer links">
         <Link to={BLOG_PATH}>Blog</Link>

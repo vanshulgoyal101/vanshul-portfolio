@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import App from './App';
 
+// The private dashboard talks to Supabase auth; routing tests only need its shell.
+vi.mock('./pages/Dashboard', () => ({ default: () => <h1>Owner dashboard</h1> }));
+
 // Reduced motion completes the greeting immediately and skips decorative work,
 // so the tests exercise routing and page composition only.
 const preferReducedMotion = () => {
@@ -24,6 +27,11 @@ const renderAt = async (path) => {
   return result;
 };
 
+// Subpages are lazy chunks; their first import can take over a second when the
+// whole suite transforms in parallel, so lookups allow for that cold start.
+const LAZY = { timeout: 5000 };
+const findPageHeading = (name) => screen.findByRole('heading', { level: 1, name }, LAZY);
+
 const canonical = () => document.head.querySelector('link[rel="canonical"]')?.getAttribute('href');
 const robots = () => document.head.querySelector('meta[name="robots"]')?.getAttribute('content');
 
@@ -42,38 +50,38 @@ describe('App routing', () => {
 
   it('serves the writing archive at its canonical URL', async () => {
     await renderAt('/blog/');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Writings' })).toBeInTheDocument();
+    expect(await findPageHeading('Writings')).toBeInTheDocument();
     expect(canonical()).toBe('https://vanshul.com/blog/');
   });
 
   it('redirects the legacy /blogs alias to the archive', async () => {
     await renderAt('/blogs');
     await waitFor(() => expect(window.location.pathname).toBe('/blog/'));
-    expect(await screen.findByRole('heading', { level: 1, name: 'Writings' })).toBeInTheDocument();
+    expect(await findPageHeading('Writings')).toBeInTheDocument();
   });
 
   it('redirects legacy /blogs/:slug links to the canonical post URL', async () => {
     await renderAt('/blogs/the-new-leverage');
     await waitFor(() => expect(window.location.pathname).toBe('/blog/the-new-leverage/'));
-    expect(await screen.findByRole('heading', { level: 1, name: 'The New Leverage' })).toBeInTheDocument();
+    expect(await findPageHeading('The New Leverage')).toBeInTheDocument();
     expect(canonical()).toBe('https://vanshul.com/blog/the-new-leverage/');
   });
 
   it('serves the reading list', async () => {
     await renderAt('/reading-list/');
-    expect(await screen.findByRole('heading', { level: 1, name: 'From My Shelf' })).toBeInTheDocument();
+    expect(await findPageHeading('From My Shelf')).toBeInTheDocument();
     expect(canonical()).toBe('https://vanshul.com/reading-list/');
   });
 
   it('renders a noindex page for unknown paths', async () => {
     await renderAt('/definitely-not-a-page');
-    expect(await screen.findByRole('heading', { name: /wandered off/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /wandered off/i }, LAZY)).toBeInTheDocument();
     expect(robots()).toMatch(/noindex/);
   });
 
   it('marks an unknown post as noindex', async () => {
     await renderAt('/blog/not-a-real-post/');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Blog Post Not Found' })).toBeInTheDocument();
+    expect(await findPageHeading('Blog Post Not Found')).toBeInTheDocument();
     expect(robots()).toMatch(/noindex/);
   });
 });
@@ -93,8 +101,24 @@ describe('App structured data', () => {
     unmount();
 
     await renderAt('/blog/the-new-leverage/');
-    await screen.findByRole('heading', { level: 1, name: 'The New Leverage' });
+    await findPageHeading('The New Leverage');
     expect(schemaTypes()).toContain('BlogPosting');
     expect(schemaTypes()).not.toContain('ProfilePage');
+  });
+});
+
+describe('App footer', () => {
+  beforeEach(preferReducedMotion);
+
+  it.each(['/', '/blog/', '/blog/the-new-leverage/', '/reading-list/', '/no-such-page'])('ends %s with the site footer', async (path) => {
+    await renderAt(path);
+    expect(await screen.findByRole('contentinfo')).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Footer links' })).toBeInTheDocument();
+  });
+
+  it('leaves the private dashboard without the public footer', async () => {
+    await renderAt('/dashboard');
+    expect(await screen.findByRole('heading', { name: 'Owner dashboard' }, LAZY)).toBeInTheDocument();
+    expect(screen.queryByRole('contentinfo')).toBeNull();
   });
 });

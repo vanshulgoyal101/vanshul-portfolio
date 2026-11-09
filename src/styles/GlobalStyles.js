@@ -8,22 +8,39 @@ const GlobalStyles = createGlobalStyle`
     --color-bg-secondary: #f6f3eb;
     --color-bg-tertiary: #edeae0;
     --color-bg-card: #ffffff;
-    
+
+    --color-ink: #0f172a;
     --color-text-primary: #1e293b;
     --color-text-secondary: #475569;
     /* At least 4.5:1 on white, --color-bg-primary and --color-bg-tertiary (WCAG AA). */
     --color-text-muted: #5b6677;
-    
+
     --color-accent-primary: #1d4ed8;
     --color-accent-secondary: #3b82f6;
     --color-accent-glow: rgba(29, 78, 216, 0.08);
-    
+    --color-accent-soft: rgba(29, 78, 216, 0.07);
+    --color-accent-line: rgba(29, 78, 216, 0.24);
+
     --color-gradient-1: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
     --color-gradient-2: linear-gradient(135deg, #f6f3eb 0%, #ffffff 100%);
-    
+
     --color-border: rgba(30, 41, 59, 0.08);
     --color-border-hover: rgba(30, 41, 59, 0.15);
-    
+    --color-hairline: rgba(15, 23, 42, 0.12);
+
+    /* Shape and depth */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-pill: 999px;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 18px 40px -24px rgba(15, 23, 42, 0.35);
+
+    /* Motion: short and decelerating so the interface feels immediate */
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --duration-fast: 160ms;
+    --duration-base: 240ms;
+
     /* Fluid Spacing - scales with viewport */
     --spacing-xs: clamp(0.25rem, 0.5vw, 0.5rem);
     --spacing-sm: clamp(0.5rem, 1vw, 1rem);
@@ -31,7 +48,7 @@ const GlobalStyles = createGlobalStyle`
     --spacing-lg: clamp(1.5rem, 3vw, 3rem);
     --spacing-xl: clamp(2.5rem, 5vw, 5rem);
     --spacing-2xl: clamp(4rem, 8vw, 8rem);
-    
+
     /* Container widths */
     --container-xs: 100%;
     --container-sm: 640px;
@@ -39,15 +56,15 @@ const GlobalStyles = createGlobalStyle`
     --container-lg: 1024px;
     --container-xl: 1280px;
     --container-2xl: 1536px;
-    
+
     /* Fluid container padding */
     --container-padding: clamp(1rem, 5vw, 3rem);
-    
-    /* Typography - Fluid font sizes */
+
+    /* Typography */
     --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-display: 'Space Grotesk', 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-    
+
     --text-xs: clamp(0.75rem, 1.5vw, 0.875rem);
     --text-sm: clamp(0.875rem, 2vw, 1rem);
     --text-base: clamp(1rem, 2.5vw, 1.125rem);
@@ -58,16 +75,15 @@ const GlobalStyles = createGlobalStyle`
     --text-4xl: clamp(2.25rem, 6vw, 3rem);
     --text-5xl: clamp(3rem, 8vw, 4rem);
     --text-6xl: clamp(3.75rem, 10vw, 6rem);
+    /* Every homepage section title and its lede share these sizes. */
     --text-section-title: 2.5rem;
+    --text-lede: 1.125rem;
 
     @media (max-width: 768px) {
-      --text-section-title: 1.5rem;
+      --text-section-title: 2rem;
+      --text-lede: 1rem;
     }
-    
-    /* Animations */
-    --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-slow: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     /* Z-index layers */
     --z-base: 0;
     --z-dropdown: 100;
@@ -75,22 +91,13 @@ const GlobalStyles = createGlobalStyle`
     --z-fixed: 300;
     --z-modal: 400;
     --z-tooltip: 500;
-    
-    /* Breakpoints for JS usage */
-    --breakpoint-sm: 640px;
-    --breakpoint-md: 768px;
-    --breakpoint-lg: 1024px;
-    --breakpoint-xl: 1280px;
-    --breakpoint-2xl: 1536px;
   }
 
-  /* CSS Reset with smooth defaults */
   *, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
-    // cursor: none !important;
   }
 
   html {
@@ -100,6 +107,7 @@ const GlobalStyles = createGlobalStyle`
     scroll-padding-top: var(--header-offset);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     background-color: var(--color-bg-primary);
   }
 
@@ -107,7 +115,8 @@ const GlobalStyles = createGlobalStyle`
     font-family: var(--font-primary);
     font-size: var(--text-base);
     background-color: var(--color-bg-primary);
-    background-image: 
+    /* Faint engineering-paper grid */
+    background-image:
       linear-gradient(to right, rgba(30, 41, 59, 0.025) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(30, 41, 59, 0.025) 1px, transparent 1px);
     background-size: 80px 80px;
@@ -117,29 +126,15 @@ const GlobalStyles = createGlobalStyle`
     overflow-x: hidden;
     position: relative;
     min-height: 100vh;
-    
-    /* Noise texture overlay for depth */
-    &::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0.02;
-      z-index: 1;
-      pointer-events: none;
-      background-image: 
-        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.02) 35px, rgba(255,255,255,.02) 70px);
-    }
   }
 
-  /* Fluid Typography */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.02em;
+    color: var(--color-ink);
+    text-wrap: balance;
   }
 
   h1 { font-size: var(--text-6xl); }
@@ -151,23 +146,26 @@ const GlobalStyles = createGlobalStyle`
 
   p {
     color: var(--color-text-secondary);
-    line-height: 1.8;
+    line-height: 1.7;
     font-size: var(--text-base);
+    text-wrap: pretty;
   }
 
   a {
     color: inherit;
     text-decoration: none;
-    transition: var(--transition-base);
+    transition:
+      color var(--duration-fast) ease,
+      background-color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      opacity var(--duration-fast) ease;
   }
 
-  /* Selection */
   ::selection {
     background-color: var(--color-accent-primary);
-    color: var(--color-bg-primary);
+    color: #ffffff;
   }
 
-  /* Fluid Scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -188,96 +186,12 @@ const GlobalStyles = createGlobalStyle`
     background: rgba(29, 78, 216, 0.6);
     background-clip: padding-box;
   }
-  
-  /* Firefox Scrollbar standards */
+
   * {
     scrollbar-width: thin;
     scrollbar-color: rgba(29, 78, 216, 0.2) transparent;
   }
 
-  /* Responsive Container */
-  .container {
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 var(--container-padding);
-    
-    @media (min-width: 640px) {
-      max-width: var(--container-sm);
-    }
-    
-    @media (min-width: 768px) {
-      max-width: var(--container-md);
-    }
-    
-    @media (min-width: 1024px) {
-      max-width: var(--container-lg);
-    }
-    
-    @media (min-width: 1280px) {
-      max-width: var(--container-xl);
-    }
-  }
-
-  section {
-    scroll-margin-top: 0;
-  }
-
-  /* Fluid Section Spacing */
-  .section {
-    will-change: auto; /* Only use will-change when needed */
-    padding: var(--spacing-2xl) 0;
-    overflow: visible !important;
-    position: relative !important;
-    z-index: 2 !important;
-  }
-
-  /* Responsive Grid System */
-  .grid {
-    display: grid;
-    gap: var(--spacing-md);
-    
-    &.cols-2 {
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-    }
-    
-    &.cols-3 {
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
-    }
-    
-    &.cols-4 {
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-    }
-  }
-
-  /* Glow effect for interactive elements */
-  .glow {
-    position: relative;
-    
-    &::before {
-      content: '';
-      position: absolute;
-      inset: -2px;
-      background: var(--color-gradient-1);
-      border-radius: inherit;
-      opacity: 0;
-      z-index: -1;
-      transition: opacity 0.3s ease;
-      filter: blur(clamp(0.5rem, 1vw, 1rem));
-    }
-    
-    &:hover::before {
-      opacity: 0.6;
-    }
-  }
-
-  /* Glass morphism effect */
-  .glass {
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--color-border);
-  }
-
-  /* Responsive images */
   img {
     max-width: 100%;
     height: auto;
@@ -285,66 +199,43 @@ const GlobalStyles = createGlobalStyle`
     object-fit: cover;
   }
 
-  /* Responsive button styles */
-  .btn {
-    padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 4vw, 2rem);
-    font-size: var(--text-sm);
-    border-radius: 0.25rem;
-    transition: var(--transition-base);
-  }
-
-  /* Hide elements accessibly */
-  .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  /* Touch-friendly tap targets */
+  /* Touch-friendly tap targets: 44px tall controls; width only for buttons,
+     so text links keep their natural spacing. Icon-only links size themselves. */
   button, a, input, textarea, select {
-    min-height: 44px; /* iOS recommendation */
+    min-height: 44px;
+  }
+
+  button {
     min-width: 44px;
   }
 
-  /* Media query for reduced motion */
- @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
 
-  *,
-  *::before,
-  *::after {
+    /* A zero duration and delay means no transition starts at all. A tiny
+       non-zero duration would make every property of every element (initial
+       transition-property is "all") transition for one stale frame. */
+    *,
+    *::before,
+    *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
     }
   }
 
-  /* Hide scrollbar for mobile but keep functionality */
+  /* Hide scrollbars on small screens but keep scrolling */
   @media (max-width: 768px) {
     ::-webkit-scrollbar {
       display: none;
     }
-    
+
     * {
       -ms-overflow-style: none;
       scrollbar-width: none;
-    }
-
-    /* Fix container padding */
-    .container {
-        padding: 0 1rem !important;
-    }
-    /* Fix grid layouts */
-    .grid {
-        grid-template-columns: 1fr !important;
     }
   }
 `;

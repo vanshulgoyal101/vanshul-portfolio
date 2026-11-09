@@ -16,17 +16,27 @@ const Nav = styled(motion.nav)`
   border: none;
   border-radius: 100px;
   z-index: var(--z-fixed);
-  transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
   background: transparent;
+
+  /* The frosted pill is a pseudo-element: a backdrop-filter on the nav itself
+     would become the containing block of the fixed mobile drawer. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: rgba(246, 243, 235, 0.82);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    box-shadow: 0 12px 32px -16px rgba(15, 23, 42, 0.25), inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+    opacity: ${({ $scrolled }) => ($scrolled ? 1 : 0)};
+    transition: opacity var(--duration-base) ease;
+  }
 
   @media (max-width: 768px) {
     top: calc(0.5rem + env(safe-area-inset-top, 0px));
   }
-
-  ${({ $scrolled }) => $scrolled && `
-    background: rgba(246, 243, 235, 0.98);
-    box-shadow: 0 12px 30px rgba(30, 41, 59, 0.06), inset 0 0 0 1px rgba(30, 41, 59, 0.06);
-  `}
 `;
 
 const NavContainer = styled.div`
@@ -44,6 +54,8 @@ const NavContainer = styled.div`
 const LogoContainer = styled(motion.a)`
   display: flex;
   align-items: center;
+  justify-content: center;
+  min-width: 44px;
   gap: 12px;
   cursor: pointer;
   position: relative;
@@ -80,92 +92,111 @@ const ProgressRingSvg = styled.svg`
 const NavLinks = styled(motion.ul)`
   display: flex;
   align-items: center;
-  gap: clamp(1.5rem, 3vw, 3rem);
+  gap: clamp(1.25rem, 2.5vw, 2.25rem);
   list-style: none;
+  counter-reset: nav-item;
 
   @media (max-width: 768px) {
     position: fixed;
     top: 0;
     right: 0;
-    height: 100dvh;
-    overflow-y: auto;
-    width: min(75vw, 360px);
-    background: rgba(246, 243, 235, 0.85);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
     flex-direction: column;
+    align-items: stretch;
     justify-content: center;
-    gap: 2rem;
-    padding: 2rem;
-    transform: translateX(calc(100% + 40px));
+    gap: 0;
+    width: min(86vw, 380px);
+    height: 100dvh;
+    padding: 5.5rem 2rem 2rem;
+    overflow-y: auto;
+    background: var(--color-bg-primary);
+    border-left: 1px solid var(--color-hairline);
+    box-shadow: -24px 0 48px -24px rgba(15, 23, 42, 0.25);
+    transform: translateX(calc(100% + 48px));
     visibility: hidden;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: -15px 0 40px rgba(30, 41, 59, 0.05);
-    border-left: 1px solid rgba(30, 41, 59, 0.08);
-    border-top-left-radius: 32px;
-    border-bottom-left-radius: 32px;
+    /* Hide only after the slide-out finishes, but become visible instantly on
+       open so the first link can receive focus in the same frame. */
+    transition: transform 0.35s var(--ease-out), visibility 0s linear 0.35s;
 
     ${({ $isOpen }) => $isOpen && `
       transform: translateX(0);
       visibility: visible;
+      transition: transform 0.35s var(--ease-out), visibility 0s linear 0s;
     `}
   }
 `;
 
-const NavLink = styled(motion.a)`
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  cursor: pointer;
+const NavLink = styled.a`
   position: relative;
-  transition: color 0.3s ease;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
 
   &:hover {
-    color: var(--color-text-primary);
+    color: var(--color-ink);
   }
-  
+
   &:focus-visible {
     outline: 3px solid var(--color-accent-primary);
     outline-offset: 4px;
     border-radius: 4px;
-    color: var(--color-text-primary);
+    color: var(--color-ink);
   }
-  
-  @media (max-width: 768px) {
-    min-height: 48px;
-    display: flex;
-    align-items: center;
+
+  &.active {
+    color: var(--color-ink);
   }
 
   @media (min-width: 769px) {
+    display: inline-flex;
+    align-items: center;
+
     &::after {
       content: '';
       position: absolute;
-      bottom: -5px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
+      bottom: 4px;
+      left: 0;
+      width: 100%;
       height: 2px;
+      border-radius: 2px;
       background: var(--color-accent-primary);
-      transition: width 0.3s ease;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--duration-base) var(--ease-out);
     }
 
     &:hover::after,
-    &:focus-visible::after {
-      width: 100%;
-    }
-
+    &:focus-visible::after,
     &.active::after {
-      width: 100%;
-      background: var(--color-gradient-1);
+      transform: scaleX(1);
     }
   }
 
   @media (max-width: 768px) {
-    font-size: var(--text-lg);
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
     width: 100%;
-    padding: 1rem 0;
-    
+    min-height: 56px;
+    padding: 0.75rem 0;
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    border-bottom: 1px solid var(--color-border);
+
+    &::before {
+      counter-increment: nav-item;
+      content: counter(nav-item, decimal-leading-zero);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+    }
+
     &.active {
       color: var(--color-accent-primary);
     }
@@ -239,8 +270,12 @@ const Navigation = () => {
     restDelta: 0.001
   });
 
-  // Treat /blog/:slug pages as "blog" section active
-  const effectiveSection = location.pathname.startsWith('/blog') ? 'blog' : activeSection;
+  // Scroll-spy applies to the homepage; writing pages highlight Blog and other
+  // routes (shelf aside) highlight nothing.
+  const { pathname } = location;
+  const effectiveSection = pathname === '/'
+    ? activeSection
+    : /^\/(blog|reading-list)(\/|$)/.test(pathname) ? 'blog' : null;
 
   // Keep the shared header offset in sync with the actual nav height so
   // native anchor jumps and programmatic scrolls land cleanly below the fixed bar.
@@ -432,8 +467,6 @@ const Navigation = () => {
                   onClick={(e) => handleNavClick(e, item.id)}
                   className={effectiveSection === item.id ? 'active' : ''}
                   aria-current={effectiveSection === item.id ? 'true' : undefined}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.92 }}
                 >
                   {item.label}
                 </NavLink>

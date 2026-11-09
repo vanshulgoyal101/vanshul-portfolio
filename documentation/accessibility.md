@@ -499,26 +499,27 @@ font-size: clamp(1rem, 2.5vw, 1.125rem); /* 16-18px */
 ### Reduced Motion
 Respect user's motion preferences.
 
-**CSS**:
+**CSS** (`src/styles/GlobalStyles.js`):
 ```css
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
   }
 }
 ```
 
-**JavaScript**:
-```javascript
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+Transitions use a true `0s` so none start. A tiny non-zero duration would make
+every property of every element transition for one frame, because the initial
+`transition-property` is `all`. That stale frame shows old layout values right
+after a breakpoint change. No code listens for `transitionend`.
 
-<motion.div
-  animate={{ opacity: 1 }}
-  transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
->
-```
+**JavaScript**: the app is wrapped in `<MotionConfig reducedMotion="user">`.
+Framer Motion then drops transform animations and keeps opacity fades. Effects
+that move with the pointer, such as `Magnetic`, check
+`matchMedia('(prefers-reduced-motion: reduce)')` and turn themselves off.
 
 ### Non-Essential Motion
 Decorative animations (airplane trail, floating rocket) don't convey critical information.

@@ -1,49 +1,47 @@
 // src/components/Hero/Hero.jsx
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { HiArrowRight } from 'react-icons/hi';
 
 import Magnetic from '../FunElements/Magnetic';
 import { useIdle } from '../../hooks/useIdle';
 import ErrorBoundary from '../ErrorBoundary';
+import { ButtonLink } from '../ui/Button';
 import { PROFILE } from '../../constants/profile';
 import { SOCIAL_PROFILES } from '../../constants/siteConfig';
+import { homeSectionPath } from '../../constants/routes';
 import { SOCIAL_ICONS } from '../socialIcons';
 
 const HeroScene = lazy(() => import('./HeroScene'));
 
-// Styled Components
 const HeroSection = styled.section`
-  min-height: 0;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  padding: 8rem 0 3rem;
   overflow: hidden;
-  padding: 8rem 0 2.5rem;
-  
+
   @media (max-width: 768px) {
-    min-height: 0;
-    padding: 6.5rem 0 1.5rem;
-    display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    padding: 6.5rem 0 2rem;
   }
 `;
 
 const HeroContainer = styled.div`
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: center;
   width: 100%;
   max-width: var(--container-xl);
   margin: 0 auto;
   padding: 0 var(--container-padding);
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 2rem;
   text-align: left;
-  align-items: center;
-  position: relative;
-  z-index: 2;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
@@ -55,8 +53,8 @@ const HeroContainer = styled.div`
 `;
 
 const HeroContent = styled(motion.div)`
-  max-width: 38rem;
   min-width: 0;
+  max-width: 40rem;
 
   @media (max-width: 768px) {
     margin: 0 auto;
@@ -64,70 +62,95 @@ const HeroContent = styled(motion.div)`
 `;
 
 const SceneArea = styled.div`
-  min-width: 0;
-  width: 100%;
-  height: clamp(20rem, 45vh, 28rem);
   position: relative;
+  width: 100%;
+  min-width: 0;
+  height: clamp(20rem, 45vh, 28rem);
 
-  @media (max-width: 1024px) { display: none; }
+  @media (max-width: 1024px) {
+    display: none;
+  }
 `;
 
-const Greeting = styled(motion.span)`
-  display: inline-block;
-  font-size: var(--text-lg);
-  color: var(--color-accent-primary);
+const Eyebrow = styled(motion.p)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
   font-weight: 500;
-  margin-bottom: var(--spacing-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+`;
+
+const Dot = styled.span`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent-primary);
+  box-shadow: 0 0 0 4px var(--color-accent-soft);
+  flex-shrink: 0;
 `;
 
 const Title = styled(motion.h1)`
-  font-size: 4rem;
-  letter-spacing: 0;
+  margin-bottom: 1.25rem;
+  font-size: clamp(2.5rem, 10vw, 4.5rem);
   font-weight: 700;
-  line-height: 1.1;
-  margin-bottom: var(--spacing-md);
-  background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-accent-primary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+`;
+
+const Summary = styled(motion.p)`
+  max-width: 34rem;
+  margin-bottom: 1.25rem;
+  font-size: clamp(1.0625rem, 2.2vw, 1.3125rem);
+  line-height: 1.55;
+  color: var(--color-text-primary);
 
   @media (max-width: 768px) {
-    font-size: 2.25rem;
-    margin-bottom: var(--spacing-xs);
+    margin-inline: auto;
   }
 `;
 
-const Subtitle = styled(motion.p)`
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-md);
+const Credentials = styled(motion.p)`
+  margin-bottom: 2rem;
+  font-size: 0.9375rem;
   line-height: 1.6;
-
-  @media (max-width: 768px) {
-    font-size: var(--text-base);
-    margin-bottom: var(--spacing-xs);
-  }
-`;
-
-const Description = styled(motion.p)`
-  font-size: 1.125rem;
   color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-lg);
-  line-height: 1.8;
+
+  a {
+    color: var(--color-text-primary);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: var(--color-hairline);
+    text-underline-offset: 4px;
+
+    &:hover {
+      color: var(--color-accent-primary);
+      text-decoration-color: currentColor;
+    }
+  }
 
   @media (max-width: 768px) {
-    font-size: var(--text-sm);
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 1.5rem;
   }
 `;
 
-const CTAContainer = styled(motion.div)`
+const Separator = styled.span`
+  margin: 0 0.5rem;
+  color: var(--color-text-muted);
+`;
+
+const Actions = styled(motion.div)`
   display: flex;
-  gap: var(--spacing-md);
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
 
   @media (max-width: 768px) {
     justify-content: center;
@@ -135,11 +158,8 @@ const CTAContainer = styled(motion.div)`
 
   @media (max-width: 480px) {
     flex-direction: column;
-    align-items: center;
     width: 100%;
-    gap: 0.75rem;
-    margin-bottom: var(--spacing-md);
-    
+
     a {
       width: 280px;
       max-width: 100%;
@@ -147,114 +167,54 @@ const CTAContainer = styled(motion.div)`
   }
 `;
 
-const CTAButton = styled(Link)`
-  padding: clamp(0.875rem, 2vw, 1rem) clamp(1.75rem, 4vw, 2.5rem);
-  background: var(--color-gradient-1);
-  color: var(--color-bg-primary);
-  font-weight: 600;
-  border-radius: 50px;
-  font-size: var(--text-base);
-  position: relative;
-  overflow: hidden;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-  }
-  
-  &:hover::before {
-    transform: translateX(0);
-  }
-  
-  &:focus-visible {
-    outline: 3px solid #fff;
-    outline-offset: 4px;
-  }
-
-  @media (max-width: 768px) {
-    padding: 0.75rem 1.5rem;
-    font-size: var(--text-sm);
-  }
-`;
-
-const SecondaryButton = styled(Link)`
-  padding: clamp(0.875rem, 2vw, 1rem) clamp(1.75rem, 4vw, 2.5rem);
-  border: 2px solid var(--color-border);
-  color: var(--color-text-primary);
-  font-weight: 600;
-  border-radius: 50px;
-  font-size: var(--text-base);
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  @media (max-width: 768px) {
-    padding: 0.75rem 1.5rem;
-    font-size: var(--text-sm);
-  }
-  
-  &:hover {
-    border-color: var(--color-accent-primary);
-    color: var(--color-accent-primary);
-  }
-  
-  &:focus-visible {
-    outline: 3px solid var(--color-accent-primary);
-    outline-offset: 4px;
-    border-color: var(--color-accent-primary);
-    color: var(--color-accent-primary);
-  }
-`;
-
 const SocialLinks = styled(motion.div)`
   display: flex;
-  gap: 0.75rem;
   justify-content: flex-start;
+  gap: 0.625rem;
 
   @media (max-width: 768px) {
     justify-content: center;
   }
 `;
 
-const SocialLink = styled(motion.a)`
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--color-border);
-  border-radius: 50%;
+const SocialLink = styled.a`
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 50%;
   color: var(--color-text-secondary);
-  font-size: 1.25rem;
-  transition: all 0.3s ease;
-  
+  font-size: 1.125rem;
+  transition:
+    color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+
   &:hover {
-    color: var(--color-accent-primary);
-    border-color: var(--color-accent-primary);
-    transform: translateY(-3px);
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+    background: var(--color-bg-card);
   }
-  
+
   &:focus-visible {
     outline: 3px solid var(--color-accent-primary);
-    outline-offset: 4px;
-    color: var(--color-accent-primary);
-    border-color: var(--color-accent-primary);
+    outline-offset: 3px;
+    color: var(--color-ink);
   }
 `;
 
-// Hero Component
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.06 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+};
+
 const Hero = ({ sceneEnabled = true }) => {
   const idle = useIdle(1200);
   const [sceneAllowed, setSceneAllowed] = useState(false);
@@ -272,70 +232,47 @@ const Hero = ({ sceneEnabled = true }) => {
     };
   }, []);
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
-    },
-  };
-
   return (
     <HeroSection>
       <HeroContainer>
-        <HeroContent
-          variants={containerVariants}
-          initial={false}
-          animate="visible"
-        >
-          <Greeting variants={itemVariants}>
+        <HeroContent variants={containerVariants} initial={false} animate="visible">
+          <Eyebrow variants={itemVariants}>
+            <Dot aria-hidden="true" />
             {PROFILE.headline}
-          </Greeting>
+          </Eyebrow>
 
-          <Title variants={itemVariants}>
-            Vanshul Goyal
-          </Title>
+          <Title variants={itemVariants}>Vanshul Goyal</Title>
 
-          <Subtitle variants={itemVariants}>
-            {PROFILE.role} at <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">{PROFILE.employer.name}</a> | NASA <a href="https://www.spaceappschallenge.org/collective/" target="_blank" rel="noopener noreferrer"> SpaceApps Collective</a>, <a href="https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge" target="_blank" rel="noopener noreferrer"> HERC 2023</a>
-          </Subtitle>
+          <Summary variants={itemVariants}>{PROFILE.summary}</Summary>
 
-          <Description variants={itemVariants}>
-            {PROFILE.summary}
-          </Description>
+          <Credentials variants={itemVariants}>
+            {PROFILE.role} at{' '}
+            <a href="https://www.united.com/en/us/fly/company/company-info/about-united.html" target="_blank" rel="noopener noreferrer">
+              {PROFILE.employer.name}
+            </a>
+            <Separator aria-hidden="true">·</Separator>
+            <a href="https://www.spaceappschallenge.org/collective/" target="_blank" rel="noopener noreferrer">
+              NASA Space Apps Collective
+            </a>
+            <Separator aria-hidden="true">·</Separator>
+            <a href="https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge/" target="_blank" rel="noopener noreferrer">
+              HERC 2023
+            </a>
+          </Credentials>
 
-          <CTAContainer variants={itemVariants}>
+          <Actions variants={itemVariants}>
             <Magnetic range={80}>
-              <CTAButton
-                to="/#projects"
-              >
+              <ButtonLink to={homeSectionPath('projects')}>
                 Explore My Work
-              </CTAButton>
+                <HiArrowRight aria-hidden="true" data-arrow="forward" />
+              </ButtonLink>
             </Magnetic>
             <Magnetic range={80}>
-              <SecondaryButton
-                to="/#contact"
-              >
+              <ButtonLink $variant="secondary" to={homeSectionPath('contact')}>
                 Get In Touch
-              </SecondaryButton>
+              </ButtonLink>
             </Magnetic>
-          </CTAContainer>
+          </Actions>
 
           <SocialLinks variants={itemVariants}>
             {SOCIAL_PROFILES.map(({ id, label, url }) => {
@@ -346,8 +283,6 @@ const Hero = ({ sceneEnabled = true }) => {
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
                     aria-label={label}
                   >
                     <Icon />
@@ -358,7 +293,13 @@ const Hero = ({ sceneEnabled = true }) => {
           </SocialLinks>
         </HeroContent>
         <SceneArea aria-hidden="true" data-hero-scene>
-          {sceneEnabled && idle && sceneAllowed && <ErrorBoundary fallback={null}><Suspense fallback={null}><HeroScene /></Suspense></ErrorBoundary>}
+          {sceneEnabled && idle && sceneAllowed && (
+            <ErrorBoundary fallback={null}>
+              <Suspense fallback={null}>
+                <HeroScene />
+              </Suspense>
+            </ErrorBoundary>
+          )}
         </SceneArea>
       </HeroContainer>
     </HeroSection>

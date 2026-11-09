@@ -1,56 +1,40 @@
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { BiTime } from 'react-icons/bi';
-import { MdArrowForward, MdDateRange } from 'react-icons/md';
-import { AiOutlineEye } from 'react-icons/ai';
 import PropTypes from 'prop-types';
+import { HiArrowRight } from 'react-icons/hi2';
+import { AiOutlineEye } from 'react-icons/ai';
 import { formatViews } from '../../utils/blogViews';
 import { postPath } from '../../constants/routes';
 
-// Styled Components
-const Card = styled(motion.article)`
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: var(--spacing-lg);
-  cursor: pointer;
-  transition: border-color 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-  min-height: 320px;
-  display: flex;
-  flex-direction: column;
-  
-  &:hover {
-    border-color: rgba(29, 78, 216, 0.4);
-    transform: translateY(-6px);
-    box-shadow: 0 20px 40px rgba(29, 78, 216, 0.08);
-  }
-  
-  @media (max-width: 768px) {
-    &:hover {
-      transform: none;
-      box-shadow: none;
-    }
-  }
-`;
-
 const CardLink = styled(Link)`
-  text-decoration: none;
-  color: inherit;
   display: block;
-  border-radius: 16px;
-  
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--radius-lg);
+
   &:focus-visible {
     outline: 3px solid var(--color-accent-primary);
     outline-offset: 4px;
   }
-  
-  &:focus-visible ${Card} {
-    border-color: rgba(29, 78, 216, 0.4);
-    transform: translateY(-6px);
-    box-shadow: 0 20px 40px rgba(29, 78, 216, 0.08);
+`;
+
+const Card = styled(motion.article)`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--duration-base) ease, box-shadow var(--duration-base) ease;
+
+  ${CardLink}:hover &,
+  ${CardLink}:focus-visible & {
+    border-color: var(--color-accent-line);
+    box-shadow: var(--shadow-md);
   }
 `;
 
@@ -58,87 +42,86 @@ const Meta = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 10px;
-  margin-bottom: var(--spacing-sm);
-  font-size: 0.78rem;
-  letter-spacing: 0.01em;
-  color: var(--color-text-secondary);
+  gap: 0.25rem 0.5rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
 
   span {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 0.3rem;
     white-space: nowrap;
   }
 
-  /* Views read as secondary, quieter than date/read-time */
-  span.views {
-    opacity: 0.7;
+  span + span::before {
+    content: '·';
+    margin-right: 0.5rem;
   }
 
   svg {
-    flex-shrink: 0;
     font-size: 0.95em;
-    opacity: 0.7;
   }
 `;
 
 const Title = styled.h3`
-  font-size: var(--text-xl);
-  margin-bottom: var(--spacing-sm);
-  color: var(--color-text-primary);
-  line-height: 1.4;
   display: -webkit-box;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  font-size: 1.25rem;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: 2.8em;
+  transition: color var(--duration-fast) ease;
+
+  ${CardLink}:hover & {
+    color: var(--color-accent-primary);
+  }
 `;
 
 const Summary = styled.p`
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  margin-bottom: var(--spacing-md);
   display: -webkit-box;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  font-size: 0.9375rem;
+  line-height: 1.65;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: 4.8em;
 `;
 
 const ReadMore = styled.span`
-  color: var(--color-accent-primary);
-  font-size: var(--text-sm);
-  font-weight: 500;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  
+  gap: 0.375rem;
+  margin-top: auto;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-accent-primary);
+
   svg {
-    transition: transform 0.3s ease;
+    transition: transform var(--duration-fast) var(--ease-out);
   }
-  
-  ${Card}:hover & svg {
-    transform: translateX(5px);
+
+  ${CardLink}:hover & svg {
+    transform: translateX(4px);
   }
 `;
 
 /**
- * BlogCard Component
- * Displays a single blog post preview card with title, summary, and metadata
- * 
+ * A post preview card linking to the article.
+ *
  * @param {Object} props
- * @param {Object} props.blog - Blog post data object
- * @param {number} props.index - Index for animation delay
- * @param {boolean} props.isInView - Whether the card is in viewport
- * @param {Object} props.variants - Animation variants
+ * @param {Object} props.blog - Post data (title, slug, summary, date, readTime)
+ * @param {number} props.index - Position, used to stagger the reveal
+ * @param {Object} props.variants - Framer Motion reveal variants
+ * @param {number} [props.views] - View count, shown when available
  */
 const BlogCard = ({ blog, index, variants, views }) => {
   if (!blog) return null;
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   return (
     <CardLink to={postPath(blog.slug)}>
@@ -146,30 +129,25 @@ const BlogCard = ({ blog, index, variants, views }) => {
         variants={variants}
         initial="hidden"
         whileInView="visible"
+        whileHover={{ y: -4 }}
         viewport={{ once: true, amount: 0.15 }}
-        transition={{ delay: index * 0.1 }}
-        whileHover={isMobile ? {} : { scale: 1.02 }}
-        role="article"
+        transition={{ delay: index * 0.05 }}
         aria-label={`Blog post: ${blog.title}`}
       >
         <Meta>
-          <span>
-            <MdDateRange aria-label="Publication date" /> {blog.date}
-          </span>
-          <span>
-            <BiTime aria-label="Reading time" /> {blog.readTime}
-          </span>
+          <span>{blog.date}</span>
+          <span>{blog.readTime}</span>
           {views != null && (
-            <span className="views">
+            <span>
               <AiOutlineEye aria-label="Views" /> {formatViews(views)}
             </span>
           )}
         </Meta>
-      <Title>{blog.title}</Title>
-      <Summary>{blog.summary}</Summary>
-      <ReadMore>
-        Read More <MdArrowForward />
-      </ReadMore>
+        <Title>{blog.title}</Title>
+        <Summary>{blog.summary}</Summary>
+        <ReadMore>
+          Read More <HiArrowRight aria-hidden="true" />
+        </ReadMore>
       </Card>
     </CardLink>
   );
@@ -177,16 +155,14 @@ const BlogCard = ({ blog, index, variants, views }) => {
 
 BlogCard.propTypes = {
   blog: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    title: PropTypes.string.isRequired,
-    summary: PropTypes.string.isRequired,
-    date: PropTypes.string.isRequired,
-    readTime: PropTypes.string.isRequired,
     slug: PropTypes.string.isRequired,
-    category: PropTypes.string,
-  }).isRequired,
-  index: PropTypes.number.isRequired,
-  variants: PropTypes.object.isRequired,
+    title: PropTypes.string.isRequired,
+    summary: PropTypes.string,
+    date: PropTypes.string,
+    readTime: PropTypes.string,
+  }),
+  index: PropTypes.number,
+  variants: PropTypes.object,
   views: PropTypes.number,
 };
 

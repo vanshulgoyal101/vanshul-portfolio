@@ -1,163 +1,131 @@
-import { motion } from 'framer-motion';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import { FaBookOpen } from 'react-icons/fa';
-import { MdArrowForward } from 'react-icons/md';
+import { HiArrowRight } from 'react-icons/hi2';
 import { BOOKS, ESSAYS } from '../../constants/books';
 import { READING_LIST_PATH } from '../../constants/routes';
 
-// Mirrors BlogCard so the "From My Shelf" entry looks and behaves exactly like a
-// blog card: a link that navigates to a dedicated page (/reading-list/).
-const CardLink = styled(Link)`
+// The one dark surface on the page: an ink banner that sends readers to the
+// shelf. Text colours are chosen for contrast on ink, not on paper.
+const Banner = styled(Link)`
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem 3rem;
+  align-items: center;
+  padding: clamp(1.5rem, 3.5vw, 2.25rem) clamp(1.5rem, 4vw, 2.75rem);
+  overflow: hidden;
+  color: #f8fafc;
   text-decoration: none;
-  color: inherit;
-  display: block;
-  border-radius: 16px;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(59, 130, 246, 0.28) 0%, transparent 55%),
+    var(--color-ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) ease;
+
+  &:hover {
+    transform: translateY(-3px);
+  }
 
   &:focus-visible {
     outline: 3px solid var(--color-accent-primary);
     outline-offset: 4px;
   }
-`;
-
-const Card = styled(motion.article)`
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: var(--spacing-lg);
-  cursor: pointer;
-  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  min-height: 320px;
-  display: flex;
-  flex-direction: column;
-
-  &:hover {
-    border-color: rgba(29, 78, 216, 0.4);
-    transform: translateY(-6px);
-    box-shadow: 0 20px 40px rgba(29, 78, 216, 0.08);
-  }
 
   @media (max-width: 768px) {
-    &:hover {
-      transform: none;
-      box-shadow: none;
-    }
+    grid-template-columns: 1fr;
   }
 `;
 
-const Meta = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+const Label = styled.span`
+  display: inline-flex;
   align-items: center;
-  gap: 4px 10px;
-  margin-bottom: var(--spacing-sm);
-  font-size: 0.78rem;
-  letter-spacing: 0;
-  color: var(--color-text-secondary);
-
-  span {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    white-space: nowrap;
-  }
-
-  svg {
-    flex-shrink: 0;
-    font-size: 0.95em;
-    opacity: 0.85;
-    color: var(--color-accent-primary);
-  }
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #93c5fd;
 `;
 
 const Title = styled.h3`
-  font-size: var(--text-xl);
-  margin-bottom: var(--spacing-sm);
-  color: var(--color-text-primary);
-  line-height: 1.4;
+  margin-bottom: 0.375rem;
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
+  letter-spacing: -0.03em;
+  color: #ffffff;
 `;
 
 const Summary = styled.p`
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  margin-bottom: var(--spacing-md);
+  font-size: 1rem;
+  color: rgba(248, 250, 252, 0.78);
 `;
 
-const Spacer = styled.div`
-  flex: 1;
+const Side = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 2rem;
 `;
 
 const Collections = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem 2rem;
-  padding: 1rem 0;
-  margin-bottom: 1rem;
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
+  gap: 1.5rem;
+  font-size: 0.9375rem;
+  color: rgba(248, 250, 252, 0.78);
 
   strong {
-    margin-right: 0.4rem;
-    color: var(--color-accent-primary);
-    font-family: var(--font-mono);
-    font-weight: 500;
+    margin-right: 0.375rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    font-variant-numeric: tabular-nums;
   }
 `;
 
-const ReadMore = styled.span`
-  color: var(--color-accent-primary);
-  font-size: var(--text-sm);
-  font-weight: 500;
+const Explore = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  background: #ffffff;
+  border-radius: var(--radius-pill);
 
   svg {
-    transition: transform 0.3s ease;
+    transition: transform var(--duration-fast) var(--ease-out);
   }
 
-  ${Card}:hover & svg {
-    transform: translateX(5px);
+  ${Banner}:hover & svg {
+    transform: translateX(4px);
   }
 `;
 
-const ReadingList = ({ variants }) => (
-  <CardLink to={READING_LIST_PATH} aria-label="Reading list: From My Shelf">
-    <Card
-      variants={variants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.15 }}
-      whileHover={{ scale: 1.02 }}
-      role="article"
-    >
-      <Meta>
-        <span>
-          <FaBookOpen aria-hidden="true" /> Reading list
-        </span>
-      </Meta>
+const ReadingList = () => (
+  <Banner to={READING_LIST_PATH} aria-label="Reading list: From My Shelf">
+    <div>
+      <Label>
+        <FaBookOpen aria-hidden="true" /> Reading list
+      </Label>
       <Title>From My Shelf</Title>
       <Summary>Books and essays that shaped how I think.</Summary>
+    </div>
+    <Side>
       <Collections>
         <span><strong>{BOOKS.length}</strong> Books</span>
         <span><strong>{ESSAYS.length}</strong> Essays</span>
       </Collections>
-      <Spacer />
-      <ReadMore>
-        Explore the shelf <MdArrowForward aria-hidden="true" />
-      </ReadMore>
-    </Card>
-  </CardLink>
+      <Explore>
+        Explore the shelf <HiArrowRight aria-hidden="true" />
+      </Explore>
+    </Side>
+  </Banner>
 );
-
-ReadingList.propTypes = {
-  variants: PropTypes.object,
-};
 
 export default ReadingList;

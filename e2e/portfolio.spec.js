@@ -275,10 +275,10 @@ test('section titles match without focus boxes and links keep keyboard outlines'
   const work = page.locator('#work h2');
   await expect(work).toBeFocused();
   await expect(work).toHaveCSS('outline-style', 'none');
-  const titleSizes = await page.locator('#projects h2, #about h2, #blog h2, #contact h2').evaluateAll(headings => headings.map(heading => getComputedStyle(heading).fontSize));
+  // Every homepage section shares one title size, Work included.
+  const titleSizes = await page.locator('#projects h2, #about h2, #work h2, #blog h2, #contact h2').evaluateAll(headings => headings.map(heading => getComputedStyle(heading).fontSize));
   expect(new Set(titleSizes).size).toBe(1);
-  expect(titleSizes[0]).toBe(testInfo.project.name === 'mobile' ? '24px' : '40px');
-  await expect(work).toHaveCSS('font-size', testInfo.project.name === 'mobile' ? '32px' : '40px');
+  expect(titleSizes[0]).toBe(testInfo.project.name === 'mobile' ? '32px' : '40px');
   if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Toggle mobile menu' }).click();
   const nav = page.getByRole('navigation', { name: 'Primary navigation' });
   await nav.getByRole('link', { name: 'Home', exact: true }).focus();

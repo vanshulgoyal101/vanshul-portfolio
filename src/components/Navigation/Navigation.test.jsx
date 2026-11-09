@@ -37,6 +37,21 @@ describe('Navigation', () => {
     expect(screen.getByText('About').closest('a')).not.toHaveAttribute('aria-current');
   });
 
+  it.each([
+    ['/blog/', 'Blog'],
+    ['/blog/the-new-leverage/', 'Blog'],
+    ['/reading-list/', 'Blog'],
+  ])('highlights Blog on %s', (route, label) => {
+    renderNav([route]);
+    expect(screen.getByText(label).closest('a')).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByText('Home').closest('a')).not.toHaveAttribute('aria-current');
+  });
+
+  it('highlights nothing on pages outside the homepage and writing', () => {
+    renderNav(['/no-such-page']);
+    expect(document.querySelector('[aria-current]')).toBeNull();
+  });
+
   it('renders a mobile menu toggle button', () => {
     const { container } = renderNav();
     expect(
