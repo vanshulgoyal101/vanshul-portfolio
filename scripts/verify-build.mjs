@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
 import { SITE_URL } from '../src/constants/siteConfig.js';
@@ -32,6 +32,11 @@ for (const url of urls) {
     .map(element => element.getAttribute('src') ?? element.getAttribute('href'));
   assert(eager.length > 0, `No entry script for ${url}`);
   assert.deepEqual(eager.filter(src => LAZY_ONLY_CHUNKS.test(src)), [], `Lazy-only chunk loaded eagerly by ${url}`);
+  // Fonts are self-hosted: preloads must resolve and no font CDN may return.
+  const fontPreloads = [...document.querySelectorAll('link[rel="preload"][as="font"]')].map(element => element.getAttribute('href'));
+  assert(fontPreloads.length > 0, `No font preloads for ${url}`);
+  for (const href of fontPreloads) assert(existsSync(new URL(href.slice(1), dist)), `Preloaded font ${href} is missing from dist`);
+  assert(!document.querySelector('link[href*="fonts.googleapis.com"], link[href*="fonts.gstatic.com"]'), `Third-party font request in ${url}`);
   assert(document.querySelector('#root main')?.textContent.trim().length > 100, `Missing readable static content for ${url}`);
   assert.equal(document.querySelectorAll('h1').length, 1, `Expected one main heading for ${url}`);
   for (const selector of ['title', 'meta[name="description"]', 'meta[name="robots"]', 'link[rel="canonical"]', 'meta[property="og:url"]', 'meta[name="twitter:url"]']) {
@@ -88,6 +93,11 @@ assert.deepEqual([...feedLinks].sort(), [...articleUrls].sort(), 'Feed items mus
 for (const item of feed.querySelectorAll('item')) {
   assert(item.getElementsByTagName('content:encoded')[0]?.textContent.trim().length > 100, 'Feed items must carry full article HTML');
 }
+const fontUrls = readdirSync(new URL('assets/', dist))
+  .filter(file => file.endsWith('.css'))
+  .flatMap(file => [...readFileSync(new URL(`assets/${file}`, dist), 'utf8').matchAll(/url\(["']?(\/fonts\/[^"')]+)["']?\)/g)].map(match => match[1]));
+assert(fontUrls.length > 0, 'Built CSS must declare the self-hosted fonts');
+for (const href of fontUrls) assert(existsSync(new URL(href.slice(1), dist)), `@font-face source ${href} is missing from dist`);
 const llmsFile = new URL('llms.txt', dist);
 assert(existsSync(llmsFile), 'Missing dist/llms.txt');
 const llms = readFileSync(llmsFile, 'utf8');
@@ -96,4 +106,4 @@ for (const url of [absoluteUrl(BLOG_PATH), ...articleUrls]) {
   // Match the whole link target: the archive URL is a prefix of every article URL.
   assert(llms.includes(`](${url})`), `llms.txt must link to ${url}`);
 }
-console.log(`Verified ${urls.length} published routes, their canonical URLs, the ${feedLinks.length}-item feed and llms.txt.`);
+console.log(`Verified ${urls.length} published routes, their canonical URLs, ${fontUrls.length} font sources, the ${feedLinks.length}-item feed and llms.txt.`);
