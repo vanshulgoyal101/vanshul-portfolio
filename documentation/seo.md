@@ -57,7 +57,7 @@ runs SEO generators around the Vite build:
 
 ```jsonc
 // package.json
-"prebuild":  "generate-sitemap.mjs && generate-og-images.mjs && generate-feed.mjs",
+"prebuild":  "generate-sitemap.mjs && generate-og-images.mjs && generate-feed.mjs && generate-llms.mjs",
 "build":     "vite build",
 "postbuild": "prerender-blog.mjs && gen-sitemap-index.mjs"
 ```
@@ -67,6 +67,7 @@ runs SEO generators around the Vite build:
 | `scripts/generate-sitemap.mjs` | `public/sitemap.xml` | Lists home, blog, shelf and every post; article dates supply `lastmod`. |
 | `scripts/generate-og-images.mjs` | `public/og/<slug>.png` | Per-post Open Graph images (rendered with `sharp`; needs Node ≥ 20.9). |
 | `scripts/generate-feed.mjs` | `public/feed.xml` | Full-content RSS 2.0 feed (`content:encoded` article HTML, `dc:creator`, canonical links, stable GUIDs), built by `scripts/lib/feed.mjs` and linked from `index.html` via `<link rel="alternate" type="application/rss+xml">`. |
+| `scripts/generate-llms.mjs` | `public/llms.txt` | Curated Markdown map of the site for AI assistants (see [llms.txt](#llmstxt)). |
 | `scripts/prerender-blog.mjs` | Home, blog index, article and shelf HTML | Readable static content, metadata and JSON-LD from the existing Markdown and constants. |
 | `scripts/gen-sitemap-index.mjs` | `dist/sitemap-index.xml` | Master sitemap index referencing every sitemap in the vanshul.com family (edit `sitemap-sites.json`). Runs in `postbuild`; XML shape in `scripts/lib/sitemapIndex.mjs` (unit-tested). Submit this one URL to Search Console. |
 
@@ -76,6 +77,35 @@ runs SEO generators around the Vite build:
 The frontmatter parser, XML escaping and post-reading logic shared by the feed,
 OG-image and prerender scripts live once in **`scripts/lib/seo.mjs`** (unit-tested
 in `scripts/lib/seo.test.js`), so the three generators can't drift apart.
+
+## llms.txt
+
+`https://vanshul.com/llms.txt` follows the [llms.txt proposal](https://llmstxt.org/):
+a short, curated Markdown map that gives AI assistants and answer engines
+accurate facts and canonical links without crawling the whole site.
+
+- **Contents**: the author name (H1), the homepage description (blockquote),
+  one paragraph of profile facts (role, employer, location, education,
+  topics), then link lists: `## Writing` (every post, newest first, with its
+  `summary`), `## Projects`, `## Pages` (home, archive, reading list, RSS feed,
+  sitemap) and `## Elsewhere` (social profiles).
+- **Data sources**: the same posts as the feed (`readPosts`, sorted with
+  `byDateDesc`; there are no drafts, every Markdown file in `src/blogs` is
+  published) and the modules the site renders: `AUTHOR_NAME`,
+  `HOME_DESCRIPTION` and `SOCIAL_PROFILES` (`siteConfig.js`), `PROFILE`,
+  `FEATURED_PROJECTS` and `PROJECT_DIRECTORY`, plus the archive and shelf meta
+  descriptions. URLs come from `routes.js`. Projects link only to URLs in the
+  data (live site first, else the repository), or to the homepage `#projects`
+  section when they have none.
+- **Generator**: `scripts/generate-llms.mjs` writes the gitignored
+  `public/llms.txt` during `prebuild`, and Vite copies it into `dist/`. The
+  pure builder `buildLlmsTxt` (`scripts/lib/llms.mjs`, tested in
+  `llms.test.js`) keeps authored text on one line, escapes `[`, `]` and `\` in
+  link text and adds no timestamps, so the same content always yields the
+  same file.
+- **Verification**: `npm run verify:build` fails unless `dist/llms.txt` exists,
+  starts with an H1 and links the archive and every published article by its
+  canonical URL.
 
 ## Structured data (JSON-LD)
 
@@ -160,7 +190,8 @@ Posts live in `src/blogs/*.md`. The SEO output is derived from their frontmatter
 When you change blog post shape or add SEO fields, update **both** the runtime
 path (`useSeo`, `BlogPost.jsx`) **and** the build path (`prerender-blog.mjs`,
 `generate-*.mjs`). Validate with a full `npm run build` and check a generated
-`dist/blog/<slug>/index.html` plus `dist/sitemap.xml` and `dist/feed.xml`.
+`dist/blog/<slug>/index.html` plus `dist/sitemap.xml`, `dist/feed.xml` and
+`dist/llms.txt`.
 
 ## Owner operations and limitations
 

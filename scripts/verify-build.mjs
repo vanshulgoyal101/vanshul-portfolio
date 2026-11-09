@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
 import { SITE_URL } from '../src/constants/siteConfig.js';
 import { BOOKS, ESSAYS, SHELF_ITEMS } from '../src/constants/books.js';
-import { READING_LIST_PATH, absoluteUrl } from '../src/constants/routes.js';
+import { BLOG_PATH, READING_LIST_PATH, absoluteUrl } from '../src/constants/routes.js';
 import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../src/constants/projects.js';
 import { EXPERIENCE } from '../src/constants/experience.js';
 
@@ -88,4 +88,12 @@ assert.deepEqual([...feedLinks].sort(), [...articleUrls].sort(), 'Feed items mus
 for (const item of feed.querySelectorAll('item')) {
   assert(item.getElementsByTagName('content:encoded')[0]?.textContent.trim().length > 100, 'Feed items must carry full article HTML');
 }
-console.log(`Verified ${urls.length} published routes, their canonical URLs and the ${feedLinks.length}-item feed.`);
+const llmsFile = new URL('llms.txt', dist);
+assert(existsSync(llmsFile), 'Missing dist/llms.txt');
+const llms = readFileSync(llmsFile, 'utf8');
+assert(llms.startsWith('# '), 'llms.txt must start with an H1 title');
+for (const url of [absoluteUrl(BLOG_PATH), ...articleUrls]) {
+  // Match the whole link target: the archive URL is a prefix of every article URL.
+  assert(llms.includes(`](${url})`), `llms.txt must link to ${url}`);
+}
+console.log(`Verified ${urls.length} published routes, their canonical URLs, the ${feedLinks.length}-item feed and llms.txt.`);

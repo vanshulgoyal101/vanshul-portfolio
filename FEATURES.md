@@ -59,6 +59,7 @@
   (WebSite + Person + ProfilePage; BlogPosting + BreadcrumbList per post).
 - ✅ **PNG OG images** generated via `sharp` (scrapers don't render SVG); sitemap +
   robots; RSS. Build-time scripts under `scripts/` (shared `scripts/lib/*`).
+- ✅ **`/llms.txt`** for AI assistants, built from the same posts and data modules.
 
 ## Engineering (✅)
 
