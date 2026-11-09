@@ -1,51 +1,21 @@
 #!/usr/bin/env node
 /**
- * Generates public/feed.xml (RSS 2.0) from the blog markdown files so readers
- * and aggregators can subscribe. Runs in `prebuild`.
+ * Generates public/feed.xml (RSS 2.0 with full article HTML) from the blog
+ * Markdown so readers and aggregators can subscribe. Runs in `prebuild`.
  */
 import { writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SITE_URL as SITE } from '../src/constants/siteConfig.js';
-import { BLOG_PATH, postPath, absoluteUrl } from '../src/constants/routes.js';
-import { escapeXml as esc, rfc822, readPosts, byDateDesc } from './lib/seo.mjs';
+import { SITE_URL, AUTHOR_NAME } from '../src/constants/siteConfig.js';
+import { readPosts, byDateDesc } from './lib/seo.mjs';
+import { buildFeed } from './lib/feed.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const blogsDir = join(root, 'src', 'blogs');
+const posts = readPosts(join(root, 'src', 'blogs')).sort(byDateDesc);
 
-const posts = readPosts(blogsDir).sort(byDateDesc);
-
-const lastBuild = posts.length ? rfc822(posts[0].date) : rfc822(new Date());
-
-const items = posts
-  .map((p) => {
-    const url = absoluteUrl(postPath(p.slug));
-    const pubDate = rfc822(p.date);
-    // Stable identifiers: the slash-less URL predates trailing-slash canonicals.
-    return `    <item>
-      <title>${esc(p.title)}</title>
-      <link>${url}</link>
-      <guid isPermaLink="false">${SITE}/blog/${p.slug}</guid>
-      ${pubDate ? `<pubDate>${pubDate}</pubDate>` : ''}
-      ${p.category ? `<category>${esc(p.category)}</category>` : ''}
-      <description>${esc(p.summary || '')}</description>
-    </item>`;
-  })
-  .join('\n');
-
-const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Vanshul Goyal — Blog</title>
-    <link>${absoluteUrl(BLOG_PATH)}</link>
-    <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml" />
-    <description>Writing on AI, the future of work, technology and space by Vanshul Goyal.</description>
-    <language>en</language>
-    ${lastBuild ? `<lastBuildDate>${lastBuild}</lastBuildDate>` : ''}
-${items}
-  </channel>
-</rss>
-`;
-
-writeFileSync(join(root, 'public', 'feed.xml'), xml);
+writeFileSync(join(root, 'public', 'feed.xml'), buildFeed(posts, {
+  site: SITE_URL,
+  authorName: AUTHOR_NAME,
+  description: `Writing on AI, the future of work, technology and space by ${AUTHOR_NAME}.`,
+}));
 console.log(`Wrote public/feed.xml with ${posts.length} items.`);

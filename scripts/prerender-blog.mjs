@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
-import { readPosts, byDateDesc, escapeXml as escAttr, escapeText as escText, parseTags, isoDate } from './lib/seo.mjs';
+import { readPosts, byDateDesc, escapeXml as escAttr, escapeText as escText, parseTags, postPublishedAt } from './lib/seo.mjs';
 import { prerenderContent } from './lib/prerenderContent.mjs';
 import { postJsonLd, blogIndexJsonLd, homeJsonLd } from './lib/structuredData.mjs';
 import { PROFILE } from '../src/constants/profile.js';
@@ -43,7 +43,7 @@ const buildShell = (post) => {
   const ogImage = `${SITE}/og/${post.slug}.png`;
   const title = `${post.title} — Vanshul Goyal`;
   const desc = post.summary || '';
-  const publishedISO = isoDate(post.date);
+  const publishedISO = postPublishedAt(post.date);
   const tags = parseTags(post.tags);
 
   let html = template;

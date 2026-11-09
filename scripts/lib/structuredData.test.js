@@ -73,10 +73,9 @@ describe('structuredData/postJsonLd', () => {
     expect(posting.wordCount).toBe(1200);
   });
 
-  it('sets datePublished/dateModified from the post date', () => {
-    const iso = new Date('27 Aug, 2025').toISOString();
-    expect(posting.datePublished).toBe(iso);
-    expect(posting.dateModified).toBe(iso);
+  it('sets datePublished/dateModified from the post date in the author timezone', () => {
+    expect(posting.datePublished).toBe('2025-08-27T00:00:00+05:30');
+    expect(posting.dateModified).toBe('2025-08-27T00:00:00+05:30');
   });
 
   it('breadcrumb trail is Home → Blog → post', () => {

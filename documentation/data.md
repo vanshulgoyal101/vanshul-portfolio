@@ -49,7 +49,6 @@ Each file begins with a YAML-style frontmatter block delimited by `---`:
 
 ```markdown
 ---
-id: 4
 title: "The New Leverage"
 slug: "the-new-leverage"
 summary: "Work feels meaningful when we create value…"
@@ -63,13 +62,28 @@ Body content in Markdown…
 
 | Field      | Type   | Notes |
 | ---------- | ------ | ----- |
-| `id`       | number | Unique across all posts (used as React key). |
 | `title`    | string | Display title. |
-| `slug`     | string | Must match the filename. Drives the URL. |
+| `slug`     | string | Must match the filename; lowercase kebab-case, at most 120 characters, unique. Drives the URL and is the post's identity. |
 | `summary`  | string | Shown on the blog card. |
-| `date`     | string | Human-readable, must be `Date`-parseable (e.g. `27 Aug, 2025`). Used for sorting. |
+| `date`     | string | Publication date as `27 Aug, 2025` (also accepts `2025-08-27`). A calendar date in India Standard Time; see below. Displayed as written. |
 | `readTime` | string | e.g. `"4 min read"`. Displayed as-is. |
 | `category` | string | Optional grouping label. |
+
+Publication dates are parsed by `parsePostDate` in
+[`src/utils/seoValues.js`](../src/utils/seoValues.js), never by `new Date(string)`,
+whose handling of non-ISO strings is engine-specific and whose result depends
+on the machine's timezone. A post date means midnight in India Standard Time
+(UTC+05:30, the zone the analytics dashboard also uses), so every build and
+every reader sees the same values:
+
+| Output | Helper | Example for `29 Jul, 2026` |
+| --- | --- | --- |
+| Sitemap `<lastmod>` | `postDate` | `2026-07-29` |
+| JSON-LD `datePublished`, `article:published_time` | `postPublishedAt` | `2026-07-29T00:00:00+05:30` |
+| RSS `<pubDate>` | `rfc822` (build) | `Tue, 28 Jul 2026 18:30:00 GMT` |
+| Sorting (app and build) | `compareNewestFirst` | newest first; undated posts last |
+
+The build fails on an impossible date such as `31 Feb, 2026`.
 
 ### Loading & parsing
 

@@ -70,4 +70,12 @@ for (const url of urls) {
     assert.deepEqual(shelf.itemListElement.filter(entry => entry.item['@type'] === 'Article').map(entry => entry.item.url), ESSAYS.map(essay => essay.url));
   }
 }
-console.log(`Verified ${urls.length} published routes and their canonical URLs.`);
+const feed = new JSDOM(readFileSync(new URL('feed.xml', dist), 'utf8'), { contentType: 'text/xml' }).window.document;
+assert.equal(feed.querySelector('parsererror'), null, 'feed.xml must be well-formed XML');
+const feedLinks = [...feed.querySelectorAll('item > link')].map(element => element.textContent);
+const articleUrls = urls.filter(url => /\/blog\/[^/]+\/$/.test(new URL(url).pathname));
+assert.deepEqual([...feedLinks].sort(), [...articleUrls].sort(), 'Feed items must match the published articles');
+for (const item of feed.querySelectorAll('item')) {
+  assert(item.getElementsByTagName('content:encoded')[0]?.textContent.trim().length > 100, 'Feed items must carry full article HTML');
+}
+console.log(`Verified ${urls.length} published routes, their canonical URLs and the ${feedLinks.length}-item feed.`);

@@ -1,16 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { loadBlogPosts } from '../utils/blogLoader';
+import { parsePostDate } from '../utils/seoValues';
 
 const posts = loadBlogPosts();
 
 describe('blog content integrity', () => {
   it('has at least one blog post', () => {
     expect(posts.length).toBeGreaterThan(0);
-  });
-
-  it('gives every post a unique id', () => {
-    const ids = posts.map((p) => p.id);
-    expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('gives every post a unique slug', () => {
@@ -27,12 +23,9 @@ describe('blog content integrity', () => {
     }
   });
 
-  it('uses a parseable date for every post', () => {
+  it('uses a real calendar date for every post', () => {
     for (const post of posts) {
-      expect(
-        isNaN(new Date(post.date).getTime()),
-        `date "${post.date}" for ${post.filename}`
-      ).toBe(false);
+      expect(parsePostDate(post.date), `date "${post.date}" for ${post.filename}`).not.toBeNull();
     }
   });
 

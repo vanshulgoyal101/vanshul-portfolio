@@ -2,7 +2,7 @@
  * Pure builder for the XML sitemap. Side-effect-free (no fs/env) so it can be
  * unit-tested with fixtures; the generate-sitemap script handles I/O.
  */
-import { byDateDesc, localCalendarDate, escapeXml } from './seo.mjs';
+import { byDateDesc, postDate, escapeXml } from './seo.mjs';
 import { HOME_PATH, BLOG_PATH, READING_LIST_PATH, postPath, absoluteUrl } from '../../src/constants/routes.js';
 
 /**
@@ -16,7 +16,7 @@ import { HOME_PATH, BLOG_PATH, READING_LIST_PATH, postPath, absoluteUrl } from '
 export const buildSitemap = (posts, { site }) => {
   const ordered = [...posts].filter((p) => p.slug).sort(byDateDesc);
   const newest = ordered[0]?.date;
-  const newestMod = localCalendarDate(newest);
+  const newestMod = postDate(newest);
 
   const urls = [
     { loc: absoluteUrl(HOME_PATH, site), priority: '1.0', changefreq: 'weekly', lastmod: newestMod },
@@ -24,7 +24,7 @@ export const buildSitemap = (posts, { site }) => {
     { loc: absoluteUrl(READING_LIST_PATH, site), priority: '0.6', changefreq: 'yearly' },
     ...ordered.map((p) => ({
       loc: absoluteUrl(postPath(p.slug), site),
-      lastmod: localCalendarDate(p.date),
+      lastmod: postDate(p.date),
       priority: '0.8',
       changefreq: 'monthly',
       image: `${site}/og/${p.slug}.png`,

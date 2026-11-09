@@ -2,9 +2,6 @@
 // built from the same data modules the React components render, so crawlers
 // and visitors without JavaScript read the page's real content. React's
 // createRoot replaces it when the application starts.
-import { createElement } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import ReactMarkdown from 'react-markdown';
 import { AUTHOR_NAME, SOCIAL_PROFILES } from '../../src/constants/siteConfig.js';
 import { PROFILE, HIGHLIGHTS, SKILL_GROUPS } from '../../src/constants/profile.js';
 import { FEATURED_PROJECTS, PROJECT_DIRECTORY, CASE_STUDY_FIELDS } from '../../src/constants/projects.js';
@@ -13,6 +10,7 @@ import { BOOKS, ESSAYS } from '../../src/constants/books.js';
 import { BLOG_CONTENT, BLOG_INDEX_DESCRIPTION } from '../../src/constants/blogConstants.js';
 import { HOME_PATH, BLOG_PATH, READING_LIST_PATH, postPath } from '../../src/constants/routes.js';
 import { escapeXml, escapeText } from './seo.mjs';
+import { renderMarkdown } from './markdown.mjs';
 
 const link = (href, label) => `<a href="${escapeXml(href)}">${escapeText(label)}</a>`;
 const paragraph = text => `<p>${escapeText(text)}</p>`;
@@ -82,7 +80,7 @@ export const prerenderContent = ({ post, posts = [], page = 'home' } = {}) => {
   const navigation = `<nav aria-label="Main navigation">${link(HOME_PATH, 'Home')} ${link(BLOG_PATH, 'Writings')} ${link(READING_LIST_PATH, 'Reading List')}</nav>`;
   let content;
   if (post) {
-    const markdown = renderToStaticMarkup(createElement(ReactMarkdown, null, post.body));
+    const markdown = renderMarkdown(post.body);
     content = `<article><h1>${escapeText(post.title)}</h1><p>By ${escapeText(AUTHOR_NAME)}</p>${markdown}</article><nav aria-label="More writing"><h2>More Writing</h2>${postLinks(posts.filter(item => item.slug !== post.slug))}</nav>`;
   } else if (page === 'blog') {
     content = `<h1>Writings</h1>${paragraph(BLOG_INDEX_DESCRIPTION)}${postLinks(posts)}`;

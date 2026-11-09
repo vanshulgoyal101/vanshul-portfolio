@@ -11,6 +11,7 @@ import {
   readPosts,
   byDateDesc,
 } from './seo.mjs';
+import { postTimestamp } from '../../src/utils/seoValues.js';
 
 const blogsDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'blogs');
 
@@ -51,8 +52,8 @@ describe('seo/escaping', () => {
 });
 
 describe('seo/rfc822', () => {
-  it('formats a valid date as an RFC-822 UTC string', () => {
-    expect(rfc822('2025-01-10T00:00:00Z')).toBe(new Date('2025-01-10T00:00:00Z').toUTCString());
+  it('formats a post date as an RFC-822 string for midnight in the author timezone', () => {
+    expect(rfc822('29 Jul, 2026')).toBe('Tue, 28 Jul 2026 18:30:00 GMT');
   });
 
   it('returns undefined for an invalid date', () => {
@@ -80,9 +81,7 @@ describe('seo/readPosts', () => {
   it('byDateDesc sorts newest first', () => {
     const sorted = [...posts].sort(byDateDesc);
     for (let i = 1; i < sorted.length; i++) {
-      expect(new Date(sorted[i - 1].date).getTime()).toBeGreaterThanOrEqual(
-        new Date(sorted[i].date).getTime()
-      );
+      expect(postTimestamp(sorted[i - 1].date)).toBeGreaterThanOrEqual(postTimestamp(sorted[i].date));
     }
   });
 });

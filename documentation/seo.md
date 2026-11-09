@@ -66,7 +66,7 @@ runs SEO generators around the Vite build:
 | --- | --- | --- |
 | `scripts/generate-sitemap.mjs` | `public/sitemap.xml` | Lists home, blog, shelf and every post; article dates supply `lastmod`. |
 | `scripts/generate-og-images.mjs` | `public/og/<slug>.png` | Per-post Open Graph images (rendered with `sharp`; needs Node ≥ 20.9). |
-| `scripts/generate-feed.mjs` | `public/feed.xml` | RSS 2.0 feed of blog posts, linked from `index.html` via `<link rel="alternate" type="application/rss+xml">`. |
+| `scripts/generate-feed.mjs` | `public/feed.xml` | Full-content RSS 2.0 feed (`content:encoded` article HTML, `dc:creator`, canonical links, stable GUIDs), built by `scripts/lib/feed.mjs` and linked from `index.html` via `<link rel="alternate" type="application/rss+xml">`. |
 | `scripts/prerender-blog.mjs` | Home, blog index, article and shelf HTML | Readable static content, metadata and JSON-LD from the existing Markdown and constants. |
 | `scripts/gen-sitemap-index.mjs` | `dist/sitemap-index.xml` | Master sitemap index referencing every sitemap in the vanshul.com family (edit `sitemap-sites.json`). Runs in `postbuild`; XML shape in `scripts/lib/sitemapIndex.mjs` (unit-tested). Submit this one URL to Search Console. |
 

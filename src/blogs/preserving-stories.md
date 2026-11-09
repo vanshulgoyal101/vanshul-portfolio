@@ -1,5 +1,4 @@
 ---
-id: 3
 title: "Preserving Stories"
 slug: "preserving-stories"
 summary: "Using AI to preserve personal stories, while also considering immense privacy challenges..."

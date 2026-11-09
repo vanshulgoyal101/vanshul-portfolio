@@ -10,6 +10,7 @@ import ReactMarkdown from 'react-markdown';
 import { loadBlogBySlug, loadBlogPosts } from '../utils/blogLoader';
 import { getRelatedPosts } from '../utils/blogUtils';
 import { formatViews } from '../utils/blogViews';
+import { postPublishedAt } from '../utils/seoValues';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
 import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';
@@ -370,9 +371,7 @@ const BlogPost = () => {
 
   const articleMeta = useMemo(() => {
     if (!blog) return undefined;
-    const publishedISO = !Number.isNaN(new Date(blog.date).getTime())
-      ? new Date(blog.date).toISOString()
-      : undefined;
+    const publishedISO = postPublishedAt(blog.date);
     return {
       publishedTime: publishedISO,
       modifiedTime: publishedISO,

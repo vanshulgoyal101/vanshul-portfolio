@@ -5,6 +5,7 @@
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { parsePostDate, postTimestamp, compareNewestFirst } from '../../src/utils/seoValues.js';
 
 /**
  * Parse the leading YAML frontmatter block of a markdown string into a flat
@@ -38,16 +39,17 @@ export const escapeXml = (s) =>
 export const escapeText = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-/** Format a date value as an RFC-822 string (for RSS), or undefined if invalid. */
+/** A post date as an RFC-822 string (for RSS), or undefined if invalid. */
 export const rfc822 = (value) => {
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? undefined : d.toUTCString();
+  const timestamp = postTimestamp(value);
+  return Number.isNaN(timestamp) ? undefined : new Date(timestamp).toUTCString();
 };
 
 /**
  * Read every `*.md` post in a directory, returning parsed frontmatter enriched
- * with `body`, `wordCount` and `filename`. Posts missing `slug` or `title` are
- * dropped.
+ * with `body`, `wordCount` and `filename`. Throws on a missing title, an invalid
+ * or duplicate slug, or an invalid date, so a bad post fails the build instead
+ * of being silently skipped.
  * @param {string} blogsDir
  * @returns {Array<Record<string, unknown>>}
  */
@@ -62,7 +64,7 @@ export const readPosts = (blogsDir) => {
         throw new Error(`Invalid title or URL slug in ${f}`);
       }
       if (slugs.has(data.slug)) throw new Error(`Duplicate blog slug in ${f}: ${data.slug}`);
-      if (!data.date || Number.isNaN(new Date(data.date).getTime())) throw new Error(`Invalid publication date in ${f}`);
+      if (!parsePostDate(data.date)) throw new Error(`Invalid publication date in ${f}: use "29 Jul, 2026" or "2026-07-29"`);
       slugs.add(data.slug);
       const body = raw.replace(/^---\n[\s\S]*?\n---/, '').trim();
       return {
@@ -72,26 +74,10 @@ export const readPosts = (blogsDir) => {
         filename: f.replace(/\.md$/, ''),
       };
     });
-  };
+};
 
 /** Sort comparator: newest post first, by `date`. */
-export const byDateDesc = (a, b) => new Date(b.date) - new Date(a.date);
+export const byDateDesc = compareNewestFirst;
 
-/**
- * Parse a frontmatter `tags` value ("AI, Robotics, Future of Work") into a
- * clean, de-duplicated array. Accepts an array too. Empty/missing → [].
- * @param {string|string[]|undefined} value
- * @returns {string[]}
- */
-export { parseTags, postKeywords, isoDate } from '../../src/utils/seoValues.js';
-
-/**
- * Local calendar date as `YYYY-MM-DD` (for sitemap <lastmod>). Uses local date
- * parts so output matches the human-written date regardless of the runner's
- * timezone (avoids a UTC off-by-one). Returns null for invalid input.
- */
-export const localCalendarDate = (value) => {
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return null;
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
+// Browser-safe helpers shared with the application (see src/utils/seoValues.js).
+export { parseTags, postKeywords, postDate, postPublishedAt } from '../../src/utils/seoValues.js';

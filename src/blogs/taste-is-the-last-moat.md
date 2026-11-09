@@ -1,5 +1,4 @@
 ---
-id: 8
 title: "Taste Is the Last Moat"
 slug: "taste-is-the-last-moat"
 summary: "When anyone can generate code, art, and writing for free, producing stops being rare. The scarce skill becomes taste and judgment — knowing what's worth making, and what's true."

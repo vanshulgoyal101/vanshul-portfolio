@@ -1,5 +1,4 @@
 ---
-id: 7
 title: "Will Money Ever Become Obsolete?"
 slug: "will-money-become-obsolete"
 summary: "One camp says extreme abundance — robots plus limitless solar energy — will make money pointless. The other says scarcity is permanent, and so is the tool built to manage it. The disagreement is really about what money is for."

@@ -1,6 +1,7 @@
 /**
  * Utility functions for blog operations.
  */
+import { compareNewestFirst } from './seoValues';
 
 /**
  * Sort blog posts by date in descending order (newest first).
@@ -12,7 +13,7 @@
 export const sortBlogsByDate = (posts) => {
   if (!Array.isArray(posts)) return [];
 
-  return [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+  return [...posts].sort(compareNewestFirst);
 };
 
 /**

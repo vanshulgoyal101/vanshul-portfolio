@@ -4,7 +4,7 @@
  * the prerender script. All identity (site URL, author, sameAs) is injected via
  * `opts` — nothing is read from disk or the environment here.
  */
-import { isoDate, postKeywords } from '../../src/utils/seoValues.js';
+import { postPublishedAt, postKeywords } from '../../src/utils/seoValues.js';
 import { HOME_PATH, BLOG_PATH, postPath, absoluteUrl } from '../../src/constants/routes.js';
 
 const websiteId = (site) => `${site}/#website`;
@@ -40,7 +40,7 @@ export const postJsonLd = (post, { site, authorName, authorSameAs }) => {
   const canonical = absoluteUrl(postPath(post.slug), site);
   const ogImage = `${site}/og/${post.slug}.png`;
   const desc = post.summary || '';
-  const published = isoDate(post.date);
+  const published = postPublishedAt(post.date);
   const readMinutes = parseInt(post.readTime, 10);
   const keywords = postKeywords(post);
 
@@ -163,7 +163,7 @@ export const blogIndexJsonLd = (posts, { site, authorName, title, description })
         '@type': 'BlogPosting',
         headline: p.title,
         url: absoluteUrl(postPath(p.slug), site),
-        ...(isoDate(p.date) ? { datePublished: isoDate(p.date) } : {}),
+        ...(postPublishedAt(p.date) ? { datePublished: postPublishedAt(p.date) } : {}),
         ...(p.category ? { articleSection: p.category } : {}),
       })),
     },
