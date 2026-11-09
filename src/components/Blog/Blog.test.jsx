@@ -3,6 +3,8 @@ import { render, screen, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Blog from './Blog';
 import { BLOG_CONTENT } from '../../constants/blogConstants';
+import { loadBlogPosts } from '../../utils/blogLoader';
+import { sortBlogsByDate } from '../../utils/blogUtils';
 
 // View counts arrive from an async fetch; let it settle so React state updates
 // happen inside act().
@@ -31,10 +33,24 @@ describe('Blog section', () => {
 
   it('renders blog cards for the loaded posts', async () => {
     await renderBlog();
-    // At least one blog post link should be present
-    const links = screen.getAllByRole('link');
-    expect(links.length).toBeGreaterThan(0);
-    expect(links.some((l) => l.getAttribute('href')?.startsWith('/blog/'))).toBe(true);
+    const featuredPosts = sortBlogsByDate(loadBlogPosts()).slice(0, 3);
+    const postLinks = screen.getAllByRole('link').filter((link) =>
+      link.getAttribute('href')?.startsWith('/blog/')
+    );
+
+    expect(postLinks).toHaveLength(featuredPosts.length);
+    featuredPosts.forEach((post) => {
+      expect(screen.getByRole('link', { name: new RegExp(post.title, 'i') }))
+        .toHaveAttribute('href', `/blog/${post.slug}`);
+    });
+  });
+
+  it('links to the complete writing archive when more posts are available', async () => {
+    await renderBlog();
+    const postCount = loadBlogPosts().length;
+
+    expect(screen.getByRole('link', { name: `View all ${postCount} posts` }))
+      .toHaveAttribute('href', '/blog');
   });
 
   it('renders a section without duplicating the page-owned blog anchor', async () => {

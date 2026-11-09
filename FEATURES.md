@@ -26,6 +26,7 @@
 
 - ✅ Markdown posts in `src/blogs/*.md` (filename = slug), rendered at `/blog/:slug`
   with a `/blog` index and a homepage `#blog` section.
+- ✅ Homepage writing preview features the three newest posts and links to the full archive.
 - ✅ Frontmatter schema (id, title, slug, summary, date, readTime, category).
 - ✅ Readable static article bodies, writing index, shelf and basic homepage;
   public navigation works without JavaScript. Per-post OG images, RSS, sitemap.

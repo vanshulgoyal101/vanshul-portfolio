@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaPen, FaQuoteLeft } from 'react-icons/fa';
+import { MdArrowForward } from 'react-icons/md';
+import { Link } from 'react-router-dom';
 
 // Component imports
 import BlogCard from './BlogCard';
@@ -58,11 +60,35 @@ const BlogGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: var(--spacing-md);
+  }
+`;
+
+const ArchiveLink = styled(Link)`
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 0.5rem;
+  margin: var(--spacing-lg) auto 0;
+  padding: 0.75rem 1rem;
+  color: var(--color-accent-primary);
+  font-weight: 600;
+  border-radius: 8px;
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+
+  &:hover svg {
+    transform: translateX(4px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-accent-primary);
+    outline-offset: 3px;
   }
 `;
 
@@ -144,6 +170,7 @@ const Blog = () => {
 
   // Sort blog posts by date (newest first)
   const sortedBlogPosts = useMemo(() => sortBlogsByDate(blogPosts), [blogPosts]);
+  const featuredPosts = sortedBlogPosts.slice(0, 3);
 
   // View counts keyed by slug (empty until loaded / when Supabase is unconfigured)
   const views = useBlogViews();
@@ -175,7 +202,7 @@ const Blog = () => {
         ) : sortedBlogPosts && sortedBlogPosts.length > 0 ? (
           <BlogGrid>
             <ReadingList variants={BLOG_ANIMATION_VARIANTS.item} />
-            {sortedBlogPosts.map((blog, index) => (
+            {featuredPosts.map((blog, index) => (
               <BlogCard
                 key={blog.id}
                 blog={blog}
@@ -191,6 +218,13 @@ const Blog = () => {
             <h3>{BLOG_CONTENT.emptyStateTitle}</h3>
             <p>{BLOG_CONTENT.emptyStateMessage}</p>
           </EmptyState>
+        )}
+
+        {sortedBlogPosts.length > featuredPosts.length && (
+          <ArchiveLink to="/blog">
+            View all {sortedBlogPosts.length} posts
+            <MdArrowForward aria-hidden="true" />
+          </ArchiveLink>
         )}
 
         <QuoteSection
