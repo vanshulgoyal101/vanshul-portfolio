@@ -3,6 +3,8 @@ import {
   formatViews,
   incrementBlogView,
   getAllBlogViews,
+  getBlogView,
+  recordBlogView,
 } from './blogViews';
 
 describe('formatViews', () => {
@@ -43,6 +45,11 @@ describe('view counters without Supabase configured', () => {
   });
 
   it('getAllBlogViews resolves to an empty map', async () => {
-    await expect(getAllBlogViews()).resolves.toEqual({});
+    await expect(getAllBlogViews(['some-slug'])).resolves.toEqual({});
+  });
+
+  it('getBlogView and recordBlogView resolve to null', async () => {
+    await expect(getBlogView('some-slug')).resolves.toBeNull();
+    await expect(recordBlogView('some-slug')).resolves.toBeNull();
   });
 });

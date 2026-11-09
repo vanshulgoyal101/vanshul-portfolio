@@ -132,20 +132,33 @@ shown — the site builds and runs exactly as before.
 
 - [`src/lib/supabaseClient.js`](../src/lib/supabaseClient.js) — creates the client
   from env vars, or exports `null` when unconfigured.
-- [`src/utils/blogViews.js`](../src/utils/blogViews.js) — `incrementBlogView(slug)`,
-  `getAllBlogViews()`, and a `formatViews()` display helper.
+- [`src/utils/blogViews.js`](../src/utils/blogViews.js):
+  - `getAllBlogViews(slugs)` reads counts **only for the given slugs**. The
+    increment RPC accepts any well-formed slug, so the table can contain rows
+    that are not posts; an unbounded `select` could let such rows crowd real
+    posts out of PostgREST's row limit.
+  - `recordBlogView(slug)` counts a post **at most once per browser session**
+    (tracked in `sessionStorage` under `vg.viewedPosts`) and otherwise reads the
+    current count with `getBlogView(slug)`. The slug is marked before the
+    request so overlapping calls (React StrictMode) cannot double count, and a
+    failed increment is unmarked so a later visit can count it. Without
+    `sessionStorage` (some privacy modes) every visit counts.
+  - `incrementBlogView(slug)` calls the RPC; `formatViews(n)` formats counts
+    (`1.2k`).
 - [`src/hooks/useBlogViews.js`](../src/hooks/useBlogViews.js) — `useBlogViews()`
-  returns a `{ slug: views }` map for the listing; `useBlogView(slug)` records one
-  view on the post page and returns the current count.
+  returns a `{ slug: views }` map for the published posts; `useBlogView(slug)`
+  records the article view and returns the current count.
 
-The listing (`Blog.jsx`) fetches all counts once and passes each to `BlogCard`;
-`BlogPost.jsx` increments and displays the count in the header.
+The homepage preview and the archive pass each count to `BlogCard`;
+`BlogPost.jsx` shows the count in the article header. Counts are popularity
+signals for display, not unique-reader measurements: the endpoint is anonymous
+and can be called directly.
 
 #### Environment variables
 
-Copy `.env.example` to `.env` and fill in the two values from your Supabase
-project (Project Settings → API). They are also needed at build time for
-`npm run deploy`.
+Copy `.env.example` to `.env` for local development. Production builds read
+`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from GitHub Actions secrets
+(see `.github/workflows/deploy.yml`).
 
 ```
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
@@ -153,49 +166,27 @@ VITE_SUPABASE_ANON_KEY=your-anon-public-key
 ```
 
 The anon key is a **public** key — safe to ship in the bundle. Security is
-enforced by Row Level Security in the database, not by hiding the key.
+enforced by Row Level Security and grants in the database, not by hiding the key.
 
-#### Database setup (run once in the Supabase SQL editor)
+#### Database schema
 
-```sql
--- 1. Counts table
-create table if not exists public.blog_views (
-  slug  text primary key,
-  views integer not null default 0
-);
+[`scripts/schema.sql`](../scripts/schema.sql) is the single source of truth (do
+not copy SQL from elsewhere). It is idempotent; apply it with verified TLS:
 
--- 2. Lock it down, then allow anonymous *reads* only
-alter table public.blog_views enable row level security;
-
-drop policy if exists "Public can read view counts" on public.blog_views;
-create policy "Public can read view counts"
-  on public.blog_views for select
-  to anon
-  using (true);
-
--- 3. The only way anon can write is through this controlled function.
---    SECURITY DEFINER lets it upsert without granting anon direct write access.
-create or replace function public.increment_blog_view(post_slug text)
-returns integer
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-  new_count integer;
-begin
-  insert into public.blog_views (slug, views)
-    values (post_slug, 1)
-  on conflict (slug)
-    do update set views = public.blog_views.views + 1
-  returning views into new_count;
-  return new_count;
-end;
-$$;
-
-grant execute on function public.increment_blog_view(text) to anon;
+```bash
+node --env-file=.env scripts/db.mjs scripts/schema.sql
 ```
 
-With that in place, visiting a post calls `increment_blog_view` and the count
-appears on both the post page and its card in the listing.
+It creates `public.blog_views (slug, views)` with Row Level Security, revokes
+all table privileges from `public`, `anon` and `authenticated`, grants read-only
+`select`, and exposes writes only through the `security definer` function
+`increment_blog_view(post_slug)`, which rejects slugs that are not lowercase
+kebab-case or longer than 120 characters and runs with a fixed `search_path`.
+`scripts/database.test.js` executes the schema in an isolated PGlite database
+and checks these grants, the validation and idempotent re-application.
 
+Residual risk: an anonymous caller can still create rows for slugs that are not
+posts. The bounded client query makes such rows invisible on the site. A
+database-side allowlist of published slugs would close this, but it would need
+a sync step after every publish (forgetting it would silently stop counting a
+new post), so it is listed as a proposal in [FEATURES.md](../FEATURES.md).

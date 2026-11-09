@@ -8,7 +8,7 @@ afterEach(() => vi.restoreAllMocks());
 describe('view request lifecycle', () => {
   it('handles rejected requests without an unhandled rejection', async () => {
     vi.spyOn(views, 'getAllBlogViews').mockRejectedValue(new Error('offline'));
-    vi.spyOn(views, 'incrementBlogView').mockRejectedValue(new Error('offline'));
+    vi.spyOn(views, 'recordBlogView').mockRejectedValue(new Error('offline'));
     const all = renderHook(() => useBlogViews());
     const single = renderHook(() => useBlogView('post'));
     await act(async () => {});
@@ -16,8 +16,17 @@ describe('view request lifecycle', () => {
     expect(single.result.current).toBeNull();
   });
 
+  it('requests counts for the published posts only', async () => {
+    const spy = vi.spyOn(views, 'getAllBlogViews').mockResolvedValue({ 'the-new-leverage': 3 });
+    const { result } = renderHook(() => useBlogViews());
+    await waitFor(() => expect(result.current).toEqual({ 'the-new-leverage': 3 }));
+    const [slugs] = spy.mock.calls[0];
+    expect(slugs).toContain('the-new-leverage');
+    expect(slugs.every((slug) => /^[a-z0-9-]+$/.test(slug))).toBe(true);
+  });
+
   it('clears the previous count when the slug becomes absent', async () => {
-    vi.spyOn(views, 'incrementBlogView').mockResolvedValue(42);
+    vi.spyOn(views, 'recordBlogView').mockResolvedValue(42);
     const { result, rerender } = renderHook(slug => useBlogView(slug), { initialProps: 'post' });
     await waitFor(() => expect(result.current).toBe(42));
     rerender(null);

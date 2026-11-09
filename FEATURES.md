@@ -26,6 +26,8 @@
 
 - ✅ Markdown posts in `src/blogs/*.md` (filename = slug), rendered at `/blog/<slug>/`
   with a `/blog/` index and a homepage `#blog` section.
+- ✅ View counts: one count per post per browser session, queried only for
+  published slugs, degrading to no counts when Supabase is unconfigured.
 - ✅ Canonical URLs, sitemap entries and internal links use the final
   trailing-slash form, so no advertised URL redirects on GitHub Pages.
 - ✅ Homepage writing preview features the three newest posts and links to the full archive.
@@ -54,6 +56,9 @@
 - Search Console and field Core Web Vitals monitoring: establish ownership,
   submit the generated sitemap, inspect representative indexed URLs and measure
   real-user performance before making further performance changes.
+- Database allowlist for view counts: a `blog_posts` table of published slugs
+  checked by `increment_blog_view`, synced after each publish. Blocks rows for
+  non-posts at the source; needs an owner-run sync step, so it is not enabled.
 - Analytics retention and abuse protection: define a retention window and
   ingestion quota before adding a server-side ingestion endpoint. Public metrics
   remain forgeable; client-side identifiers are not an abuse-control mechanism.

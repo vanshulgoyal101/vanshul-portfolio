@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
-import { getAllBlogViews, incrementBlogView } from '../utils/blogViews';
+import { getAllBlogViews, recordBlogView } from '../utils/blogViews';
+import { loadBlogPosts } from '../utils/blogLoader';
+
+const PUBLISHED_SLUGS = loadBlogPosts().map((post) => post.slug);
 
 /**
- * Returns a `{ [slug]: views }` map of view counts for all posts, fetched once
- * on mount. Empty (`{}`) until loaded or when Supabase is not configured.
+ * Returns a `{ [slug]: views }` map of view counts for the published posts,
+ * fetched once on mount. Empty (`{}`) until loaded or when Supabase is not configured.
  */
 export const useBlogViews = () => {
   const [views, setViews] = useState({});
 
   useEffect(() => {
     let active = true;
-    getAllBlogViews().then((map) => {
+    getAllBlogViews(PUBLISHED_SLUGS).then((map) => {
       if (active) setViews(map);
     }).catch(() => {
       if (active) setViews({});
@@ -24,8 +27,8 @@ export const useBlogViews = () => {
 };
 
 /**
- * Records one view for `slug` (once per slug) and returns the current count,
- * or `null` while loading / when Supabase is not configured.
+ * Records a view of `slug` (at most once per browser session) and returns the
+ * current count, or `null` while loading / when Supabase is not configured.
  *
  * @param {string} slug
  */
@@ -36,7 +39,7 @@ export const useBlogView = (slug) => {
     setCount(null);
     if (!slug) return;
     let active = true;
-    incrementBlogView(slug).then((n) => {
+    recordBlogView(slug).then((n) => {
       if (active && n != null) setCount(n);
     }).catch(() => {
       if (active) setCount(null);
