@@ -348,7 +348,7 @@ const RandomTelemetry = () => {
   }, [spawnOne]);
 
   return (
-    <Overlay>
+    <Overlay aria-hidden="true">
       <AnimatePresence>
         {active.map(item => (
           <TelemetryItem

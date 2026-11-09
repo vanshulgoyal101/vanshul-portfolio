@@ -78,6 +78,17 @@ describe('useSeo', () => {
     unmount();
   });
 
+  it('renders one article:tag per tag and removes them on unmount', () => {
+    const tagContents = () =>
+      [...document.head.querySelectorAll('meta[property="article:tag"]')].map((element) => element.getAttribute('content'));
+    const { unmount } = renderHook(() =>
+      useSeo({ title: 'A', type: 'article', path: '/blog/a', article: { section: 'AI', tags: ['Robotics', 'Future of Work'] } })
+    );
+    expect(tagContents()).toEqual(['Robotics', 'Future of Work']);
+    unmount();
+    expect(tagContents()).toEqual([]);
+  });
+
   it('injects a JSON-LD script and removes it on unmount', () => {
     const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@type': 'BlogPosting' });
     const { unmount } = renderHook(() => useSeo({ title: 'J', jsonLd }));

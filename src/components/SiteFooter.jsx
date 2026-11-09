@@ -36,11 +36,6 @@ const Inner = styled.div`
     color: var(--color-ink);
   }
 
-  a:focus-visible, summary:focus-visible, input:focus-visible {
-    outline: 2px solid var(--color-accent-primary);
-    outline-offset: 4px;
-  }
-
   @media (max-width: 640px) {
     grid-template-columns: minmax(0, 1fr);
     row-gap: 0.25rem;

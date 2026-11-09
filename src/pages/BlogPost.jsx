@@ -14,7 +14,7 @@ import { useToast } from '../components/Toast';
 import { loadBlogBySlug, loadBlogPosts } from '../utils/blogLoader';
 import { getRelatedPosts, formatPostDate } from '../utils/blogUtils';
 import { formatViews } from '../utils/blogViews';
-import { postDate, postPublishedAt } from '../utils/seoValues';
+import { parseTags, postDate, postPublishedAt } from '../utils/seoValues';
 import { articleHeadings, rehypeHeadingIds, MIN_TOC_HEADINGS } from '../utils/articleHeadings';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
@@ -351,6 +351,7 @@ const BlogPost = () => {
       modifiedTime: publishedISO,
       author: AUTHOR_NAME,
       section: blog.category,
+      tags: parseTags(blog.tags),
     };
   }, [blog]);
 

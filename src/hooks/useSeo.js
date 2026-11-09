@@ -55,6 +55,7 @@ const upsertLink = (rel, href) => {
  * @param {string} [opts.article.modifiedTime]  - ISO 8601 last-modified date
  * @param {string} [opts.article.author]  - Author name or profile URL
  * @param {string} [opts.article.section] - Article category/section
+ * @param {string[]} [opts.article.tags] - Article tags, one article:tag each
  */
 export const useSeo = ({
   title,
@@ -104,6 +105,14 @@ export const useSeo = ({
         cleanups.push(upsertMeta('property', 'article:author', article.author));
       if (article.section)
         cleanups.push(upsertMeta('property', 'article:section', article.section));
+      // Mirrors the prerendered tags, which the reset above removed.
+      for (const tag of article.tags ?? []) {
+        const element = document.createElement('meta');
+        element.setAttribute('property', 'article:tag');
+        element.setAttribute('content', tag);
+        document.head.appendChild(element);
+        cleanups.push(() => element.remove());
+      }
     }
 
     let script;

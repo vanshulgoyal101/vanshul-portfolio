@@ -278,14 +278,7 @@ function App() {
             <Route path="/blogs/:slug" element={<RedirectBlogSlug />} />
 
             {/* Private analytics dashboard (owner-only, server-gated) */}
-            <Route
-              path="/dashboard"
-              element={
-                <Suspense fallback={null}>
-                  <Dashboard />
-                </Suspense>
-              }
-            />
+            <Route path="/dashboard" element={<Dashboard />} />
 
             {/* Catch-all: friendly, noindex 404 */}
             <Route path="*" element={<NotFound />} />
