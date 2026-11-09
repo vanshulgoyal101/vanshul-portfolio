@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { HiOutlineAdjustments } from 'react-icons/hi';
 import CursorToggle from './CursorToggle';
 import { BLOG_PATH, homeSectionPath } from '../constants/routes';
+import { SOCIAL_LINKS } from '../constants/siteConfig';
 
 const Footer = styled.footer`
   position: relative;
@@ -127,9 +128,9 @@ const SiteFooter = ({ ambientEnabled, reducedMotion, onAmbientChange }) => (
       </Identity>
       <Links aria-label="Footer links">
         <Link to={BLOG_PATH}>Blog</Link>
-        <a href="https://games.vanshul.com" target="_blank" rel="noopener noreferrer">Games</a>
-        <a href="https://links.vanshul.com" target="_blank" rel="noopener noreferrer">Links</a>
-        <a href="https://github.com/vanshulgoyal101" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href={SOCIAL_LINKS.games} target="_blank" rel="noopener noreferrer">Games</a>
+        <a href={SOCIAL_LINKS.links} target="_blank" rel="noopener noreferrer">Links</a>
+        <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
       </Links>
       <Preferences onToggle={event => {
         if (event.currentTarget.open) event.currentTarget.scrollIntoView({ block: 'nearest', behavior: 'instant' });

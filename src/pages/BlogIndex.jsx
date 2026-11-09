@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 
 import Navigation from '../components/Navigation/Navigation';
-import BackgroundElements from '../components/BackgroundElements';
 import BlogCard from '../components/Blog/BlogCard';
 import { loadBlogPosts } from '../utils/blogLoader';
 import { sortBlogsByDate } from '../utils/blogUtils';
@@ -88,7 +87,6 @@ const BlogIndex = () => {
 
   return (
     <PageWrapper>
-      <BackgroundElements />
       <Navigation />
       <ContentWrapper>
         <Container>

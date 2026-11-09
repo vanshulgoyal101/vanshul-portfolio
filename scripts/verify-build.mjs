@@ -5,6 +5,8 @@ import { JSDOM } from 'jsdom';
 import { SITE_URL } from '../src/constants/siteConfig.js';
 import { BOOKS, ESSAYS, SHELF_ITEMS } from '../src/constants/books.js';
 import { READING_LIST_PATH, absoluteUrl } from '../src/constants/routes.js';
+import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../src/constants/projects.js';
+import { EXPERIENCE } from '../src/constants/experience.js';
 
 const dist = new URL('../dist/', import.meta.url);
 const sitemap = new JSDOM(readFileSync(new URL('sitemap.xml', dist), 'utf8'), { contentType: 'text/xml' });
@@ -49,6 +51,15 @@ for (const url of urls) {
     assert(urls.includes(`${target.origin}${target.pathname}`), `Internal link ${target} in ${url} is not a published URL`);
   }
   assert(!document.title.includes('Redirecting'), `Fallback shell for ${url}`);
+  if (route.pathname === '/') {
+    const text = document.querySelector('#root main').textContent;
+    const expected = [
+      ...FEATURED_PROJECTS.map(project => project.title),
+      ...PROJECT_DIRECTORY.flatMap(group => group.items.map(item => item.title)),
+      ...EXPERIENCE.map(job => job.title),
+    ];
+    for (const phrase of expected) assert(text.includes(phrase), `Homepage static content is missing "${phrase}"`);
+  }
   if (path === 'reading-list') {
     assert(document.title.startsWith('Reading List'));
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].flatMap(element => JSON.parse(element.textContent));

@@ -15,25 +15,31 @@ performance (deferred decorative work + skeleton loaders).
 
 ```
 src/
-  App.jsx              # Router + page composition (imports at top, then styles, then helpers)
-  main.jsx             # ReactDOM.createRoot entry point (StrictMode)
-  index.css            # Base stylesheet; GlobalStyles owns the main design system
-  blogs/               # One markdown file per blog post (frontmatter + body)
-  components/          # Feature-grouped components
-    About/ Work/ Projects/ Hero/ Contact/   # content sections
-    Blog/                                              # Blog preview, BlogCard, ReadingList card
-    Navigation/                                        # top nav + scroll spy
-    Toast/                                             # global notification context
-    FunElements/                                       # decorative animations
-    ErrorBoundary.jsx                                  # section-level error boundary
-  constants/           # blogConstants.js (animation variants, copy, config)
-  hooks/               # useContactForm.js, useIdle.js
-  pages/               # BlogPost, BlogIndex, ReadingList, Dashboard, NotFound
+  App.jsx              # Router, page composition, homepage metadata
+  main.jsx             # createRoot entry point (StrictMode)
+  index.css            # Base reset; GlobalStyles owns the design tokens
+  blogs/               # One Markdown file per post (frontmatter + body)
+  components/          # Homepage sections (Hero, Projects, About, Work, Blog,
+                       # Contact), Navigation, SiteFooter, Toast, ErrorBoundary,
+                       # FunElements (decorative), socialIcons.js
+  constants/           # Content and config data (see data.md): siteConfig,
+                       # profile, projects, experience, books, blogConstants,
+                       # routes, readingListSeo, motionVariants
+  hooks/               # useSeo, useBlogViews, useContactForm, useIdle
+  lib/                 # Supabase clients (view counts; private analytics)
+  pages/               # BlogIndex, BlogPost, ReadingList, Dashboard, NotFound
   styles/              # GlobalStyles.js
-  test/                # setup.js (Vitest global setup)
-  utils/               # blogLoader.js, blogUtils.js
-public/                # 404.html SPA shim, CNAME, robots.txt, sitemap.xml, images/
-documentation/         # this documentation
+  test/                # Vitest setup
+  utils/               # blogLoader, blogUtils, blogViews, seoValues,
+                       # scrollToSection, cursorPreference, magnetic,
+                       # dashboardData
+scripts/               # Build steps (sitemap, OG images, feed, prerender,
+                       # sitemap index, verify-build), asset generators and
+                       # the database runner; shared pure helpers in lib/
+supabase/              # Analytics schema (web_events, web_stats)
+e2e/                   # Playwright browser and accessibility tests
+public/                # Static files served as-is (see assets.md)
+documentation/         # This documentation
 ```
 
 ## Routing & navigation

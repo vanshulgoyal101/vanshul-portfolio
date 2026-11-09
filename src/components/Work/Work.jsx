@@ -2,6 +2,7 @@
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaPlane, FaLaptopCode, FaExternalLinkAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { EXPERIENCE } from '../../constants/experience';
 
 // ─── Styled Components ────────────────────────────────────────────────────────
 
@@ -225,34 +226,10 @@ const CompanyLink = styled.a`
   }
 `;
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+// ─── Icons ────────────────────────────────────────────────────────────────────
 
-const experiences = [
-  {
-    id: 1,
-    icon: <FaPlane />,
-    title: 'Associate Analyst',
-    company: 'United Airlines',
-    department: 'Airport Operations',
-    duration: 'Jul 2025 – Present',
-    location: 'Gurugram, India',
-    description: 'Building internal tools for airport operations — automating ground-staff management and attendance-compliance monitoring across US hub airports, so hub-by-hub manual audits become one consistent source of truth.',
-    tech: ['Python', 'SQL', 'Power BI', 'Tableau'],
-    link: 'https://www.united.com',
-  },
-  {
-    id: 2,
-    icon: <FaLaptopCode />,
-    title: 'Software Development Engineer Intern',
-    company: 'zHealth',
-    department: 'Engineering',
-    duration: 'Jan 2024 – Dec 2024',
-    location: 'San Francisco, US (Remote)',
-    description: 'Automated the end-to-end sign-up process for healthcare providers, and built a drag-and-drop email editor used by 1,500+ healthcare organisations to reach over 2M patients.',
-    tech: ['Java', 'Spring Boot', 'JavaScript', 'SQL'],
-    link: 'https://www.zhealthehr.com/',
-  },
-];
+// Data in constants/experience.js refers to icons by key.
+const ICONS = { plane: FaPlane, laptop: FaLaptopCode };
 
 // ─── Animation variants ───────────────────────────────────────────────────────
 
@@ -284,50 +261,53 @@ const Work = () => {
         </SectionHeader>
 
         <ExperienceGrid>
-          {experiences.map((exp, i) => (
-            <ExperienceCard
-              key={exp.id}
-              custom={i}
-              variants={cardVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              whileHover={{ x: 4 }}
-            >
-              <CardHeader>
-                <CardIcon>{exp.icon}</CardIcon>
-                <CardInfo>
-                  <JobTitle>{exp.title}</JobTitle>
-                  <CompanyName>
-                    {exp.company}
-                    {exp.department && ` • ${exp.department}`}
-                  </CompanyName>
-                  <MetaInfo>
-                    <MetaChip>{exp.duration}</MetaChip>
-                    <MetaChip>
-                      <FaMapMarkerAlt />
-                      {exp.location}
-                    </MetaChip>
-                  </MetaInfo>
-                </CardInfo>
-              </CardHeader>
+          {EXPERIENCE.map((exp, i) => {
+            const Icon = ICONS[exp.icon];
+            return (
+              <ExperienceCard
+                key={exp.id}
+                custom={i}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                whileHover={{ x: 4 }}
+              >
+                <CardHeader>
+                  <CardIcon><Icon /></CardIcon>
+                  <CardInfo>
+                    <JobTitle>{exp.title}</JobTitle>
+                    <CompanyName>
+                      {exp.company}
+                      {exp.department && ` • ${exp.department}`}
+                    </CompanyName>
+                    <MetaInfo>
+                      <MetaChip>{exp.duration}</MetaChip>
+                      <MetaChip>
+                        <FaMapMarkerAlt />
+                        {exp.location}
+                      </MetaChip>
+                    </MetaInfo>
+                  </CardInfo>
+                </CardHeader>
 
-              <Description>{exp.description}</Description>
+                <Description>{exp.description}</Description>
 
-              <TechStack>
-                {exp.tech.map((tech) => (
-                  <TechTag key={tech}>{tech}</TechTag>
-                ))}
-              </TechStack>
+                <TechStack>
+                  {exp.tech.map((tech) => (
+                    <TechTag key={tech}>{tech}</TechTag>
+                  ))}
+                </TechStack>
 
-              {exp.link && (
-                <CompanyLink href={exp.link} target="_blank" rel="noopener noreferrer">
-                  Visit Website
-                  <FaExternalLinkAlt size={11} />
-                </CompanyLink>
-              )}
-            </ExperienceCard>
-          ))}
+                {exp.link && (
+                  <CompanyLink href={exp.link} target="_blank" rel="noopener noreferrer">
+                    Visit Website
+                    <FaExternalLinkAlt size={11} />
+                  </CompanyLink>
+                )}
+              </ExperienceCard>
+            );
+          })}
         </ExperienceGrid>
       </Container>
     </WorkSection>

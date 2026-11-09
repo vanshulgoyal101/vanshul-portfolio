@@ -4,13 +4,12 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 
-import { FaLinkedin, FaInstagram, FaGithub } from 'react-icons/fa';
-import { FaXTwitter } from 'react-icons/fa6';
-import { IoGameController } from 'react-icons/io5';
 import Magnetic from '../FunElements/Magnetic';
 import { useIdle } from '../../hooks/useIdle';
 import ErrorBoundary from '../ErrorBoundary';
 import { PROFILE } from '../../constants/profile';
+import { SOCIAL_PROFILES } from '../../constants/siteConfig';
+import { SOCIAL_ICONS } from '../socialIcons';
 
 const HeroScene = lazy(() => import('./HeroScene'));
 
@@ -339,66 +338,23 @@ const Hero = ({ sceneEnabled = true }) => {
           </CTAContainer>
 
           <SocialLinks variants={itemVariants}>
-            <Magnetic range={35}>
-              <SocialLink
-                href="https://x.com/goyal_vanshul"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Twitter"
-              >
-                <FaXTwitter />
-              </SocialLink>
-            </Magnetic>
-            <Magnetic range={35}>
-              <SocialLink
-                href="https://www.linkedin.com/in/vanshul-goyal00/"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="LinkedIn"
-              >
-                <FaLinkedin />
-              </SocialLink>
-            </Magnetic>
-            <Magnetic range={35}>
-              <SocialLink
-                href="https://www.instagram.com/vanshul_goyal/"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Instagram"
-              >
-                <FaInstagram />
-              </SocialLink>
-            </Magnetic>
-            <Magnetic range={35}>
-              <SocialLink
-                href="https://github.com/vanshulgoyal101"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="GitHub"
-              >
-                <FaGithub />
-              </SocialLink>
-            </Magnetic>
-            <Magnetic range={35}>
-              <SocialLink
-                href="https://games.vanshul.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Games"
-              >
-                <IoGameController />
-              </SocialLink>
-            </Magnetic>
+            {SOCIAL_PROFILES.map(({ id, label, url }) => {
+              const Icon = SOCIAL_ICONS[id];
+              return (
+                <Magnetic key={id} range={35}>
+                  <SocialLink
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    aria-label={label}
+                  >
+                    <Icon />
+                  </SocialLink>
+                </Magnetic>
+              );
+            })}
           </SocialLinks>
         </HeroContent>
         <SceneArea aria-hidden="true" data-hero-scene>

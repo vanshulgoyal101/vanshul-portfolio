@@ -1,17 +1,49 @@
-# Data — The Blog System
+# Data — Content Modules and the Blog System
 
-Blog posts are plain Markdown files. There is no CMS or database; posts are
-bundled at build time.
+All site content is version-controlled. Portfolio facts live in plain
+JavaScript data modules and blog posts are Markdown files; there is no CMS.
+Both are bundled at build time and read by the build scripts directly.
 
-## Location & naming
+## Portfolio content modules
+
+Content is plain data with no JSX, so the React components and the build-time
+prerender ([`scripts/lib/prerenderContent.mjs`](../scripts/lib/prerenderContent.mjs))
+render the same facts. Icons are referenced by string keys that each component
+maps to an icon component.
+
+| Module | Exports | Rendered by |
+| --- | --- | --- |
+| [`constants/siteConfig.js`](../src/constants/siteConfig.js) | `SITE_URL`, `AUTHOR_NAME`, `HOME_DESCRIPTION`, `DEFAULT_OG_IMAGE`, `SOCIAL_LINKS`, `AUTHOR_SAME_AS`, `SOCIAL_PROFILES` | Hero, Contact, footer, SEO and build scripts |
+| [`constants/profile.js`](../src/constants/profile.js) | `PROFILE` (headline, role, employer, education, summary, location, languages, photo, `knowsAbout`), `HIGHLIGHTS`, `SKILL_GROUPS` | Hero, About, Contact, homepage JSON-LD |
+| [`constants/projects.js`](../src/constants/projects.js) | `FEATURED_PROJECTS`, `CASE_STUDY_FIELDS`, `PROJECT_DIRECTORY` | Projects |
+| [`constants/experience.js`](../src/constants/experience.js) | `EXPERIENCE` (newest first; the first entry is the current role) | Work, About |
+| [`constants/books.js`](../src/constants/books.js) | `BOOKS`, `ESSAYS`, `SHELF_ITEMS` | Reading list, shelf card |
+| [`constants/blogConstants.js`](../src/constants/blogConstants.js) | `BLOG_CONTENT`, `BLOG_INDEX_DESCRIPTION` | Blog preview, archive |
+| [`constants/routes.js`](../src/constants/routes.js) | Public URL paths and `absoluteUrl` | Links, canonicals, sitemap, feed |
+
+Rules:
+
+- Only publish facts that are true and visible on the site; structured data is
+  generated from these modules, so an inaccurate entry becomes an inaccurate
+  claim to search engines.
+- `scripts/lib/prerenderContent.test.js` and `npm run verify:build` fail if a
+  featured project, directory entry, job, highlight or skill is missing from
+  the static homepage HTML.
+- Editing a module updates the UI, the fallback HTML and the structured data
+  together; no other file needs to change unless a new icon key is introduced
+  (add it to the component's `ICONS` map).
+
+## The blog
+
+### Location & naming
 
 - Posts live in [`src/blogs/`](../src/blogs/), one `.md` file per post.
 - **The filename (without `.md`) is the slug** and must equal the `slug`
   frontmatter field (a test enforces this — see
   [testing.md](testing.md)). Example: `the-new-leverage.md` → slug
-  `the-new-leverage` → URL `/blog/the-new-leverage`.
+  `the-new-leverage` → URL `/blog/the-new-leverage/`.
 
-## Frontmatter schema
+### Frontmatter schema
 
 Each file begins with a YAML-style frontmatter block delimited by `---`:
 
@@ -39,7 +71,7 @@ Body content in Markdown…
 | `readTime` | string | e.g. `"4 min read"`. Displayed as-is. |
 | `category` | string | Optional grouping label. |
 
-## Loading & parsing
+### Loading & parsing
 
 [`src/utils/blogLoader.js`](../src/utils/blogLoader.js):
 
@@ -56,7 +88,7 @@ Body content in Markdown…
 - `sortBlogsByDate(posts)` returns a new array sorted newest-first (does not
   mutate its input; returns `[]` for non-array input).
 
-## Rendering
+### Rendering
 
 - The **Blog section** ([`components/Blog/Blog.jsx`](../src/components/Blog/Blog.jsx))
   loads posts with `useMemo`, sorts them, and renders the three newest as
@@ -66,7 +98,7 @@ Body content in Markdown…
   `react-markdown`. Links inside
   rendered markdown open in a new tab with `rel="noopener noreferrer"`.
 
-## Adding a post
+### Adding a post
 
 1. Create `src/blogs/<slug>.md`.
 2. Add frontmatter with a **unique `id`** and a `slug` equal to `<slug>`.
@@ -75,14 +107,14 @@ Body content in Markdown…
 That's it — the glob import picks it up automatically on the next build/dev
 reload. Run `npm test` to confirm the content-integrity checks still pass.
 
-## View counts (Supabase)
+### View counts (Supabase)
 
 Blog view counts are stored in [Supabase](https://supabase.com). The feature is
 **optional and fully self-disabling**: if the env vars below are absent, the
 Supabase client is `null`, every counter call becomes a no-op, and no counts are
 shown — the site builds and runs exactly as before.
 
-### Client code
+#### Client code
 
 - [`src/lib/supabaseClient.js`](../src/lib/supabaseClient.js) — creates the client
   from env vars, or exports `null` when unconfigured.
@@ -95,7 +127,7 @@ shown — the site builds and runs exactly as before.
 The listing (`Blog.jsx`) fetches all counts once and passes each to `BlogCard`;
 `BlogPost.jsx` increments and displays the count in the header.
 
-### Environment variables
+#### Environment variables
 
 Copy `.env.example` to `.env` and fill in the two values from your Supabase
 project (Project Settings → API). They are also needed at build time for
@@ -109,7 +141,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-public-key
 The anon key is a **public** key — safe to ship in the bundle. Security is
 enforced by Row Level Security in the database, not by hiding the key.
 
-### Database setup (run once in the Supabase SQL editor)
+#### Database setup (run once in the Supabase SQL editor)
 
 ```sql
 -- 1. Counts table

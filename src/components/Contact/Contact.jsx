@@ -1,13 +1,14 @@
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaLinkedin, FaInstagram, FaPaperPlane, FaGithub } from 'react-icons/fa';
-import { FaXTwitter } from 'react-icons/fa6';
-import { IoGameController } from 'react-icons/io5';
+import { FaPaperPlane } from 'react-icons/fa';
 import { MdLocationOn, MdWork } from 'react-icons/md';
 import { BiWorld } from 'react-icons/bi';
 import Magnetic from '../FunElements/Magnetic';
 import { useContactForm } from '../../hooks/useContactForm';
 import { containerVariants, itemVariants } from '../../constants/motionVariants';
+import { SOCIAL_PROFILES } from '../../constants/siteConfig';
+import { PROFILE } from '../../constants/profile';
+import { SOCIAL_ICONS } from '../socialIcons';
 
 
 // Styled Components
@@ -315,34 +316,16 @@ const ValidationError = styled.p`
   margin-top: 4px;
 `;
 
+const contactInfo = [
+  { icon: <MdLocationOn />, label: 'Location', value: PROFILE.location },
+  { icon: <MdWork />, label: 'Current Position', value: PROFILE.employer.name },
+  { icon: <BiWorld />, label: 'Languages', value: PROFILE.languages.join(', ') },
+];
+
 const Contact = () => {
   const { formState, isSubmitting, errors, handleChange, handleSubmit } = useContactForm();
 
-  const contactInfo = [
-    {
-      icon: <MdLocationOn />,
-      label: 'Location',
-      value: 'India',
-    },
-    {
-      icon: <MdWork />,
-      label: 'Current Position',
-      value: 'United Airlines',
-    },
-    {
-      icon: <BiWorld />,
-      label: 'Languages',
-      value: 'English, Hindi',
-    },
-  ];
 
-const socialLinks = [
-  { icon: <FaXTwitter />, url: 'https://x.com/goyal_vanshul', label: 'Twitter' },
-  { icon: <FaLinkedin />, url: 'https://www.linkedin.com/in/vanshul-goyal00/', label: 'LinkedIn' },
-  { icon: <FaInstagram />, url: 'https://www.instagram.com/vanshul_goyal/', label: 'Instagram' },
-  { icon: <FaGithub />, url: 'https://github.com/vanshulgoyal101', label: 'GitHub' },
-  { icon: <IoGameController />, url: 'https://games.vanshul.com', label: 'Games' },
-];
 
 
   return (
@@ -395,20 +378,23 @@ const socialLinks = [
             <motion.div variants={itemVariants}>
               <InfoText>Connect with me on social media:</InfoText>
               <SocialLinks>
-                {socialLinks.map((social) => (
-                  <Magnetic key={social.label} range={35}>
-                    <SocialLink
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={social.label}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      {social.icon}
-                    </SocialLink>
-                  </Magnetic>
-                ))}
+                {SOCIAL_PROFILES.map(({ id, label, url }) => {
+                  const Icon = SOCIAL_ICONS[id];
+                  return (
+                    <Magnetic key={id} range={35}>
+                      <SocialLink
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={label}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Icon />
+                      </SocialLink>
+                    </Magnetic>
+                  );
+                })}
               </SocialLinks>
             </motion.div>
           </ContactInfo>

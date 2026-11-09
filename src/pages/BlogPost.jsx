@@ -17,7 +17,6 @@ import { homeSectionPath, postPath } from '../constants/routes';
 import { postJsonLd } from '../../scripts/lib/structuredData.mjs';
 import { useToast } from '../components/Toast';
 import Navigation from '../components/Navigation/Navigation';
-import BackgroundElements from '../components/BackgroundElements';
 
 // Styled Components
 const PageWrapper = styled.div`
@@ -427,8 +426,7 @@ const BlogPost = () => {
   if (!blog) {
     return (
       <PageWrapper>
-        <BackgroundElements />
-        <Navigation />
+          <Navigation />
         <ContentWrapper>
           <Container>
             <TopBar>
@@ -448,7 +446,6 @@ const BlogPost = () => {
 
   return (
     <PageWrapper>
-      <BackgroundElements />
       <Navigation />
       <ContentWrapper>
         <Container>

@@ -2,7 +2,11 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { PROFILE } from '../../constants/profile';
+import { PROFILE, HIGHLIGHTS, SKILL_GROUPS } from '../../constants/profile';
+import { EXPERIENCE } from '../../constants/experience';
+import { AUTHOR_NAME } from '../../constants/siteConfig';
+
+const [CURRENT_ROLE] = EXPERIENCE;
 import {
   FaGraduationCap, FaCode, FaRocket, FaTrophy,
   FaReact, FaServer, FaTools, FaJava,
@@ -298,21 +302,23 @@ const SkillTag = styled.li`
   }
 `;
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+// ─── Icons ────────────────────────────────────────────────────────────────────
 
-const statsData = [
-  { icon: <FaGraduationCap />, number: '2025',   label: 'B.Tech — Electronics & Communication Engineering' },
-  { icon: <FaTrophy />,        number: 'Sports', label: 'State Level Cricket, Baseball & Softball' },
-  { icon: <FaRocket />,        number: 'Top 20', label: 'NASA HERC 2023 Global Ranking' },
-  { icon: <FaTrophy />,        number: '98.6%',  label: 'JEE Mains Percentile' },
-];
+// Data in constants/profile.js refers to icons by key.
+const ICONS = {
+  graduation: FaGraduationCap,
+  java: FaJava,
+  react: FaReact,
+  rocket: FaRocket,
+  server: FaServer,
+  tools: FaTools,
+  trophy: FaTrophy,
+};
 
-const skills = [
-  { category: 'Languages', icon: <FaJava />,    list: ['Java', 'Python', 'JavaScript', 'SQL'] },
-  { category: 'Frontend',  icon: <FaReact />,   list: ['React', 'HTML/CSS', 'Framer Motion', 'Styled Components'] },
-  { category: 'Backend',   icon: <FaServer />,  list: ['Spring Boot', 'Node.js', 'Express', 'REST APIs'] },
-  { category: 'Tools',     icon: <FaTools />,   list: ['Git', 'Docker', 'MySQL', 'Postman', 'Power BI', 'Tableau'] },
-];
+const DataIcon = ({ name }) => {
+  const Icon = ICONS[name];
+  return <Icon />;
+};
 
 // ─── Animation variants ───────────────────────────────────────────────────────
 
@@ -362,15 +368,16 @@ const About = () => {
               <AboutText>
                 <h3>Hey There!</h3>
                 <p>
-                  I'm <HighlightText>Vanshul Goyal</HighlightText>, a recent graduate from Punjab
-                  Engineering College with a B.Tech in <HighlightText>Electronics and Communication
-                  Engineering</HighlightText> and a minor in Computer Science.
+                  I'm <HighlightText>{AUTHOR_NAME}</HighlightText>, a recent graduate from{' '}
+                  {PROFILE.education.school} with a {PROFILE.education.degree} in{' '}
+                  <HighlightText>{PROFILE.education.field}</HighlightText> and a minor in{' '}
+                  {PROFILE.education.minor}.
                 </p>
                 <p>
-                  Currently, I work as an <HighlightText>Associate Analyst at{' '}
-                  <a href="https://www.united.com" target="_blank" rel="noopener noreferrer">
-                    United Airlines
-                  </a></HighlightText> in the Airport Operations department.
+                  Currently, I work as an <HighlightText>{PROFILE.role} at{' '}
+                  <a href={PROFILE.employer.url} target="_blank" rel="noopener noreferrer">
+                    {PROFILE.employer.name}
+                  </a></HighlightText> in the {CURRENT_ROLE.department} department.
                 </p>
                 <p>
                   My journey has been shaped by incredible experiences — from leading a team to{' '}
@@ -419,9 +426,9 @@ const About = () => {
         {/* Stats */}
         <div>
           <StatsGrid>
-            {statsData.map((stat, i) => (
+            {HIGHLIGHTS.map((stat, i) => (
               <StatCard
-                key={i}
+                key={stat.label}
                 custom={i}
                 variants={cardVariants}
                 initial="hidden"
@@ -429,8 +436,8 @@ const About = () => {
                 viewport={{ once: true, amount: 0.2 }}
                 whileHover={{ y: -4 }}
               >
-                <StatIcon>{stat.icon}</StatIcon>
-                <StatNumber>{stat.number}</StatNumber>
+                <StatIcon><DataIcon name={stat.icon} /></StatIcon>
+                <StatNumber>{stat.value}</StatNumber>
                 <StatLabel>{stat.label}</StatLabel>
               </StatCard>
             ))}
@@ -441,7 +448,7 @@ const About = () => {
         <SkillsContainer>
           <SkillsTitle>Technical Skills</SkillsTitle>
           <SkillsGrid>
-            {skills.map(({ category, icon, list }, i) => (
+            {SKILL_GROUPS.map(({ category, icon, skills }, i) => (
               <SkillCategory
                 key={category}
                 custom={i}
@@ -451,11 +458,11 @@ const About = () => {
                 viewport={{ once: true, amount: 0.2 }}
               >
                 <SkillCategoryTitle>
-                  {icon}
+                  <DataIcon name={icon} />
                   {category}
                 </SkillCategoryTitle>
                 <SkillsList>
-                  {list.map((skill) => (
+                  {skills.map((skill) => (
                     <SkillTag key={skill}>{skill}</SkillTag>
                   ))}
                 </SkillsList>

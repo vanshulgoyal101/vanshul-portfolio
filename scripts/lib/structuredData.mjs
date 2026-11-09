@@ -121,6 +121,7 @@ export const homeJsonLd = ({ site, authorName, authorSameAs, profile }) => {
           url: profile.education.schoolUrl,
         },
         knowsAbout: profile.knowsAbout,
+        knowsLanguage: profile.languages,
         sameAs: authorSameAs,
       },
       {

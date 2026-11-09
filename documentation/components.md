@@ -1,322 +1,136 @@
-# Components Documentation
-
-## Overview
-All UI and logic are organized into feature-based React components under `src/components/`. Each folder represents a feature or section of the site. Components use styled-components for encapsulated styles, Framer Motion for animations, and follow accessibility best practices.
-
----
-
-## About
-**Location**: `src/components/About/About.jsx`
-
-**Purpose**: Profile section with stats, skills, and personal information.
-
-**Features**:
-- Profile image and bio
-- Stats grid (years of experience, projects, etc.)
-- Skills showcase with icons
-- Framer Motion scroll animations
-- Responsive grid layout
-
-**Technologies**: React Icons, Framer Motion, styled-components
-
----
-
-## Blog
-
-### Blog.jsx
-**Location**: `src/components/Blog/Blog.jsx`
-
-**Purpose**: Homepage writing preview: the shelf card, the three newest posts, and a link to the full `/blog/` archive.
-
-**Features**:
-- Dynamically loads Markdown files from `src/blogs/` using `import.meta.glob`
-- Parses frontmatter metadata (title, slug, summary, date, readTime, category)
-  with the in-house parser in `utils/blogLoader.js`
-- Renders the `ReadingList` card plus the three newest `BlogCard`s in a responsive grid
-- Links to the complete archive when more posts exist
-- Sorts posts by date (newest first) via `sortBlogsByDate`
-
-**Data Flow**: 
-1. `import.meta.glob('../blogs/*.md', { query: '?raw', eager: true })` loads raw markdown
-2. `parseFrontmatter` (in `blogLoader.js`) extracts frontmatter
-3. Posts sorted by date (newest first)
-4. The first three map to `BlogCard` components
-
-### BlogCard.jsx
-**Location**: `src/components/Blog/BlogCard.jsx`
-
-**Purpose**: Individual blog post preview card.
-
-**Features**:
-- Uniform card height: 320px minimum
-- Title: 2-line text clamp with ellipsis (`-webkit-line-clamp: 2`)
-- Summary: 3-line text clamp with ellipsis
-- Date display with formatting
-- Hover effects: `translateY(-5px)` transition
-- Focus-visible states for keyboard navigation
-- Author information
-- Links to the post's canonical `/blog/<slug>/` URL via `postPath`
-
-**Styling**: 
-- Flexbox layout for content distribution
-- `min-height` on title (2.8em), summary (4.8em), card (320px)
-- Ensures visual consistency regardless of content length
-
-**Accessibility**: 
-- Semantic HTML (`<article>`)
-- Focus-visible outline (3px offset)
-- Touch target size: 48px minimum
-
-### ReadingList.jsx
-**Location**: `src/components/Blog/ReadingList.jsx`
-
-**Purpose**: "From My Shelf" — a curated reading list of books and essays, rendered as the
-first ("zeroth") card in the blog grid.
-
-**Features**:
-- Compact blog-sized card linking to the dedicated `/reading-list/` page
-- Separate Books and Essays counts derived from the shared `BOOKS` and `ESSAYS` arrays
-- An open page layout using the site's display/mono fonts, blue accents, and shared background,
-  without an enclosing article card
-- Two always-visible, labelled collections: a numbered two-column book catalogue
-  (one column at 600px and below), followed by a single-column essay list
-- Titles, authors, and personal notes preserved; essay links include source domains
-  and external-link icons, opening with `noopener noreferrer`
-- Collection index links support `#books` and `#essays`, including direct visits and reloads;
-  the page restores the target after lazy loading and font readiness
-- Back links return to the homepage Writings section (`/#blog`)
-- Runtime and prerendered metadata share `src/constants/readingListSeo.js`, with
-  Book and Article types and original essay URLs
-
-**Tested**: The card and page `ReadingList.test.jsx` files cover counts, all shelf
-items, category membership, navigation destinations, and source links.
-`e2e/shelf.spec.js` covers the Writings-to-shelf journey, collection jumps and reloads,
-44px essay link targets, and responsive layouts. `verify:build` checks the published
-item names, category types, counts, and essay URLs.
-
----
-
-## Contact
-**Location**: `src/components/Contact/Contact.jsx`
-
-**Purpose**: Contact form with email/message submission.
-
-**Features**:
-- Form validation (email format, required fields)
-- Loading states during submission:
-  - CSS spinner animation
-  - Disabled form inputs
-  - Submit button text changes
-- Toast notifications for success/error feedback (via `useToast` hook)
-- EmailJS integration for form submission
-- Social media links
-- Responsive layout
-
-**State Management**:
-- Local state for form data, loading, validation errors
-- Toast context for notifications
-
-**User Experience**:
-- Non-intrusive feedback (toast instead of inline messages)
-- Clear loading indicators
-- Prevents double-submission with disabled state
-
----
-
-## FunElements
-
-### FloatingRocket.jsx
-**Location**: `src/components/FunElements/FloatingRocket.jsx`
-
-**Purpose**: Animated rocket SVG with floating motion.
-
-**Features**: Framer Motion animations, particle effects
-
-### PandaCursor.jsx
-**Location**: `src/components/FunElements/PandaCursor.jsx`
-
-**Purpose**: Custom cursor with panda theme (desktop only).
-
-**Features**: Follows mouse position, CSS transforms, hidden on mobile
-
----
-
-## Hero
-
-### Hero.jsx
-**Location**: `src/components/Hero/Hero.jsx`
-
-**Purpose**: Landing section with introduction, CTA, and background effects.
-
-**Features**:
-- Typing animation or headline text
-- Call-to-action buttons
-- Floating shapes background
-- Responsive typography
-- Scroll-down indicator
-
-### FloatingShape.jsx
-**Location**: `src/components/Hero/FloatingShape.jsx`
-
-**Purpose**: Animated geometric shapes for visual interest.
-
-**Features**: Framer Motion animations, random positioning
-
----
-
-## Navigation
-**Location**: `src/components/Navigation/Navigation.jsx`
-
-**Purpose**: Site navigation bar with mobile menu and scroll-to-section.
-
-**Features**:
-- Desktop: Horizontal nav with smooth scroll links
-- Mobile: Hamburger menu with slide-out drawer
-- **Cross-page navigation**:
-  - Uses `useNavigate` and `useLocation` from `react-router-dom`
-  - Detects if navigation is same-page or cross-route
-  - Same-page: Immediate smooth scroll
-  - Cross-route: Navigate to home → 500ms delay → scroll to section
-  - Prevents premature scrolling before DOM renders
-- Sticky positioning on scroll
-- Active link highlighting
-- Smooth scroll via native `scrollIntoView`
-- Close mobile menu on link click
-- Focus-visible states for accessibility
-
-**Navigation Links**:
-- Home, About, Work, Projects, Blog, Contact
-
-**User Experience Improvements**:
-- Fixed double-click issue on cross-page navigation
-- Prevents scroll landing between sections
-- Ensures consistent scroll behavior regardless of starting route
-
----
-
-## Projects
-**Location**: `src/components/Projects/Projects.jsx`
-
-**Purpose**: Showcase grid of projects with descriptions, links, and images.
-
-**Features**:
-- Project cards with hover effects
-- GitHub and live demo links
-- Project images from `public/images/projects/`
-- Responsive grid layout (3 columns → 2 → 1)
-- Tech stack badges
-- Framer Motion stagger animations
-
-**Data Source**: `src/constants/` or inline project array
-
----
-
-## Toast Notification System
-
-### ToastProvider.jsx
-**Location**: `src/components/Toast/ToastProvider.jsx`
-
-**Purpose**: Global toast notification system using React Context.
-
-**Features**:
-- **Auto-dismiss**: Notifications disappear after 5 seconds
-- **Manual close**: Click close button to dismiss immediately
-- **Variants**: `success`, `error`, `info` (color-coded)
-- **Animations**: Slide-in from right with Framer Motion
-- **Queue management**: Stacks multiple toasts vertically
-- **Responsive positioning**: Top-right on desktop, top-center on mobile
-
-**API**:
-```jsx
-const { showSuccess, showError, showInfo, removeToast } = useToast();
-
-showSuccess('Message Sent!', 'I will get back to you soon.');
-showError('Network Error', 'Please try again.');
-showInfo('Heads up', 'Something informational', 0); // duration 0 = no auto-dismiss
-```
-
-**Implementation**:
-- Context: `ToastContext` provides `showSuccess`, `showError`, `showInfo`, and `removeToast`
-- State: Array of toast objects `{ id, type, title, message }`
-- Auto-remove: `setTimeout` clears each toast after its `duration` (default 5s; `0` disables)
-- Styling: Fixed positioning, z-index 9999, slide-in animation
-
-**Usage**: Wrap `App.jsx` with `<ToastProvider>`, consume with `useToast()` hook
-
----
-
-## Work
-**Location**: `src/components/Work/Work.jsx`
-
-**Purpose**: Work experience section with company details, roles, and timelines.
-
-**Features**:
-- Company cards with logos
-- Job title and duration
-- Responsibilities and achievements
-- Tech stack tags
-- Hover effects and animations
-- Responsive grid layout
-
-**Data Source**: `src/constants/` or inline work experience array
-
----
+# Components
+
+Every component lives in `src/components/` (sections and shared UI) or
+`src/pages/` (routes). Styling is co-located with styled-components; content
+comes from the plain data modules in `src/constants/` (see
+[data.md](data.md#portfolio-content-modules)), never from JSX literals, so the
+prerendered fallback HTML and the React UI cannot drift apart.
+
+## App shell — `src/App.jsx`
+
+- Wraps the app in `MotionConfig reducedMotion="user"`, `BrowserRouter` and
+  `ToastProvider`, renders `GlobalStyles`, the boot loader, a skip link, the
+  custom cursor, one `BackgroundElements` wash for every route and the deferred
+  decorative layer.
+- Routes: `/` (portfolio), `/blog/` (archive), `/blog/:slug` (article),
+  `/reading-list/`, `/dashboard` (private), `/blogs` and `/blogs/:slug`
+  (redirect aliases) and `*` (noindex 404). Long-form pages and the dashboard
+  are lazy-loaded.
+- `HomeMetadata` sets the homepage title, description, canonical and the
+  homepage-only JSON-LD graph through `useSeo`.
+- `ScrollToHash` scrolls to `#section` targets after the boot loader and fonts
+  are ready.
+- `IdleBackground` lazy-loads the rocket, smoke, telemetry and starfield after
+  the browser is idle, only when ambient motion is enabled and the visitor has
+  not asked for reduced motion.
+- The "Ambient motion" preference is stored in `localStorage` (`vg.ambient`).
+
+## Homepage sections
+
+The sections render in this order, each wrapped in an `ErrorBoundary` and a
+`div` whose `id` is the in-page anchor.
+
+### Hero — `components/Hero/Hero.jsx`
+- Headline, role and summary from `PROFILE`; social icon links from
+  `SOCIAL_PROFILES` (icons in `components/socialIcons.js`), wrapped in
+  `Magnetic`.
+- Calls to action link to `/#projects` and `/#contact`.
+- `HeroScene.jsx` (lazy) mounts the three.js sculpture (`FloatingShape.jsx`)
+  only on desktop (≥1025px), after idle, without reduced motion, and pauses
+  rendering when off-screen or when the tab is hidden.
+
+### Projects — `components/Projects/Projects.jsx`
+- Three featured cards from `FEATURED_PROJECTS`: image with icon fallback, role,
+  description, a native `<details>` case study (fields from
+  `CASE_STUDY_FIELDS`), stats and an external link.
+- "More things I've built": a collapsed native `<details>` directory rendering
+  `PROJECT_DIRECTORY` groups as compact rows with live/source icon links.
+- Icons are resolved from keys in the data through a local `ICONS` map.
+
+### About — `components/About/About.jsx`
+- Biography built from `PROFILE` and the current role in `EXPERIENCE`, the
+  profile photo with a placeholder until it loads, `HIGHLIGHTS` cards and
+  `SKILL_GROUPS`.
+
+### Work — `components/Work/Work.jsx`
+- One card per `EXPERIENCE` entry: title, company and department, dates,
+  location, description, technology tags and company link.
+
+### Blog — `components/Blog/Blog.jsx`
+- Homepage writing preview: the `ReadingList` card, the three newest
+  `BlogCard`s and a "View all N posts" link to `/blog/` when more exist; an
+  empty state when there are no posts; a closing quote from `BLOG_CONTENT`.
+- `BlogCard.jsx`: a link to `postPath(slug)` showing date, read time, optional
+  view count, title and clamped summary.
+- `ReadingList.jsx`: the "From My Shelf" card linking to `/reading-list/` with
+  book and essay counts.
+
+### Contact — `components/Contact/Contact.jsx`
+- Location, current employer and languages from `PROFILE`, social icon links,
+  and the Formspree form driven by `useContactForm` (validation, duplicate
+  submit guard, cancellation, toasts).
 
 ## Pages
 
-### BlogPost.jsx
-**Location**: `src/pages/BlogPost.jsx`
+| Page | File | Notes |
+| --- | --- | --- |
+| Archive | `pages/BlogIndex.jsx` | All posts newest first; shared `blogIndexJsonLd`. |
+| Article | `pages/BlogPost.jsx` | Markdown body, metadata, share button (Web Share API or clipboard), related posts, view count, `postJsonLd`; noindex "not found" state for unknown slugs. |
+| Reading list | `pages/ReadingList.jsx` | Numbered book catalogue and essay list from `constants/books.js`; deep links to `#books` and `#essays`. |
+| Dashboard | `pages/Dashboard.jsx` | Private analytics UI; see [analytics.md](analytics.md). |
+| Not found | `pages/NotFound.jsx` | noindex 404 with links home, to the archive and to the shelf. |
 
-**Purpose**: Individual blog post page (route: `/blog/<slug>/`).
+## Shared UI
 
-**Features**:
-- Reads `:slug` param from URL using `useParams()`
-- Loads the corresponding post via `loadBlogBySlug` from `utils/blogLoader.js`
-- Renders Markdown with `react-markdown`
-- Displays metadata: title, date, read time
-- Back to blog list link
-- Reading time estimate
-- Responsive typography
+- **Navigation** (`components/Navigation/Navigation.jsx`): fixed header with a
+  scroll-progress ring around the "VG" logo, scroll-spy highlighting, and a
+  mobile drawer that locks body scroll, traps focus and closes on Escape. It
+  keeps `--header-offset` in sync with its height for anchor scrolling.
+- **SiteFooter** (`components/SiteFooter.jsx`): name, year, footer links and a
+  "Display settings" disclosure holding `CursorToggle` and the ambient-motion
+  switch.
+- **CursorToggle** (`components/CursorToggle.jsx`): custom-cursor switch, shown
+  only for fine pointers; stored through `utils/cursorPreference.js`.
+- **ToastProvider** (`components/Toast/ToastProvider.jsx`): context exposing
+  `showSuccess`, `showError`, `showInfo` and `removeToast` via `useToast()`;
+  toasts auto-dismiss after five seconds by default.
+- **ErrorBoundary** (`components/ErrorBoundary.jsx`): per-section fallback with
+  a reload button, or a custom `fallback` prop (used as `null` around the 3D
+  scene).
+- **BackgroundElements** (`components/BackgroundElements.jsx`): fixed,
+  `aria-hidden`, pointer-transparent gradient wash rendered once by `App`.
 
-**Error Handling**: 
-- 404 redirect if blog post not found
-- Loading state during fetch
+## Decorative elements — `components/FunElements/`
 
----
+All are hidden from assistive technology and skipped for reduced motion.
 
-## Design Patterns
+- **BootLoader**: multilingual greeting shown before the page is revealed;
+  completes immediately for reduced-motion visitors.
+- **CustomCursor**: dot-and-ring cursor for fine pointers when enabled.
+- **Magnetic**: pulls its child toward the pointer on hover-capable devices.
+- **FloatingRocket**: three taps launch the rocket (keyboard accessible); it
+  dispatches `rocket-launch` and `rocket-emit-smoke` events.
+- **SmokeTransition**: canvas smoke driven by those events, then scrolls to and
+  focuses About.
+- **InteractiveSpaceBackground**: canvas starfield with occasional shooting
+  stars and click "tracking" rings; pauses while the tab is hidden.
+- **RandomTelemetry**: up to seven subtle code/maths glyphs spawned across a
+  3×3 grid of screen zones.
 
-### Consistent Hover Effects
-- All interactive elements: `translateY(-5px)` on hover
-- Transition duration: 0.3s ease
-- Applied to: Cards, buttons, links, navigation items
+## Conventions
 
-### Focus-Visible States
-- All interactive elements: 3px solid outline with 2px offset
-- Color: Primary brand color or high-contrast
-- Only visible on keyboard navigation (`:focus-visible`)
+- Hover lifts use `transform` only; interactive targets are at least 44px.
+- Visible `:focus-visible` outlines on every control.
+- Text clamping (`-webkit-line-clamp`) with reserved heights keeps card grids
+  even; image frames reserve space with `aspect-ratio`.
+- New content belongs in a `src/constants/` data module; components map icon
+  keys to icons locally.
 
-### Touch Targets
-- Minimum size: 44-48px (WCAG guideline)
-- Applied to: Navigation links, buttons, form inputs, close buttons
+## Adding a section
 
-### Text Clamping
-- Uses `-webkit-line-clamp` with `display: -webkit-box`
-- Fallback: `text-overflow: ellipsis` with `overflow: hidden`
-- Ensures uniform card heights across dynamic content
-
----
-
-## Usage
-Each component is imported and used in `App.jsx` or parent components. Components are self-contained with their own styles, state, and logic.
-
-## Extending
-To add a new section:
-1. Create folder in `src/components/` (e.g., `Testimonials/`)
-2. Create main component file (e.g., `Testimonials.jsx`)
-3. Define styled-components within file or separate `.styles.js`
-4. Import and use in `App.jsx`
-5. Add route if needed (for page-level components)
-6. Create skeleton loader variant if async content
-7. Add navigation link in `Navigation.jsx`
-8. Document in this file
+1. Create `src/components/<Name>/<Name>.jsx` and a co-located test.
+2. Put its content in a data module under `src/constants/`.
+3. Render it in `App.jsx` inside `<ErrorBoundary><SectionWrapper id="…">`, add
+   the id to `navItems` in `Navigation.jsx` if it should be navigable, and add
+   it to `homeContent` in `scripts/lib/prerenderContent.mjs` so it is
+   crawler-readable.

@@ -1,12 +1,12 @@
 // src/components/Projects/Projects.jsx
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaRocket, FaExternalLinkAlt, FaCode, FaGithub, FaSun, FaPuzzlePiece, FaTools, FaBrain, FaLock, FaEnvelope, FaWrench, FaEye, FaCube, FaRobot, FaBalanceScale, FaGlobeAmericas, FaDesktop, FaFileAlt, FaDatabase } from 'react-icons/fa';
+import { FaRocket, FaExternalLinkAlt, FaCode, FaGithub, FaSun, FaPuzzlePiece, FaTools, FaBrain, FaLock, FaEnvelope, FaWrench, FaEye, FaCube, FaRobot, FaBalanceScale, FaGlobeAmericas, FaDesktop, FaFileAlt, FaDatabase, FaChevronDown } from 'react-icons/fa';
+import { FEATURED_PROJECTS, PROJECT_DIRECTORY, CASE_STUDY_FIELDS } from '../../constants/projects';
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
 import { IoGameController } from 'react-icons/io5';
-import { FaChevronDown } from 'react-icons/fa';
 
 // ─── Styled Components ────────────────────────────────────────────────────────
 
@@ -382,109 +382,38 @@ const IconLink = styled.a`
   }
 `;
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+// ─── Icons ────────────────────────────────────────────────────────────────────
 
-const projects = [
-  {
-    id: 1,
-    title: 'AdBrain',
-    role: 'Founder & Solo Developer',
-    description: 'An AI ad-creative generator and manager for local businesses — fill a "brand brain", set a goal, and get on-brand ad variants (image + copy) ready to launch on Meta. Built as a real product, with a live solar business as customer zero.',
-    image: '/images/projects/adbrain.webp?v=99a19eb',
-    brandIcon: <AdBrainMark />,
-    fallbackIcon: <AdBrainMark />,
-    stats: [
-      { icon: <FaRocket />, text: 'Live SaaS · adbrain.vanshul.com' },
-      { icon: <FaCode />, text: 'Next.js 16 · React 19 · Supabase' },
-    ],
-    link: 'https://adbrain.vanshul.com',
-    caseStudy: {
-      problem: 'Local businesses need a repeatable way to turn their brand and campaign goal into ad creative.',
-      contribution: 'Built the product end to end: brand setup, image and copy generation, and creative management.',
-      decision: 'Keep reusable brand context separate from individual campaign goals so each new creative starts from the same foundation.',
-      outcome: 'A live product with a solar business as its first real-world use case.',
-    },
-  },
-  {
-    id: 2,
-    title: 'Tiny Arcade — 11 Browser Games',
-    role: 'Solo Developer',
-    description: '11 instant-play games including 2048, reflex, memory, typing and mental maths. Lightweight TypeScript interfaces, shared game architecture and cloud leaderboards.',
-    image: '/images/projects/tiny-arcade.webp',
-    fallbackIcon: <IoGameController />,
-    stats: [
-      { icon: <FaRocket />, text: '11 instant-play games, including 2048' },
-      { icon: <FaCode />, text: 'TypeScript + Vite' },
-    ],
-    link: 'https://games.vanshul.com',
-    caseStudy: {
-      problem: 'Make short, replayable games that work immediately in a browser without an installation.',
-      contribution: 'Built the games, responsive interfaces, shared audio and score-sharing utilities, and leaderboard integration.',
-      decision: 'Separate game rules from rendering so timing, scoring and round transitions can be tested independently of the interface.',
-      outcome: 'A live collection of browser games with tested game logic and shared interaction patterns.',
-    },
-  },
-  {
-    id: 3,
-    title: 'NASA Human Exploration Rover Challenge',
-    role: 'Team Lead',
-    description: 'Led a team of 6 to design and manufacture a human-powered rover for NASA HERC 2023. Achieved top 20 global ranking and engaged 12,000+ students in STEM activities.',
-    image: '/images/projects/nasa-herc.webp',
-    fallbackIcon: <FaRocket />,
-    stats: [
-      { icon: <MdGroups />, text: '12k+ students reached for STEM' },
-      { icon: <BiMoney />,  text: '$30,000 raised via govt & private sources' },
-    ],
-    link: 'https://www.nasa.gov/learning-resources/nasa-human-exploration-rover-challenge/',
-    caseStudy: {
-      problem: 'Design and manufacture a human-powered rover for NASA HERC 2023.',
-      contribution: 'Led a six-person team through the design and manufacturing work, alongside fundraising and STEM outreach.',
-      decision: 'Take the rover from design into physical manufacture, making the engineering work accountable to a working vehicle.',
-      outcome: 'Competed at NASA HERC 2023 with the team and its manufactured rover.',
-    },
-  },
-];
+// Data in constants/projects.js refers to icons by key.
+const ICONS = {
+  adbrain: AdBrainMark,
+  brain: FaBrain,
+  code: FaCode,
+  cube: FaCube,
+  database: FaDatabase,
+  desktop: FaDesktop,
+  envelope: FaEnvelope,
+  eye: FaEye,
+  file: FaFileAlt,
+  game: IoGameController,
+  globe: FaGlobeAmericas,
+  groups: MdGroups,
+  lock: FaLock,
+  money: BiMoney,
+  puzzle: FaPuzzlePiece,
+  robot: FaRobot,
+  rocket: FaRocket,
+  scale: FaBalanceScale,
+  sun: FaSun,
+  tools: FaTools,
+  vbrain: VBrainIcon,
+  wrench: FaWrench,
+};
 
-// Compact second tier — grouped so breadth shows without clutter.
-const moreProjects = [
-  {
-    category: 'Live products & tools',
-    items: [
-      { icon: <FaSun />, color: '#f2ae68', title: 'Solaride', desc: 'A rooftop-solar business site with a savings calculator, lead capture and full local SEO — a real business I help run.', tags: ['Business', 'SEO'], live: 'https://solaride.in' },
-      { icon: <FaPuzzlePiece />, color: '#82b7ff', title: 'ctx', desc: 'An MCP server that turns any GitHub repo into agent-ready context — pack or search a whole repo for the lines that matter.', tags: ['MCP', 'Cloudflare'], live: 'https://ctx.vanshul.com', repo: 'https://github.com/vanshulgoyal101/ctx' },
-      { icon: <FaTools />, color: '#72d7c0', title: 'Dev Tools', desc: 'A privacy-first offline developer toolbox — JSON, JWT, hashing, encoding and formatters — plus a Smart Paste box that works out what you pasted.', tags: ['PWA', 'Offline'], live: 'https://tools.vanshul.com', repo: 'https://github.com/vanshulgoyal101/tools' },
-    ],
-  },
-  {
-    category: 'Open source & packages',
-    items: [
-      { icon: <FaBrain />, color: '#c3a6ff', title: 'SemCache', desc: 'A zero-cost, tiered semantic cache for LLMs using local ONNX embeddings — sub-30ms matches at $0.', tags: ['npm i semcache'], repo: 'https://github.com/vanshulgoyal101/semCache' },
-      { icon: <FaLock />, color: '#ff8c7a', title: 'Agent Vault', desc: "A cryptographic policy firewall that vets an AI DeFi agent's transactions before signing.", tags: ['pip install agent-vault-py'], repo: 'https://github.com/vanshulgoyal101/agent-vault' },
-      { icon: <FaEnvelope />, color: '#f095c8', title: 'Agent Mailroom', desc: 'Machine-to-machine identity and micro-payments for AI agents — DIDs and off-chain channels.', tags: ['pip install agent-mailroom'], repo: 'https://github.com/vanshulgoyal101/agent-mailroom' },
-      { icon: <FaWrench />, color: '#f4c95d', title: 'depshift', desc: 'Detects breaking API changes between Python package versions and auto-suggests migration patches.', tags: ['pip install depshift'], repo: 'https://github.com/vanshulgoyal101/autopatch' },
-      { icon: <FaEye />, color: '#72d7c0', title: 'AgentWatch', desc: 'Local-first observability and step-by-step trace replay for multi-agent LLM systems.', tags: ['Python', 'SQLite'], repo: 'https://github.com/vanshulgoyal101/agentwatch' },
-      { icon: <FaCube />, color: '#8fd3ff', title: 'Lego', desc: 'Zero-dependency, copy-paste code blocks — 327 crash-proof components across 23 categories.', tags: ['CLI', 'Zero-dep'], repo: 'https://github.com/vanshulgoyal101/lego' },
-      { icon: <FaRobot />, color: '#82b7ff', title: 'Agent Team', desc: 'An autonomous AI software-engineering team that plans, writes and tests code from GitHub Actions.', tags: ['Agents', 'CI'], repo: 'https://github.com/vanshulgoyal101/agent-team' },
-      { icon: <VBrainIcon />, color: '#36d98a', title: 'vbrain', desc: 'An AI-queryable second-brain engine — turns Markdown notes into full-text search, a knowledge graph and an MCP server for agents. Open engine, private notes.', tags: ['MCP', 'Cloudflare'], live: 'https://vbrain.vanshul.com', repo: 'https://github.com/vanshulgoyal101/vbrain' },
-    ],
-  },
-  {
-    category: 'Interactive experiments',
-    items: [
-      { icon: <FaBalanceScale />, color: '#c3a6ff', title: 'The Dialectic', desc: 'Two AI personas debate any topic while a live D3 graph maps their concepts and where they clash.', tags: ['React', 'D3', 'Gemini'], repo: 'https://github.com/vanshulgoyal101/the-dialectic' },
-      { icon: <FaGlobeAmericas />, color: '#82b7ff', title: 'Cosmic Zoom', desc: 'A "powers of ten" physics sandbox — zoom across 44 orders of magnitude with real Matter.js physics.', tags: ['React', 'Matter.js'], repo: 'https://github.com/vanshulgoyal101/cosmic-zoom' },
-      { icon: <FaFileAlt />, color: '#f4c95d', title: 'Lexis', desc: 'Typography and readability analytics for long-form Markdown — Flesch, Kincaid and Gunning Fog scoring.', tags: ['React', 'TypeScript'], repo: 'https://github.com/vanshulgoyal101/lexis' },
-      { icon: <FaDatabase />, color: '#72d7c0', title: 'Memova', desc: 'Ask multiple databases questions in plain English via Gemini. FastAPI + React.', tags: ['FastAPI', 'React'], repo: 'https://github.com/vanshulgoyal101/memova' },
-    ],
-  },
-  {
-    category: 'Space & earlier',
-    items: [
-      { icon: <FaGlobeAmericas />, color: '#72d7c0', title: 'NASA Space Apps Collective', desc: 'Selected among 30 global space leaders; built weather-visualisation tools for Zimbabwean farmers from open NASA data.', tags: ['NASA', 'Data'], live: 'https://www.spaceappschallenge.org/collective/' },
-      { icon: <FaDesktop />, color: '#ff8c7a', title: 'GoRemote', desc: 'My B.Tech major project — a virtual-office platform for remote teams (Phaser, React, Redux, PeerJS, Colyseus).', tags: ['MERN', 'Phaser'], repo: 'https://github.com/vanshulgoyal101/GoRemote' },
-    ],
-  },
-];
+const ProjectIcon = ({ name }) => {
+  const Icon = ICONS[name];
+  return <Icon />;
+};
 
 // ─── Animation variants ───────────────────────────────────────────────────────
 
@@ -543,7 +472,7 @@ const Projects = () => {
         </SectionHeader>
 
         <ProjectsGrid>
-          {projects.map((project, i) => (
+          {FEATURED_PROJECTS.map((project, i) => (
             <ProjectCard
               key={project.id}
               custom={i}
@@ -555,32 +484,34 @@ const Projects = () => {
               <ProjectImage
                 src={project.image}
                 alt={project.title}
-                fallback={project.fallbackIcon}
+                fallback={<ProjectIcon name={project.fallbackIcon} />}
               />
               <ProjectContent>
-                <ProjectTitle>{project.brandIcon}{project.title}</ProjectTitle>
+                <ProjectTitle>{project.brand && <ProjectIcon name={project.brand} />}{project.title}</ProjectTitle>
                 <ProjectRole>{project.role}</ProjectRole>
                 <ProjectDescription>{project.description}</ProjectDescription>
                 <CaseStudy>
                   <summary aria-label={`Read case study: ${project.title}`}>Read case study</summary>
                   <dl>
-                    <dt>The problem</dt><dd>{project.caseStudy.problem}</dd>
-                    <dt>My contribution</dt><dd>{project.caseStudy.contribution}</dd>
-                    <dt>Engineering decision</dt><dd>{project.caseStudy.decision}</dd>
-                    <dt>Outcome</dt><dd>{project.caseStudy.outcome}</dd>
+                    {CASE_STUDY_FIELDS.map(([field, label]) => (
+                      <Fragment key={field}>
+                        <dt>{label}</dt>
+                        <dd>{project.caseStudy[field]}</dd>
+                      </Fragment>
+                    ))}
                   </dl>
                 </CaseStudy>
 
                 <ProjectStats>
-                  {project.stats.map((stat, idx) => (
-                    <StatItem key={idx}>
-                      {stat.icon}
+                  {project.stats.map((stat) => (
+                    <StatItem key={stat.text}>
+                      <ProjectIcon name={stat.icon} />
                       <span>{stat.text}</span>
                     </StatItem>
                   ))}
                 </ProjectStats>
 
-                {project.link && project.link !== '#' && (
+                {project.link && (
                   <ProjectLink href={project.link} target="_blank" rel="noopener noreferrer">
                     Visit Website
                     <FaExternalLinkAlt size={12} />
@@ -598,7 +529,7 @@ const Projects = () => {
           </MoreHeader>
           <MoreSubtitle>Live products, open-source packages and interactive experiments.</MoreSubtitle>
 
-          {moreProjects.map((group) => (
+          {PROJECT_DIRECTORY.map((group) => (
             <CategoryGroup key={group.category}>
               <CategoryLabel>{group.category}</CategoryLabel>
               <CompactGrid>
@@ -607,7 +538,7 @@ const Projects = () => {
                     key={item.title}
                   >
                     <CompactTop>
-                      <CompactIcon aria-hidden="true">{item.icon}</CompactIcon>
+                      <CompactIcon aria-hidden="true"><ProjectIcon name={item.icon} /></CompactIcon>
                       <CompactName>{item.title}</CompactName>
                       <CompactLinks>
                         {item.live && (
