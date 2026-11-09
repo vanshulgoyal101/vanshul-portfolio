@@ -12,10 +12,18 @@ value changes, update this file in the same commit.
 | Shared primitives | [`src/components/ui/`](../src/components/ui) | `SectionHeader`, `PageHeader`, `PageLayout`, `Button`/`ButtonLink`/`TextLink`, the `eyebrow` mixin |
 | Component styles | `styled-components` next to each component | Layout and details local to one component |
 
-Fonts load from Google Fonts in [`index.html`](../index.html). The page
-preconnects, loads the stylesheet with `media="print"` and swaps it to `all`
-on load, so it does not block rendering. `display=swap` avoids invisible text,
-and a `<noscript>` link covers visitors without JavaScript.
+Fonts are self-hosted variable fonts from Fontsource 5.3.0 in
+[`public/fonts/`](../public/fonts), next to their SIL OFL 1.1 licences: Inter
+(body, weights 100–900), Space Grotesk (headings, 300–700) and JetBrains Mono
+(labels, 100–800). [`src/index.css`](../src/index.css) declares a latin and a
+latin-ext `@font-face` per family with `unicode-range`, so the latin-ext file
+downloads only when a page uses one of its characters, and `font-display: swap`
+avoids invisible text. [`index.html`](../index.html) preloads the latin Inter
+and Space Grotesk files, so the above-the-fold faces download alongside the
+document instead of after the stylesheet. Nothing is requested from a third
+party. To update a font, copy the `*-latin-wght-normal.woff2` and
+`*-latin-ext-wght-normal.woff2` files and the licence from the package's
+`files/` folder and keep the `unicode-range` values in step with its CSS.
 
 ## Visual language
 
