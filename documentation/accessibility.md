@@ -22,7 +22,7 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
   `maximum-scale` and no `user-scalable=no`.
 - **Landmarks**: the header `nav` is labelled "Primary navigation" and each
   page has exactly one `main`. The homepage's comes from `App`; subpages get
-  theirs from `PageLayout`, and the dashboard renders its own. The footer
+  theirs from `PageLayout`, the dashboard included. The footer
   (`contentinfo`) contains a "Footer links" nav. Named regions include "More
   things I've built", "More writing", and the Books and Essays collections.
 - **Headings**: one `h1` per page (the name on the homepage; the page or
@@ -34,8 +34,10 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
 - **Lists**: timelines, post lists, the shelf and stat tiles are real
   `ol`/`ul` elements. Contact facts are a `dl`.
 - **Lazy routes**: while a page chunk loads, the fallback is a `role="status"`
-  "Loading page..." message. The dashboard route's own fallback is empty;
-  once loaded, the dashboard shows "Loading…" while it restores the session.
+  "Loading page..." message inside the page layout, so the navigation stays
+  usable. Once loaded, the dashboard shows a `role="status"` "Loading…" while
+  it restores the session. A page that fails to load becomes `RouteError`,
+  which keeps the navigation and one `h1`.
 
 ## Keyboard and focus
 
@@ -45,9 +47,7 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
   `#1d4ed8` outline (6.04:1 on the page). The offset is 3px on links and
   buttons and 2px on fields, and mouse focus shows none. Several components
   restate the ring with a different offset. `PostList` rows redraw the ring
-  around the whole row, because their title link stretches over it. The
-  footer's links, Display settings summary and switches, and the dashboard's
-  chart region use a 2px ring.
+  around the whole row, because their title link stretches over it.
 - **In-page navigation**: `/#section` links and the hash handler scroll the
   section's `h1`/`h2` below the fixed header and move focus to it. Focused
   headings, section fallbacks and `#main-content` carry `data-section-focus`
@@ -78,7 +78,8 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
   - a "Missing details" toast is announced
 - The email format is checked live as you type; empty fields are flagged only
   on submit.
-- Error text is `#b91c1c` (at least 4.5:1 on white and the input background);
+- Error text is `--color-danger` (`#b91c1c`, at least 4.5:1 on white and the
+  input background);
   `#ef4444` failed AA. The submit button disables and reads "Sending..."
   during a request, and double submits are ignored.
 
@@ -87,8 +88,10 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
 Toasts render inside an always-mounted `aria-live="polite"` container. Contact
 results, "Missing details" and "Link copied" are therefore announced without
 moving focus (WCAG 4.1.3). Each toast has a 44px "Close notification" button;
-toasts auto-dismiss after five seconds. Tone colours (success `#15803d`, error
-`#b91c1c`, info accent) meet 4.5:1 on white.
+toasts auto-dismiss after five seconds. Tone colours (`--color-success`
+`#166534`, `--color-danger` `#b91c1c`, info accent) meet 4.5:1 on white. The
+dashboard's delta chips use the same tones on 10% tints of themselves (6.12:1
+and 5.46:1).
 
 ## Colour and contrast
 
@@ -133,11 +136,9 @@ Tokens are in `src/styles/GlobalStyles.js` (see [styles.md](styles.md#colour)).
   `all`. No code depends on `transitionend`.
 - Decorative layers are never needed for a task and do not load under
   reduced motion. They are the starfield, smoke, telemetry glyphs, custom
-  cursor and 3D hero sculpture. The smoke canvas and the hero scene area are
-  `aria-hidden`; the starfield canvas and the cursor carry no content. The
-  telemetry overlay is not `aria-hidden`, so its text glyphs (π, Σ, `{ }`,
-  binary digits, a haiku and a code fragment) are exposed to assistive
-  technology.
+  cursor and 3D hero sculpture. The smoke canvas, the hero scene area and the
+  telemetry overlay (text glyphs such as π, Σ and `{ }`) are `aria-hidden`;
+  the starfield canvas and the cursor carry no content.
 - The footer's Display settings switches turn off the ambient layer
   (starfield, smoke, telemetry and rocket; stored in `vg.ambient`) and the
   custom cursor (`vg.cursor`). The desktop-only hero sculpture is not

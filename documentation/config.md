@@ -13,7 +13,7 @@ in `scripts/`.
 | Script | Command | Purpose |
 | ------ | ------- | ------- |
 | `dev` | `vite` | Start the dev server with HMR (http://localhost:5173). |
-| `prebuild` | `node scripts/generate-sitemap.mjs && node scripts/generate-og-images.mjs && node scripts/generate-feed.mjs` | Runs automatically before `build`: writes `public/sitemap.xml`, `public/og/<slug>.png` and `public/feed.xml`. |
+| `prebuild` | `node scripts/generate-sitemap.mjs && node scripts/generate-og-images.mjs && node scripts/generate-feed.mjs && node scripts/generate-llms.mjs` | Runs automatically before `build`: writes `public/sitemap.xml`, `public/og/<slug>.png`, `public/feed.xml` and `public/llms.txt`. |
 | `build` | `vite build` | Production build → `dist/`. |
 | `postbuild` | `node scripts/prerender-blog.mjs && node scripts/gen-sitemap-index.mjs` | Runs automatically after `build`: writes the readable route shells and `dist/sitemap-index.xml`. |
 | `generate:og` | `node scripts/generate-og-images.mjs` | Regenerate only the per-post social cards. |
@@ -163,7 +163,7 @@ public bundle at build time, so they must never hold secrets.
 | --- | --- | --- |
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | `src/lib/supabaseClient.js` (blog view counts) | No counts are requested or shown. |
 | `VITE_GOATCOUNTER_CODE` | `src/components/Analytics.jsx` | GoatCounter never loads. |
-| `VITE_CONTACT_ENDPOINT` | `src/hooks/useContactForm.js` | The form posts to the site's Formspree form. Not listed in `.env.example`. |
+| `VITE_CONTACT_ENDPOINT` | `src/hooks/useContactForm.js` | Optional Formspree endpoint override; unset, the form posts to the site's own form. Listed in `.env.example`. |
 | `SUPABASE_DB_URL`, or `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`; optional `PGSSLMODE`, `PGSSLROOTCERT` | `scripts/db.mjs` (Node only, never bundled) | The runner exits with an error. See [data.md](data.md#database-runner). |
 
 The deploy workflow passes `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and
@@ -180,9 +180,10 @@ analytics dashboard's Supabase URL and publishable key are hard-coded in
 | `generate-sitemap.mjs` | `prebuild` | `public/sitemap.xml`: home, `/blog/`, `/reading-list/` and every post (with its social image) | [seo.md](seo.md#build-time-generation) |
 | `generate-og-images.mjs` | `prebuild`, `npm run generate:og` | `public/og/<slug>.png` (1200×630, rendered with `sharp`) | [seo.md](seo.md#build-time-generation) |
 | `generate-feed.mjs` | `prebuild` | `public/feed.xml` (RSS 2.0 with full article HTML) | [seo.md](seo.md#build-time-generation) |
+| `generate-llms.mjs` | `prebuild` | `public/llms.txt` (a curated Markdown map of the site for AI assistants) | [seo.md](seo.md#llmstxt) |
 | `prerender-blog.mjs` | `postbuild` | `dist/index.html` (homepage JSON-LD and content), `dist/blog/index.html`, `dist/blog/<slug>/index.html`, `dist/reading-list/index.html` | [seo.md](seo.md#build-time-generation) |
 | `gen-sitemap-index.mjs` | `postbuild` | `dist/sitemap-index.xml` from `sitemap-sites.json` | [seo.md](seo.md#build-time-generation) |
-| `verify-build.mjs` | `npm run verify:build` | Fails on any broken published route, metadata, eager lazy chunk or feed item | [testing.md](testing.md#production-browser-checks) |
+| `verify-build.mjs` | `npm run verify:build` | Fails on any broken published route, metadata, eager lazy chunk, missing or third-party font, feed item or llms.txt link | [testing.md](testing.md#production-browser-checks) |
 | `generate-og-image.mjs` | By hand | `public/og-image.png`, the default social card | [assets.md](assets.md#icons-and-social-images) |
 | `generate-icons.mjs` | By hand | `public/panda-32.png`, `panda-apple-touch.png` (180px), `panda-192.png`, `panda-512.png` from `public/panda.svg` | [assets.md](assets.md#icons-and-social-images) |
 | `capture-projects.mjs` | By hand: `node scripts/capture-projects.mjs [adbrain] [tiny-arcade]` | `public/images/projects/<name>.webp` screenshots (Playwright Chromium + `sharp`) | [homepage.md](homepage.md#project-media) |
@@ -200,6 +201,7 @@ and prerender tests exercise:
 | `sitemap.mjs` | `buildSitemap` | `generate-sitemap.mjs` |
 | `sitemapIndex.mjs` | `buildSitemapIndex` | `gen-sitemap-index.mjs` |
 | `feed.mjs` | `buildFeed` | `generate-feed.mjs` |
+| `llms.mjs` | `buildLlmsTxt` | `generate-llms.mjs` |
 | `markdown.mjs` | `renderMarkdown`: react-markdown with `rehypeHeadingIds`, no raw HTML, unsafe URLs removed; an `origin` option makes root-relative URLs absolute | `feed.mjs`, `prerenderContent.mjs` |
 | `prerenderContent.mjs` | `prerenderContent`: the readable fallback HTML for the home, archive, article and shelf pages | `prerender-blog.mjs` |
 | `structuredData.mjs` | `breadcrumbList`, `postJsonLd`, `homeJsonLd`, `blogIndexJsonLd` | `prerender-blog.mjs` and the app (`App.jsx`, `BlogIndex`, `BlogPost`) |

@@ -50,8 +50,11 @@ node -e "require('sharp')('public/images/projects/profile2.webp').extract({ left
   [deployment.md](deployment.md#github-settings)).
 - `a.js`: first-party analytics beacon for other vanshul.com properties (see
   [analytics.md](analytics.md)).
-- `sitemap.xml` and `feed.xml` are generated during `prebuild` and are not
-  committed.
+- `fonts/`: the self-hosted Inter, Space Grotesk and JetBrains Mono variable
+  fonts (latin and latin-ext `woff2` from Fontsource 5.3.0) with their SIL OFL
+  1.1 licences; see [styles.md](styles.md#where-styles-live).
+- `sitemap.xml`, `feed.xml` and `llms.txt` are generated during `prebuild` and
+  are not committed.
 
 ## Adding an image
 

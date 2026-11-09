@@ -65,7 +65,7 @@ useSeo({
   type,         // og:type (default 'website')
   jsonLd,       // pre-serialized JSON-LD string, added as script[data-route-seo]
   robots,       // default 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
-  article,      // { publishedTime, modifiedTime, author, section } when type is 'article'
+  article,      // { publishedTime, modifiedTime, author, section, tags } when type is 'article'
 });
 ```
 
@@ -74,7 +74,7 @@ It also sets `og:image:width` 1200 and `og:image:height` 630. Existing tags from
 never duplicate title or description tags.
 
 Runtime route metadata replaces prerendered `script[data-route-seo]` nodes and
-`article:*` tags while the route is active; every JSON-LD block the build
+`article:*` tags (one `article:tag` per entry in `tags`) while the route is active; every JSON-LD block the build
 emits carries `data-route-seo`, so none leaks onto another route.
 The hook updates canonical, Open Graph, and Twitter URLs together. Home mounts its
 own metadata so navigating from a directly loaded subpage cannot leave that

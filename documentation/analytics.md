@@ -234,21 +234,33 @@ be paired with previous data. Dashboard metadata uses the shared `useSeo` hook.
 
 **Features**
 
+- **Layout**: the site navigation, a page header ("Analytics" / "Dashboard")
+  and the site footer, like every other page. Signed-out and not-authorized
+  visitors see one card with the sign-in or sign-out action. The owner view
+  has a toolbar (range, Refresh, Export CSV, Sign out) and then, in order: the
+  metric grid, daily pageviews, pageviews by hour, top pages, a two-column
+  group (pageviews by site, top referrers, top outbound links, top tools), the
+  arcade and plays per game.
 - **Time range** selector: last 24 hours / 7 / 30 / 90 days / 1 year
   (default 30 days). Changing it, or pressing **Refresh**, re-queries
   `web_stats()` for that window.
-- **Summary cards**: pageviews, visitors and events in the range, pageviews
-  today, and all-time pageviews and visitors. Range pageviews and visitors
-  carry **period-over-period deltas** (▲/▼ % vs the previous equal-length
-  window; "new" when there's no prior baseline).
-- **Breakdowns**: pageviews by site, top pages, top tools, top outbound links,
-  top referrers, plays per game.
-- **Arcade section**: summary cards for game plays (current range + all-time) and
+- **Metric grid**: pageviews, visitors and events in the range, pageviews
+  today, and all-time pageviews and visitors, in a hairline grid (three
+  columns, two on phones, where an odd last metric spans the row). Each label
+  names the window it covers, e.g. "Pageviews · 30 days" (phones stack the
+  window under the name). Range pageviews and visitors carry
+  **period-over-period deltas** (▲/▼ % vs the previous equal-length window;
+  "new" when there's no prior baseline) as tinted chips.
+- **Breakdowns**: ranked lists (label, bar, value) for pageviews by site, top
+  pages, top tools, top outbound links, top referrers and plays per game.
+- **Arcade section**: metrics for game plays (current range + all-time) and
   all-time arcade visits (from `web_stats().arcade`), above the per-game breakdown.
   Shows `0` (not "absent") when the games log is empty, so it's clear whether
   there's no data vs. no plays in the selected window. Links out to the arcade's
   own richer stats dashboard at `games.vanshul.com/stats/`.
-- **Charts**: hour-of-day and daily pageview histograms.
+- **Charts**: daily and hour-of-day pageview columns. The daily chart's heading
+  shows its first and last day, and the chart is a keyboard-focusable region
+  that scrolls sideways when a long range needs more width.
 - **CSV export** of the current stats (`statsToCsv` →
   `vanshul-analytics-YYYY-MM-DD.csv`). It covers the scalar metrics, every
   breakdown and the arcade totals, not the hourly or daily series.

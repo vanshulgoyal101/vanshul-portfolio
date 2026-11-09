@@ -69,6 +69,7 @@ All tokens are defined in `:root` in `GlobalStyles.js`.
 | `--color-accent-line` | `rgba(29, 78, 216, 0.24)` | Resting underline of prose links; hover border of project, post and work cards |
 | `--color-border` / `--color-border-hover` | slate at 8% / 15% | Card and field borders / form-field hover border |
 | `--color-hairline` | `rgba(15, 23, 42, 0.12)` | Separators, secondary buttons, pills |
+| `--color-success` / `--color-danger` | `#166534` / `#b91c1c` | Status tones: toasts, dashboard deltas and notices, form errors |
 
 Contrast, measured on white, the page and tertiary backgrounds:
 
@@ -78,7 +79,10 @@ Contrast, measured on white, the page and tertiary backgrounds:
 
 Muted was `#94a3b8` (2.56:1) until browser accessibility scans caught it. Any
 replacement must stay at or above 4.5:1 on all three backgrounds. Form errors
-use `#b91c1c`, because the earlier `#ef4444` failed AA on the page. Light text
+use `--color-danger` (`#b91c1c`), because the earlier `#ef4444` failed AA on
+the page. Both status tones stay at or above 5.3:1 on white, the page, the
+tertiary background and a 10% tint of themselves (the dashboard's delta
+chips); `#15803d`, the earlier success green, fell to 4.39:1 on its chip. Light text
 on the ink shelf banner is at least 6.7:1.
 
 ### Shape, depth and motion
@@ -173,9 +177,7 @@ Icons with `data-arrow="forward" | "back" | "up"` inside `Button`,
   `#1d4ed8` outline (offset 3px on links and buttons, 2px on fields). Mouse
   focus shows no outline. Many components restate the 3px ring with their own
   offset (2px to 4px, or -3px inside the 44px directory icon links).
-  `PostList` draws it around the whole row. The footer's links, Display
-  settings summary and switches, and the dashboard's chart region use a 2px
-  ring. Focus moved to section headings by in-page navigation
+  `PostList` draws it around the whole row. Focus moved to section headings by in-page navigation
   (`[data-section-focus]`) and `#main-content` shows no outline.
 - **Tap targets**: `button, a, input, textarea, select` have
   `min-height: 44px`. Only buttons also get `min-width: 44px`, so short text

@@ -14,6 +14,9 @@
 - ✅ Sections, in page order: Home · Projects · About · Work · Blog · Contact.
 - ✅ **Contact form** (`useContactForm`) → Formspree, with validation, duplicate-submit
   guarding, cancellation and visible failures; Toast + ErrorBoundary.
+- ✅ **Self-healing after deploys**: a page whose code a new release removed
+  reloads once on its own, then falls back to an error page that keeps the
+  navigation (`RouteError`).
 - ✅ **Accessible + responsive** design; SPA routing (react-router 7) with a
   `404.html` GitHub-Pages shim.
 - ✅ Original multilingual intro, three-tap rocket/smoke/About transition,
@@ -26,7 +29,7 @@
   ([documentation/styles.md](documentation/styles.md)).
 - ✅ Floating frosted navigation. On `/` the active item follows scroll-spy;
   "Blog" is active on `/blog*` and `/reading-list`. On mobile, a numbered,
-  focus-managed drawer. The site footer ends every public route.
+  focus-managed drawer. The site footer ends every route.
 - ✅ Screen-reader-announced notifications (polite live region). Failed contact
   submits move focus to the first invalid field. Every page has one `main`
   landmark.

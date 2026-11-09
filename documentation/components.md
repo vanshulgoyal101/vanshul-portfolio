@@ -24,9 +24,14 @@ credentials line beyond "Associate Analyst at United Airlines".
   are lazy-loaded. React Router matches each path with or without the
   trailing slash.
 - While a lazy page loads, `PageLoading` (a `role="status"` "Loading page..."
-  block, 70vh tall so the footer does not jump) fills the page. The dashboard
-  route has its own empty `Suspense` fallback. All routes sit inside one
-  `ErrorBoundary`, and each homepage section has its own.
+  line, 50vh tall so the footer does not jump) fills a `PageLayout`, so the
+  navigation stays in place. Every lazy route, the dashboard included, shares
+  it. React Router runs client-side navigations in a transition, so the
+  current page stays on screen until the next one is ready and the fallback
+  mostly shows on cold visits.
+- All routes sit inside `RouteBoundary`: an `ErrorBoundary` whose fallback is
+  `RouteError` and whose `resetKey` is the pathname, so navigating anywhere
+  else clears a failed page. Each homepage section has its own boundary.
 - `HomeMetadata` sets the homepage title, description, canonical and the
   homepage-only JSON-LD graph through `useSeo`.
 - `ScrollToHash` scrolls to `#section` targets after the boot loader and fonts
@@ -152,8 +157,7 @@ page's single `<main>`. Their titles use `PageHeader`.
   - name, "© YEAR · vanshul.com" and the four footer links
   - a "Display settings" disclosure holding `CursorToggle` and the
     ambient-motion switch
-  - `App` renders it after every public route through `RouteFooter`; the
-    private dashboard has its own chrome
+  - `App` renders it after every route, the private dashboard included
 - **CursorToggle** (`components/CursorToggle.jsx`): custom-cursor switch, shown
   only for fine pointers and disabled under reduced motion. It is stored
   through `utils/cursorPreference.js`: `getCursorPreference()` reads
@@ -169,8 +173,18 @@ page's single `<main>`. Their titles use `PageHeader`.
   `showSuccess`, `showError`, `showInfo` and `removeToast` via `useToast()`;
   toasts auto-dismiss after five seconds by default.
 - **ErrorBoundary** (`components/ErrorBoundary.jsx`): per-section fallback with
-  a reload button, or a custom `fallback` prop (used as `null` around the 3D
-  scene).
+  a reload button, or a custom `fallback` prop (`null` around the 3D scene,
+  `RouteError` around the routes). A new `resetKey` value clears the error and
+  renders the children again.
+- **RouteError** (`components/RouteError.jsx`): the page-level fallback. It
+  renders inside `PageLayout` (navigation, one `main` and the `h1` "This page
+  didn't load") with "Reload page" and "Back home" actions. Each GitHub Pages
+  deploy deletes the previous build's hashed chunks, so a tab opened before a
+  release fails on its next lazy route; on mount `RouteError` therefore reloads
+  once when `shouldRetry()` from `utils/routeRetry.js` allows it. That stores
+  the attempt time in `sessionStorage` (`vg.routeRetryAt`) and refuses another
+  automatic reload within ten seconds, while offline, or when storage is
+  unavailable.
 - **BackgroundElements** (`components/BackgroundElements.jsx`): fixed,
   `aria-hidden`, pointer-transparent gradient wash rendered once by `App`.
 - **Analytics** (`components/Analytics.jsx`): renders nothing. When
@@ -185,8 +199,8 @@ Each one is skipped or switched off under reduced motion. The smoke canvas,
 the rocket's flame and tooltip, and the greeting words are `aria-hidden`; the
 boot overlay is a labelled `role="status"` and the rocket is a real button.
 The starfield canvas and the cursor dot and ring carry no content. The
-telemetry overlay is not `aria-hidden`, so its text glyphs (π, Σ, `{ }`,
-binary digits, a haiku and a code fragment) reach assistive technology.
+telemetry overlay is `aria-hidden`, so its text glyphs (π, Σ, `{ }`, binary
+digits, a haiku and a code fragment) stay out of the accessibility tree.
 
 - **BootLoader**: multilingual greeting shown before the page is revealed;
   completes immediately for reduced-motion visitors.

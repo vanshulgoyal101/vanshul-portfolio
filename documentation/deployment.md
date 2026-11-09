@@ -41,7 +41,12 @@ DNS is not managed in this repository. Observed on 9 November 2026:
   (`Content-Signal` rules and `Disallow: /` for AI-training and other
   crawlers such as GPTBot, ClaudeBot, Google-Extended and GoogleOther) before
   the repository's own rules. Change that block in Cloudflare, not in
-  `public/robots.txt`.
+  `public/robots.txt`. It leaves search and AI-answer crawlers alone: Googlebot,
+  Bingbot, Applebot, DuckDuckBot, OAI-SearchBot, ChatGPT-User, PerplexityBot,
+  Claude-SearchBot and Claude-User match only the `User-agent: *` groups, which
+  allow everything. It does disallow Baiduspider and PetalBot (Baidu and
+  Huawei Petal search) as well as the training crawlers. Google documents that
+  Google-Extended does not affect inclusion or ranking in Google Search.
 - HTML was served with `cache-control: max-age=600` and hashed JavaScript with
   `max-age=14400`, both gzip-compressed on request.
 
@@ -124,9 +129,11 @@ dist/
 ├── sitemap.xml             # Generated in prebuild
 ├── sitemap-index.xml       # Generated in postbuild
 ├── feed.xml                # Generated in prebuild
+├── llms.txt                # Generated in prebuild
 ├── og/<slug>.png           # Per-post social cards (prebuild)
 ├── robots.txt, site.webmanifest, CNAME, a.js
 ├── og-image.png, favicon.ico, panda.svg, panda-*.png
+├── fonts/                  # Self-hosted woff2 fonts and their licences
 ├── images/                 # profile-avatar.webp and projects/
 └── assets/
     ├── index-[hash].js     # Entry chunk
@@ -435,6 +442,14 @@ Already done for vanshul.com; listed for a new setup.
 
 ## Troubleshooting
 
+### A Tab Opened Before a Deploy Shows "This page didn't load"
+Each deploy replaces every hashed file in `assets/`, so a tab that loaded the
+previous build cannot fetch that build's lazy chunks any more. `RouteError`
+reloads such a tab once on its own, which picks up the new build. If the page
+still fails within ten seconds (or the visitor is offline), it stays on "This
+page didn't load" with **Reload page** and **Back home**. Nothing needs to be
+done on the server.
+
 ### 404 Errors on Blog Posts
 **Symptom**: Direct URLs to blog posts return 404.
 
@@ -508,8 +523,9 @@ What the build and app already do:
 2. **Deferred work**: decorative layers and the hero scene load after idle
 3. **Images**: WebP, with `loading="lazy"` on project images and the About
    photo
-4. **Fonts**: the Google Fonts stylesheet does not block rendering (see
-   [styles.md](styles.md#where-styles-live))
+4. **Fonts**: self-hosted variable fonts; the latin Inter and Space Grotesk
+   files are preloaded with the document and nothing is fetched from a third
+   party (see [styles.md](styles.md#where-styles-live))
 5. **Minification and tree-shaking**: Vite production defaults
 
 ### Measuring

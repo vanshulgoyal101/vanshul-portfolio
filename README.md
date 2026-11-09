@@ -62,6 +62,7 @@ src/
   blogs/               # Markdown blog posts (one file per post)
   components/          # Homepage sections (Hero, Projects, About, Work, Blog,
                        # Contact), Navigation, SiteFooter, Toast, ErrorBoundary,
+                       # RouteError,
                        # Analytics, ui/ primitives, FunElements/ (decorative)
   constants/           # Content and config data modules (site, profile,
                        # projects, experience, books, blog copy, routes)

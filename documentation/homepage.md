@@ -113,8 +113,9 @@ disposed on unmount. Rotation and floating motion are restrained, with no partic
 Separate ambient decorations default to enabled and retain idle loading. The
 footer switch persists an explicit choice in `vg.ambient`; reduced motion always
 disables them. That setting does not control the desktop hero.
-Lazy routes show a "Loading page..." state (the dashboard's is empty) and share
-an error boundary.
+Lazy routes, the dashboard included, show a "Loading page..." state inside the
+page layout and share a route error boundary (see
+[components.md](components.md)).
 
 The floating rocket and `SmokeTransition` load together inside the idle ambient
 boundary. On desktop the rocket remains fixed in the lower-right corner; on
@@ -135,9 +136,8 @@ advance alone can leave the deferred subtree unmounted while the clock is paused
 The test retains its emission sample count and 0.1 CSS pixel alignment tolerance;
 separate real-time browser tests cover repeated launches and colored smoke.
 
-The footer ends every public route (home, archive, articles, shelf and 404),
-not only the homepage; `App` renders it through `RouteFooter` and skips the
-private dashboard. It separates identity and navigation from a collapsed
+The footer ends every route (home, archive, articles, shelf, 404 and the
+private dashboard), not only the homepage. It separates identity and navigation from a collapsed
 `Display settings` disclosure. Opening it scrolls the expanded settings into view without changing
 focus. Cursor and ambient preferences use labelled switches. The cursor defaults
 on for mouse devices without browser or hardware heuristics; saved `vg.cursor`

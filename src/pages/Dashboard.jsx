@@ -202,7 +202,7 @@ const Stat = styled.div`
 `;
 
 const DELTA_TONES = {
-  up: { color: 'var(--color-success)', background: 'rgba(21, 128, 61, 0.1)' },
+  up: { color: 'var(--color-success)', background: 'rgba(22, 101, 52, 0.1)' },
   down: { color: 'var(--color-danger)', background: 'rgba(185, 28, 28, 0.08)' },
   flat: { color: 'var(--color-text-muted)', background: 'rgba(15, 23, 42, 0.05)' },
 };

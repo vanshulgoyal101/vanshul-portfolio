@@ -35,7 +35,8 @@ src/
   test/                # Vitest setup
   utils/               # articleHeadings, blogLoader, blogUtils, blogViews,
                        # seoValues, scrollToSection, cursorPreference,
-                       # magnetic, dashboardData (see the module table below)
+                       # magnetic, dashboardData, routeRetry (see the module
+                       # table below)
 scripts/               # Build steps (sitemap, OG images, feed, prerender,
                        # sitemap index, verify-build), asset generators and
                        # the database runner; shared pure helpers in lib/
@@ -111,7 +112,8 @@ documentation/         # This documentation
    `ToastProvider`. It renders `ScrollToHash`, the GoatCounter `Analytics`
    loader, `GlobalStyles`, the boot loader, the skip link, the custom cursor,
    the background wash, the idle decorative layer, the routes (inside a
-   `Suspense` loading fallback and an `ErrorBoundary`) and the footer.
+   `Suspense` loading fallback and `RouteBoundary`, which shows `RouteError`
+   when a page fails to load or render) and the footer.
 3. Blog data is bundled at build time and parsed synchronously on first use:
    - `utils/blogLoader.js` uses
      `import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true })`
@@ -173,6 +175,7 @@ in detail.
 | [`utils/seoValues.js`](../src/utils/seoValues.js) | `parsePostDate`, `postDate`, `postPublishedAt`, `postTimestamp`, `compareNewestFirst`, `PUBLICATION_TIMEZONE_OFFSET`, `parseTags`, `postKeywords` | [data.md](data.md#frontmatter-schema), [seo.md](seo.md) |
 | [`utils/scrollToSection.js`](../src/utils/scrollToSection.js) | `scrollToSection`, `getHashTarget`, `getScrollOffset`, `getSectionScrollTop` | [Routing & navigation](#routing--navigation) above |
 | [`utils/cursorPreference.js`](../src/utils/cursorPreference.js) | `getCursorPreference`, `setCursorPreference`, `isPointerFine`, `isAutoCursorCapable`, `isCustomCursorEnabled`, `CURSOR_PREF_EVENT` | [components.md](components.md#shared-ui) |
+| [`utils/routeRetry.js`](../src/utils/routeRetry.js) | `shouldRetry`, `RETRY_KEY` (the once-per-ten-seconds reload guard used by `RouteError`) | [components.md](components.md) |
 | [`utils/magnetic.js`](../src/utils/magnetic.js) | `magneticOffset`, `FOLLOW_RATIO` | [components.md](components.md#decorative-elements--componentsfunelements) |
 | [`utils/dashboardData.js`](../src/utils/dashboardData.js) | `formatNumber`, `fillDailySeries`, `hourSeries`, `toBars`, `shortenUrl`, `percentDelta`, `statsToCsv` | [analytics.md](analytics.md#4-the-dashboard--dashboard) |
 | [`lib/supabaseClient.js`](../src/lib/supabaseClient.js) | `isSupabaseConfigured`, `getSupabase` (lazy view-count client) | [data.md](data.md#view-counts-supabase) |

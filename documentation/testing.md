@@ -72,7 +72,10 @@ npm run test:e2e
 canonical URL for every listed route, including the reading list. It also
 fails on an eagerly loaded lazy-only chunk, a fallback link to an unpublished
 URL or a missing in-page anchor, and feed items that differ from the published
-articles or lack full content. Playwright
+articles or lack full content. Fonts are checked too: every preloaded font and
+every `@font-face` source in the built CSS must exist in `dist/`, and no page
+may link a Google Fonts stylesheet. `dist/llms.txt` must exist, start with an
+H1 and link the archive and every published article. Playwright
 starts a production preview on port 4327 and tests desktop and mobile Chromium.
 The suite covers unique section IDs, heading clearance under the fixed header,
 reduced motion, cross-route links, skip-link focus, mobile menu focus and Escape,
@@ -168,7 +171,7 @@ container.querySelector('button[aria-label="Toggle mobile menu"]');
 
 | Area | Files |
 | ---- | ----- |
-| App routing, redirects, footer on public routes, lazy pages | `src/App.test.jsx` |
+| App routing, redirects, footer on every route, lazy pages, a failed page replaced by `RouteError` and cleared by navigation | `src/App.test.jsx` |
 | Homepage sections | `src/components/{Hero,Projects,About,Work,Contact}/*.test.jsx`, `src/components/Blog/{Blog,BlogCard,ReadingList}.test.jsx` |
 | Shared primitives: section/page headers, page layout landmark, buttons and links | `src/components/ui/*.test.jsx` |
 | Editorial post list (titles, dates, facts) | `src/components/Blog/PostList.test.jsx` |
@@ -185,8 +188,8 @@ container.querySelector('button[aria-label="Toggle mobile menu"]');
 | Scrolling, cursor preference and magnetic maths | `src/utils/{scrollToSection,cursorPreference,magnetic}.test.js` |
 | Decorative elements (boot greeting, rocket, smoke, starfield, cursor, magnetic) | `src/components/FunElements/*.test.jsx`, `src/components/BackgroundElements.test.jsx` |
 | Constants (routes, site config, blog copy, motion variants) | `src/constants/*.test.js` |
-| Error boundary | `src/components/ErrorBoundary.test.jsx` |
-| Build pipeline: frontmatter/escaping, tags, sitemap and index, RSS, structured data, prerendered content, database config | `scripts/lib/*.test.js` |
+| Error boundary (`resetKey` included), page-level `RouteError` and its once-per-ten-seconds reload guard | `src/components/ErrorBoundary.test.jsx`, `src/components/RouteError.test.jsx`, `src/utils/routeRetry.test.js` |
+| Build pipeline: frontmatter/escaping, tags, sitemap and index, RSS, llms.txt, structured data, prerendered content, database config | `scripts/lib/*.test.js` |
 | SQL schema and authorization in PGlite | `scripts/database.test.js` |
 | Browser contracts (layout, a11y, rocket, boot, article, shelf) | `e2e/*.spec.js` |
 
