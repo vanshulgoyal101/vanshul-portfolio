@@ -78,6 +78,10 @@ export default defineConfig({
           if (id.includes('react-markdown') || id.includes('gray-matter') || id.includes('remark') || id.includes('rehype') || id.includes('unified') || id.includes('micromark')) {
             return 'markdown';
           }
+          // supabase-js — imported on demand for view counts and the dashboard
+          if (id.includes('@supabase/')) {
+            return 'supabase';
+          }
         },
       },
     },

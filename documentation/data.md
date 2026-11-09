@@ -141,14 +141,23 @@ reload. Run `npm test` to confirm the content-integrity checks still pass.
 ### View counts (Supabase)
 
 Blog view counts are stored in [Supabase](https://supabase.com). The feature is
-**optional and fully self-disabling**: if the env vars below are absent, the
-Supabase client is `null`, every counter call becomes a no-op, and no counts are
-shown — the site builds and runs exactly as before.
+**optional and fully self-disabling**: if the env vars below are absent,
+`getSupabase()` resolves to `null`, every counter call becomes a no-op, and no
+counts are shown — the site builds and runs exactly as before.
 
 #### Client code
 
-- [`src/lib/supabaseClient.js`](../src/lib/supabaseClient.js) — creates the client
-  from env vars, or exports `null` when unconfigured.
+- [`src/lib/supabaseClient.js`](../src/lib/supabaseClient.js) — `getSupabase()`:
+  - imports `@supabase/supabase-js` dynamically on first use and creates one
+    shared client from the env vars, so the library (about 57 KB gzipped) never
+    sits in the entry bundle
+  - the client keeps no auth session (`persistSession`, `autoRefreshToken`
+    and `detectSessionInUrl` are off): view counts are anonymous reads and RPC
+    calls
+  - resolves to `null` when unconfigured (`isSupabaseConfigured` is `false`);
+    a failed chunk download is retried on the next call
+  - `blogViews.js` turns a failed download into "no counts", like a failed
+    request
 - [`src/utils/blogViews.js`](../src/utils/blogViews.js):
   - `getAllBlogViews(slugs)` reads counts **only for the given slugs**. The
     increment RPC accepts any well-formed slug, so the table can contain rows

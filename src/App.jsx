@@ -59,6 +59,20 @@ const MainContent = styled.main`
   z-index: 2;
 `;
 
+// Holds the page's height while a lazy route loads, so the footer does not
+// jump up and back down.
+const PageLoading = styled.div`
+  display: grid;
+  place-items: center;
+  min-height: 70vh;
+  padding: 8rem var(--container-padding);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+`;
+
 // Keyboard/screen-reader affordance: hidden until focused, then jumps to content.
 const SkipLink = styled.a`
   position: absolute;
@@ -185,7 +199,7 @@ function App() {
           {!isBooting && ambientEnabled && !reducedMotion && <IdleBackground />}
           
           <div id="main-content" tabIndex={-1}>
-          <Suspense fallback={<MainContent role="status" style={{ padding: '8rem 2rem' }}>Loading page...</MainContent>}>
+          <Suspense fallback={<PageLoading role="status">Loading page...</PageLoading>}>
           <ErrorBoundary>
           <Routes>
             {/* Main portfolio page */}

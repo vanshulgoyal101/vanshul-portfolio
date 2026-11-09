@@ -9,6 +9,9 @@ import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../src/constants/projects.
 import { EXPERIENCE } from '../src/constants/experience.js';
 
 const dist = new URL('../dist/', import.meta.url);
+// Heavy or single-route code must stay lazy: no page may fetch these before
+// first paint (see the manualChunks notes in documentation/config.md).
+const LAZY_ONLY_CHUNKS = /\/assets\/(three-core|three-react|markdown|supabase|Dashboard|HeroScene)-/;
 const sitemap = new JSDOM(readFileSync(new URL('sitemap.xml', dist), 'utf8'), { contentType: 'text/xml' });
 const urls = [...sitemap.window.document.querySelectorAll('url > loc')].map(element => element.textContent);
 assert.equal(new Set(urls).size, urls.length, 'Sitemap URLs must be unique');
@@ -25,6 +28,10 @@ for (const url of urls) {
   const document = new JSDOM(readFileSync(fileURLToPath(file), 'utf8')).window.document;
   assert.equal(document.querySelector('link[rel="canonical"]')?.getAttribute('href'), url, `Canonical mismatch for ${url}`);
   assert(document.querySelector('#root'), `Missing app root for ${url}`);
+  const eager = [...document.querySelectorAll('script[src], link[rel="modulepreload"]')]
+    .map(element => element.getAttribute('src') ?? element.getAttribute('href'));
+  assert(eager.length > 0, `No entry script for ${url}`);
+  assert.deepEqual(eager.filter(src => LAZY_ONLY_CHUNKS.test(src)), [], `Lazy-only chunk loaded eagerly by ${url}`);
   assert(document.querySelector('#root main')?.textContent.trim().length > 100, `Missing readable static content for ${url}`);
   assert.equal(document.querySelectorAll('h1').length, 1, `Expected one main heading for ${url}`);
   for (const selector of ['title', 'meta[name="description"]', 'meta[name="robots"]', 'link[rel="canonical"]', 'meta[property="og:url"]', 'meta[name="twitter:url"]']) {

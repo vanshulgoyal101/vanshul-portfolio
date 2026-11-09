@@ -104,8 +104,12 @@ documentation/         # This documentation
   `FloatingRocket`, `RandomTelemetry`, and `InteractiveSpaceBackground` only
   after first paint.
 - **Manual chunking**: `vite.config.js` splits vendors (react, framer-motion,
-  styled-components, three core, three-react, icons, markdown) for better
-  caching. three.js is unavoidably the largest chunk and is isolated.
+  styled-components, three core, three-react, icons, markdown, supabase) for
+  better caching. three.js is unavoidably the largest chunk and is isolated.
+- **Lazy services**: supabase-js loads on first use through `getSupabase()`,
+  never on first paint. `verify:build` fails the build if any published page
+  eagerly loads the three.js, markdown, supabase, dashboard or hero-scene
+  chunks.
 - **Error boundaries** wrap each section so a failure in one does not blank the
   page.
 

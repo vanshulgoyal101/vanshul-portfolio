@@ -29,10 +29,11 @@ describe('ErrorBoundary', () => {
         <Boom />
       </ErrorBoundary>
     );
-    expect(screen.getByText('Something went wrong here')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Something went wrong here' })).toBeInTheDocument();
     expect(
       screen.getByText('This section failed to load. Please try reloading the page.')
     ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reload Page' })).toHaveAttribute('type', 'button');
   });
 
   it('logs the caught error', () => {

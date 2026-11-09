@@ -48,17 +48,22 @@ linted, tested, and deployed.
 - **Build**: `outDir: 'dist'`, `chunkSizeWarningLimit: 600`, and a
   `manualChunks(id)` function that isolates vendors into named chunks:
   `vite-preload`, `react-vendor` (react-dom + router), `react-core`, `framer`,
-  `styled`, `three-core`, `three-react`, `icons`, and `markdown`. three.js core
-  is the largest chunk by nature and is deliberately isolated for caching.
+  `styled`, `three-core`, `three-react`, `icons`, `markdown` and `supabase`.
+  three.js core is the largest chunk by nature and is deliberately isolated for
+  caching. `supabase` is reached only through the dynamic import in
+  `src/lib/supabaseClient.js` (view counts) and the lazy dashboard.
 - **`vite-preload` is load-bearing.** Vite's dynamic-import helper
   (`vite/preload-helper`) is statically imported by the entry chunk. If it is
   left unassigned, Rollup can park it inside a lazy vendor chunk — which makes
   that chunk a first-paint dependency and silently defeats code-splitting.
   Pinning it to its own chunk keeps `three-core` / `three-react` / `markdown`
   out of the entry's `modulepreload` list.
-- **Verifying code-splitting**: after `npm run build`, the entry HTML should
-  only preload `react-core`, `react-vendor`, `vite-preload`, `styled`, `icons`
-  and `framer`:
+- **Verifying code-splitting**: `npm run verify:build` fails if any published
+  page eagerly loads `three-core`, `three-react`, `markdown`, `supabase`,
+  `Dashboard` or `HeroScene`. After `npm run build` the entry HTML should load
+  only the entry plus `react-core`, `react-vendor`, `vite-preload`, `styled`,
+  `icons` and `framer`. Moving supabase-js out of the entry cut it from
+  102 KB to 45 KB gzipped. To list what loads up front:
 
   ```bash
   grep -o 'assets/[a-zA-Z0-9._-]*\.js' dist/index.html | sort -u

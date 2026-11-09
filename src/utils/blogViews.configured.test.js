@@ -17,12 +17,14 @@ const client = vi.hoisted(() => {
   };
 });
 
-vi.mock('../lib/supabaseClient', () => ({ supabase: client.supabase, isSupabaseConfigured: true }));
+const getSupabase = vi.hoisted(() => vi.fn());
+vi.mock('../lib/supabaseClient', () => ({ getSupabase, isSupabaseConfigured: true }));
 
 const { getAllBlogViews, getBlogView, incrementBlogView, recordBlogView } = await import('./blogViews');
 
 beforeEach(() => {
   vi.clearAllMocks();
+  getSupabase.mockImplementation(async () => client.supabase);
   sessionStorage.clear();
   vi.spyOn(console, 'error').mockImplementation(() => {});
   client.state.rpc = { data: null, error: null };
@@ -114,5 +116,16 @@ describe('recordBlogView', () => {
     await expect(recordBlogView('a')).resolves.toBe(1);
     await expect(recordBlogView('a')).resolves.toBe(1);
     expect(client.supabase.rpc).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('when supabase-js fails to download', () => {
+  it('degrades to no counts instead of rejecting, and keeps the session mark retryable', async () => {
+    getSupabase.mockRejectedValue(new Error('Failed to fetch dynamically imported module'));
+    await expect(getAllBlogViews(['a'])).resolves.toEqual({});
+    await expect(getBlogView('a')).resolves.toBeNull();
+    await expect(recordBlogView('a')).resolves.toBeNull();
+    expect(JSON.parse(sessionStorage.getItem('vg.viewedPosts'))).toEqual([]);
+    expect(console.error).toHaveBeenCalledWith('Failed to load the view-count client:', 'Failed to fetch dynamically imported module');
   });
 });

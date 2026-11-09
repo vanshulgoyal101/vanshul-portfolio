@@ -1,4 +1,11 @@
-import { supabase } from '../lib/supabaseClient';
+import { getSupabase, isSupabaseConfigured } from '../lib/supabaseClient';
+
+// The client loads on first use; a failed download degrades like a failed
+// request (no counts) instead of rejecting.
+const loadClient = () => getSupabase().catch((error) => {
+  console.error('Failed to load the view-count client:', error.message);
+  return null;
+});
 
 // Slugs already counted in this browser session, so reloads and revisits do
 // not inflate the public counts.
@@ -31,7 +38,9 @@ const setCounted = (slug, counted) => {
  * @returns {Promise<number|null>}
  */
 export const incrementBlogView = async (slug) => {
-  if (!supabase || !slug) return null;
+  if (!slug) return null;
+  const supabase = await loadClient();
+  if (!supabase) return null;
 
   const { data, error } = await supabase.rpc('increment_blog_view', {
     post_slug: slug,
@@ -52,7 +61,9 @@ export const incrementBlogView = async (slug) => {
  * @returns {Promise<number|null>}
  */
 export const getBlogView = async (slug) => {
-  if (!supabase || !slug) return null;
+  if (!slug) return null;
+  const supabase = await loadClient();
+  if (!supabase) return null;
 
   const { data, error } = await supabase
     .from('blog_views')
@@ -78,7 +89,7 @@ export const getBlogView = async (slug) => {
  * @returns {Promise<number|null>}
  */
 export const recordBlogView = async (slug) => {
-  if (!supabase || !slug) return null;
+  if (!isSupabaseConfigured || !slug) return null;
   if (countedSlugs().has(slug)) return getBlogView(slug);
 
   setCounted(slug, true);
@@ -101,7 +112,9 @@ export const recordBlogView = async (slug) => {
  * @returns {Promise<Record<string, number>>}
  */
 export const getAllBlogViews = async (slugs) => {
-  if (!supabase || !slugs?.length) return {};
+  if (!slugs?.length) return {};
+  const supabase = await loadClient();
+  if (!supabase) return {};
 
   const { data, error } = await supabase
     .from('blog_views')
