@@ -125,3 +125,56 @@ describe('SmokeTransition timing', () => {
     expect(frames.size).toBe(0);
   });
 });
+
+describe('SmokeTransition launches', () => {
+  it('ignores exhaust samples outside a launch and samples without coordinates', () => {
+    render(<SmokeTransition />);
+    emit();
+    launch();
+    emit(Number.NaN, 400);
+    emit(200, Infinity);
+    tick(16);
+    expect(context.drawImage).not.toHaveBeenCalled();
+  });
+
+  it('mixes colours across puffs', () => {
+    const randoms = [0.1, 0.3, 0.6, 0.9];
+    let call = 0;
+    Math.random.mockImplementation(() => randoms[call++ % randoms.length]);
+    render(<SmokeTransition />);
+    launch();
+    emit();
+    now = 200;
+    emit();
+    tick(216);
+    const puffs = context.drawImage.mock.calls.filter((_, index) => index % 2 === 0);
+    expect(new Set(puffs.map(([sprite]) => sprite)).size).toBe(4);
+  });
+
+  it('starts a fresh transition when the rocket launches again', () => {
+    render(<SmokeTransition />);
+    launch();
+    emit();
+    tick(3000);
+    expect(frames.size).toBe(0);
+    now = 4000;
+    launch();
+    emit(300, 500);
+    context.drawImage.mockClear();
+    tick(4016);
+    expect(context.drawImage).toHaveBeenCalled();
+    tick(4600);
+    expect(scrollToSection).toHaveBeenCalledTimes(2);
+  });
+
+  it('still scrolls to About when the browser cannot draw', () => {
+    HTMLCanvasElement.prototype.getContext.mockReturnValue(null);
+    render(<SmokeTransition />);
+    launch();
+    emit();
+    tick(600);
+    tick(900);
+    expect(scrollToSection).toHaveBeenCalledExactlyOnceWith('about', { focus: true });
+    expect(frames.size).toBe(0);
+  });
+});

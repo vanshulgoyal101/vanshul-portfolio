@@ -156,4 +156,44 @@ describe('FloatingRocket', () => {
     act(() => vi.advanceTimersByTime(1000));
     expect(controls.set).not.toHaveBeenCalled();
   });
+
+  it('returns to the pad after a flight and can launch again', async () => {
+    const dispatch = vi.spyOn(window, 'dispatchEvent');
+    const { unmount } = render(<FloatingRocket />);
+    launch();
+    await act(async () => resolveShake());
+    await act(async () => resolveFlight());
+    act(() => vi.advanceTimersByTime(700));
+    expect(controls.set).toHaveBeenCalledWith({ y: 0 });
+    const button = screen.getByRole('button');
+    expect(button).toHaveAccessibleName('Launch rocket: 3 taps remaining');
+    expect(button).toHaveAttribute('aria-disabled', 'false');
+    launch();
+    expect(dispatch.mock.calls.filter(([event]) => event.type === 'rocket-launch')).toHaveLength(2);
+    unmount();
+  });
+
+  it('counts down in its tooltip as the visitor taps', () => {
+    const { unmount } = render(<FloatingRocket />);
+    const button = screen.getByRole('button');
+    expect(button).toHaveTextContent(/tap me to test thrusters/i);
+    fireEvent.click(button);
+    expect(button).toHaveTextContent(/tap again/i);
+    fireEvent.click(button);
+    expect(button).toHaveTextContent(/ready for launch/i);
+    unmount();
+  });
+
+  it('nudges the idle rocket every few seconds and stops once it launches', () => {
+    const pulses = () => controls.start.mock.calls.filter(([animation]) => animation.scale);
+    const { unmount } = render(<FloatingRocket />);
+    act(() => vi.advanceTimersByTime(4500));
+    expect(pulses()).toHaveLength(1);
+    act(() => vi.advanceTimersByTime(4500));
+    expect(pulses()).toHaveLength(2);
+    launch();
+    act(() => vi.advanceTimersByTime(9000));
+    expect(pulses()).toHaveLength(2);
+    unmount();
+  });
 });

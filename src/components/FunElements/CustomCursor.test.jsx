@@ -1,7 +1,21 @@
-import { act, cleanup, fireEvent, render } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import CustomCursor from './CustomCursor';
 import { setCursorPreference } from '../../utils/cursorPreference';
+
+// Like the global stand-in, but exposes the scale each cursor part animates to,
+// so the hover state can be asserted without running animations.
+vi.mock('framer-motion', async (importOriginal) => {
+  const React = await import('react');
+  return {
+    ...(await importOriginal()),
+    motion: {
+      div: React.forwardRef(function MotionDiv({ animate, transition, ...props }, ref) {
+        return <div ref={ref} data-scale={animate?.scale} {...props} />;
+      }),
+    },
+  };
+});
 
 const frames = new Map();
 let nextFrame;
@@ -75,5 +89,36 @@ describe('CustomCursor', () => {
     unmount();
     flushFrames();
     expect(document.body).not.toHaveClass('has-custom-cursor');
+  });
+
+  it('grows over links, buttons and custom interactive targets, and settles over plain content', () => {
+    const { container } = render(<CustomCursor />);
+    render(
+      <div>
+        <a href="#top"><span>Inside a link</span></a>
+        <button type="button">A button</button>
+        <div className="interactive"><span>Custom control</span></div>
+        <div role="button">Role button</div>
+        <div style={{ cursor: 'pointer' }}>Pointer target</div>
+        <p>Plain text</p>
+      </div>
+    );
+    fireEvent.mouseMove(window, { clientX: 120, clientY: 80 });
+    flushFrames();
+    const [dot, ring] = container.children;
+    const hover = (element) => {
+      fireEvent.mouseOver(element);
+      return Number(ring.dataset.scale) > 1 && Number(dot.dataset.scale) < 1;
+    };
+
+    expect(hover(screen.getByText('Plain text'))).toBe(false);
+    for (const label of ['Inside a link', 'A button', 'Custom control', 'Role button', 'Pointer target']) {
+      expect(hover(screen.getByText(label))).toBe(true);
+      expect(hover(screen.getByText('Plain text'))).toBe(false);
+    }
+
+    // Events that do not come from an element leave the current state alone.
+    hover(screen.getByText('A button'));
+    expect(hover(document)).toBe(true);
   });
 });
