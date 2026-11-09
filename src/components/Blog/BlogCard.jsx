@@ -6,6 +6,7 @@ import { MdArrowForward, MdDateRange } from 'react-icons/md';
 import { AiOutlineEye } from 'react-icons/ai';
 import PropTypes from 'prop-types';
 import { formatViews } from '../../utils/blogViews';
+import { postPath } from '../../constants/routes';
 
 // Styled Components
 const Card = styled(motion.article)`
@@ -140,7 +141,7 @@ const BlogCard = ({ blog, index, variants, views }) => {
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   return (
-    <CardLink to={`/blog/${blog.slug}`}>
+    <CardLink to={postPath(blog.slug)}>
       <Card
         variants={variants}
         initial="hidden"

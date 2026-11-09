@@ -13,6 +13,8 @@ import { readPosts, byDateDesc, escapeXml as escAttr, escapeText as escText, par
 import { prerenderContent } from './lib/prerenderContent.mjs';
 import { postJsonLd, blogIndexJsonLd } from './lib/structuredData.mjs';
 import { READING_LIST_DESCRIPTION, READING_LIST_JSON_LD } from '../src/constants/readingListSeo.js';
+import { BLOG_INDEX_DESCRIPTION } from '../src/constants/blogConstants.js';
+import { BLOG_PATH, READING_LIST_PATH, postPath, absoluteUrl } from '../src/constants/routes.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const blogsDir = join(root, 'src', 'blogs');
@@ -36,7 +38,7 @@ const setMeta = (html, attr, key, value) => {
 };
 
 const buildShell = (post) => {
-  const canonical = `${SITE}/blog/${post.slug}`;
+  const canonical = absoluteUrl(postPath(post.slug));
   const ogImage = `${SITE}/og/${post.slug}.png`;
   const title = `${post.title} — Vanshul Goyal`;
   const desc = post.summary || '';
@@ -79,7 +81,7 @@ const buildShell = (post) => {
 // The /blog listing shell: index metadata + Blog/ItemList structured data so
 // crawlers see a real content hub, not just the SPA fallback.
 const buildPageShell = ({ path, title, description: desc, jsonLd }) => {
-  const canonical = `${SITE}${path}`;
+  const canonical = absoluteUrl(path);
   const ogImage = `${SITE}/og-image.png`;
 
   let html = template;
@@ -115,19 +117,16 @@ for (const post of posts) {
 // serves it directly instead of the SPA 404 fallback.
 mkdirSync(join(distDir, 'blog'), { recursive: true });
 const blogTitle = `Blog — ${AUTHOR_NAME}`;
-const blogDescription = 'Essays on AI, robotics, the future of work, and technology by Vanshul Goyal — engineer at United Airlines.';
 writeFileSync(join(distDir, 'blog', 'index.html'), withContent(buildPageShell({
-  path: '/blog',
+  path: BLOG_PATH,
   title: blogTitle,
-  description: blogDescription,
-  jsonLd: blogIndexJsonLd([...posts].sort((first, second) => new Date(second.date) - new Date(first.date)), {
-    ...identity, title: blogTitle, description: blogDescription,
-  }),
+  description: BLOG_INDEX_DESCRIPTION,
+  jsonLd: blogIndexJsonLd(posts, { ...identity, title: blogTitle, description: BLOG_INDEX_DESCRIPTION }),
 }), { page: 'blog' }));
 
 mkdirSync(join(distDir, 'reading-list'), { recursive: true });
 writeFileSync(join(distDir, 'reading-list', 'index.html'), withContent(buildPageShell({
-  path: '/reading-list',
+  path: READING_LIST_PATH,
   title: `Reading List — ${AUTHOR_NAME}`,
   description: READING_LIST_DESCRIPTION,
   jsonLd: READING_LIST_JSON_LD,

@@ -40,9 +40,9 @@ documentation/         # this documentation
 
 - **Client-side routing** with `react-router-dom` v7:
   - `/` — the full one-page portfolio (all sections).
-  - `/blog/:slug` — an individual blog post ([`pages/BlogPost.jsx`](../src/pages/BlogPost.jsx)).
-  - `/blog` - full writing index.
-  - `/reading-list` - separate Books and Essays collections with anchor links.
+  - `/blog/<slug>/` — an individual blog post ([`pages/BlogPost.jsx`](../src/pages/BlogPost.jsx)).
+  - `/blog/` - full writing index.
+  - `/reading-list/` - separate Books and Essays collections with anchor links.
   - `/dashboard` - noindex private reporting UI; authorization is enforced in SQL.
   - `/blogs` and `/blogs/:slug` - legacy aliases to the canonical writing routes.
   - Unknown paths/posts - friendly noindex recovery.
@@ -50,7 +50,9 @@ documentation/         # this documentation
   sitemap, social images and feed. Postbuild uses ReactMarkdown to emit readable
   articles, indexes, shelf and basic homepage content inside `#root`. These are
   fallback documents, not full SSR: React `createRoot` replaces them on startup.
-  Directory links use trailing slashes for static no-JavaScript navigation.
+  Public URLs end in `/` because GitHub Pages redirects the slash-less form;
+  [`constants/routes.js`](../src/constants/routes.js) builds every path (see
+  [seo.md](seo.md#url-and-canonical-policy)).
   `scripts/verify-build.mjs` checks all public sitemap routes and metadata.
 - **GitHub Pages SPA workaround** (see [deployment.md](deployment.md)):
   - `public/404.html` captures deep links, encodes the path into a query string,

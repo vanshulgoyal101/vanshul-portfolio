@@ -41,11 +41,11 @@ describe('structuredData/postJsonLd', () => {
   });
 
   it('sets the canonical url and image', () => {
-    expect(posting.url).toBe('https://example.com/blog/hello-world');
+    expect(posting.url).toBe('https://example.com/blog/hello-world/');
     expect(posting.image).toEqual(['https://example.com/og/hello-world.png']);
     expect(posting.mainEntityOfPage).toEqual({
       '@type': 'WebPage',
-      '@id': 'https://example.com/blog/hello-world',
+      '@id': 'https://example.com/blog/hello-world/',
     });
   });
 
@@ -81,9 +81,11 @@ describe('structuredData/postJsonLd', () => {
   it('breadcrumb trail is Home → Blog → post', () => {
     const names = breadcrumb.itemListElement.map((i) => i.name);
     expect(names).toEqual(['Home', 'Blog', 'Hello World']);
-    expect(breadcrumb.itemListElement[2].item).toBe(
-      'https://example.com/blog/hello-world',
-    );
+    expect(breadcrumb.itemListElement.map((i) => i.item)).toEqual([
+      'https://example.com/',
+      'https://example.com/blog/',
+      'https://example.com/blog/hello-world/',
+    ]);
   });
 
   it('omits date/time fields for an unparseable date', () => {
@@ -114,7 +116,7 @@ describe('structuredData/blogIndexJsonLd', () => {
     expect(blog.blogPost[0]).toMatchObject({
       '@type': 'BlogPosting',
       headline: 'Newer',
-      url: 'https://example.com/blog/newer',
+      url: 'https://example.com/blog/newer/',
       articleSection: 'AI',
     });
   });

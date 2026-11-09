@@ -42,7 +42,7 @@ test('multilingual greeting finishes and reveals centered projects', async ({ pa
   await expect(page.locator('#projects h2 + p')).toHaveCSS('text-align', 'center');
   await page.screenshot({ path: testInfo.outputPath('centered-projects.png'), animations: 'disabled' });
   await page.getByRole('contentinfo').getByRole('link', { name: 'Blog', exact: true }).click();
-  await expect(page).toHaveURL(/\/blog$/);
+  await expect(page).toHaveURL(/\/blog\/$/);
   await expect(loader).toHaveCount(0);
 });
 

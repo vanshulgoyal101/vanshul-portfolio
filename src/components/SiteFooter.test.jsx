@@ -14,7 +14,7 @@ describe('SiteFooter', () => {
     const { container } = renderFooter();
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Footer links' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Blog' })).toHaveAttribute('href', '/blog');
+    expect(screen.getByRole('link', { name: 'Blog' })).toHaveAttribute('href', '/blog/');
     expect(screen.getByRole('link', { name: 'Vanshul Goyal' })).toHaveAttribute('href', '/#home');
     expect(container.querySelector('details')).not.toHaveAttribute('open');
   });

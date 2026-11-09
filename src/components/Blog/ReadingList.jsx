@@ -5,9 +5,10 @@ import PropTypes from 'prop-types';
 import { FaBookOpen } from 'react-icons/fa';
 import { MdArrowForward } from 'react-icons/md';
 import { BOOKS, ESSAYS } from '../../constants/books';
+import { READING_LIST_PATH } from '../../constants/routes';
 
 // Mirrors BlogCard so the "From My Shelf" entry looks and behaves exactly like a
-// blog card: a link that navigates to a dedicated page (/reading-list).
+// blog card: a link that navigates to a dedicated page (/reading-list/).
 const CardLink = styled(Link)`
   text-decoration: none;
   color: inherit;
@@ -127,7 +128,7 @@ const ReadMore = styled.span`
 `;
 
 const ReadingList = ({ variants }) => (
-  <CardLink to="/reading-list" aria-label="Reading list: From My Shelf">
+  <CardLink to={READING_LIST_PATH} aria-label="Reading list: From My Shelf">
     <Card
       variants={variants}
       initial="hidden"

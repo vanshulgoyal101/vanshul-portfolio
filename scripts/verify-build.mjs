@@ -4,16 +4,20 @@ import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
 import { SITE_URL } from '../src/constants/siteConfig.js';
 import { BOOKS, ESSAYS, SHELF_ITEMS } from '../src/constants/books.js';
+import { READING_LIST_PATH, absoluteUrl } from '../src/constants/routes.js';
 
 const dist = new URL('../dist/', import.meta.url);
 const sitemap = new JSDOM(readFileSync(new URL('sitemap.xml', dist), 'utf8'), { contentType: 'text/xml' });
 const urls = [...sitemap.window.document.querySelectorAll('url > loc')].map(element => element.textContent);
 assert.equal(new Set(urls).size, urls.length, 'Sitemap URLs must be unique');
 assert(!urls.some(url => url.includes('/dashboard')), 'Private dashboard must not be in the sitemap');
-assert(urls.includes(`${SITE_URL}/reading-list`), 'Reading list must appear in the published sitemap');
+assert(urls.includes(absoluteUrl(READING_LIST_PATH)), 'Reading list must appear in the published sitemap');
 for (const url of urls) {
   const route = new URL(url);
   assert.equal(route.origin, SITE_URL);
+  // GitHub Pages redirects slash-less directory URLs, so a published URL must
+  // be the final form: the root or a path ending in `/`.
+  assert(route.pathname.endsWith('/') && !route.search && !route.hash, `Published URL would redirect: ${url}`);
   const path = route.pathname.replace(/^\/+|\/+$/g, '');
   const file = new URL(path ? `${path}/index.html` : 'index.html', dist);
   const document = new JSDOM(readFileSync(fileURLToPath(file), 'utf8')).window.document;
@@ -33,8 +37,7 @@ for (const url of urls) {
   for (const script of document.querySelectorAll('script[type="application/ld+json"]')) JSON.parse(script.textContent);
   for (const anchor of document.querySelectorAll('#root a[href^="/"]')) {
     const target = new URL(anchor.getAttribute('href'), SITE_URL);
-    const canonicalPath = target.pathname === '/' ? '/' : target.pathname.replace(/\/$/, '');
-    assert(urls.includes(`${target.origin}${canonicalPath}`), `Unpublished internal link ${target} in ${url}`);
+    assert(urls.includes(`${target.origin}${target.pathname}`), `Internal link ${target} in ${url} is not a published URL`);
   }
   assert(!document.title.includes('Redirecting'), `Fallback shell for ${url}`);
   if (path === 'reading-list') {

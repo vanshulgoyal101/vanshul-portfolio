@@ -6,6 +6,42 @@ crawlers and JavaScript-disabled readers; runtime metadata follows navigation.
 This improves technical discoverability, not guaranteed ranking. Relevance,
 original content, reputable references, competition and search intent matter.
 
+## URL and canonical policy
+
+GitHub Pages serves each prerendered route from `<route>/index.html` and
+answers the slash-less form with a permanent redirect. Measured on the live
+site (November 2026):
+
+```
+https://vanshul.com/blog/the-new-leverage   301 -> https://vanshul.com/blog/the-new-leverage/
+https://vanshul.com/blog                    301 -> https://vanshul.com/blog/
+https://vanshul.com/reading-list            301 -> https://vanshul.com/reading-list/
+```
+
+Earlier builds declared the slash-less URLs as canonical and listed them in the
+sitemap, so every advertised URL redirected to a page that pointed back at the
+redirecting URL. Every public URL now uses its final, non-redirecting form:
+
+| Page | Canonical URL |
+| --- | --- |
+| Home | `https://vanshul.com/` |
+| Writing archive | `https://vanshul.com/blog/` |
+| Article | `https://vanshul.com/blog/<slug>/` |
+| Reading list | `https://vanshul.com/reading-list/` |
+
+[`src/constants/routes.js`](../src/constants/routes.js) is the single source
+for these paths (`BLOG_PATH`, `READING_LIST_PATH`, `postPath(slug)`,
+`homeSectionPath(id)`, `absoluteUrl(path)`). The application links, `useSeo`
+canonicals, prerendered shells, sitemap, feed links, JSON-LD and the build
+verifier all use it. `npm run verify:build` fails if a sitemap URL does not end
+in `/`, if a page's canonical differs from its sitemap URL, or if fallback
+content links to anything other than an exact published URL.
+
+React Router matches both forms, so old slash-less links keep working in the
+application, and `/blogs` and `/blogs/<slug>` aliases redirect to the canonical
+paths. RSS `<guid>` values intentionally keep the original slash-less strings
+(marked `isPermaLink="false"`) so feed readers do not show existing posts as new.
+
 ## Runtime: the `useSeo` hook
 
 `src/hooks/useSeo.js` imperatively manages `<head>` for the current route:
@@ -63,9 +99,8 @@ in `scripts/lib/seo.test.js`), so the three generators can't drift apart.
 is not enabled and unsafe link protocols are rejected. The article, shelf,
 index and basic homepage content sit inside `#root`; `createRoot` replaces them
 when the application starts. This is progressive fallback content, not React
-hydration or a second hidden copy of the page. No-JavaScript navigation uses
-directory URLs ending in `/` to reach actual files on static hosts. Canonicals
-retain the existing public non-trailing-slash convention.
+hydration or a second hidden copy of the page. Links in the fallback content
+use the same canonical trailing-slash URLs as the application.
 
 The shared post reader normalizes CRLF, rejects missing titles, unsafe/duplicate
 slugs and invalid dates. Slugs must be lowercase kebab-case, at most 120

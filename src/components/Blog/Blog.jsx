@@ -12,6 +12,7 @@ import { loadBlogPosts } from '../../utils/blogLoader';
 import { useBlogViews } from '../../hooks/useBlogViews';
 import { BLOG_CONTENT } from '../../constants/blogConstants';
 import { containerVariants, itemVariants } from '../../constants/motionVariants';
+import { BLOG_PATH } from '../../constants/routes';
 
 // Styled Components
 const BlogSection = styled.section`
@@ -195,7 +196,7 @@ const Blog = () => {
         )}
 
         {sortedBlogPosts.length > featuredPosts.length && (
-          <ArchiveLink to="/blog">
+          <ArchiveLink to={BLOG_PATH}>
             View all {sortedBlogPosts.length} posts
             <MdArrowForward aria-hidden="true" />
           </ArchiveLink>

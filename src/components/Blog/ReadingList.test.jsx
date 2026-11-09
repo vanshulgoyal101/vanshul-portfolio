@@ -12,10 +12,10 @@ const renderCard = () =>
   );
 
 describe('ReadingList card', () => {
-  it('is a link to the /reading-list page, like a blog card', () => {
+  it('is a link to the /reading-list/ page, like a blog card', () => {
     renderCard();
     const link = screen.getByRole('link', { name: /reading list/i });
-    expect(link).toHaveAttribute('href', '/reading-list');
+    expect(link).toHaveAttribute('href', '/reading-list/');
     expect(screen.getByText('From My Shelf')).toBeInTheDocument();
     expect(screen.getByText('Books').textContent).toBe(`${BOOKS.length} Books`);
     expect(screen.getByText('Essays').textContent).toBe(`${ESSAYS.length} Essays`);

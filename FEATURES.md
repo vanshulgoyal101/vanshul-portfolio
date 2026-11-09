@@ -18,14 +18,16 @@
 - ✅ Original multilingual intro, three-tap rocket/smoke/About transition,
   desktop sculpture and persistent display preferences are retained.
 - ✅ Featured projects plus a keyboard-operable, initially collapsed directory.
-- ✅ Separate Books (12) and Essays (8) at `/reading-list`, with external sources.
+- ✅ Separate Books (12) and Essays (8) at `/reading-list/`, with external sources.
 - ✅ Private analytics dashboard: owner-gated SQL aggregates, time ranges, IST
   charts, safe CSV export, loading/error/empty states and sign-out invalidation.
 
 ## Blog (✅)
 
-- ✅ Markdown posts in `src/blogs/*.md` (filename = slug), rendered at `/blog/:slug`
-  with a `/blog` index and a homepage `#blog` section.
+- ✅ Markdown posts in `src/blogs/*.md` (filename = slug), rendered at `/blog/<slug>/`
+  with a `/blog/` index and a homepage `#blog` section.
+- ✅ Canonical URLs, sitemap entries and internal links use the final
+  trailing-slash form, so no advertised URL redirects on GitHub Pages.
 - ✅ Homepage writing preview features the three newest posts and links to the full archive.
 - ✅ Frontmatter schema (id, title, slug, summary, date, readTime, category).
 - ✅ Readable static article bodies, writing index, shelf and basic homepage;

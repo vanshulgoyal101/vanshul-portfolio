@@ -7,6 +7,7 @@ import { writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE } from '../src/constants/siteConfig.js';
+import { BLOG_PATH, postPath, absoluteUrl } from '../src/constants/routes.js';
 import { escapeXml as esc, rfc822, readPosts, byDateDesc } from './lib/seo.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -18,12 +19,13 @@ const lastBuild = posts.length ? rfc822(posts[0].date) : rfc822(new Date());
 
 const items = posts
   .map((p) => {
-    const url = `${SITE}/blog/${p.slug}`;
+    const url = absoluteUrl(postPath(p.slug));
     const pubDate = rfc822(p.date);
+    // Stable identifiers: the slash-less URL predates trailing-slash canonicals.
     return `    <item>
       <title>${esc(p.title)}</title>
       <link>${url}</link>
-      <guid isPermaLink="true">${url}</guid>
+      <guid isPermaLink="false">${SITE}/blog/${p.slug}</guid>
       ${pubDate ? `<pubDate>${pubDate}</pubDate>` : ''}
       ${p.category ? `<category>${esc(p.category)}</category>` : ''}
       <description>${esc(p.summary || '')}</description>
@@ -35,7 +37,7 @@ const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Vanshul Goyal — Blog</title>
-    <link>${SITE}/#blog</link>
+    <link>${absoluteUrl(BLOG_PATH)}</link>
     <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml" />
     <description>Writing on AI, the future of work, technology and space by Vanshul Goyal.</description>
     <language>en</language>

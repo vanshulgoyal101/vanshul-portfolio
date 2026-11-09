@@ -5,6 +5,7 @@
  * `opts` — nothing is read from disk or the environment here.
  */
 import { isoDate, postKeywords } from '../../src/utils/seoValues.js';
+import { HOME_PATH, BLOG_PATH, postPath, absoluteUrl } from '../../src/constants/routes.js';
 
 const websiteId = (site) => `${site}/#website`;
 const personId = (site) => `${site}/#person`;
@@ -36,7 +37,7 @@ export const breadcrumbList = (trail) => ({
  * @returns {object[]}
  */
 export const postJsonLd = (post, { site, authorName, authorSameAs }) => {
-  const canonical = `${site}/blog/${post.slug}`;
+  const canonical = absoluteUrl(postPath(post.slug), site);
   const ogImage = `${site}/og/${post.slug}.png`;
   const desc = post.summary || '';
   const published = isoDate(post.date);
@@ -77,8 +78,8 @@ export const postJsonLd = (post, { site, authorName, authorSameAs }) => {
       url: canonical,
     },
     breadcrumbList([
-      ['Home', `${site}/`],
-      ['Blog', `${site}/blog`],
+      ['Home', absoluteUrl(HOME_PATH, site)],
+      ['Blog', absoluteUrl(BLOG_PATH, site)],
       [post.title, canonical],
     ]),
   ];
@@ -92,7 +93,7 @@ export const postJsonLd = (post, { site, authorName, authorSameAs }) => {
  * @returns {object[]}
  */
 export const blogIndexJsonLd = (posts, { site, authorName, title, description }) => {
-  const canonical = `${site}/blog`;
+  const canonical = absoluteUrl(BLOG_PATH, site);
   return [
     {
       '@context': 'https://schema.org',
@@ -107,13 +108,13 @@ export const blogIndexJsonLd = (posts, { site, authorName, title, description })
       blogPost: posts.map((p) => ({
         '@type': 'BlogPosting',
         headline: p.title,
-        url: `${site}/blog/${p.slug}`,
+        url: absoluteUrl(postPath(p.slug), site),
         ...(isoDate(p.date) ? { datePublished: isoDate(p.date) } : {}),
         ...(p.category ? { articleSection: p.category } : {}),
       })),
     },
     breadcrumbList([
-      ['Home', `${site}/`],
+      ['Home', absoluteUrl(HOME_PATH, site)],
       ['Blog', canonical],
     ]),
   ];

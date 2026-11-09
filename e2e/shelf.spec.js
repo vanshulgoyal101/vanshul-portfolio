@@ -19,7 +19,7 @@ test('shelf opens from Writings with separate collections and working navigation
   await expect(card).toBeInViewport({ ratio: 1 });
   await card.screenshot({ path: testInfo.outputPath('shelf-card.png') });
   await card.click();
-  await expect(page).toHaveURL(/\/reading-list$/);
+  await expect(page).toHaveURL(/\/reading-list\/$/);
   await expect(page.getByRole('heading', { name: 'From My Shelf' })).toBeInViewport();
   await expect(page.getByRole('list', { name: 'Books', exact: true }).getByRole('listitem')).toHaveCount(BOOKS.length);
   await expect(page.getByRole('list', { name: 'Essays', exact: true }).getByRole('listitem')).toHaveCount(ESSAYS.length);

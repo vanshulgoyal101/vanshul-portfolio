@@ -35,13 +35,13 @@ describe('Blog section', () => {
     await renderBlog();
     const featuredPosts = sortBlogsByDate(loadBlogPosts()).slice(0, 3);
     const postLinks = screen.getAllByRole('link').filter((link) =>
-      link.getAttribute('href')?.startsWith('/blog/')
+      /^\/blog\/[^/]+\/$/.test(link.getAttribute('href') ?? '')
     );
 
     expect(postLinks).toHaveLength(featuredPosts.length);
     featuredPosts.forEach((post) => {
       expect(screen.getByRole('link', { name: new RegExp(post.title, 'i') }))
-        .toHaveAttribute('href', `/blog/${post.slug}`);
+        .toHaveAttribute('href', `/blog/${post.slug}/`);
     });
   });
 
@@ -50,7 +50,7 @@ describe('Blog section', () => {
     const postCount = loadBlogPosts().length;
 
     expect(screen.getByRole('link', { name: `View all ${postCount} posts` }))
-      .toHaveAttribute('href', '/blog');
+      .toHaveAttribute('href', '/blog/');
   });
 
   it('renders a section without duplicating the page-owned blog anchor', async () => {

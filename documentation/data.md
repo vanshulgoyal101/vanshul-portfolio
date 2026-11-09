@@ -61,7 +61,7 @@ Body content in Markdown…
 - The **Blog section** ([`components/Blog/Blog.jsx`](../src/components/Blog/Blog.jsx))
   loads posts with `useMemo`, sorts them, and renders the three newest as
   `BlogCard`s plus a link to the full archive (or an empty state).
-- `BlogCard` links to `/blog/:slug`.
+- `BlogCard` links to the canonical `/blog/<slug>/` URL.
 - The full post renders in [`pages/BlogPost.jsx`](../src/pages/BlogPost.jsx) using
   `react-markdown`. Links inside
   rendered markdown open in a new tab with `rel="noopener noreferrer"`.

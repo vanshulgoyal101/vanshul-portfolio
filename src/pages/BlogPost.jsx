@@ -13,6 +13,7 @@ import { formatViews } from '../utils/blogViews';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
 import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';
+import { homeSectionPath, postPath } from '../constants/routes';
 import { postJsonLd } from '../../scripts/lib/structuredData.mjs';
 import { useToast } from '../components/Toast';
 import Navigation from '../components/Navigation/Navigation';
@@ -384,7 +385,7 @@ const BlogPost = () => {
   useSeo({
     title: blog ? `${blog.title} — ${AUTHOR_NAME}` : `Post not found — ${AUTHOR_NAME}`,
     description: blog?.summary || 'The requested blog post could not be found.',
-    path: blog ? `/blog/${blog.slug}` : `/blog/${slug ?? ''}`,
+    path: postPath(blog ? blog.slug : slug ?? ''),
     image: blog ? `${SITE_URL}/og/${blog.slug}.png` : undefined,
     type: blog ? 'article' : 'website',
     robots: blog ? undefined : 'noindex, follow',
@@ -397,7 +398,7 @@ const BlogPost = () => {
   }, [slug]);
 
   const handleBack = () => {
-    navigate('/#blog');
+    navigate(homeSectionPath('blog'));
   };
 
   const handleShare = async () => {
@@ -501,7 +502,7 @@ const BlogPost = () => {
               <RelatedHeading>More writing</RelatedHeading>
               <RelatedGrid>
                 {related.map((post) => (
-                  <RelatedCard key={post.slug} to={`/blog/${post.slug}`}>
+                  <RelatedCard key={post.slug} to={postPath(post.slug)}>
                     {post.category && <RelatedCategory>{post.category}</RelatedCategory>}
                     <RelatedCardTitle>{post.title}</RelatedCardTitle>
                     {post.readTime && <RelatedMeta>{post.readTime}</RelatedMeta>}

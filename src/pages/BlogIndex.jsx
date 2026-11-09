@@ -11,9 +11,9 @@ import { useBlogViews } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
 import { itemVariants } from '../constants/motionVariants';
 import { SITE_URL, AUTHOR_NAME } from '../constants/siteConfig';
-
-const DESCRIPTION =
-  'Essays on AI, robotics, the future of work, and technology by Vanshul Goyal — engineer at United Airlines.';
+import { BLOG_PATH } from '../constants/routes';
+import { BLOG_INDEX_DESCRIPTION } from '../constants/blogConstants';
+import { blogIndexJsonLd } from '../../scripts/lib/structuredData.mjs';
 
 const PageWrapper = styled.div`
   min-height: 100vh;
@@ -68,52 +68,23 @@ const Grid = styled.div`
   }
 `;
 
-const isoOrUndef = (value) => {
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
-};
+const TITLE = `Blog — ${AUTHOR_NAME}`;
 
 const BlogIndex = () => {
   const posts = useMemo(() => sortBlogsByDate(loadBlogPosts()), []);
   const views = useBlogViews();
 
   const jsonLd = useMemo(
-    () =>
-      JSON.stringify([
-        {
-          '@context': 'https://schema.org',
-          '@type': 'Blog',
-          name: `${AUTHOR_NAME} — Blog`,
-          url: `${SITE_URL}/blog`,
-          description: DESCRIPTION,
-          inLanguage: 'en',
-          author: { '@type': 'Person', name: AUTHOR_NAME, url: SITE_URL },
-          blogPost: posts.map((p) => ({
-            '@type': 'BlogPosting',
-            headline: p.title,
-            url: `${SITE_URL}/blog/${p.slug}`,
-            ...(isoOrUndef(p.date) ? { datePublished: isoOrUndef(p.date) } : {}),
-            ...(p.category ? { articleSection: p.category } : {}),
-          })),
-        },
-        {
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
-            { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog` },
-          ],
-        },
-      ]),
+    () => JSON.stringify(blogIndexJsonLd(posts, {
+      site: SITE_URL,
+      authorName: AUTHOR_NAME,
+      title: TITLE,
+      description: BLOG_INDEX_DESCRIPTION,
+    })),
     [posts]
   );
 
-  useSeo({
-    title: `Blog — ${AUTHOR_NAME}`,
-    description: DESCRIPTION,
-    path: '/blog',
-    jsonLd,
-  });
+  useSeo({ title: TITLE, description: BLOG_INDEX_DESCRIPTION, path: BLOG_PATH, jsonLd });
 
   return (
     <PageWrapper>
@@ -122,8 +93,8 @@ const BlogIndex = () => {
       <ContentWrapper>
         <Container>
           <Header>
-            <h1>Writing</h1>
-            <p>{DESCRIPTION}</p>
+            <h1>Writings</h1>
+            <p>{BLOG_INDEX_DESCRIPTION}</p>
           </Header>
           <Grid as={motion.div} initial="hidden" animate="visible">
             {posts.map((post, i) => (

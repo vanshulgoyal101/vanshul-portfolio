@@ -9,6 +9,7 @@ import { useIdle } from './hooks/useIdle';
 import { getHashTarget, scrollToSection as scrollToSectionUtil } from './utils/scrollToSection';
 import { useSeo } from './hooks/useSeo';
 import { AUTHOR_NAME, HOME_DESCRIPTION } from './constants/siteConfig';
+import { BLOG_PATH, postPath } from './constants/routes';
 import Navigation from './components/Navigation/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
@@ -127,10 +128,10 @@ const IdleBackground = () => {
   );
 };
 
-// Redirect legacy/plural blog URLs (/blogs, /blogs/:slug) to the canonical /blog.
+// Redirect legacy/plural blog URLs (/blogs, /blogs/:slug) to the canonical /blog/.
 const RedirectBlogSlug = () => {
   const { slug } = useParams();
-  return <Navigate to={`/blog/${slug}`} replace />;
+  return <Navigate to={postPath(slug)} replace />;
 };
 
 function App() {
@@ -245,8 +246,8 @@ function App() {
             {/* Blog index / listing page */}
             <Route path="/blog" element={<BlogIndex />} />
 
-            {/* Plural/legacy aliases → canonical /blog */}
-            <Route path="/blogs" element={<Navigate to="/blog" replace />} />
+            {/* Plural/legacy aliases → canonical /blog/ */}
+            <Route path="/blogs" element={<Navigate to={BLOG_PATH} replace />} />
             <Route path="/blogs/:slug" element={<RedirectBlogSlug />} />
 
             {/* Private analytics dashboard (owner-only, server-gated) */}

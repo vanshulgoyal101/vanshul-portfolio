@@ -1,8 +1,9 @@
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useSeo } from '../hooks/useSeo';
+import { HOME_PATH, BLOG_PATH, READING_LIST_PATH } from '../constants/routes';
 import Navigation from '../components/Navigation/Navigation';
 
 const Wrap = styled.div`
@@ -53,7 +54,7 @@ const Actions = styled.div`
   justify-content: center;
 `;
 
-const HomeButton = styled(motion.button)`
+const HomeLink = styled(Link)`
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -64,7 +65,12 @@ const HomeButton = styled(motion.button)`
   background: var(--color-gradient-1);
   color: #fff;
   font-weight: 600;
-  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
 `;
 
 const QuietLink = styled(Link)`
@@ -85,7 +91,6 @@ const QuietLink = styled(Link)`
 `;
 
 const NotFound = () => {
-  const navigate = useNavigate();
   const { pathname } = useLocation();
 
   useSeo({
@@ -105,11 +110,11 @@ const NotFound = () => {
           The link may be broken or the page may have moved. Let&apos;s get you back on track.
         </Text>
         <Actions>
-          <HomeButton onClick={() => navigate('/')} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-            <FaArrowLeft /> Back home
-          </HomeButton>
-          <QuietLink to="/blog">Read the blog</QuietLink>
-          <QuietLink to="/reading-list">Reading list</QuietLink>
+          <HomeLink to={HOME_PATH}>
+            <FaArrowLeft aria-hidden="true" /> Back home
+          </HomeLink>
+          <QuietLink to={BLOG_PATH}>Read the blog</QuietLink>
+          <QuietLink to={READING_LIST_PATH}>Reading list</QuietLink>
         </Actions>
       </Center>
     </Wrap>

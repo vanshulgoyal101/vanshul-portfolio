@@ -26,7 +26,7 @@ All UI and logic are organized into feature-based React components under `src/co
 ### Blog.jsx
 **Location**: `src/components/Blog/Blog.jsx`
 
-**Purpose**: Homepage writing preview: the shelf card, the three newest posts, and a link to the full `/blog` archive.
+**Purpose**: Homepage writing preview: the shelf card, the three newest posts, and a link to the full `/blog/` archive.
 
 **Features**:
 - Dynamically loads Markdown files from `src/blogs/` using `import.meta.glob`
@@ -55,7 +55,7 @@ All UI and logic are organized into feature-based React components under `src/co
 - Hover effects: `translateY(-5px)` transition
 - Focus-visible states for keyboard navigation
 - Author information
-- Links to `/blog/:slug` route
+- Links to the post's canonical `/blog/<slug>/` URL via `postPath`
 
 **Styling**: 
 - Flexbox layout for content distribution
@@ -74,7 +74,7 @@ All UI and logic are organized into feature-based React components under `src/co
 first ("zeroth") card in the blog grid.
 
 **Features**:
-- Compact blog-sized card linking to the dedicated `/reading-list` page
+- Compact blog-sized card linking to the dedicated `/reading-list/` page
 - Separate Books and Essays counts derived from the shared `BOOKS` and `ESSAYS` arrays
 - An open page layout using the site's display/mono fonts, blue accents, and shared background,
   without an enclosing article card
@@ -267,7 +267,7 @@ showInfo('Heads up', 'Something informational', 0); // duration 0 = no auto-dism
 ### BlogPost.jsx
 **Location**: `src/pages/BlogPost.jsx`
 
-**Purpose**: Individual blog post page (route: `/blog/:slug`).
+**Purpose**: Individual blog post page (route: `/blog/<slug>/`).
 
 **Features**:
 - Reads `:slug` param from URL using `useParams()`

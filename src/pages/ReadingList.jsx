@@ -5,6 +5,7 @@ import { FaArrowLeft, FaArrowUp, FaArrowUpRightFromSquare } from 'react-icons/fa
 import { BOOKS, ESSAYS } from '../constants/books';
 import { READING_LIST_DESCRIPTION, READING_LIST_JSON_LD } from '../constants/readingListSeo';
 import { useSeo } from '../hooks/useSeo';
+import { READING_LIST_PATH, homeSectionPath } from '../constants/routes';
 import { scrollToSection } from '../utils/scrollToSection';
 import Navigation from '../components/Navigation/Navigation';
 
@@ -198,7 +199,7 @@ const ReadingListPage = () => {
   useSeo({
     title: 'Reading List — Vanshul Goyal',
     description: READING_LIST_DESCRIPTION,
-    path: '/reading-list',
+    path: READING_LIST_PATH,
     jsonLd: JSON.stringify(READING_LIST_JSON_LD),
   });
 
@@ -224,7 +225,7 @@ const ReadingListPage = () => {
       <Navigation />
       <ContentWrapper>
         <Container>
-          <BackLink to="/#blog"><FaArrowLeft aria-hidden="true" /> Back to Writings</BackLink>
+          <BackLink to={homeSectionPath('blog')}><FaArrowLeft aria-hidden="true" /> Back to Writings</BackLink>
           <Article>
             <Header id="shelf-top">
               <Title>From My Shelf</Title>
@@ -271,7 +272,7 @@ const ReadingListPage = () => {
               </EssayList>
             </Collection>
             <End>
-              <BackLink to="/#blog"><FaArrowLeft aria-hidden="true" /> Writings</BackLink>
+              <BackLink to={homeSectionPath('blog')}><FaArrowLeft aria-hidden="true" /> Writings</BackLink>
               <BackLink as="a" href="#shelf-top">Back to top <FaArrowUp aria-hidden="true" /></BackLink>
             </End>
           </Article>

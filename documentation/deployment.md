@@ -126,8 +126,8 @@ markdown libraries.
 
 ### Problem
 GitHub Pages serves static files only. An application route without a generated
-HTML file returns HTTP 404 on a direct visit. The build emits shells for `/blog`,
-each published post, and `/reading-list` so these public routes avoid the fallback.
+HTML file returns HTTP 404 on a direct visit. The build emits shells for `/blog/`,
+each published post, and `/reading-list/` so these public routes avoid the fallback.
 
 ### Solution
 Two-script system that intercepts 404s and restores client-side routing:

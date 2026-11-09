@@ -60,7 +60,7 @@ describe('BlogCard', () => {
   it('links to the correct blog post URL', () => {
     renderCard();
     const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', '/blog/the-new-leverage');
+    expect(link).toHaveAttribute('href', '/blog/the-new-leverage/');
   });
 
   it('exposes an accessible label for the post', () => {
@@ -73,7 +73,7 @@ describe('BlogCard', () => {
   it('renders correctly for a different blog', () => {
     renderCard({ ...baseBlog, title: 'Two Worlds', slug: 'the-two-worlds' });
     expect(screen.getByText('Two Worlds')).toBeInTheDocument();
-    expect(screen.getByRole('link')).toHaveAttribute('href', '/blog/the-two-worlds');
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/blog/the-two-worlds/');
   });
 
   it('does not render a view count when views is undefined', () => {

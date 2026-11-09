@@ -3,6 +3,7 @@
  * unit-tested with fixtures; the generate-sitemap script handles I/O.
  */
 import { byDateDesc, localCalendarDate, escapeXml } from './seo.mjs';
+import { HOME_PATH, BLOG_PATH, READING_LIST_PATH, postPath, absoluteUrl } from '../../src/constants/routes.js';
 
 /**
  * Build a Google-compatible urlset (with an image sitemap per post).
@@ -18,11 +19,11 @@ export const buildSitemap = (posts, { site }) => {
   const newestMod = localCalendarDate(newest);
 
   const urls = [
-    { loc: `${site}/`, priority: '1.0', changefreq: 'weekly', lastmod: newestMod },
-    { loc: `${site}/blog`, priority: '0.9', changefreq: 'weekly', lastmod: newestMod },
-    { loc: `${site}/reading-list`, priority: '0.6', changefreq: 'yearly' },
+    { loc: absoluteUrl(HOME_PATH, site), priority: '1.0', changefreq: 'weekly', lastmod: newestMod },
+    { loc: absoluteUrl(BLOG_PATH, site), priority: '0.9', changefreq: 'weekly', lastmod: newestMod },
+    { loc: absoluteUrl(READING_LIST_PATH, site), priority: '0.6', changefreq: 'yearly' },
     ...ordered.map((p) => ({
-      loc: `${site}/blog/${p.slug}`,
+      loc: absoluteUrl(postPath(p.slug), site),
       lastmod: localCalendarDate(p.date),
       priority: '0.8',
       changefreq: 'monthly',

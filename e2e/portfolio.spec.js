@@ -331,7 +331,7 @@ test('direct reading-list response and sitemap agree', async ({ request, page })
   expect(response.status()).toBe(200);
   expect(await response.text()).toContain('Reading List');
   const sitemap = await request.get('/sitemap.xml');
-  expect(await sitemap.text()).toContain('<loc>https://vanshul.com/reading-list</loc>');
+  expect(await sitemap.text()).toContain('<loc>https://vanshul.com/reading-list/</loc>');
   await visit(page, '/reading-list');
   await expect(page.getByRole('heading', { name: 'From My Shelf' })).toBeVisible();
   await page.getByRole('link', { name: 'Skip to content' }).focus();

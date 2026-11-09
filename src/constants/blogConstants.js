@@ -1,3 +1,7 @@
+// Description of the /blog/ archive, shared by the page and its prerendered shell.
+export const BLOG_INDEX_DESCRIPTION =
+  'Essays on AI, robotics, the future of work, and technology by Vanshul Goyal — engineer at United Airlines.';
+
 // Copy for the homepage writing section.
 export const BLOG_CONTENT = {
   sectionTitle: 'Writings',

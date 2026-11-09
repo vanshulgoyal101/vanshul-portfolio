@@ -16,24 +16,24 @@ describe('sitemap/buildSitemap', () => {
     expect(xml).toContain('xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"');
   });
 
-  it('includes the homepage and the /blog hub', () => {
+  it('includes the homepage and the /blog/ hub', () => {
     expect(xml).toContain(`<loc>${site}/</loc>`);
-    expect(xml).toContain(`<loc>${site}/blog</loc>`);
+    expect(xml).toContain(`<loc>${site}/blog/</loc>`);
   });
 
   it('includes the reading-list page', () => {
-    expect(xml).toContain(`<loc>${site}/reading-list</loc>`);
+    expect(xml).toContain(`<loc>${site}/reading-list/</loc>`);
   });
 
   it('includes each post that has a slug and drops slug-less entries', () => {
-    expect(xml).toContain(`<loc>${site}/blog/older</loc>`);
-    expect(xml).toContain(`<loc>${site}/blog/newer</loc>`);
+    expect(xml).toContain(`<loc>${site}/blog/older/</loc>`);
+    expect(xml).toContain(`<loc>${site}/blog/newer/</loc>`);
     expect(xml).not.toContain('undefined');
   });
 
   it('uses the newest post date as the home/blog lastmod', () => {
     expect(xml).toMatch(new RegExp(`<loc>${site}/</loc><lastmod>2025-08-27</lastmod>`));
-    expect(xml).toMatch(new RegExp(`<loc>${site}/blog</loc><lastmod>2025-08-27</lastmod>`));
+    expect(xml).toMatch(new RegExp(`<loc>${site}/blog/</loc><lastmod>2025-08-27</lastmod>`));
   });
 
   it('emits a per-post image entry with an escaped title', () => {

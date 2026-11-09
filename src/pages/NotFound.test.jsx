@@ -15,12 +15,9 @@ describe('NotFound', () => {
     renderAt('/does-not-exist');
     expect(screen.getByText('404')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /wandered off/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /back home/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /read the blog/i })).toHaveAttribute('href', '/blog');
-    expect(screen.getByRole('link', { name: /reading list/i })).toHaveAttribute(
-      'href',
-      '/reading-list'
-    );
+    expect(screen.getByRole('link', { name: /back home/i })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: /read the blog/i })).toHaveAttribute('href', '/blog/');
+    expect(screen.getByRole('link', { name: /reading list/i })).toHaveAttribute('href', '/reading-list/');
   });
 
   it('marks the page noindex', () => {

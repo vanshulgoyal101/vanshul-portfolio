@@ -8,7 +8,7 @@ import { loadBlogPosts } from '../utils/blogLoader';
 // happen inside act().
 const renderPage = async () => {
   const result = render(
-    <MemoryRouter initialEntries={['/blog']}>
+    <MemoryRouter initialEntries={['/blog/']}>
       <BlogIndex />
     </MemoryRouter>
   );
@@ -23,14 +23,14 @@ describe('BlogIndex', () => {
     await renderPage();
     expect(document.title).toBe('Blog — Vanshul Goyal');
     const canonical = document.head.querySelector('link[rel="canonical"]');
-    expect(canonical?.getAttribute('href')).toBe('https://vanshul.com/blog');
+    expect(canonical?.getAttribute('href')).toBe('https://vanshul.com/blog/');
   });
 
   it('lists every published post with a link to its page', async () => {
     await renderPage();
     for (const post of posts) {
       const link = screen.getByRole('link', { name: new RegExp(post.title, 'i') });
-      expect(link).toHaveAttribute('href', `/blog/${post.slug}`);
+      expect(link).toHaveAttribute('href', `/blog/${post.slug}/`);
     }
   });
 
@@ -43,6 +43,6 @@ describe('BlogIndex', () => {
     const crumbs = ld.find((x) => x['@type'] === 'BreadcrumbList');
     expect(blog).toBeTruthy();
     expect(blog.blogPost).toHaveLength(posts.length);
-    expect(crumbs.itemListElement.at(-1).item).toBe('https://vanshul.com/blog');
+    expect(crumbs.itemListElement.at(-1).item).toBe('https://vanshul.com/blog/');
   });
 });
