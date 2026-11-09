@@ -31,6 +31,8 @@
 - ✅ Canonical URLs, sitemap entries and internal links use the final
   trailing-slash form, so no advertised URL redirects on GitHub Pages.
 - ✅ Homepage writing preview features the three newest posts and links to the full archive.
+- ✅ Article sections have stable deep-link ids; posts with three or more
+  sections show a table of contents (also in the no-JavaScript HTML).
 - ✅ Frontmatter schema (id, title, slug, summary, date, readTime, category).
 - ✅ Readable static article bodies, writing index, shelf and basic homepage;
   public navigation works without JavaScript. Per-post OG images, RSS, sitemap.

@@ -140,7 +140,9 @@ test('original rocket launches with colored smoke and lands on About twice', asy
   await page.goto('/');
   const rocket = page.locator('[data-rocket]');
   const smoke = page.locator('[data-rocket-smoke]');
-  await expect(rocket).toBeVisible();
+  // The rocket is idle-loaded after the ~2.7s greeting, so allow for both.
+  await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
+  await expect(rocket).toBeVisible({ timeout: 10000 });
   await expect(smoke).toHaveCount(1);
   await page.evaluate(() => {
     window.rocketEvidence = { launches: 0, emissions: 0, coloredPixels: 0 };

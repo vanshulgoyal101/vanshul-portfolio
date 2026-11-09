@@ -51,6 +51,9 @@ for (const url of urls) {
     assert(urls.includes(`${target.origin}${target.pathname}`), `Internal link ${target} in ${url} is not a published URL`);
   }
   assert(!document.title.includes('Redirecting'), `Fallback shell for ${url}`);
+  for (const anchor of document.querySelectorAll('#root a[href^="#"]')) {
+    assert(document.getElementById(anchor.getAttribute('href').slice(1)), `Broken in-page link ${anchor.getAttribute('href')} in ${url}`);
+  }
   if (route.pathname === '/') {
     const text = document.querySelector('#root main').textContent;
     const expected = [

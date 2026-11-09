@@ -11,6 +11,7 @@ import { loadBlogBySlug, loadBlogPosts } from '../utils/blogLoader';
 import { getRelatedPosts } from '../utils/blogUtils';
 import { formatViews } from '../utils/blogViews';
 import { postPublishedAt } from '../utils/seoValues';
+import { articleHeadings, rehypeHeadingIds, MIN_TOC_HEADINGS } from '../utils/articleHeadings';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
 import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';
@@ -281,6 +282,48 @@ const Body = styled.div`
   }
 `;
 
+const Contents = styled.nav`
+  margin: var(--spacing-md) var(--spacing-xl) 0;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-bg-secondary);
+
+  p {
+    margin: 0 0 var(--spacing-xs);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  ol {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: var(--color-text-secondary);
+  }
+
+  li[data-level='3'] {
+    margin-left: 1rem;
+  }
+
+  a {
+    display: block;
+    padding: 0.35rem 0;
+    color: var(--color-accent-primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  @media (max-width: 768px) {
+    margin: var(--spacing-md) var(--spacing-md) 0;
+  }
+`;
+
 const NotFound = styled.div`
   text-align: center;
   padding: var(--spacing-2xl);
@@ -359,6 +402,7 @@ const BlogPost = () => {
   const blog = loadBlogBySlug(slug);
   const views = useBlogView(blog ? slug : null);
   const related = useMemo(() => (blog ? getRelatedPosts(loadBlogPosts(), blog, 3) : []), [blog]);
+  const headings = useMemo(() => (blog ? articleHeadings(blog.content) : []), [blog]);
 
   // Per-post SEO: unique title/description/canonical + BlogPosting structured data.
   const jsonLd = useMemo(() => {
@@ -479,9 +523,23 @@ const BlogPost = () => {
                 )}
               </Meta>
             </Header>
-            
+
+            {headings.length >= MIN_TOC_HEADINGS && (
+              <Contents aria-label="Table of contents">
+                <p>Contents</p>
+                <ol>
+                  {headings.map((heading) => (
+                    <li key={heading.id} data-level={heading.level}>
+                      <a href={`#${heading.id}`}>{heading.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              </Contents>
+            )}
+
             <Body>
               <ReactMarkdown
+                rehypePlugins={[rehypeHeadingIds]}
                 components={{
                   a: ({ node, ...props }) => (
                     <a {...props} target="_blank" rel="noopener noreferrer" />

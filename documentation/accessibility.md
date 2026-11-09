@@ -64,7 +64,7 @@ textarea:focus-visible {
 **Requirements**:
 - **Width**: 3px minimum (WCAG 2.4.7)
 - **Offset**: 2-3px for visual separation
-- **Color**: High contrast (#6366f1 indigo on dark backgrounds)
+- **Color**: `--color-accent-primary` (`#1d4ed8`), 6.04:1 against the page background
 - **Visibility**: Only on keyboard navigation (`:focus-visible`, not `:focus`)
 
 **Why Not `:focus`**:
@@ -167,8 +167,8 @@ const CloseButton = styled.button`
 ### Non-Text Contrast
 **UI Components**: 3:1 minimum (WCAG 1.4.11)
 
-**Borders**: `rgba(255, 255, 255, 0.1)` - Visible against dark backgrounds
-**Focus Outlines**: `#6366f1` - High contrast for visibility
+**Borders**: `rgba(30, 41, 59, 0.08)` - decorative separators; controls also carry text or icons
+**Focus Outlines**: `#1d4ed8` - High contrast for visibility
 
 ---
 

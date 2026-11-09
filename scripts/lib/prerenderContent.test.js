@@ -18,6 +18,15 @@ describe('crawler-readable content', () => {
     expect(document.querySelector('script')).toBeNull();
     expect([...document.querySelectorAll('a')].some(anchor => anchor.href.startsWith('javascript:'))).toBe(false);
   });
+  it('adds a table of contents with working fragment links to long articles only', () => {
+    const body = '## One\n\nText.\n\n## Two\n\nText.\n\n## Three\n\nText.';
+    const long = parse({ post: { ...posts[0], body }, posts });
+    const links = [...long.querySelectorAll('nav[aria-label="Table of contents"] a')];
+    expect(links.map(anchor => anchor.getAttribute('href'))).toEqual(['#one', '#two', '#three']);
+    for (const anchor of links) expect(long.getElementById(anchor.getAttribute('href').slice(1))).not.toBeNull();
+    expect(parse({ post: posts[0], posts }).querySelector('nav[aria-label="Table of contents"]')).toBeNull();
+  });
+
   it('publishes homepage and index links without requiring JavaScript', () => {
     for (const page of ['home', 'blog']) {
       const document = parse({ page, posts });

@@ -3,7 +3,7 @@ import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
   :root {
-    /* Color Palette - Deep blacks with electric blue/purple accents */
+    /* Color palette: warm paper background, slate text, one blue accent */
     --color-bg-primary: #f6f3eb;
     --color-bg-secondary: #f6f3eb;
     --color-bg-tertiary: #edeae0;
@@ -11,7 +11,8 @@ const GlobalStyles = createGlobalStyle`
     
     --color-text-primary: #1e293b;
     --color-text-secondary: #475569;
-    --color-text-muted: #94a3b8;
+    /* At least 4.5:1 on white, --color-bg-primary and --color-bg-tertiary (WCAG AA). */
+    --color-text-muted: #5b6677;
     
     --color-accent-primary: #1d4ed8;
     --color-accent-secondary: #3b82f6;

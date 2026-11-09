@@ -1,9 +1,11 @@
 // Server-side Markdown rendering shared by the prerendered article pages and
-// the RSS feed. It uses the same react-markdown renderer as the application:
-// raw HTML is not enabled and unsafe URL protocols are removed.
+// the RSS feed. It uses the same react-markdown renderer and heading-id plugin
+// as the application: raw HTML is not enabled and unsafe URL protocols are
+// removed.
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import ReactMarkdown, { defaultUrlTransform } from 'react-markdown';
+import { rehypeHeadingIds } from '../../src/utils/articleHeadings.js';
 
 /**
  * Render a Markdown string to static HTML.
@@ -17,6 +19,7 @@ export const renderMarkdown = (markdown, { origin } = {}) =>
     createElement(
       ReactMarkdown,
       {
+        rehypePlugins: [rehypeHeadingIds],
         urlTransform: (url) => {
           const safe = defaultUrlTransform(url);
           return origin && safe.startsWith('/') && !safe.startsWith('//') ? `${origin}${safe}` : safe;

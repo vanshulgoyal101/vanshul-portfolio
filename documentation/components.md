@@ -75,7 +75,7 @@ The sections render in this order, each wrapped in an `ErrorBoundary` and a
 | Page | File | Notes |
 | --- | --- | --- |
 | Archive | `pages/BlogIndex.jsx` | All posts newest first; shared `blogIndexJsonLd`. |
-| Article | `pages/BlogPost.jsx` | Markdown body, metadata, share button (Web Share API or clipboard), related posts, view count, `postJsonLd`; noindex "not found" state for unknown slugs. |
+| Article | `pages/BlogPost.jsx` | Markdown body with stable `h2`/`h3` ids, a "Contents" list for posts with three or more sections, metadata, share button (Web Share API or clipboard), related posts, view count, `postJsonLd`; noindex "not found" state for unknown slugs. |
 | Reading list | `pages/ReadingList.jsx` | Numbered book catalogue and essay list from `constants/books.js`; deep links to `#books` and `#essays`. |
 | Dashboard | `pages/Dashboard.jsx` | Private analytics UI; see [analytics.md](analytics.md). |
 | Not found | `pages/NotFound.jsx` | noindex 404 with links home, to the archive and to the shelf. |

@@ -6,6 +6,7 @@ import { ToastProvider } from '../components/Toast';
 import { loadBlogPosts } from '../utils/blogLoader';
 import { postJsonLd } from '../../scripts/lib/structuredData.mjs';
 import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';
+import { articleHeadings, MIN_TOC_HEADINGS } from '../utils/articleHeadings';
 
 const renderAt = (path) =>
   render(
@@ -67,6 +68,23 @@ describe('BlogPost', () => {
       (a) => a.getAttribute('href') !== `/blog/${sample.slug}`
     );
     expect(otherLinks.length).toBeGreaterThan(0);
+  });
+
+  it('lists the sections of a long post and links each to its heading', () => {
+    const long = posts.find((post) => articleHeadings(post.content).length >= MIN_TOC_HEADINGS);
+    renderAt(`/blog/${long.slug}/`);
+    const contents = screen.getByRole('navigation', { name: 'Table of contents' });
+    const links = [...contents.querySelectorAll('a')];
+    expect(links.map((a) => a.textContent)).toEqual(articleHeadings(long.content).map((h) => h.text));
+    for (const a of links) {
+      expect(document.getElementById(a.getAttribute('href').slice(1))?.tagName).toMatch(/^H[23]$/);
+    }
+  });
+
+  it('omits the table of contents for a short post', () => {
+    const short = posts.find((post) => articleHeadings(post.content).length < MIN_TOC_HEADINGS);
+    renderAt(`/blog/${short.slug}/`);
+    expect(screen.queryByRole('navigation', { name: 'Table of contents' })).toBeNull();
   });
 
   it('shows a not-found state for an unknown slug', () => {

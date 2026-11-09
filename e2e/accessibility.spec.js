@@ -51,6 +51,15 @@ for (const route of ['/', '/blog/', '/blog/the-new-leverage/', '/reading-list/',
       await page.getByRole('region', { name: "More things I've built" }).locator('summary').click();
       await page.getByRole('contentinfo').locator('summary').click();
     }
+    // Measure the settled page: contrast mid-fade is a transient state, and
+    // Framer Motion drives opacity from JavaScript, so wait until no element's
+    // opacity changes between two samples.
+    await page.waitForFunction(() => {
+      const snapshot = [...document.querySelectorAll('body *')].map(element => getComputedStyle(element).opacity).join();
+      const settled = snapshot === window.__opacitySnapshot;
+      window.__opacitySnapshot = snapshot;
+      return settled;
+    }, null, { polling: 200 });
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     expect(results.violations.map(violation => ({ id: violation.id, impact: violation.impact, nodes: violation.nodes.map(node => ({ target: node.target, summary: node.failureSummary })) }))).toEqual([]);
   });

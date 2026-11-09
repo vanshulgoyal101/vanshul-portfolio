@@ -85,6 +85,23 @@ every reader sees the same values:
 
 The build fails on an impossible date such as `31 Feb, 2026`.
 
+### Section headings and the table of contents
+
+Use `##` for an article's sections (and `###` for subsections). Each `h2`/`h3`
+gets an id derived from its text by `headingSlug` in
+[`src/utils/articleHeadings.js`](../src/utils/articleHeadings.js) — lowercase,
+accents and punctuation removed, words joined by hyphens, with `-1`, `-2`
+suffixes for repeats. For example `## The counter-force` becomes
+`/blog/will-money-become-obsolete/#the-counter-force`.
+
+- The same rehype plugin (`rehypeHeadingIds`) runs in the app and in the build
+  renderer, so prerendered and React ids are identical (a test checks every
+  published post).
+- Posts with at least `MIN_TOC_HEADINGS` (3) sections show a "Contents" list
+  linking to each section, in the app and in the static HTML.
+- Renaming a heading changes its anchor and breaks existing deep links to that
+  section.
+
 ### Loading & parsing
 
 [`src/utils/blogLoader.js`](../src/utils/blogLoader.js):

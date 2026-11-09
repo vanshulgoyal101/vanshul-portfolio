@@ -8,31 +8,35 @@ The project uses a hybrid styling approach combining CSS custom properties (CSS 
 ## Design System
 
 ### Color Palette
-Deep blacks with electric blue/purple accents for a modern, high-tech aesthetic.
+A warm paper background with slate text and a single blue accent. Tokens are
+defined in [`src/styles/GlobalStyles.js`](../src/styles/GlobalStyles.js).
 
 **Background Colors**:
-- `--color-bg-primary`: `#0a0a0a` - Main background
-- `--color-bg-secondary`: `#0f0f0f` - Secondary surfaces
-- `--color-bg-tertiary`: `#141414` - Tertiary sections
-- `--color-bg-card`: `#1a1a1a` - Card backgrounds
+- `--color-bg-primary`: `#f6f3eb` - Page background (warm paper)
+- `--color-bg-secondary`: `#f6f3eb` - Inputs and inset panels
+- `--color-bg-tertiary`: `#edeae0` - Subtle fills
+- `--color-bg-card`: `#ffffff` - Cards
 
-**Text Colors**:
-- `--color-text-primary`: `#ffffff` - Primary text (headings, important content)
-- `--color-text-secondary`: `#a0a0a0` - Secondary text (descriptions)
-- `--color-text-muted`: `#666666` - Muted text (metadata, labels)
+**Text Colors** (contrast on white / page / tertiary background):
+- `--color-text-primary`: `#1e293b` - Headings and primary text
+- `--color-text-secondary`: `#475569` - Body and descriptions (7.58 / 6.83 / 6.30)
+- `--color-text-muted`: `#5b6677` - Labels and metadata (5.81 / 5.24 / 4.83).
+  It was `#94a3b8` (2.56:1 on white) until browser accessibility scans caught
+  Contact labels failing WCAG AA; keep any replacement at 4.5:1 or above on all
+  three backgrounds.
 
 **Accent Colors**:
-- `--color-accent-primary`: `#6366f1` - Primary brand color (indigo)
-- `--color-accent-secondary`: `#8b5cf6` - Secondary accent (purple)
-- `--color-accent-glow`: `#818cf8` - Glow/highlight effects
+- `--color-accent-primary`: `#1d4ed8` - Links, focus outlines, primary actions
+- `--color-accent-secondary`: `#3b82f6` - Gradient partner and highlights
+- `--color-accent-glow`: `rgba(29, 78, 216, 0.08)` - Soft glows
 
 **Gradients**:
-- `--color-gradient-1`: `linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)` - Primary gradient
-- `--color-gradient-2`: `linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)` - Background gradient
+- `--color-gradient-1`: `linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)` - Buttons and section titles
+- `--color-gradient-2`: `linear-gradient(135deg, #f6f3eb 0%, #ffffff 100%)` - Light surface wash
 
 **Borders**:
-- `--color-border`: `rgba(255, 255, 255, 0.1)` - Default borders
-- `--color-border-hover`: `rgba(255, 255, 255, 0.2)` - Hover state borders
+- `--color-border`: `rgba(30, 41, 59, 0.08)` - Default borders
+- `--color-border-hover`: `rgba(30, 41, 59, 0.15)` - Hover state borders
 
 ### Spacing System
 Fluid spacing scales with viewport using `clamp()` for responsive consistency.

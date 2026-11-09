@@ -11,12 +11,20 @@ import { BLOG_CONTENT, BLOG_INDEX_DESCRIPTION } from '../../src/constants/blogCo
 import { HOME_PATH, BLOG_PATH, READING_LIST_PATH, postPath } from '../../src/constants/routes.js';
 import { escapeXml, escapeText } from './seo.mjs';
 import { renderMarkdown } from './markdown.mjs';
+import { articleHeadings, MIN_TOC_HEADINGS } from '../../src/utils/articleHeadings.js';
 
 const link = (href, label) => `<a href="${escapeXml(href)}">${escapeText(label)}</a>`;
 const paragraph = text => `<p>${escapeText(text)}</p>`;
 const list = items => `<ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
 
 const postLinks = posts => list(posts.map(post => `${link(postPath(post.slug), post.title)}${paragraph(post.summary || '')}`));
+
+const tableOfContents = markdown => {
+  const headings = articleHeadings(markdown);
+  if (headings.length < MIN_TOC_HEADINGS) return '';
+  const items = headings.map(heading => `<li>${link(`#${heading.id}`, heading.text)}</li>`).join('');
+  return `<nav aria-label="Table of contents"><p>Contents</p><ol>${items}</ol></nav>`;
+};
 
 const socialLinks = () => list(SOCIAL_PROFILES.map(profile => link(profile.url, profile.label)));
 
@@ -81,7 +89,7 @@ export const prerenderContent = ({ post, posts = [], page = 'home' } = {}) => {
   let content;
   if (post) {
     const markdown = renderMarkdown(post.body);
-    content = `<article><h1>${escapeText(post.title)}</h1><p>By ${escapeText(AUTHOR_NAME)}</p>${markdown}</article><nav aria-label="More writing"><h2>More Writing</h2>${postLinks(posts.filter(item => item.slug !== post.slug))}</nav>`;
+    content = `<article><h1>${escapeText(post.title)}</h1><p>By ${escapeText(AUTHOR_NAME)}</p>${tableOfContents(post.body)}${markdown}</article><nav aria-label="More writing"><h2>More Writing</h2>${postLinks(posts.filter(item => item.slug !== post.slug))}</nav>`;
   } else if (page === 'blog') {
     content = `<h1>Writings</h1>${paragraph(BLOG_INDEX_DESCRIPTION)}${postLinks(posts)}`;
   } else if (page === 'reading-list') {

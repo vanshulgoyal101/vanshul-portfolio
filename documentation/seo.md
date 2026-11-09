@@ -137,6 +137,12 @@ JavaScript disabled and check runtime metadata after direct subpage entry.
 
 ## Internal linking
 
+Article sections have stable ids and long posts list them in a "Contents"
+navigation, so sections can be deep-linked (`/blog/<slug>/#<section>`) from
+search results, shares and other posts. `verify:build` fails on any in-page
+link without a matching id.
+
+
 Each blog post ends with a **related-posts** section (`getRelatedPosts` in
 `src/utils/blogUtils.js`): same-category posts first (newest first), then the most
 recent remaining posts fill any gap, excluding the current post. Beyond the UX
