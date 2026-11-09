@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import SiteFooter from './SiteFooter';
 
@@ -33,5 +33,24 @@ describe('SiteFooter', () => {
     const toggle = screen.getByRole('switch', { name: 'Ambient motion' });
     expect(toggle).toBeDisabled();
     expect(toggle).not.toBeChecked();
+  });
+
+  it('brings the display settings into view when they open, not when they close', async () => {
+    const { container } = renderFooter();
+    const details = container.querySelector('details');
+    const scroll = vi.spyOn(details, 'scrollIntoView');
+    const toggle = async () => {
+      const toggled = new Promise((resolve) => details.addEventListener('toggle', resolve, { once: true }));
+      fireEvent.click(screen.getByText('Display settings'));
+      await act(() => toggled);
+    };
+
+    await toggle();
+    expect(details).toHaveAttribute('open');
+    expect(scroll).toHaveBeenCalledExactlyOnceWith({ block: 'nearest', behavior: 'instant' });
+
+    await toggle();
+    expect(details).not.toHaveAttribute('open');
+    expect(scroll).toHaveBeenCalledTimes(1);
   });
 });

@@ -83,4 +83,14 @@ describe('Projects', () => {
       }
     }
   });
+
+  it('swaps a screenshot that fails to load for the project icon', () => {
+    render(<Projects />);
+    const name = 'NASA Human Exploration Rover Challenge';
+    const screenshot = screen.getByRole('img', { name });
+    const frame = screenshot.parentElement;
+    fireEvent.error(screenshot);
+    expect(screen.queryByRole('img', { name })).toBeNull();
+    expect(frame.querySelector('svg')).not.toBeNull();
+  });
 });

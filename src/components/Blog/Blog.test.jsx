@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Blog from './Blog';
 import { BLOG_CONTENT } from '../../constants/blogConstants';
+import * as blogLoader from '../../utils/blogLoader';
 import { loadBlogPosts } from '../../utils/blogLoader';
 import { sortBlogsByDate } from '../../utils/blogUtils';
 
@@ -19,6 +20,8 @@ const renderBlog = async () => {
 };
 
 describe('Blog section', () => {
+  afterEach(() => vi.restoreAllMocks());
+
   it('renders the section title and subtitle', async () => {
     await renderBlog();
     expect(screen.getByText(BLOG_CONTENT.sectionTitle)).toBeInTheDocument();
@@ -57,5 +60,23 @@ describe('Blog section', () => {
     const { container } = await renderBlog();
     expect(screen.getByRole('heading', { name: BLOG_CONTENT.sectionTitle }).closest('section')).not.toBeNull();
     expect(container.querySelector('#blog')).toBeNull();
+  });
+
+  it('drops the archive link when every post is already featured', async () => {
+    vi.spyOn(blogLoader, 'loadBlogPosts').mockReturnValue(loadBlogPosts().slice(0, 2));
+    await renderBlog();
+    const postLinks = screen.getAllByRole('link').filter((link) =>
+      /^\/blog\/[^/]+\/$/.test(link.getAttribute('href') ?? '')
+    );
+    expect(postLinks).toHaveLength(2);
+    expect(screen.queryByRole('link', { name: /view all/i })).toBeNull();
+  });
+
+  it('shows an empty state instead of cards when nothing is published', async () => {
+    vi.spyOn(blogLoader, 'loadBlogPosts').mockReturnValue([]);
+    await renderBlog();
+    expect(screen.getByRole('heading', { name: BLOG_CONTENT.emptyStateTitle })).toBeInTheDocument();
+    expect(screen.getByText(BLOG_CONTENT.emptyStateMessage)).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /view all/i })).toBeNull();
   });
 });

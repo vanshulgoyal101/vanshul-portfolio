@@ -85,4 +85,13 @@ describe('Analytics', () => {
     act(() => document.getElementById('goatcounter').dispatchEvent(new Event('load')));
     expect(count).not.toHaveBeenCalled();
   });
+
+  it('survives a failing counter and counts the page once it recovers', () => {
+    configured();
+    const script = document.getElementById('goatcounter');
+    window.goatcounter = { count: vi.fn(() => { throw new Error('blocked'); }) };
+    expect(() => act(() => script.dispatchEvent(new Event('load')))).not.toThrow();
+    const count = load();
+    expect(count).toHaveBeenCalledExactlyOnceWith({ path: '/', title: '/', referrer: '' });
+  });
 });
