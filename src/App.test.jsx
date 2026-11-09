@@ -40,6 +40,8 @@ const renderAt = async (path) => {
 const LAZY = { timeout: 5000 };
 const findPageHeading = (name) => screen.findByRole('heading', { level: 1, name }, LAZY);
 
+// A lazy page can be found in the DOM before its effects (which write the head
+// tags) have run, so head assertions after a lazy load wait for them.
 const canonical = () => document.head.querySelector('link[rel="canonical"]')?.getAttribute('href');
 const robots = () => document.head.querySelector('meta[name="robots"]')?.getAttribute('content');
 
@@ -59,7 +61,7 @@ describe('App routing', () => {
   it('serves the writing archive at its canonical URL', async () => {
     await renderAt('/blog/');
     expect(await findPageHeading('Writings')).toBeInTheDocument();
-    expect(canonical()).toBe('https://vanshul.com/blog/');
+    await waitFor(() => expect(canonical()).toBe('https://vanshul.com/blog/'));
   });
 
   it('redirects the legacy /blogs alias to the archive', async () => {
@@ -72,13 +74,13 @@ describe('App routing', () => {
     await renderAt('/blogs/the-new-leverage');
     await waitFor(() => expect(window.location.pathname).toBe('/blog/the-new-leverage/'));
     expect(await findPageHeading('The New Leverage')).toBeInTheDocument();
-    expect(canonical()).toBe('https://vanshul.com/blog/the-new-leverage/');
+    await waitFor(() => expect(canonical()).toBe('https://vanshul.com/blog/the-new-leverage/'));
   });
 
   it('serves the reading list', async () => {
     await renderAt('/reading-list/');
     expect(await findPageHeading('From My Shelf')).toBeInTheDocument();
-    expect(canonical()).toBe('https://vanshul.com/reading-list/');
+    await waitFor(() => expect(canonical()).toBe('https://vanshul.com/reading-list/'));
   });
 
   it('renders a noindex page for unknown paths', async () => {
@@ -90,7 +92,7 @@ describe('App routing', () => {
   it('marks an unknown post as noindex', async () => {
     await renderAt('/blog/not-a-real-post/');
     expect(await findPageHeading('Blog Post Not Found')).toBeInTheDocument();
-    expect(robots()).toMatch(/noindex/);
+    await waitFor(() => expect(robots()).toMatch(/noindex/));
   });
 });
 
@@ -110,7 +112,7 @@ describe('App structured data', () => {
 
     await renderAt('/blog/the-new-leverage/');
     await findPageHeading('The New Leverage');
-    expect(schemaTypes()).toContain('BlogPosting');
+    await waitFor(() => expect(schemaTypes()).toContain('BlogPosting'));
     expect(schemaTypes()).not.toContain('ProfilePage');
   });
 });
