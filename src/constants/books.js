@@ -2,6 +2,31 @@
 // /reading-list page. Notes are intentionally short and personal.
 export const BOOKS = [
   {
+    title: 'Astrophysics for People in a Hurry',
+    author: 'Neil deGrasse Tyson',
+    note: 'A compact introduction to the cosmos, from the Big Bang to dark matter and our place in the universe.',
+  },
+  {
+    title: 'A Brief History of Time',
+    author: 'Stephen Hawking',
+    note: 'Space, time, black holes and the search for a theory that explains how the universe works.',
+  },
+  {
+    title: 'The Theory of Everything',
+    author: 'Stephen Hawking',
+    note: 'Seven lectures tracing the universe from its origins to the search for a unified account of physics.',
+  },
+  {
+    title: 'Zero to One',
+    author: 'Peter Thiel with Blake Masters',
+    note: 'Building something genuinely new rather than competing to make another version of what already exists.',
+  },
+  {
+    title: 'Homo Deus',
+    author: 'Yuval Noah Harari',
+    note: 'A speculative look at how biotechnology, algorithms and the pursuit of power could reshape humanity.',
+  },
+  {
     title: 'The Bed of Procrustes',
     author: 'Nassim Nicholas Taleb',
     note: 'Aphorisms on uncertainty, human limits, and the habit of forcing reality to fit our models.',

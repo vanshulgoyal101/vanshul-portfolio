@@ -5,10 +5,15 @@ import ReadingListPage from './ReadingList';
 import { BOOKS, ESSAYS, SHELF_ITEMS } from '../constants/books';
 
 describe('ReadingList page', () => {
-  it('includes the requested Taleb and Chiang books once each with their authors', () => {
+  it('includes requested books once each with their authors', () => {
     render(<MemoryRouter><ReadingListPage /></MemoryRouter>);
     const books = screen.getByRole('region', { name: 'Books' });
     for (const [title, author] of [
+      ['Astrophysics for People in a Hurry', 'Neil deGrasse Tyson'],
+      ['A Brief History of Time', 'Stephen Hawking'],
+      ['The Theory of Everything', 'Stephen Hawking'],
+      ['Zero to One', 'Peter Thiel with Blake Masters'],
+      ['Homo Deus', 'Yuval Noah Harari'],
       ['The Bed of Procrustes', 'Nassim Nicholas Taleb'],
       ['The Lifecycle of Software Objects', 'Ted Chiang'],
     ]) {
