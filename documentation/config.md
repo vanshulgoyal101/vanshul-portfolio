@@ -206,6 +206,7 @@ analytics dashboard's Supabase URL and publishable key are hard-coded in
 | `generate-og-images.mjs` | `prebuild`, `npm run generate:og` | `public/og/<slug>.png` (1200×630, rendered with `sharp`) | [seo.md](seo.md#build-time-generation) |
 | `generate-feed.mjs` | `prebuild` | `public/feed.xml` (RSS 2.0 with full article HTML) | [seo.md](seo.md#build-time-generation) |
 | `generate-llms.mjs` | `prebuild` | `public/llms.txt` (a curated Markdown map of the site for AI assistants) | [seo.md](seo.md#llmstxt) |
+| `indexnow-plan.mjs` | CI on `main`, after the build | The step output `payload`: the IndexNow submission for URLs changed since the live sitemap | [seo.md](seo.md#indexnow) |
 | `prerender-blog.mjs` | `postbuild` | `dist/index.html` (homepage JSON-LD and content), `dist/blog/index.html`, `dist/blog/<slug>/index.html`, `dist/reading-list/index.html` | [seo.md](seo.md#build-time-generation) |
 | `gen-sitemap-index.mjs` | `postbuild` | `dist/sitemap-index.xml` from `sitemap-sites.json` | [seo.md](seo.md#build-time-generation) |
 | `verify-build.mjs` | `npm run verify:build` | Fails on any broken published route, metadata, eager lazy chunk, missing or third-party font, feed item or llms.txt link | [testing.md](testing.md#production-browser-checks) |
@@ -227,6 +228,7 @@ and prerender tests exercise:
 | `sitemapIndex.mjs` | `buildSitemapIndex` | `gen-sitemap-index.mjs` |
 | `feed.mjs` | `buildFeed` | `generate-feed.mjs` |
 | `llms.mjs` | `buildLlmsTxt` | `generate-llms.mjs` |
+| `indexnow.mjs` | `INDEXNOW_KEY`, `sitemapEntries`, `changedUrls`, `indexNowPayload` | `indexnow-plan.mjs`, `verify-build.mjs` |
 | `markdown.mjs` | `renderMarkdown`: react-markdown with `rehypeHeadingIds`, no raw HTML, unsafe URLs removed; an `origin` option makes root-relative URLs absolute | `feed.mjs`, `prerenderContent.mjs` |
 | `prerenderContent.mjs` | `prerenderContent`: the readable fallback HTML for the home, archive, article and shelf pages | `prerender-blog.mjs` |
 | `structuredData.mjs` | `breadcrumbList`, `postJsonLd`, `homeJsonLd`, `blogIndexJsonLd` | `prerender-blog.mjs` and the app (`App.jsx`, `BlogIndex`, `BlogPost`) |

@@ -110,6 +110,32 @@ accurate facts and canonical links without crawling the whole site.
   starts with an H1 and links the archive and every published article by its
   canonical URL.
 
+## IndexNow
+
+[IndexNow](https://www.indexnow.org/documentation) tells participating search
+engines (Bing, Yandex, Seznam, Naver and Yep share submissions) which URLs
+changed, so they recrawl them within minutes instead of on their own schedule.
+Bing's index also serves ChatGPT search, Copilot and DuckDuckGo. Google does not
+take part; it relies on the sitemap.
+
+- **Ownership**: the key lives in `INDEXNOW_KEY` (`scripts/lib/indexnow.mjs`)
+  and in `public/<key>.txt`, which the site serves from its root. The key is
+  public by design. `verify:build` fails if `dist/` doesn't serve it, and a unit
+  test keeps the file and the constant identical.
+- **What is submitted**: only what changed. `scripts/indexnow-plan.mjs` runs in
+  CI on `main` after the build, while the previous deploy is still live. It
+  compares `dist/sitemap.xml` with the live `sitemap.xml` (`changedUrls`): URLs
+  that are new, whose `<lastmod>` moved (a new post also moves the homepage and
+  `/blog/`, and an `updated` date moves its post) or that were removed. A
+  code-only deploy submits nothing, and so does a run that can't read the live
+  sitemap, because every URL would otherwise look new.
+- **Submission**: the plan is the build job's `indexnow` output (the JSON body
+  from `indexNowPayload`); after a successful deploy, the deploy job POSTs it to
+  `https://api.indexnow.org/indexnow`. HTTP 200 or 202 is success; anything
+  else marks the step failed, but `continue-on-error` keeps the deploy green.
+- **Changing the key**: generate 8–128 characters of `[a-zA-Z0-9-]`, rename
+  `public/<key>.txt` to match and update `INDEXNOW_KEY`.
+
 ## Structured data (JSON-LD)
 
 - **Blog posts** emit a `BlogPosting` plus a `BreadcrumbList`. The `BlogPosting`

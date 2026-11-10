@@ -94,7 +94,8 @@ article's JSON-LD `datePublished`/`dateModified` must equal its
 published). Finally, the gzipped JS and CSS a page loads up front (entry
 script, module preloads and stylesheets) must stay within
 `FIRST_LOAD_BUDGET_KB` (205 KB; every page measured 187 KB in November 2026),
-so an accidental heavy import fails the build. Playwright
+so an accidental heavy import fails the build. It also requires the IndexNow
+key file at the root of `dist/`. Playwright
 starts a production preview on port 4327 and tests desktop and mobile Chromium.
 The suite covers unique section IDs, heading clearance under the fixed header,
 reduced motion, cross-route links, skip-link focus, mobile menu focus and Escape,
@@ -208,7 +209,7 @@ container.querySelector('button[aria-label="Toggle mobile menu"]');
 | Decorative elements (boot greeting, rocket, smoke, starfield, cursor, magnetic) | `src/components/FunElements/*.test.jsx`, `src/components/BackgroundElements.test.jsx` |
 | Constants (routes, site config, blog copy, motion variants) | `src/constants/*.test.js` |
 | Error boundary (`resetKey` included), page-level `RouteError` and its once-a-minute reload guard | `src/components/ErrorBoundary.test.jsx`, `src/components/RouteError.test.jsx`, `src/utils/routeRetry.test.js` |
-| Build pipeline: frontmatter/escaping, tags, sitemap and index, RSS, llms.txt, structured data, prerendered content, database config | `scripts/lib/*.test.js` |
+| Build pipeline: frontmatter/escaping, tags, update dates, sitemap and index, RSS, llms.txt, IndexNow change detection, structured data, prerendered content, database config | `scripts/lib/*.test.js` |
 | SQL schema and authorization in PGlite | `scripts/database.test.js` |
 | Browser contracts (layout, a11y, rocket, boot, article, shelf) | `e2e/*.spec.js` |
 

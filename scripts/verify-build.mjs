@@ -8,6 +8,7 @@ import { BOOKS, ESSAYS, SHELF_ITEMS } from '../src/constants/books.js';
 import { BLOG_PATH, READING_LIST_PATH, absoluteUrl } from '../src/constants/routes.js';
 import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../src/constants/projects.js';
 import { EXPERIENCE } from '../src/constants/experience.js';
+import { INDEXNOW_KEY } from './lib/indexnow.mjs';
 
 const dist = new URL('../dist/', import.meta.url);
 // Heavy or single-route code must stay lazy: no page may fetch these before
@@ -125,6 +126,9 @@ const fontUrls = readdirSync(new URL('assets/', dist))
   .flatMap(file => [...readFileSync(new URL(`assets/${file}`, dist), 'utf8').matchAll(/url\(["']?(\/fonts\/[^"')]+)["']?\)/g)].map(match => match[1]));
 assert(fontUrls.length > 0, 'Built CSS must declare the self-hosted fonts');
 for (const href of fontUrls) assert(existsSync(new URL(href.slice(1), dist)), `@font-face source ${href} is missing from dist`);
+// Search engines fetch this file to accept IndexNow submissions for the site.
+const indexNowKeyFile = new URL(`${INDEXNOW_KEY}.txt`, dist);
+assert(existsSync(indexNowKeyFile) && readFileSync(indexNowKeyFile, 'utf8') === INDEXNOW_KEY, 'dist must serve the IndexNow key file at the site root');
 const llmsFile = new URL('llms.txt', dist);
 assert(existsSync(llmsFile), 'Missing dist/llms.txt');
 const llms = readFileSync(llmsFile, 'utf8');

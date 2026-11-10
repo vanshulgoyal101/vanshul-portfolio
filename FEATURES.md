@@ -70,6 +70,10 @@
   sitemap index and robots; RSS. Build-time scripts under `scripts/` (shared
   `scripts/lib/*`).
 - ✅ **`/llms.txt`** for AI assistants, built from the same posts and data modules.
+- ✅ **IndexNow**: each deploy that changes content submits exactly the changed
+  URLs to Bing, Yandex, Seznam, Naver and Yep.
+- ✅ Build guards: unique titles and descriptions, consistent article dates and a
+  first-load JS/CSS budget, all in `verify:build`.
 
 ## Engineering (✅)
 

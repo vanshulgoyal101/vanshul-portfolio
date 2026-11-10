@@ -50,6 +50,9 @@ node -e "require('sharp')('public/images/projects/profile2.webp').extract({ left
   [deployment.md](deployment.md#github-settings)).
 - `a.js`: first-party analytics beacon for other vanshul.com properties (see
   [analytics.md](analytics.md)).
+- `cb7efe94abc5118dde33ac4ec2ddc175.txt`: the IndexNow key file, served from
+  the site root so search engines accept the site's submissions (see
+  [seo.md](seo.md#indexnow)).
 - `fonts/`: the self-hosted Inter, Space Grotesk and JetBrains Mono variable
   fonts (latin and latin-ext `woff2` from Fontsource 5.3.0) with their SIL OFL
   1.1 licences; see [styles.md](styles.md#where-styles-live).

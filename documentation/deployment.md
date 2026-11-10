@@ -76,15 +76,22 @@ The workflow uses current Node-24-based action majors: checkout 7, setup-node 7,
 configure-pages 6, upload-pages-artifact 5 and deploy-pages 5 (checked 2026-11-10).
 No forced runtime override is needed.
 
-1. **build** (ubuntu-latest, Node `lts/*`): checkout → `npm ci` →
-   `npm audit --audit-level=moderate` → `npm run lint` → `npm test` →
-   `npm run build` (with the `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
-   and `VITE_GOATCOUNTER_CODE` repository secrets) → `npm run verify:build` →
+1. **build** (ubuntu-latest, Node `lts/*` with the npm download cache):
+   checkout → `npm ci` → `npm audit --audit-level=moderate` → `npm run lint` →
+   `npm test` → `npm run build` (with the `VITE_SUPABASE_URL`,
+   `VITE_SUPABASE_ANON_KEY` and `VITE_GOATCOUNTER_CODE` repository secrets) →
+   `npm run verify:build` → on `main`, `node scripts/indexnow-plan.mjs` →
    `npx playwright install --with-deps chromium` → `npm run test:e2e` →
    configure Pages → upload `./dist` as the Pages artifact.
 2. **deploy**: runs only for `refs/heads/main`, after `build`, and publishes
    the artifact to the `github-pages` environment with
-   `actions/deploy-pages`.
+   `actions/deploy-pages`. It then submits the URLs the build found changed to
+   IndexNow (see [seo.md](seo.md#indexnow)); that step can't fail the run.
+
+Permissions follow least privilege: the workflow grants only
+`contents: read`, and `pages: write` and `id-token: write` belong to the
+deploy job alone, because the build job runs every dependency's install
+scripts.
 
 Any failing step stops the run, so nothing is deployed. Runs on other
 branches build and test without deploying. The `pages` concurrency group
@@ -441,6 +448,8 @@ Already done for vanshul.com; listed for a new setup.
 - [ ] Check mobile responsiveness
 - [ ] Verify SEO meta tags (View Source)
 - [ ] Check that `sitemap.xml` and `sitemap-index.xml` load
+- [ ] If the deploy changed content, check the "Notify search engines
+      (IndexNow)" step answered HTTP 200 or 202
 
 ---
 
