@@ -113,9 +113,8 @@ disposed on unmount. Rotation and floating motion are restrained, with no partic
 Separate ambient decorations default to enabled and retain idle loading. The
 footer switch persists an explicit choice in `vg.ambient`; reduced motion always
 disables them. That setting does not control the desktop hero.
-Lazy routes, the dashboard included, show a "Loading page..." state inside the
-page layout and share a route error boundary (see
-[components.md](components.md)).
+Lazy routes, the dashboard included, show a "Loading page..." state and share a
+route error boundary (see [components.md](components.md)).
 
 The floating rocket and `SmokeTransition` load together inside the idle ambient
 boundary. On desktop the rocket remains fixed in the lower-right corner; on

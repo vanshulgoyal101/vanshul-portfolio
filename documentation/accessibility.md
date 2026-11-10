@@ -34,8 +34,7 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
 - **Lists**: timelines, post lists, the shelf and stat tiles are real
   `ol`/`ul` elements. Contact facts are a `dl`.
 - **Lazy routes**: while a page chunk loads, the fallback is a `role="status"`
-  "Loading page..." message inside the page layout, so the navigation stays
-  usable. Once loaded, the dashboard shows a `role="status"` "Loading…" while
+  "Loading page..." message. Once loaded, the dashboard shows a `role="status"` "Loading…" while
   it restores the session. A page that fails to load becomes `RouteError`,
   which keeps the navigation and one `h1`.
 

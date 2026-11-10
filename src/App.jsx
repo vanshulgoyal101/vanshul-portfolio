@@ -15,7 +15,6 @@ import { HOME_PATH, BLOG_PATH, postPath } from './constants/routes';
 import Navigation from './components/Navigation/Navigation';
 import ErrorBoundary from './components/ErrorBoundary';
 import RouteError from './components/RouteError';
-import PageLayout from './components/ui/PageLayout';
 import { ToastProvider } from './components/Toast';
 import BackgroundElements from './components/BackgroundElements';
 import NotFound from './pages/NotFound';
@@ -63,10 +62,13 @@ const MainContent = styled.main`
 
 // Holds the page's height while a lazy route loads, so the footer does not
 // jump up and back down.
-const PageLoading = styled.p`
+// No navigation here: the page brings its own, and a menu opened in a
+// placeholder would vanish when the page replaced it.
+const PageLoading = styled.div`
   display: grid;
   place-items: center;
-  min-height: 50vh;
+  min-height: 70vh;
+  padding: 8rem var(--container-padding);
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   letter-spacing: 0.12em;
@@ -201,7 +203,7 @@ function App() {
           {!isBooting && ambientEnabled && !reducedMotion && <IdleBackground />}
           
           <div id="main-content" tabIndex={-1}>
-          <Suspense fallback={<PageLayout><PageLoading role="status">Loading page...</PageLoading></PageLayout>}>
+          <Suspense fallback={<PageLoading role="status">Loading page...</PageLoading>}>
           <RouteBoundary>
           <Routes>
             {/* Main portfolio page */}

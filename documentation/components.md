@@ -24,11 +24,12 @@ credentials line beyond "Associate Analyst at United Airlines".
   are lazy-loaded. React Router matches each path with or without the
   trailing slash.
 - While a lazy page loads, `PageLoading` (a `role="status"` "Loading page..."
-  line, 50vh tall so the footer does not jump) fills a `PageLayout`, so the
-  navigation stays in place. Every lazy route, the dashboard included, shares
-  it. React Router runs client-side navigations in a transition, so the
-  current page stays on screen until the next one is ready and the fallback
-  mostly shows on cold visits.
+  block, 70vh tall so the footer does not jump) fills the page. Every lazy
+  route, the dashboard included, shares it. It deliberately has no navigation:
+  each page renders its own, so a menu opened in the placeholder would close
+  when the page replaced it. React Router runs client-side navigations in a
+  transition, so the current page stays on screen until the next one is ready
+  and the fallback mostly shows on cold visits.
 - All routes sit inside `RouteBoundary`: an `ErrorBoundary` whose fallback is
   `RouteError` and whose `resetKey` is the pathname, so navigating anywhere
   else clears a failed page. Each homepage section has its own boundary.
