@@ -188,7 +188,7 @@ Content and configuration modules in `src/constants/` are listed in
 ## Tech stack
 
 - **Framework**: React 19
-- **Build**: Vite 7 (`@vitejs/plugin-react`)
+- **Build**: Vite 8 (`@vitejs/plugin-react` 6, Rolldown)
 - **Routing**: react-router-dom 7
 - **Styling**: styled-components 6 + CSS custom properties
 - **Animation**: Framer Motion 12

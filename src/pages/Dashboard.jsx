@@ -373,6 +373,13 @@ const Metric = ({ name, scope, value, children }) => (
   </Stat>
 );
 
+const fetchStats = async (windowHours) => {
+  const { data, error } = await analytics.rpc('web_stats', { window_hours: windowHours });
+  if (error) throw error;
+  if (!data) throw new Error('No stats were returned.');
+  return data;
+};
+
 const Dashboard = () => {
   const [session, setSession] = useState(undefined); // undefined = loading
   const [stats, setStats] = useState(null);
@@ -382,25 +389,37 @@ const Dashboard = () => {
   const [authBusy, setAuthBusy] = useState(false);
   const requestRef = useRef(0);
   const mountedRef = useRef(false);
+  const ownerRef = useRef(false);
   useSeo({ title: 'Dashboard', description: 'Private analytics dashboard.', path: '/dashboard', robots: 'noindex, nofollow' });
 
   useEffect(() => {
     let active = true;
     let authChanged = false;
     mountedRef.current = true;
+    const applySession = (nextSession) => {
+      const nextOwner = nextSession?.user?.email === OWNER_EMAIL;
+      if (nextOwner !== ownerRef.current) {
+        requestRef.current += 1;
+        setStats(null);
+        setError(null);
+        setBusy(nextOwner);
+        ownerRef.current = nextOwner;
+      }
+      setSession(nextSession);
+    };
     analytics.auth.getSession().then(({ data, error: sessionError }) => {
       if (!active || authChanged) return;
       if (sessionError) throw sessionError;
-      setSession(data?.session ?? null);
+      applySession(data?.session ?? null);
     }).catch(() => {
       if (!active || authChanged) return;
-      setSession(null);
+      applySession(null);
       setError('Could not restore your session. Please sign in again.');
     });
     const { data: sub } = analytics.auth.onAuthStateChange((_e, s) => {
       if (active) {
         authChanged = true;
-        setSession(s ?? null);
+        applySession(s ?? null);
       }
     });
     return () => {
@@ -414,32 +433,40 @@ const Dashboard = () => {
   const email = session?.user?.email ?? null;
   const isOwner = email === OWNER_EMAIL;
 
-  const loadStats = useCallback(async () => {
+  const loadStats = useCallback(() => {
     if (!isOwner) return;
     const request = ++requestRef.current;
-    setBusy(true);
-    setError(null);
-    setStats(null);
-    try {
-      const { data, error: rpcError } = await analytics.rpc('web_stats', { window_hours: windowHours });
-      if (rpcError) throw rpcError;
-      if (!data) throw new Error('No stats were returned.');
+    return fetchStats(windowHours).then((data) => {
       if (mountedRef.current && request === requestRef.current) setStats(data);
-    } catch (failure) {
+    }).catch((failure) => {
       if (mountedRef.current && request === requestRef.current) setError(failure.message || 'Failed to load stats. Please retry.');
-    } finally {
+    }).finally(() => {
       if (mountedRef.current && request === requestRef.current) setBusy(false);
-    }
+    });
   }, [isOwner, windowHours]);
 
   useEffect(() => {
     if (isOwner) loadStats();
-    else {
-      setStats(null);
-      setBusy(false);
-    }
     return () => { requestRef.current += 1; };
   }, [isOwner, loadStats]);
+
+  const prepareStats = () => {
+    requestRef.current += 1;
+    setBusy(true);
+    setError(null);
+    setStats(null);
+  };
+
+  const changeWindow = (hours) => {
+    if (hours === windowHours) return;
+    prepareStats();
+    setWindowHours(hours);
+  };
+
+  const refreshStats = () => {
+    prepareStats();
+    loadStats();
+  };
 
   const changeAuth = async (signingOut) => {
     setAuthBusy(true);
@@ -451,7 +478,9 @@ const Dashboard = () => {
       if (result?.error) throw result.error;
       if (mountedRef.current && signingOut) {
         requestRef.current += 1;
+        ownerRef.current = false;
         setStats(null);
+        setBusy(false);
         setSession(null);
       }
     } catch {
@@ -615,11 +644,11 @@ const Dashboard = () => {
             <RangeSelect
               aria-label="Time range"
               value={windowHours}
-              onChange={(e) => setWindowHours(Number(e.target.value))}
+              onChange={(e) => changeWindow(Number(e.target.value))}
             >
               {RANGES.map((r) => <option key={r.hours} value={r.hours}>{r.label}</option>)}
             </RangeSelect>
-            <Button type="button" $variant="secondary" onClick={loadStats} disabled={busy}>{busy ? 'Refreshing…' : 'Refresh'}</Button>
+            <Button type="button" $variant="secondary" onClick={refreshStats} disabled={busy}>{busy ? 'Refreshing…' : 'Refresh'}</Button>
             <Button type="button" $variant="secondary" onClick={exportCsv} disabled={!stats}>Export CSV</Button>
             <Button type="button" $variant="secondary" onClick={signOut} disabled={authBusy}>Sign out</Button>
           </Toolbar>

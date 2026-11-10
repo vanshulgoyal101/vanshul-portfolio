@@ -5,7 +5,10 @@ environment. Configuration lives in `vite.config.js` (the `test` block); global
 setup lives in [`src/test/setup.js`](../src/test/setup.js).
 
 Vitest and its V8 coverage adapter are upgraded together (currently 5.1.0).
-Use Node 22.12+, 24, or a newer supported release; CI uses Node LTS.
+Use Node 22.22.2+, 24.15+, or 26+; CI uses Node LTS.
+jsdom 31 rejects focus on `display: none` elements. Mobile navigation unit
+fixtures explicitly show the toggle because mocking `matchMedia` does not apply
+CSS media queries. Playwright verifies the actual responsive CSS and focus flow.
 The full dependency audit is `npm audit`; production-only is
 `npm audit --omit=dev`. Do not expose test/dev servers to untrusted networks.
 

@@ -1,33 +1,30 @@
 import { test, expect } from '@playwright/test';
 
-test('a partial tap resumes idle floating and the countdown resets', async ({ page }) => {
-  // Drive animation time explicitly so the check cannot be starved of frames
-  // when parallel workers keep the CPU busy. Fast-forwarding renders every
-  // frame (including the WebGL hero), hence the longer budget.
+test('a partial tap resumes idle floating and the countdown resets', async ({ page }, testInfo) => {
   test.setTimeout(60000);
-  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
-  await page.clock.pauseAt(new Date('2026-01-02T00:00:00Z'));
+  if (testInfo.project.name === 'desktop') await page.setViewportSize({ width: 1024, height: 1000 });
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
   await page.goto('/');
-  await page.clock.runFor(5000);
   await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
   const rocket = page.locator('[data-rocket]');
-  await expect.poll(async () => {
-    await page.clock.runFor(100);
-    return rocket.isVisible();
-  }, { timeout: 15000 }).toBe(true);
+  await expect(rocket).toBeVisible({ timeout: 15000 });
   await rocket.focus();
   await page.keyboard.press('Enter');
   await expect(rocket).toHaveAccessibleName('Launch rocket: 2 taps remaining');
-  const offsetY = () => rocket.evaluate(element => new DOMMatrix(getComputedStyle(element).transform).m42);
-  // The 0.3s hop ends, then the 3s float cycle rises toward its -10px crest.
-  await page.clock.runFor(700);
-  const early = await offsetY();
-  await page.clock.runFor(600);
-  const later = await offsetY();
-  expect(Math.abs(later - early)).toBeGreaterThan(1);
+  // Sample real rendered frames after the hop; fake timers do not drive every
+  // browser animation timeline. WebGL has its own full-viewport tests.
+  const offsets = await rocket.evaluate(element => new Promise(resolve => {
+    const started = performance.now();
+    const samples = [];
+    const sample = (now) => {
+      if (now - started >= 700) samples.push(new DOMMatrix(getComputedStyle(element).transform).m42);
+      if (now - started < 1900) requestAnimationFrame(sample);
+      else resolve(samples);
+    };
+    requestAnimationFrame(sample);
+  }));
+  expect(Math.max(...offsets) - Math.min(...offsets)).toBeGreaterThan(1);
   // The partial-tap countdown resets three seconds after the tap.
-  await page.clock.runFor(2000);
   await expect(rocket).toHaveAccessibleName('Launch rocket: 3 taps remaining');
   await page.keyboard.press('Enter');
   await expect(rocket).toHaveAccessibleName('Launch rocket: 2 taps remaining');
@@ -35,17 +32,13 @@ test('a partial tap resumes idle floating and the countdown resets', async ({ pa
 
 test('smoke and flame stay anchored to the rotating rocket nozzle', async ({ page }, testInfo) => {
   test.setTimeout(60000);
-  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
-  await page.clock.pauseAt(new Date('2026-01-02T00:00:00Z'));
+  // Keep the separately tested hero WebGL out of the rocket trajectory check.
+  if (testInfo.project.name === 'desktop') await page.setViewportSize({ width: 1024, height: 1000 });
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
   await page.goto('/');
-  await page.clock.runFor(5000);
   await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
   const rocket = page.locator('[data-rocket]');
-  await expect.poll(async () => {
-    await page.clock.runFor(100);
-    return rocket.isVisible();
-  }, { timeout: 15000 }).toBe(true);
+  await expect(rocket).toBeVisible({ timeout: 15000 });
   await page.evaluate(() => {
     window.exhaustSamples = [];
     window.addEventListener('rocket-emit-smoke', event => {
@@ -64,11 +57,13 @@ test('smoke and flame stay anchored to the rotating rocket nozzle', async ({ pag
       });
     });
   });
-  await rocket.focus();
-  await page.keyboard.press('Enter');
-  await page.keyboard.press('Space');
-  await page.keyboard.press('Enter');
-  await page.clock.runFor(1600);
+  // Keep the three activations in one browser task; this test owns geometry,
+  // while the keyboard workflow below checks native Enter and Space.
+  await rocket.evaluate(element => {
+    element.click();
+    element.click();
+    element.click();
+  });
   await expect.poll(() => page.evaluate(() => window.exhaustSamples.length)).toBeGreaterThan(6);
   await page.screenshot({ path: testInfo.outputPath('aligned-exhaust.png') });
   await expect(page.locator('#about h2')).toBeFocused();

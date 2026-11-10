@@ -92,6 +92,8 @@ describe('Navigation', () => {
     window.matchMedia.mockImplementation(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
     renderNav();
     const toggle = document.querySelector('button[aria-controls="primary-menu"]');
+    // matchMedia does not apply CSS media queries in jsdom.
+    toggle.style.display = 'flex';
     const menu = document.getElementById(toggle.getAttribute('aria-controls'));
     expect(menu).toHaveAttribute('inert');
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
@@ -153,6 +155,7 @@ describe('Navigation mobile menu', () => {
 
   const openMenu = () => {
     const toggle = document.querySelector('button[aria-controls="primary-menu"]');
+    toggle.style.display = 'flex';
     fireEvent.click(toggle);
     return { toggle, links: within(document.getElementById('primary-menu')).getAllByRole('link') };
   };

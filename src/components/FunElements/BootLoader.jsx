@@ -112,9 +112,7 @@ const buildSequence = () => [
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const BootLoader = ({ onComplete }) => {
-  // Build the sequence synchronously at init time — no async shuffle effect.
-  // useRef so it's stable across renders (never changes identity).
-  const sequenceRef = useRef(buildSequence());
+  const [sequence] = useState(buildSequence);
 
   // Single source of truth: which index are we on.
   const [index, setIndex] = useState(0);
@@ -127,8 +125,6 @@ const BootLoader = ({ onComplete }) => {
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   useEffect(() => {
-    const sequence = sequenceRef.current;
-
     // Respect reduced-motion: skip the animated greeting cycle and reveal the
     // page immediately instead of holding it behind a loader.
     const prefersReduced =
@@ -146,7 +142,7 @@ const BootLoader = ({ onComplete }) => {
       else setIndex(index + 1);
     }, isFinal ? STEP_MS * 2 : STEP_MS);
     return () => clearTimeout(timer);
-  }, [index]);
+  }, [index, sequence]);
 
   // When exiting is set, wait for exit animation then call onComplete.
   useEffect(() => {
@@ -156,7 +152,7 @@ const BootLoader = ({ onComplete }) => {
     return () => clearTimeout(id);
   }, [exiting]);
 
-  const current = sequenceRef.current[index];
+  const current = sequence[index];
 
   return (
     <AnimatePresence>

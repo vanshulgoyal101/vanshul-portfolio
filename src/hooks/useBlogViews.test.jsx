@@ -33,6 +33,18 @@ describe('view request lifecycle', () => {
     expect(result.current).toBeNull();
   });
 
+  it('does not reuse an old count when returning before another request completes', async () => {
+    vi.spyOn(views, 'recordBlogView')
+      .mockResolvedValueOnce(42)
+      .mockImplementation(() => new Promise(() => {}));
+    const { result, rerender } = renderHook(slug => useBlogView(slug), { initialProps: 'first' });
+    await waitFor(() => expect(result.current).toBe(42));
+    rerender('second');
+    expect(result.current).toBeNull();
+    rerender('first');
+    expect(result.current).toBeNull();
+  });
+
   it('ignores counts and failures that arrive for a post the reader has left', async () => {
     const pending = {};
     vi.spyOn(views, 'recordBlogView').mockImplementation(slug => new Promise((resolve, reject) => {

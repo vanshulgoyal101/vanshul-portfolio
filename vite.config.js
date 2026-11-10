@@ -11,6 +11,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
     css: true,
+    maxWorkers: 2,
     // Rendering full styled-components trees in jsdom routinely takes seconds;
     // the 5s default flakes on loaded machines.
     testTimeout: 15000,

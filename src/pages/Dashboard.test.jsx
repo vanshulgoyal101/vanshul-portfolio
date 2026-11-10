@@ -131,6 +131,52 @@ describe('Dashboard', () => {
     await waitFor(() => expect(mockRpc).toHaveBeenCalledWith('web_stats', { window_hours: 24 }));
   });
 
+  it('retains loaded stats when the owner session token refreshes', async () => {
+    mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
+    mockRpc.mockResolvedValue({ data: sampleStats, error: null });
+    renderDashboard();
+    await screen.findByText('Pageviews by site');
+    const [onAuthChange] = mockOnAuthStateChange.mock.calls[0];
+    act(() => onAuthChange('TOKEN_REFRESHED', { user: { email: 'vanshulg101@gmail.com' } }));
+    expect(screen.getByText('Pageviews by site')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeEnabled();
+    expect(mockRpc).toHaveBeenCalledTimes(1);
+  });
+
+  it('starts a new loading state when the owner signs back in after sign-out', async () => {
+    mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
+    mockSignOut.mockResolvedValueOnce({ error: null });
+    mockRpc.mockResolvedValueOnce({ data: sampleStats, error: null });
+    let resolve;
+    mockRpc.mockImplementationOnce(() => new Promise((done) => { resolve = done; }));
+    renderDashboard();
+    await screen.findByText('Pageviews by site');
+    fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
+    await screen.findByRole('button', { name: 'Sign in with Google' });
+    const [onAuthChange] = mockOnAuthStateChange.mock.calls[0];
+    act(() => onAuthChange('SIGNED_IN', { user: { email: 'vanshulg101@gmail.com' } }));
+    expect(screen.getByRole('button', { name: 'Refreshing…' })).toBeDisabled();
+    await act(async () => resolve({ data: sampleStats, error: null }));
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeEnabled();
+    expect(mockRpc).toHaveBeenCalledTimes(2);
+  });
+
+  it('disables refresh and export until a changed range finishes loading', async () => {
+    mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
+    mockRpc.mockResolvedValueOnce({ data: sampleStats, error: null });
+    let resolve;
+    mockRpc.mockImplementationOnce(() => new Promise((done) => { resolve = done; }));
+    renderDashboard();
+    await screen.findByText('Pageviews by site');
+    fireEvent.change(screen.getByLabelText('Time range'), { target: { value: '24' } });
+    expect(screen.getByRole('button', { name: 'Refreshing…' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Export CSV' })).toBeDisabled();
+    expect(screen.queryByText('Pageviews by site')).not.toBeInTheDocument();
+    await act(async () => resolve({ data: sampleStats, error: null }));
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Export CSV' })).toBeEnabled();
+  });
+
   it('surfaces an RPC error', async () => {
     mockGetSession.mockResolvedValue(sessionFor('vanshulg101@gmail.com'));
     mockRpc.mockResolvedValue({ data: null, error: { message: 'not authorized' } });

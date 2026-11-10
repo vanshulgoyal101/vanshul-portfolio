@@ -480,7 +480,7 @@ done on the server.
 
 **Solutions**:
 1. Check the Node.js version against `package.json` engines
-   (`^22.12.0 || ^24.0.0 || >=26.0.0`)
+   (`^22.22.2 || ^24.15.0 || >=26.0.0`)
 2. Reinstall the locked dependencies: `rm -rf node_modules dist && npm ci`
 3. Read the `prebuild` error: a post with a missing title, an invalid or
    duplicate slug, or an invalid date fails the build on purpose

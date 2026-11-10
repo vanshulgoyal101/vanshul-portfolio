@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import sharp from 'sharp';
+import { BOOKS, ESSAYS } from '../src/constants/books.js';
 
 const visit = async (page, url) => {
   const response = await page.goto(url);
@@ -30,8 +31,8 @@ test('published writing and shelf remain readable without JavaScript', async ({ 
     expect(await page.locator('article').innerText()).toContain('The New Leverage');
     expect((await page.locator('article').innerText()).length).toBeGreaterThan(1000);
     await page.getByRole('link', { name: 'Reading List', exact: true }).click();
-    await expect(page.locator('#books li')).toHaveCount(12);
-    await expect(page.locator('#essays li')).toHaveCount(8);
+    await expect(page.locator('#books li')).toHaveCount(BOOKS.length);
+    await expect(page.locator('#essays li')).toHaveCount(ESSAYS.length);
   } finally {
     await context.close();
   }

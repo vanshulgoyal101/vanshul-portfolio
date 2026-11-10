@@ -33,21 +33,23 @@ export const useBlogViews = () => {
  * @param {string} slug
  */
 export const useBlogView = (slug) => {
-  const [count, setCount] = useState(null);
+  const [result, setResult] = useState({ slug, count: null });
+  if (result.slug !== slug) {
+    setResult({ slug, count: null });
+  }
 
   useEffect(() => {
-    setCount(null);
     if (!slug) return;
     let active = true;
     recordBlogView(slug).then((n) => {
-      if (active && n != null) setCount(n);
+      if (active) setResult({ slug, count: n ?? null });
     }).catch(() => {
-      if (active) setCount(null);
+      if (active) setResult({ slug, count: null });
     });
     return () => {
       active = false;
     };
   }, [slug]);
 
-  return count;
+  return result.slug === slug ? result.count : null;
 };

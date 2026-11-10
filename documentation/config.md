@@ -32,7 +32,14 @@ in `scripts/`.
 `prebuild`, `postbuild` and `predeploy` are npm lifecycle hooks: `npm run build`
 always runs the generators first and the prerender after.
 
-**`engines`**: Node `^22.12.0 || ^24.0.0 || >=26.0.0`.
+**`engines`**: Node `^22.22.2 || ^24.15.0 || >=26.0.0`. The jsdom 31
+test environment requires these minimum patch releases; older Node 22/24
+installations are not supported. CI resolves the current Node LTS.
+
+Direct dependencies were refreshed against the npm `latest` tags on 2026-11-10.
+The lockfile is the exact release record, not a promise that future registry
+releases are already installed. Check `npm outdated --prefer-online` before
+upgrading, review peers and engines, then run `npm run check`.
 
 **`homepage`**: `https://vanshul.com` (custom domain).
 
@@ -57,11 +64,13 @@ runner), `sharp` (image generation), `gh-pages`, and React types.
 
 ## vite.config.js
 
-- `plugins: [react()]`, `base: '/'`.
+- Vite 8 with `@vitejs/plugin-react` 6, `plugins: [react()]`, `base: '/'`.
 - **Test config** (Vitest reads the same file; see [testing.md](testing.md)):
   - `include`: `src/**/*.test.{js,jsx}` and `scripts/**/*.test.{js,mjs}`
   - `globals: true`, `environment: 'jsdom'`,
     `setupFiles: './src/test/setup.js'`, `css: true`
+  - `maxWorkers: 2` bounds concurrent DOM environments, avoiding CPU/memory
+    contention on shared development machines without relaxing test timeouts
   - `testTimeout: 15000`, because rendering full styled-components trees in
     jsdom can take seconds
   - `env` forces `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to empty
@@ -70,7 +79,8 @@ runner), `sharp` (image generation), `gh-pages`, and React types.
     only, excluding `src/main.jsx`, `src/test/**`, test files and
     `src/**/index.js`
 - **Build**: `outDir: 'dist'`, `assetsDir: 'assets'`,
-  `chunkSizeWarningLimit: 600`, and a `manualChunks(id)` function that
+  `chunkSizeWarningLimit: 600`, and a `manualChunks(id)` function (through
+  Vite 8's `rollupOptions` compatibility configuration) that
   isolates vendors into named chunks: `vite-preload`, `react-vendor`
   (`react-dom` and `react-router-dom`), `react-core`, `framer`, `styled`,
   `three-core`, `three-react`, `icons`, `markdown` (react-markdown, remark,
@@ -80,15 +90,16 @@ runner), `sharp` (image generation), `gh-pages`, and React types.
   `src/lib/supabaseClient.js` (view counts) and the lazy dashboard.
 - **`vite-preload` is load-bearing.** Vite's dynamic-import helper
   (`vite/preload-helper`) is statically imported by the entry chunk. If it is
-  left unassigned, Rollup can park it inside a lazy vendor chunk — which makes
+  left unassigned, the bundler can park it inside a lazy vendor chunk — which makes
   that chunk a first-paint dependency and silently defeats code-splitting.
   Pinning it to its own chunk keeps `three-core` / `three-react` / `markdown`
   out of the entry's `modulepreload` list.
 - **Verifying code-splitting**: `npm run verify:build` fails if any published
   page eagerly loads `three-core`, `three-react`, `markdown`, `supabase`,
   `Dashboard` or `HeroScene`. After `npm run build` the entry HTML should load
-  only the entry plus `react-core`, `react-vendor`, `vite-preload`, `styled`,
-  `icons` and `framer`. Moving supabase-js out of the entry cut it from about
+  only the entry plus shared runtime/core vendor dependencies, never the lazy
+  groups above. Vite 8 also emits a small `rolldown-runtime` helper.
+  Moving supabase-js out of the entry cut it from about
   102 KB to about 45 KB gzipped (measured for commit 41ac89c). To list what
   loads up front:
 

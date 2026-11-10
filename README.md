@@ -12,7 +12,7 @@ GitHub Pages at [vanshul.com](https://vanshul.com).
 | Area        | Technology |
 | ----------- | ---------- |
 | Framework   | React 19 |
-| Build tool  | Vite 7 |
+| Build tool  | Vite 8 |
 | Routing     | react-router-dom 7 |
 | Styling     | styled-components 6 (CSS-in-JS) + CSS custom properties |
 | Animation   | Framer Motion 12 |
@@ -25,7 +25,7 @@ GitHub Pages at [vanshul.com](https://vanshul.com).
 
 ## Getting started
 
-Use Node 22.12+, 24, or a newer supported release (see `package.json` engines).
+Use Node 22.22.2+, 24.15+, or 26+ (see `package.json` engines).
 
 ```bash
 npm ci            # install locked dependencies
