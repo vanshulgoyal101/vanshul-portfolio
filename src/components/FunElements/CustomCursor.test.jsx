@@ -117,6 +117,23 @@ describe('CustomCursor', () => {
       expect(hover(screen.getByText('Plain text'))).toBe(false);
     }
 
+    // Disclosures, selects and switch labels are pointer targets too; a text
+    // field's label is not.
+    render(
+      <div>
+        <details><summary>Disclosure</summary></details>
+        <select aria-label="Range"><option>One</option></select>
+        <label><input type="checkbox" role="switch" /> <span>Switch label</span></label>
+        <label htmlFor="name-field">Field label</label>
+        <input id="name-field" />
+      </div>
+    );
+    for (const element of [screen.getByText('Disclosure'), screen.getByLabelText('Range'), screen.getByText('Switch label')]) {
+      expect(hover(element)).toBe(true);
+      expect(hover(screen.getByText('Plain text'))).toBe(false);
+    }
+    expect(hover(screen.getByText('Field label'))).toBe(false);
+
     // Events that do not come from an element leave the current state alone.
     hover(screen.getByText('A button'));
     expect(hover(document)).toBe(true);

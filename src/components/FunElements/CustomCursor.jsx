@@ -33,6 +33,16 @@ const CursorRing = styled(motion.div)`
   background-color: rgba(29, 78, 216, 0);
 `;
 
+// The custom-cursor CSS forces every computed cursor to `none`, so this mirrors
+// the site's `cursor: pointer` rules instead of reading them back.
+const POINTER_TARGETS = 'a, button, summary, select, [role="button"], .interactive';
+
+const isPointerTarget = (element) =>
+  Boolean(element.closest(POINTER_TARGETS)) ||
+  // Labels that toggle a checkbox, such as the footer's switches.
+  ['checkbox', 'radio'].includes(element.closest('label')?.control?.type) ||
+  element.style.cursor === 'pointer';
+
 const CustomCursor = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -92,16 +102,7 @@ const CustomCursor = () => {
       const target = e.target;
       if (!(target instanceof Element)) return;
 
-      const interactive =
-        target.tagName === 'A' ||
-        target.tagName === 'BUTTON' ||
-        target.closest('a') ||
-        target.closest('button') ||
-        target.closest('.interactive') ||
-        target.closest('[role="button"]') ||
-        target.style.cursor === 'pointer';
-
-      setIsHovered(!!interactive);
+      setIsHovered(isPointerTarget(target));
     };
 
     window.addEventListener('mousemove', handleMouseMove);

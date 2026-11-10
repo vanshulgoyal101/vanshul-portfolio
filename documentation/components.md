@@ -206,7 +206,12 @@ digits, a haiku and a code fragment) stay out of the accessibility tree.
   completes immediately for reduced-motion visitors.
 - **CustomCursor**: dot-and-ring cursor for fine pointers when enabled. It
   adds `has-custom-cursor` to `body` (which hides the native cursor) only once
-  it has a pointer position.
+  it has a pointer position. The ring grows over pointer targets: links,
+  buttons, disclosure summaries, selects, `[role="button"]`, `.interactive`,
+  labels that toggle a checkbox or radio (the footer switches) and inline
+  `cursor: pointer`. Because `has-custom-cursor` forces every computed cursor
+  to `none`, this list mirrors the `cursor: pointer` rules; extend it when a
+  new kind of control gets one.
 - **Magnetic**: pulls its child toward the pointer on hover-capable,
   fine-pointer devices without reduced motion; elsewhere it renders the child
   unchanged. The child follows 15% of the cursor's offset from its centre
@@ -220,7 +225,9 @@ digits, a haiku and a code fragment) stay out of the accessibility tree.
   planets) with occasional shooting stars and click "tracking" rings; pauses
   while the tab is hidden.
 - **RandomTelemetry**: up to seven subtle code/maths glyphs at a time, spawned
-  every 700ms across eight screen zones (a 3×3 grid without the centre).
+  every 700ms across eight screen zones (a 3×3 grid without the centre). Each
+  glyph lives 3.2–4.8s from its own spawn, whatever else appears meanwhile, and
+  never repeats one of the seven most recent shapes.
 
 ## Conventions
 

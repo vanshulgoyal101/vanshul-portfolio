@@ -63,6 +63,26 @@ describe('RandomTelemetry', () => {
     expect(overlay.children).toHaveLength(7);
   });
 
+  it('retires each element exactly its lifetime after it appears, however often others spawn', () => {
+    // Math.random() = 0.5 gives every element a 4 s lifetime.
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    const { overlay } = renderTelemetry();
+    advance(0);
+    const [first] = overlay.children;
+    advance(350);
+    const second = overlay.children[1];
+
+    advance(3649);
+    expect(overlay.contains(first)).toBe(true);
+    advance(1);
+    expect(overlay.contains(first)).toBe(false);
+
+    advance(349);
+    expect(overlay.contains(second)).toBe(true);
+    advance(1);
+    expect(overlay.contains(second)).toBe(false);
+  });
+
   it('retires old elements to make room for fresh ones', () => {
     vi.spyOn(Math, 'random').mockImplementation(seededRandom(7));
     const { overlay } = renderTelemetry();

@@ -350,11 +350,13 @@ const RandomTelemetry = () => {
   return (
     <Overlay aria-hidden="true">
       <AnimatePresence>
+        {/* A stable callback: an inline closure would be new on every render
+            and restart every element's lifetime timer. */}
         {active.map(item => (
           <TelemetryItem
             key={item.uid}
             item={item}
-            onExpired={() => removeOne(item.uid)}
+            onExpired={removeOne}
           />
         ))}
       </AnimatePresence>
@@ -368,9 +370,9 @@ const TelemetryItem = ({ item, onExpired }) => {
   const driftY = useMemo(() => rand(-25, 25), []);
 
   useEffect(() => {
-    const timer = setTimeout(onExpired, item.duration * 1000);
+    const timer = setTimeout(() => onExpired(item.uid), item.duration * 1000);
     return () => clearTimeout(timer);
-  }, [item.duration, onExpired]);
+  }, [item.uid, item.duration, onExpired]);
 
   return (
     <Item
