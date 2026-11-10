@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { HiArrowLeft, HiArrowRight, HiOutlineShare } from 'react-icons/hi';
@@ -16,6 +16,7 @@ import { getRelatedPosts, formatPostDate } from '../utils/blogUtils';
 import { formatViews } from '../utils/blogViews';
 import { parseTags, postDate, postLastModified, postPublishedAt } from '../utils/seoValues';
 import { articleHeadings, rehypeHeadingIds, MIN_TOC_HEADINGS } from '../utils/articleHeadings';
+import { classifyLink } from '../utils/links';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
 import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';
@@ -321,9 +322,16 @@ const RelatedHeader = styled.div`
   }
 `;
 
-// Post links point to outside sources; open them without leaving the article.
+// Links to this site stay in the app, so a cross-link keeps the reader's tab;
+// outside sources open in a new tab without leaving the article.
 const markdownComponents = {
-  a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+  // `node` is react-markdown's AST node; keep it off the DOM element.
+  a: ({ node, href, ...props }) => {
+    const link = classifyLink(href);
+    if (link.kind === 'internal') return <Link to={link.href} {...props} />;
+    if (link.kind === 'external') return <a href={href} target="_blank" rel="noopener noreferrer" {...props} />;
+    return <a href={href} {...props} />;
+  },
 };
 
 const BlogPost = () => {

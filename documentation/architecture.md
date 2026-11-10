@@ -34,9 +34,9 @@ src/
   styles/              # GlobalStyles.js
   test/                # Vitest setup
   utils/               # articleHeadings, blogLoader, blogUtils, blogViews,
-                       # seoValues, scrollToSection, cursorPreference,
-                       # magnetic, dashboardData, routeRetry (see the module
-                       # table below)
+                       # seoValues, frontmatter, links, scrollToSection,
+                       # cursorPreference, magnetic, dashboardData,
+                       # routeRetry (see the module table below)
 scripts/               # Build steps (sitemap, OG images, feed, prerender,
                        # sitemap index, verify-build), asset generators and
                        # the database runner; shared pure helpers in lib/
@@ -171,6 +171,7 @@ in detail.
 | --- | --- | --- |
 | [`utils/articleHeadings.js`](../src/utils/articleHeadings.js) | `headingSlug`, `rehypeHeadingIds`, `articleHeadings`, `MIN_TOC_HEADINGS` | [data.md](data.md#section-headings-and-the-table-of-contents) |
 | [`utils/frontmatter.js`](../src/utils/frontmatter.js) | `parseFrontmatter` (shared by the app and `scripts/lib/seo.mjs`) | [data.md](data.md#loading--parsing) |
+| [`utils/links.js`](../src/utils/links.js) | `classifyLink` (article links: in-app, new tab or plain) | [data.md](data.md#rendering) |
 | [`utils/blogLoader.js`](../src/utils/blogLoader.js) | `loadBlogPosts`, `loadBlogBySlug` | [data.md](data.md#loading--parsing) |
 | [`utils/blogUtils.js`](../src/utils/blogUtils.js) | `sortBlogsByDate`, `getRelatedPosts`, `formatPostDate`, `groupPostsByYear` | [data.md](data.md#loading--parsing) |
 | [`utils/blogViews.js`](../src/utils/blogViews.js) | `incrementBlogView`, `getBlogView`, `recordBlogView`, `getAllBlogViews`, `formatViews` | [data.md](data.md#client-code) |

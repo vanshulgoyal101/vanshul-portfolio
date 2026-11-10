@@ -53,6 +53,26 @@ describe('BlogPost', () => {
     }
   });
 
+  it('keeps links to this site in the app and opens outside sources in a new tab', () => {
+    const original = sample.content;
+    sample.content = 'See [the archive](/blog/), [the shelf](https://vanshul.com/reading-list/) and [Naval](https://nav.al/).';
+    try {
+      renderAt(`/blog/${sample.slug}`);
+      const external = screen.getByRole('link', { name: 'Naval' });
+      expect(external).toHaveAttribute('target', '_blank');
+      expect(external).toHaveAttribute('rel', 'noopener noreferrer');
+      expect(screen.getByRole('link', { name: 'the shelf' })).toHaveAttribute('href', '/reading-list/');
+
+      const internal = screen.getByRole('link', { name: 'the archive' });
+      expect(internal).not.toHaveAttribute('target');
+      fireEvent.click(internal);
+      // Routed by the app: the test router has no /blog/ index, so the article is gone.
+      expect(screen.queryByRole('heading', { level: 1, name: sample.title })).toBeNull();
+    } finally {
+      sample.content = original;
+    }
+  });
+
   it('renders the post title and sets the document title', () => {
     renderAt(`/blog/${sample.slug}`);
     expect(screen.getByText(sample.title)).toBeInTheDocument();

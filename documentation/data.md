@@ -162,8 +162,13 @@ suffixes for repeats. For example `## The counter-force` becomes
   the sorted posts by year and lists them with `PostList`.
 - The full post renders in [`pages/BlogPost.jsx`](../src/pages/BlogPost.jsx) using
   `react-markdown` with the `rehypeHeadingIds` plugin. Raw HTML in a post is
-  not rendered. Links inside rendered markdown open in a new tab with
-  `rel="noopener noreferrer"`.
+  not rendered. Links are sorted by `classifyLink` in
+  [`src/utils/links.js`](../src/utils/links.js): links to this site
+  (root-relative, or absolute `vanshul.com`/`www.vanshul.com` URLs) route
+  inside the app with React Router and stay in the same tab, so cross-linking
+  posts is cheap for readers; other web links open in a new tab with
+  `rel="noopener noreferrer"`; `#anchors`, `mailto:`, `tel:` and relative
+  paths are plain links. The prerendered HTML and the feed keep plain links.
 
 ### Adding a post
 

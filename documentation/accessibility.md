@@ -122,7 +122,8 @@ Tokens are in `src/styles/GlobalStyles.js` (see [styles.md](styles.md#colour)).
   titles, `PROFILE.photoAlt`). Decorative images use `alt=""`. That includes
   the byline and author-card avatars, which sit next to the visible name.
 - Icons next to text are `aria-hidden`. Icon-only controls carry the name.
-- External links open in a new tab with `rel="noopener noreferrer"`.
+- External links open in a new tab with `rel="noopener noreferrer"`; links
+  within the site, including those inside articles, stay in the same tab.
 
 ## Motion
 
