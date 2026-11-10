@@ -14,7 +14,7 @@ import { useToast } from '../components/Toast';
 import { loadBlogBySlug, loadBlogPosts } from '../utils/blogLoader';
 import { getRelatedPosts, formatPostDate } from '../utils/blogUtils';
 import { formatViews } from '../utils/blogViews';
-import { parseTags, postDate, postPublishedAt } from '../utils/seoValues';
+import { parseTags, postDate, postLastModified, postPublishedAt } from '../utils/seoValues';
 import { articleHeadings, rehypeHeadingIds, MIN_TOC_HEADINGS } from '../utils/articleHeadings';
 import { useBlogView } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
@@ -345,10 +345,9 @@ const BlogPost = () => {
 
   const articleMeta = useMemo(() => {
     if (!blog) return undefined;
-    const publishedISO = postPublishedAt(blog.date);
     return {
-      publishedTime: publishedISO,
-      modifiedTime: publishedISO,
+      publishedTime: postPublishedAt(blog.date),
+      modifiedTime: postPublishedAt(postLastModified(blog)),
       author: AUTHOR_NAME,
       section: blog.category,
       tags: parseTags(blog.tags),
@@ -416,6 +415,8 @@ const BlogPost = () => {
   }
 
   const facts = [blog.readTime, views != null && `${formatViews(views)} views`].filter(Boolean);
+  // Shown only when the post declares a later update date.
+  const updated = postDate(postLastModified(blog)) !== postDate(blog.date) ? blog.updated : null;
 
   return (
     <PageLayout width="reading">
@@ -428,6 +429,12 @@ const BlogPost = () => {
               <Author>{AUTHOR_NAME}</Author>
               <Facts>
                 <time dateTime={postDate(blog.date)}>{formatPostDate(blog.date)}</time>
+                {updated && (
+                  <>
+                    {' · Updated '}
+                    <time dateTime={postDate(updated)}>{formatPostDate(updated)}</time>
+                  </>
+                )}
                 {facts.map((fact) => ` · ${fact}`).join('')}
               </Facts>
             </BylineText>

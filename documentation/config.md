@@ -216,7 +216,7 @@ and prerender tests exercise:
 
 | Module | Exports | Used by |
 | --- | --- | --- |
-| `seo.mjs` | `parseFrontmatter`, `escapeXml`, `escapeText`, `rfc822`, `readPosts` (reads a posts directory and validates titles, slugs and dates), `byDateDesc`, and re-exports of `parseTags`, `postKeywords`, `postDate`, `postPublishedAt` | sitemap, OG image, feed and prerender scripts |
+| `seo.mjs` | `escapeXml`, `escapeText`, `rfc822`, `readPosts` (reads a posts directory through `src/utils/frontmatter.js` and validates titles, slugs, dates and update dates), `byDateDesc`, and re-exports of `parseTags`, `postKeywords`, `postDate`, `postPublishedAt`, `postLastModified` | sitemap, OG image, feed and prerender scripts |
 | `sitemap.mjs` | `buildSitemap` | `generate-sitemap.mjs` |
 | `sitemapIndex.mjs` | `buildSitemapIndex` | `gen-sitemap-index.mjs` |
 | `feed.mjs` | `buildFeed` | `generate-feed.mjs` |

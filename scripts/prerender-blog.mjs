@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
-import { readPosts, byDateDesc, escapeXml as escAttr, escapeText as escText, parseTags, postPublishedAt } from './lib/seo.mjs';
+import { readPosts, byDateDesc, escapeXml as escAttr, escapeText as escText, parseTags, postPublishedAt, postLastModified } from './lib/seo.mjs';
 import { prerenderContent } from './lib/prerenderContent.mjs';
 import { postJsonLd, blogIndexJsonLd, homeJsonLd } from './lib/structuredData.mjs';
 import { PROFILE } from '../src/constants/profile.js';
@@ -44,6 +44,7 @@ const buildShell = (post) => {
   const title = `${post.title} — Vanshul Goyal`;
   const desc = post.summary || '';
   const publishedISO = postPublishedAt(post.date);
+  const modifiedISO = postPublishedAt(postLastModified(post));
   const tags = parseTags(post.tags);
 
   let html = template;
@@ -64,7 +65,7 @@ const buildShell = (post) => {
   // Article-specific Open Graph tags (not present in the base template).
   const articleTags = [
     publishedISO && `<meta property="article:published_time" content="${escAttr(publishedISO)}" />`,
-    publishedISO && `<meta property="article:modified_time" content="${escAttr(publishedISO)}" />`,
+    modifiedISO && `<meta property="article:modified_time" content="${escAttr(modifiedISO)}" />`,
     `<meta property="article:author" content="${escAttr(AUTHOR_NAME)}" />`,
     post.category && `<meta property="article:section" content="${escAttr(post.category)}" />`,
     ...tags.map((t) => `<meta property="article:tag" content="${escAttr(t)}" />`),

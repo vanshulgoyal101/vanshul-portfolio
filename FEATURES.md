@@ -54,7 +54,9 @@
 - ✅ Article sections have stable deep-link ids; posts with three or more
   `h2`/`h3` headings show a table of contents (also in the no-JavaScript HTML).
 - ✅ Frontmatter schema (title, slug, summary, date, readTime, category, optional
-  tags).
+  updated and tags), read by one parser shared by the app and the build. An
+  `updated` date drives `dateModified`, `article:modified_time`, sitemap
+  `<lastmod>` and an "Updated" note in the byline.
 - ✅ Readable static article bodies, writing index, shelf and homepage content;
   public navigation works without JavaScript. Per-post OG images, RSS, sitemap.
 

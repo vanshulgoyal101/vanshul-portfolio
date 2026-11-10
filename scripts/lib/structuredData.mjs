@@ -4,7 +4,7 @@
  * the prerender script. All identity (site URL, author, sameAs) is injected via
  * `opts` — nothing is read from disk or the environment here.
  */
-import { postPublishedAt, postKeywords } from '../../src/utils/seoValues.js';
+import { postPublishedAt, postLastModified, postKeywords } from '../../src/utils/seoValues.js';
 import { HOME_PATH, BLOG_PATH, postPath, absoluteUrl } from '../../src/constants/routes.js';
 
 const websiteId = (site) => `${site}/#website`;
@@ -60,7 +60,7 @@ export const postJsonLd = (post, { site, authorName, authorSameAs }) => {
       description: desc,
       image: [ogImage],
       inLanguage: 'en',
-      ...(published ? { datePublished: published, dateModified: published } : {}),
+      ...(published ? { datePublished: published, dateModified: postPublishedAt(postLastModified(post)) } : {}),
       ...(Number.isFinite(readMinutes) ? { timeRequired: `PT${readMinutes}M` } : {}),
       ...(post.wordCount ? { wordCount: post.wordCount } : {}),
       ...(post.category ? { articleSection: post.category } : {}),
@@ -163,7 +163,9 @@ export const blogIndexJsonLd = (posts, { site, authorName, title, description })
         '@type': 'BlogPosting',
         headline: p.title,
         url: absoluteUrl(postPath(p.slug), site),
-        ...(postPublishedAt(p.date) ? { datePublished: postPublishedAt(p.date) } : {}),
+        ...(postPublishedAt(p.date)
+          ? { datePublished: postPublishedAt(p.date), dateModified: postPublishedAt(postLastModified(p)) }
+          : {}),
         ...(p.category ? { articleSection: p.category } : {}),
       })),
     },

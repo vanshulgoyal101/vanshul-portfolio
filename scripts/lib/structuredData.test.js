@@ -78,6 +78,12 @@ describe('structuredData/postJsonLd', () => {
     expect(posting.dateModified).toBe('2025-08-27T00:00:00+05:30');
   });
 
+  it('takes dateModified from an update date, keeping datePublished', () => {
+    const [updated] = postJsonLd({ ...post, updated: '1 Nov, 2026' }, identity);
+    expect(updated.datePublished).toBe('2025-08-27T00:00:00+05:30');
+    expect(updated.dateModified).toBe('2026-11-01T00:00:00+05:30');
+  });
+
   it('breadcrumb trail is Home → Blog → post', () => {
     const names = breadcrumb.itemListElement.map((i) => i.name);
     expect(names).toEqual(['Home', 'Blog', 'Hello World']);
@@ -127,6 +133,16 @@ describe('structuredData/blogIndexJsonLd', () => {
       url: 'https://example.com/blog/newer/',
       articleSection: 'AI',
     });
+  });
+
+  it('dates each listed post, with its update date as dateModified', () => {
+    const [withUpdate] = blogIndexJsonLd([{ ...posts[1], updated: '2026-11-01' }], {
+      ...identity,
+      title: 'Blog — Jane Doe',
+      description: 'Essays.',
+    });
+    expect(blog.blogPost[0]).toMatchObject({ datePublished: '2025-08-27T00:00:00+05:30', dateModified: '2025-08-27T00:00:00+05:30' });
+    expect(withUpdate.blogPost[0]).toMatchObject({ datePublished: '2025-01-01T00:00:00+05:30', dateModified: '2026-11-01T00:00:00+05:30' });
   });
 
   it('links the blog to the WebSite and author to the Person', () => {

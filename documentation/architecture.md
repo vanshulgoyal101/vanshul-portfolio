@@ -119,8 +119,9 @@ documentation/         # This documentation
      `import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true })`
      to inline every post's raw markdown at build time, and caches the parsed
      posts after the first `loadBlogPosts()` call.
-   - A small in-house parser extracts YAML-style frontmatter (no `gray-matter`
-     dependency); the body is kept as a markdown string.
+   - `utils/frontmatter.js`, an in-house parser shared with the build scripts,
+     extracts the YAML-style frontmatter (no `gray-matter` dependency); the
+     body is kept as a markdown string.
    - `utils/blogUtils.js` → `sortBlogsByDate` orders posts newest-first.
    - `react-markdown` renders the body in `BlogPost`.
 4. Decorative 3D/telemetry elements are deferred until the browser is idle via
@@ -169,10 +170,11 @@ in detail.
 | Module | Exports | Details |
 | --- | --- | --- |
 | [`utils/articleHeadings.js`](../src/utils/articleHeadings.js) | `headingSlug`, `rehypeHeadingIds`, `articleHeadings`, `MIN_TOC_HEADINGS` | [data.md](data.md#section-headings-and-the-table-of-contents) |
-| [`utils/blogLoader.js`](../src/utils/blogLoader.js) | `parseFrontmatter`, `loadBlogPosts`, `loadBlogBySlug` | [data.md](data.md#loading--parsing) |
+| [`utils/frontmatter.js`](../src/utils/frontmatter.js) | `parseFrontmatter` (shared by the app and `scripts/lib/seo.mjs`) | [data.md](data.md#loading--parsing) |
+| [`utils/blogLoader.js`](../src/utils/blogLoader.js) | `loadBlogPosts`, `loadBlogBySlug` | [data.md](data.md#loading--parsing) |
 | [`utils/blogUtils.js`](../src/utils/blogUtils.js) | `sortBlogsByDate`, `getRelatedPosts`, `formatPostDate`, `groupPostsByYear` | [data.md](data.md#loading--parsing) |
 | [`utils/blogViews.js`](../src/utils/blogViews.js) | `incrementBlogView`, `getBlogView`, `recordBlogView`, `getAllBlogViews`, `formatViews` | [data.md](data.md#client-code) |
-| [`utils/seoValues.js`](../src/utils/seoValues.js) | `parsePostDate`, `postDate`, `postPublishedAt`, `postTimestamp`, `compareNewestFirst`, `PUBLICATION_TIMEZONE_OFFSET`, `parseTags`, `postKeywords` | [data.md](data.md#frontmatter-schema), [seo.md](seo.md) |
+| [`utils/seoValues.js`](../src/utils/seoValues.js) | `parsePostDate`, `postDate`, `postPublishedAt`, `postLastModified`, `postTimestamp`, `compareNewestFirst`, `PUBLICATION_TIMEZONE_OFFSET`, `parseTags`, `postKeywords` | [data.md](data.md#frontmatter-schema), [seo.md](seo.md) |
 | [`utils/scrollToSection.js`](../src/utils/scrollToSection.js) | `scrollToSection`, `getHashTarget`, `getScrollOffset`, `getSectionScrollTop` | [Routing & navigation](#routing--navigation) above |
 | [`utils/cursorPreference.js`](../src/utils/cursorPreference.js) | `getCursorPreference`, `setCursorPreference`, `isPointerFine`, `isAutoCursorCapable`, `isCustomCursorEnabled`, `CURSOR_PREF_EVENT` | [components.md](components.md#shared-ui) |
 | [`utils/routeRetry.js`](../src/utils/routeRetry.js) | `shouldRetry`, `RETRY_KEY` (the once-a-minute reload guard used by `RouteError`) | [components.md](components.md) |

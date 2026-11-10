@@ -192,7 +192,7 @@ container.querySelector('button[aria-label="Toggle mobile menu"]');
 | Toasts (API, auto-dismiss, live region, close button) | `src/components/Toast/ToastProvider.test.jsx` |
 | Contact form (validation, focus to first invalid field, submission) | `src/components/Contact/Contact.test.jsx`, `src/hooks/useContactForm.test.jsx` |
 | Hooks: SEO tags, idle, view counts | `src/hooks/{useSeo,useIdle,useBlogViews}.test.jsx` |
-| Blog data: loader, frontmatter, content integrity, sorting/related/date formatting/year grouping, headings and ids | `src/utils/{blogLoader,parseFrontmatter,blogUtils,articleHeadings}.test.*`, `src/blogs/blogContent.test.js` |
+| Blog data: loader, frontmatter, content integrity, sorting/related/date formatting/year grouping, headings and ids | `src/utils/{blogLoader,frontmatter,blogUtils,articleHeadings}.test.*`, `src/blogs/blogContent.test.js` |
 | Dates and SEO values (timezone-independent) | `src/utils/seoValues.test.js`, `src/seo.test.js` |
 | View counting (unconfigured and fake-client paths) | `src/utils/blogViews.test.js`, `src/utils/blogViews.configured.test.js` |
 | Lazy Supabase client (unconfigured, created once and shared, retry after a failed load) | `src/lib/supabaseClient.test.js` |

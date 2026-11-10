@@ -67,6 +67,12 @@ export const postPublishedAt = value => {
   return date ? `${date}T00:00:00${PUBLICATION_TIMEZONE_OFFSET}` : undefined;
 };
 
+/**
+ * The date a post last changed meaningfully: its optional `updated` date when
+ * that is a real date, otherwise its publication `date`.
+ */
+export const postLastModified = post => (parsePostDate(post?.updated) ? post.updated : post?.date);
+
 /** Epoch milliseconds of the publication instant (sorting, RSS), or NaN. */
 export const postTimestamp = value => {
   const parts = parsePostDate(value);

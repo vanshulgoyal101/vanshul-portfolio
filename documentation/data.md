@@ -74,14 +74,17 @@ Body content in Markdown…
 | `summary`  | string | Required. Card, archive and article dek; the meta description. |
 | `date`     | string | Required. Publication date as `27 Aug, 2025` (also accepts `2025-08-27`, full month names and no comma). A calendar date in India Standard Time; see below. Displayed by `formatPostDate` as `27 Aug 2025` (`27 Aug` in the archive, under its year heading). |
 | `readTime` | string | Required. e.g. `"4 min read"`. Displayed as-is; its number becomes the JSON-LD `timeRequired`. |
+| `updated`  | string | Optional. The date of the last meaningful revision, in the same formats as `date`; it may not be earlier than `date`. Becomes the JSON-LD `dateModified`, `article:modified_time`, the post's sitemap `<lastmod>` (and the homepage and archive `<lastmod>` when it is the latest change) and an "Updated <date>" note in the byline. Without it, all of these use `date`. Leave it alone for typo fixes. |
 | `category` | string | Optional. Article eyebrow, related-post grouping, archive row facts, feed `<category>`, `article:section`, JSON-LD `articleSection` and `keywords`, and the per-post social card label. |
-| `tags`     | string | Optional comma-separated list (no post uses it yet). Added to the JSON-LD `keywords` after the category and emitted as `article:tag` meta tags in the prerendered article; the runtime `useSeo` does not add `article:tag`. |
+| `tags`     | string | Optional comma-separated list (no post uses it yet). Added to the JSON-LD `keywords` after the category and emitted as `article:tag` meta tags, both in the prerendered article and by `useSeo` at runtime. |
 
 The content tests (`src/blogs/blogContent.test.js`) require `title`, `slug`,
 `summary`, `date` and `readTime` on every post. The build's post reader fails
-on a missing title, an invalid or duplicate slug, or an invalid date. Each
-frontmatter line is split at its first colon and surrounding quotes are
-removed; YAML features such as lists or multi-line values are not supported.
+on a missing title, an invalid or duplicate slug, an invalid date, or an
+`updated` date that is invalid or earlier than `date`. Each frontmatter line is
+split at its first colon, values stay strings and one pair of matching
+surrounding quotes is removed; YAML features such as lists or multi-line values
+are not supported (see [Loading & parsing](#loading--parsing)).
 
 Publication dates are parsed by `parsePostDate` in
 [`src/utils/seoValues.js`](../src/utils/seoValues.js), never by `new Date(string)`,
@@ -94,6 +97,7 @@ every reader sees the same values:
 | --- | --- | --- |
 | Sitemap `<lastmod>` | `postDate` | `2026-07-29` |
 | JSON-LD `datePublished`, `article:published_time` | `postPublishedAt` | `2026-07-29T00:00:00+05:30` |
+| JSON-LD `dateModified`, `article:modified_time`, sitemap `<lastmod>` | `postLastModified` (the `updated` date, else `date`) with the helpers above | `2026-07-29T00:00:00+05:30` until an update is declared |
 | RSS `<pubDate>` | `rfc822` (build) | `Tue, 28 Jul 2026 18:30:00 GMT` |
 | Sorting (app and build) | `compareNewestFirst` | newest first; undated posts last |
 
@@ -124,11 +128,14 @@ suffixes for repeats. For example `## The counter-force` becomes
 
 - `import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true })`
   inlines every post's raw markdown at build time.
-- A small in-house `parseFrontmatter(markdown)` function returns
+- `parseFrontmatter(markdown)` from
+  [`src/utils/frontmatter.js`](../src/utils/frontmatter.js) returns
   `{ data, content }`: it splits each frontmatter line on its first colon,
-  unquotes quoted strings and coerces numeric values to numbers. **No
-  `gray-matter` dependency is used.** The build scripts use their own copy in
-  `scripts/lib/seo.mjs`, which keeps every value a string.
+  keeps every value a string and removes one pair of matching surrounding
+  quotes. **No `gray-matter` dependency is used.** The build scripts read posts
+  through the same function (`readPosts` in `scripts/lib/seo.mjs`), so the
+  prerendered metadata and the app always agree; they used to have separate
+  parsers that disagreed on quotes and numbers.
 - `loadBlogPosts()` returns an array of `{ ...frontmatter, content, filename }`,
   parsed on the first call and cached.
 - `loadBlogBySlug(slug)` returns a single post or `null`.
@@ -167,6 +174,15 @@ suffixes for repeats. For example `## The counter-force` becomes
 
 That's it — the glob import picks it up automatically on the next build/dev
 reload. Run `npm test` to confirm the content-integrity checks still pass.
+
+### Updating a post
+
+For a meaningful revision (new sections, corrected facts, a changed argument),
+add or bump `updated` to the revision date and keep `date` unchanged, so the
+URL, the publication date and the RSS `pubDate` stay stable while search
+engines see the change through `dateModified` and `<lastmod>`. Typo and
+formatting fixes don't need it; an accurate modified date only means something
+if it isn't bumped for trivial edits.
 
 ### View counts (Supabase)
 

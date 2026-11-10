@@ -32,6 +32,27 @@ describe('BlogPost', () => {
     expect(sample.slug).toBeTruthy();
   });
 
+  it('shows a declared update in the byline and the modified-time metadata', () => {
+    const modified = () => document.head.querySelector('meta[property="article:modified_time"]')?.getAttribute('content');
+    const { unmount } = renderAt(`/blog/${sample.slug}`);
+    expect(screen.queryByText(/Updated/)).toBeNull();
+    expect(modified()).toBe(document.head.querySelector('meta[property="article:published_time"]').getAttribute('content'));
+    unmount();
+
+    // loadBlogPosts caches its posts, so the page reads this field.
+    sample.updated = '2099-01-15';
+    try {
+      renderAt(`/blog/${sample.slug}`);
+      const time = screen.getByText(formatPostDate('2099-01-15'));
+      expect(time.tagName).toBe('TIME');
+      expect(time).toHaveAttribute('datetime', '2099-01-15');
+      expect(time.parentElement).toHaveTextContent(/· Updated/);
+      expect(modified()).toBe('2099-01-15T00:00:00+05:30');
+    } finally {
+      delete sample.updated;
+    }
+  });
+
   it('renders the post title and sets the document title', () => {
     renderAt(`/blog/${sample.slug}`);
     expect(screen.getByText(sample.title)).toBeInTheDocument();

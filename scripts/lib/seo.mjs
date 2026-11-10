@@ -25,8 +25,9 @@ export const rfc822 = (value) => {
 /**
  * Read every `*.md` post in a directory, returning parsed frontmatter enriched
  * with `body`, `wordCount` and `filename`. Throws on a missing title, an invalid
- * or duplicate slug, or an invalid date, so a bad post fails the build instead
- * of being silently skipped.
+ * or duplicate slug, an invalid date, or an `updated` date that is invalid or
+ * earlier than `date`, so a bad post fails the build instead of being silently
+ * skipped.
  * @param {string} blogsDir
  * @returns {Array<Record<string, unknown>>}
  */
@@ -41,6 +42,10 @@ export const readPosts = (blogsDir) => {
       }
       if (slugs.has(data.slug)) throw new Error(`Duplicate blog slug in ${f}: ${data.slug}`);
       if (!parsePostDate(data.date)) throw new Error(`Invalid publication date in ${f}: use "29 Jul, 2026" or "2026-07-29"`);
+      if (data.updated !== undefined) {
+        if (!parsePostDate(data.updated)) throw new Error(`Invalid update date in ${f}: use "29 Jul, 2026" or "2026-07-29"`);
+        if (postTimestamp(data.updated) < postTimestamp(data.date)) throw new Error(`Update date before the publication date in ${f}`);
+      }
       slugs.add(data.slug);
       return {
         ...data,
@@ -55,4 +60,4 @@ export const readPosts = (blogsDir) => {
 export const byDateDesc = compareNewestFirst;
 
 // Browser-safe helpers shared with the application (see src/utils/seoValues.js).
-export { parseTags, postKeywords, postDate, postPublishedAt } from '../../src/utils/seoValues.js';
+export { parseTags, postKeywords, postDate, postPublishedAt, postLastModified } from '../../src/utils/seoValues.js';

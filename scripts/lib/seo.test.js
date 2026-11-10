@@ -84,6 +84,18 @@ describe('publishing input validation', () => {
     prepare(fixture('example', 'not-a-date'));
     expect(() => readPosts(directory)).toThrow('Invalid publication date');
   });
+  it('accepts an update date on or after publication and keeps it on the post', () => {
+    prepare(fixture('example').replace('---\nActual', 'updated: 2026-11-01\n---\nActual'));
+    expect(readPosts(directory)[0]).toMatchObject({ date: '2026-09-16', updated: '2026-11-01' });
+  });
+  it.each([
+    ['an invalid update date', 'updated: next week', 'Invalid update date'],
+    ['an empty update date', 'updated:', 'Invalid update date'],
+    ['an update before publication', 'updated: 2026-09-15', 'Update date before the publication date'],
+  ])('rejects %s', (_, line, message) => {
+    prepare(fixture('example').replace('---\nActual', `${line}\n---\nActual`));
+    expect(() => readPosts(directory)).toThrow(message);
+  });
   it('normalizes Windows line endings in metadata and article content', () => {
     prepare(fixture('example').replaceAll('\n', '\r\n'));
     expect(readPosts(directory)[0]).toMatchObject({ slug: 'example', body: 'Actual content', wordCount: 2 });

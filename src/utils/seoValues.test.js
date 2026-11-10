@@ -3,6 +3,7 @@ import {
   parsePostDate,
   postDate,
   postPublishedAt,
+  postLastModified,
   postTimestamp,
   compareNewestFirst,
   PUBLICATION_TIMEZONE_OFFSET,
@@ -57,6 +58,18 @@ describe('timezone independence', () => {
       return [postDate('29 Jul, 2026'), postPublishedAt('29 Jul, 2026'), postTimestamp('29 Jul, 2026')];
     });
     for (const output of outputs) expect(output).toEqual(outputs[0]);
+  });
+});
+
+describe('postLastModified', () => {
+  it('prefers a valid update date over the publication date', () => {
+    expect(postLastModified({ date: '27 Aug, 2025', updated: '2026-11-01' })).toBe('2026-11-01');
+  });
+
+  it('falls back to the publication date when there is no valid update date', () => {
+    expect(postLastModified({ date: '27 Aug, 2025' })).toBe('27 Aug, 2025');
+    expect(postLastModified({ date: '27 Aug, 2025', updated: 'soon' })).toBe('27 Aug, 2025');
+    expect(postLastModified(undefined)).toBeUndefined();
   });
 });
 

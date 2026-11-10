@@ -64,7 +64,7 @@ runs SEO generators around the Vite build:
 
 | Script | Output | Purpose |
 | --- | --- | --- |
-| `scripts/generate-sitemap.mjs` | `public/sitemap.xml` | Lists home, blog, shelf and every post; article dates supply `lastmod`. |
+| `scripts/generate-sitemap.mjs` | `public/sitemap.xml` | Lists home, blog, shelf and every post. A post's `lastmod` is its `updated` date, else its publication date; home and `/blog/` take the latest of those. |
 | `scripts/generate-og-images.mjs` | `public/og/<slug>.png` | Per-post Open Graph images (rendered with `sharp`; needs Node ≥ 20.9). |
 | `scripts/generate-feed.mjs` | `public/feed.xml` | Full-content RSS 2.0 feed (`content:encoded` article HTML, `dc:creator`, canonical links, stable GUIDs), built by `scripts/lib/feed.mjs` and linked from `index.html` via `<link rel="alternate" type="application/rss+xml">`. |
 | `scripts/generate-llms.mjs` | `public/llms.txt` | Curated Markdown map of the site for AI assistants (see [llms.txt](#llmstxt)). |
@@ -75,9 +75,11 @@ runs SEO generators around the Vite build:
 (`panda-32.png`, `panda-apple-touch.png`, `panda-192.png`, `panda-512.png`)
 from `public/panda.svg`.
 
-The frontmatter parser, XML escaping and post-reading logic shared by the feed,
-OG-image and prerender scripts live once in **`scripts/lib/seo.mjs`** (unit-tested
-in `scripts/lib/seo.test.js`), so the three generators can't drift apart.
+XML escaping and the post-reading logic shared by the feed, OG-image, sitemap
+and prerender scripts live once in **`scripts/lib/seo.mjs`** (unit-tested in
+`scripts/lib/seo.test.js`), so the generators can't drift apart. Its
+`readPosts` parses frontmatter with `src/utils/frontmatter.js`, the same parser
+the app uses.
 
 ## llms.txt
 
@@ -111,7 +113,8 @@ accurate facts and canonical links without crawling the whole site.
 ## Structured data (JSON-LD)
 
 - **Blog posts** emit a `BlogPosting` plus a `BreadcrumbList`. The `BlogPosting`
-  includes `datePublished`/`dateModified`, `inLanguage`, `wordCount`,
+  includes `datePublished`/`dateModified` (`dateModified` is the post's
+  `updated` date when it declares one), `inLanguage`, `wordCount`,
   `timeRequired` (`PT{min}M` from the post's read time), the author with `sameAs`
   social links, and a publisher image.
 - Article JSON-LD uses the same `postJsonLd` builder in
@@ -186,7 +189,8 @@ engines discover and relate the content.
 ## Blog frontmatter
 
 Posts live in `src/blogs/*.md`. The SEO output is derived from their frontmatter
-(`title`, `slug`, `summary`, `date`, `readTime`, `category`, optional `tags`) — see
+(`title`, `slug`, `summary`, `date`, `readTime`, `category`, optional `updated`
+and `tags`) — see
 [data.md](data.md) for the full schema and how loading/parsing works.
 
 ## Keeping it in sync

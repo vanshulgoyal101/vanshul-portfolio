@@ -48,15 +48,23 @@ for (const url of urls) {
   const image = new URL(document.querySelector('meta[property="og:image"]').content);
   assert.equal(image.origin, SITE_URL);
   assert(existsSync(new URL(image.pathname.slice(1), dist)), `Missing social image: ${image}`);
-  const schemaTypes = [...document.querySelectorAll('script[type="application/ld+json"]')]
+  const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')]
     .flatMap(script => [JSON.parse(script.textContent)].flat())
-    .flatMap(schema => schema['@graph'] ?? [schema])
-    .map(schema => schema['@type']);
+    .flatMap(schema => schema['@graph'] ?? [schema]);
+  const schemaTypes = schemas.map(schema => schema['@type']);
   // The ProfilePage describes the homepage; any other page claiming it would
   // contradict that page's canonical URL.
   assert.equal(schemaTypes.includes('ProfilePage'), route.pathname === '/', `ProfilePage scope is wrong for ${url}`);
   if (route.pathname.startsWith('/blog/') && route.pathname !== '/blog/') {
     assert(schemaTypes.includes('BlogPosting'), `Missing BlogPosting for ${url}`);
+    // Structured data and Open Graph must agree on when the post was published and last changed.
+    const posting = schemas.find(schema => schema['@type'] === 'BlogPosting');
+    const published = document.querySelector('meta[property="article:published_time"]')?.content;
+    const modified = document.querySelector('meta[property="article:modified_time"]')?.content;
+    assert(published && modified, `Missing article dates for ${url}`);
+    assert.equal(posting.datePublished, published, `datePublished disagrees with article:published_time for ${url}`);
+    assert.equal(posting.dateModified, modified, `dateModified disagrees with article:modified_time for ${url}`);
+    assert(modified >= published, `Article modified before it was published: ${url}`);
   }
   for (const anchor of document.querySelectorAll('#root a[href^="/"]')) {
     const target = new URL(anchor.getAttribute('href'), SITE_URL);

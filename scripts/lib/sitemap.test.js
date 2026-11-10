@@ -36,6 +36,14 @@ describe('sitemap/buildSitemap', () => {
     expect(xml).toMatch(new RegExp(`<loc>${site}/blog/</loc><lastmod>2025-08-27</lastmod>`));
   });
 
+  it('dates an updated post by its update, and the home/blog by the latest change', () => {
+    const updatedXml = buildSitemap([...posts, { title: 'Revised', slug: 'revised', date: '2024-05-01', updated: '2026-11-01' }], { site });
+    expect(updatedXml).toMatch(new RegExp(`<loc>${site}/blog/revised/</loc><lastmod>2026-11-01</lastmod>`));
+    expect(updatedXml).toMatch(new RegExp(`<loc>${site}/blog/newer/</loc><lastmod>2025-08-27</lastmod>`));
+    expect(updatedXml).toMatch(new RegExp(`<loc>${site}/</loc><lastmod>2026-11-01</lastmod>`));
+    expect(updatedXml).toMatch(new RegExp(`<loc>${site}/blog/</loc><lastmod>2026-11-01</lastmod>`));
+  });
+
   it('emits a per-post image entry with an escaped title', () => {
     expect(xml).toContain(`<image:loc>${site}/og/newer.png</image:loc>`);
     expect(xml).toContain('<image:title>Newer &amp; Bolder</image:title>');
