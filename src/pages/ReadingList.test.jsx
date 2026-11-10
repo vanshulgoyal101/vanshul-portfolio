@@ -5,6 +5,19 @@ import ReadingListPage from './ReadingList';
 import { BOOKS, ESSAYS, SHELF_ITEMS } from '../constants/books';
 
 describe('ReadingList page', () => {
+  it('includes the requested Taleb and Chiang books once each with their authors', () => {
+    render(<MemoryRouter><ReadingListPage /></MemoryRouter>);
+    const books = screen.getByRole('region', { name: 'Books' });
+    for (const [title, author] of [
+      ['The Bed of Procrustes', 'Nassim Nicholas Taleb'],
+      ['The Lifecycle of Software Objects', 'Ted Chiang'],
+    ]) {
+      const headings = within(books).getAllByRole('heading', { name: title, exact: true });
+      expect(headings).toHaveLength(1);
+      expect(within(headings[0].closest('li')).getByText(author)).toBeInTheDocument();
+    }
+  });
+
   it('renders every shelf item with its author and a back link', () => {
     render(
       <MemoryRouter>

@@ -2,6 +2,11 @@
 // /reading-list page. Notes are intentionally short and personal.
 export const BOOKS = [
   {
+    title: 'The Bed of Procrustes',
+    author: 'Nassim Nicholas Taleb',
+    note: 'Aphorisms on uncertainty, human limits, and the habit of forcing reality to fit our models.',
+  },
+  {
     title: 'The Almanack of Naval Ravikant',
     author: 'Eric Jorgenson',
     note: "Wealth, health and peace aren't luck — they're skills. The closest thing to a manual for all three.",

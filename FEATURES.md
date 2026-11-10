@@ -33,7 +33,7 @@
 - ✅ Screen-reader-announced notifications (polite live region). Failed contact
   submits move focus to the first invalid field. Every page has one `main`
   landmark.
-- ✅ Separate Books (12) and Essays (8) at `/reading-list/`, with external sources.
+- ✅ Separate Books (13) and Essays (8) at `/reading-list/`, with external sources.
 - ✅ Private analytics dashboard: owner-gated SQL aggregates, time ranges, IST
   charts, safe CSV export, loading/error/empty states and sign-out invalidation.
 
