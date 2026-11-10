@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { gzipSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
 import { SITE_URL } from '../src/constants/siteConfig.js';
@@ -12,6 +13,13 @@ const dist = new URL('../dist/', import.meta.url);
 // Heavy or single-route code must stay lazy: no page may fetch these before
 // first paint (see the manualChunks notes in documentation/config.md).
 const LAZY_ONLY_CHUNKS = /\/assets\/(three-core|three-react|markdown|supabase|Dashboard|HeroScene)-/;
+// First-load budget: the gzipped JS and CSS a published page fetches before it
+// can render (187 KB in November 2026). Raise it only for a deliberate change.
+const FIRST_LOAD_BUDGET_KB = 205;
+const gzipKb = path => gzipSync(readFileSync(new URL(path.slice(1), dist))).length / 1024;
+let heaviestFirstLoadKb = 0;
+const pageTitles = new Map();
+const pageDescriptions = new Map();
 const sitemap = new JSDOM(readFileSync(new URL('sitemap.xml', dist), 'utf8'), { contentType: 'text/xml' });
 const urls = [...sitemap.window.document.querySelectorAll('url > loc')].map(element => element.textContent);
 assert.equal(new Set(urls).size, urls.length, 'Sitemap URLs must be unique');
@@ -32,6 +40,10 @@ for (const url of urls) {
     .map(element => element.getAttribute('src') ?? element.getAttribute('href'));
   assert(eager.length > 0, `No entry script for ${url}`);
   assert.deepEqual(eager.filter(src => LAZY_ONLY_CHUNKS.test(src)), [], `Lazy-only chunk loaded eagerly by ${url}`);
+  const stylesheets = [...document.querySelectorAll('link[rel="stylesheet"][href^="/assets/"]')].map(element => element.getAttribute('href'));
+  const firstLoadKb = [...eager, ...stylesheets].reduce((total, src) => total + gzipKb(src), 0);
+  assert(firstLoadKb <= FIRST_LOAD_BUDGET_KB, `${url} loads ${firstLoadKb.toFixed(1)} KB of gzipped JS/CSS up front; the budget is ${FIRST_LOAD_BUDGET_KB} KB`);
+  heaviestFirstLoadKb = Math.max(heaviestFirstLoadKb, firstLoadKb);
   // Fonts are self-hosted: preloads must resolve and no font CDN may return.
   const fontPreloads = [...document.querySelectorAll('link[rel="preload"][as="font"]')].map(element => element.getAttribute('href'));
   assert(fontPreloads.length > 0, `No font preloads for ${url}`);
@@ -42,6 +54,13 @@ for (const url of urls) {
   for (const selector of ['title', 'meta[name="description"]', 'meta[name="robots"]', 'link[rel="canonical"]', 'meta[property="og:url"]', 'meta[name="twitter:url"]']) {
     assert.equal(document.querySelectorAll(selector).length, 1, `Duplicate or missing ${selector} for ${url}`);
   }
+  // Every published page needs its own title and description to stand apart in results.
+  const description = document.querySelector('meta[name="description"]').content.trim();
+  assert(document.title.trim() && description, `Empty title or description for ${url}`);
+  assert(!pageTitles.has(document.title), `${url} repeats the title of ${pageTitles.get(document.title)}`);
+  assert(!pageDescriptions.has(description), `${url} repeats the description of ${pageDescriptions.get(description)}`);
+  pageTitles.set(document.title, url);
+  pageDescriptions.set(description, url);
   assert.equal(document.querySelector('meta[property="og:url"]').content, url);
   assert.equal(document.querySelector('meta[name="twitter:url"]').content, url);
   assert(!document.querySelector('meta[name="robots"]').content.includes('noindex'), `Public route marked noindex: ${url}`);
@@ -114,4 +133,4 @@ for (const url of [absoluteUrl(BLOG_PATH), ...articleUrls]) {
   // Match the whole link target: the archive URL is a prefix of every article URL.
   assert(llms.includes(`](${url})`), `llms.txt must link to ${url}`);
 }
-console.log(`Verified ${urls.length} published routes, their canonical URLs, ${fontUrls.length} font sources, the ${feedLinks.length}-item feed and llms.txt.`);
+console.log(`Verified ${urls.length} published routes, their canonical URLs, ${fontUrls.length} font sources, the ${feedLinks.length}-item feed and llms.txt; heaviest first load ${heaviestFirstLoadKb.toFixed(1)} of ${FIRST_LOAD_BUDGET_KB} KB.`);

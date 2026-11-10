@@ -102,6 +102,12 @@ runner), `sharp` (image generation), `gh-pages`, and React types.
   that chunk a first-paint dependency and silently defeats code-splitting.
   Pinning it to its own chunk keeps `three-core` / `three-react` / `markdown`
   out of the entry's `modulepreload` list.
+- **First-load budget**: `npm run verify:build` also fails when a page's
+  up-front gzipped JS and CSS exceed `FIRST_LOAD_BUDGET_KB` (205 KB) in
+  `scripts/verify-build.mjs`. In November 2026 every page loaded 187 KB:
+  `react-vendor` (react-dom and react-router, 71 KB), the entry (46 KB),
+  `framer` (45 KB), `icons` (13 KB), `styled` (12 KB), `react-core` (3 KB),
+  CSS and the preload helper. Raise the budget only for a deliberate change.
 - **Verifying code-splitting**: `npm run verify:build` fails if any published
   page eagerly loads `three-core`, `three-react`, `markdown`, `supabase`,
   `Dashboard` or `HeroScene`. After `npm run build` the entry HTML should load

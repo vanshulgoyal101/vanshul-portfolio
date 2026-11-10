@@ -83,6 +83,10 @@
 
 ## Proposed / potential 🔜
 
+- Smaller first load: Framer Motion is 45 KB of the 187 KB every page loads up
+  front. Switching to `LazyMotion` with `m.*` components would defer most of it,
+  but touches every animated component, so it waits for a dedicated pass with
+  browser verification of each animation.
 - Search Console and field Core Web Vitals monitoring: `index.html` already
   carries the Search Console verification tag; confirm the property, submit the
   generated sitemap index, inspect representative indexed URLs and measure

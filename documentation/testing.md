@@ -87,7 +87,14 @@ URL or a missing in-page anchor, and feed items that differ from the published
 articles or lack full content. Fonts are checked too: every preloaded font and
 every `@font-face` source in the built CSS must exist in `dist/`, and no page
 may link a Google Fonts stylesheet. `dist/llms.txt` must exist, start with an
-H1 and link the archive and every published article. Playwright
+H1 and link the archive and every published article. Every published page
+needs a non-empty title and description that no other page repeats, and an
+article's JSON-LD `datePublished`/`dateModified` must equal its
+`article:published_time`/`article:modified_time` (modified never before
+published). Finally, the gzipped JS and CSS a page loads up front (entry
+script, module preloads and stylesheets) must stay within
+`FIRST_LOAD_BUDGET_KB` (205 KB; every page measured 187 KB in November 2026),
+so an accidental heavy import fails the build. Playwright
 starts a production preview on port 4327 and tests desktop and mobile Chromium.
 The suite covers unique section IDs, heading clearance under the fixed header,
 reduced motion, cross-route links, skip-link focus, mobile menu focus and Escape,
