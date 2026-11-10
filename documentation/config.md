@@ -39,7 +39,15 @@ installations are not supported. CI resolves the current Node LTS.
 Direct dependencies were refreshed against the npm `latest` tags on 2026-11-10.
 The lockfile is the exact release record, not a promise that future registry
 releases are already installed. Check `npm outdated --prefer-online` before
-upgrading, review peers and engines, then run `npm run check`.
+upgrading, review peers and engines, then run `npm run check`. Cross-check
+registry `latest` tags directly: abbreviated metadata used by `npm outdated`
+can disagree with the full package metadata.
+
+**Compatibility exception (2026-11-10):** ESLint and `@eslint/js` remain on the
+latest supported 9.x releases (9.39.5). ESLint 10.14.0 / `@eslint/js` 10.0.1
+are available, but the latest `eslint-plugin-react` 7.37.5 declares support only
+through ESLint 9. Do not bypass its peer contract with `--force` or
+`--legacy-peer-deps`; revisit the pair when the plugin supports ESLint 10.
 
 **`homepage`**: `https://vanshul.com` (custom domain).
 

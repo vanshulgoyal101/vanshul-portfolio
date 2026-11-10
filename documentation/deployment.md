@@ -72,6 +72,10 @@ DNS changes can take time to propagate.
 Push validated changes to `main`. The workflow runs on pushes to `main` and
 `feature/theme-improvements` and on manual `workflow_dispatch`:
 
+The workflow uses current Node-24-based action majors: checkout 7, setup-node 7,
+configure-pages 6, upload-pages-artifact 5 and deploy-pages 5 (checked 2026-11-10).
+No forced runtime override is needed.
+
 1. **build** (ubuntu-latest, Node `lts/*`): checkout → `npm ci` →
    `npm audit --audit-level=moderate` → `npm run lint` → `npm test` →
    `npm run build` (with the `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
