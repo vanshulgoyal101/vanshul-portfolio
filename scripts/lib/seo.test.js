@@ -4,7 +4,6 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  parseFrontmatter,
   escapeXml,
   escapeText,
   rfc822,
@@ -14,32 +13,6 @@ import {
 import { postTimestamp } from '../../src/utils/seoValues.js';
 
 const blogsDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src', 'blogs');
-
-describe('seo/parseFrontmatter', () => {
-  it('returns an empty object when there is no frontmatter', () => {
-    expect(parseFrontmatter('# Just a body')).toEqual({});
-  });
-
-  it('parses key/value pairs and strips quotes', () => {
-    const data = parseFrontmatter(`---\ntitle: "Hello"\nslug: hello\n---\nbody`);
-    expect(data.title).toBe('Hello');
-    expect(data.slug).toBe('hello');
-  });
-
-  it('splits only on the first colon', () => {
-    const data = parseFrontmatter(`---\ntitle: A: B\n---\nx`);
-    expect(data.title).toBe('A: B');
-  });
-
-  it('leaves values as strings (no numeric coercion)', () => {
-    const data = parseFrontmatter(`---\nwordCount: 2400\n---\nx`);
-    expect(data.wordCount).toBe('2400');
-  });
-
-  it('ignores lines that have no key', () => {
-    expect(parseFrontmatter(`---\ntitle: Hello\njust prose\n: orphan value\n---\nx`)).toEqual({ title: 'Hello' });
-  });
-});
 
 describe('seo/escaping', () => {
   it('escapeXml escapes &, <, > and quotes', () => {

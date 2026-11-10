@@ -4,11 +4,11 @@
  * so each shared link gets a distinct preview. Runs in `prebuild`; output is
  * git-ignored and regenerated on every build.
  */
-import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
-import { parseFrontmatter, escapeXml } from './lib/seo.mjs';
+import { readPosts, escapeXml } from './lib/seo.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const blogsDir = join(root, 'src', 'blogs');
@@ -67,10 +67,7 @@ const svgFor = ({ title, category }) => {
 
 mkdirSync(outDir, { recursive: true });
 
-const posts = readdirSync(blogsDir)
-  .filter((f) => f.endsWith('.md'))
-  .map((f) => parseFrontmatter(readFileSync(join(blogsDir, f), 'utf8')))
-  .filter((p) => p.slug && p.title);
+const posts = readPosts(blogsDir);
 
 for (const post of posts) {
   const png = await sharp(Buffer.from(svgFor(post))).png().toBuffer();

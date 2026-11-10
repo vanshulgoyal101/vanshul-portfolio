@@ -3,53 +3,10 @@
  * Dynamically loads all blog posts from markdown files
  */
 
+import { parseFrontmatter } from './frontmatter';
+
 // Dynamically import all markdown files from the blogs directory
 const blogFiles = import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true });
-
-/**
- * Parse frontmatter from markdown content
- * @param {string} markdown - Raw markdown content with YAML frontmatter
- * @returns {Object} Object with frontmatter data and content
- */
-export const parseFrontmatter = (markdown) => {
-  const normalized = markdown.replace(/\r\n/g, '\n');
-  const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
-  const match = normalized.match(frontmatterRegex);
-
-  if (!match) {
-    return { data: {}, content: normalized };
-  }
-  
-  const frontmatterText = match[1];
-  const content = match[2];
-  
-  // Parse YAML-like frontmatter
-  const data = {};
-  const lines = frontmatterText.split('\n');
-  
-  lines.forEach(line => {
-    const colonIndex = line.indexOf(':');
-    if (colonIndex > 0) {
-      const key = line.substring(0, colonIndex).trim();
-      let value = line.substring(colonIndex + 1).trim();
-      
-      // Remove quotes if present
-      if ((value.startsWith('"') && value.endsWith('"')) || 
-          (value.startsWith("'") && value.endsWith("'"))) {
-        value = value.slice(1, -1);
-      }
-      
-      // Convert to number if it's a valid number
-      if (!isNaN(value) && value !== '') {
-        data[key] = Number(value);
-      } else {
-        data[key] = value;
-      }
-    }
-  });
-  
-  return { data, content: content.trim() };
-};
 
 /**
  * Load all blog posts from markdown files

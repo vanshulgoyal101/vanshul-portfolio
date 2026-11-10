@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseFrontmatter } from './blogLoader';
+import { parseFrontmatter } from './frontmatter';
 
 describe('parseFrontmatter', () => {
   it('returns empty data and the raw body when there is no frontmatter', () => {
@@ -23,10 +23,28 @@ describe('parseFrontmatter', () => {
     expect(data.summary).toBe('single quoted');
   });
 
-  it('coerces purely numeric values to numbers', () => {
-    const { data } = parseFrontmatter(`---\nwordCount: 2400\n---\nx`);
-    expect(data.wordCount).toBe(2400);
-    expect(typeof data.wordCount).toBe('number');
+  it('keeps numeric-looking values as strings, so a title like "2048" survives', () => {
+    const { data } = parseFrontmatter(`---\ntitle: 2048\nwordCount: "2400"\n---\nx`);
+    expect(data).toEqual({ title: '2048', wordCount: '2400' });
+  });
+
+  it('removes only one pair of matching quotes', () => {
+    const md = `---\ntitle: "Quote" and more\nsummary: 'It''s fine'\nmixed: "half'\nnested: "'kept'"\n---\nx`;
+    expect(parseFrontmatter(md).data).toEqual({
+      title: '"Quote" and more',
+      summary: "It''s fine",
+      mixed: `"half'`,
+      nested: "'kept'",
+    });
+  });
+
+  it('ignores lines without a key', () => {
+    const { data } = parseFrontmatter(`---\ntitle: Hello\njust prose\n: orphan value\n---\nx`);
+    expect(data).toEqual({ title: 'Hello' });
+  });
+
+  it('accepts a file that ends right after the closing fence', () => {
+    expect(parseFrontmatter(`---\ntitle: Only metadata\n---`)).toEqual({ data: { title: 'Only metadata' }, content: '' });
   });
 
   it('keeps non-numeric values (dates, read time) as strings', () => {
