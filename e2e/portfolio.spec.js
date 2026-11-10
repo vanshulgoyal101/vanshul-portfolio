@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import sharp from 'sharp';
 import { BOOKS, ESSAYS } from '../src/constants/books.js';
+import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../src/constants/projects.js';
 
 const visit = async (page, url) => {
   const response = await page.goto(url);
@@ -204,7 +205,8 @@ test('featured images fill consistent frames without changing on hover', async (
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await visit(page, '/#projects');
   const images = page.locator('#projects img[alt]:not([alt=""])');
-  await expect(images).toHaveCount(3);
+  // Counts come from the data, so adding a project never fails this test.
+  await expect(images).toHaveCount(FEATURED_PROJECTS.filter(project => project.image).length);
   const frames = [];
   for (const image of await images.all()) {
     await image.scrollIntoViewIfNeeded();
@@ -246,7 +248,7 @@ test('case studies expand and the project directory supports pointer and keyboar
   await expect(directory.getByRole('link')).toHaveCount(0);
   await summary.click();
   await expect(directory).toHaveAttribute('open', '');
-  await expect(directory.getByRole('heading', { level: 5 })).toHaveCount(17);
+  await expect(directory.getByRole('heading', { level: 5 })).toHaveCount(PROJECT_DIRECTORY.flatMap(group => group.items).length);
   for (const heading of await directory.getByRole('heading', { level: 5 }).all()) {
     await expect(heading).toBeVisible();
   }
