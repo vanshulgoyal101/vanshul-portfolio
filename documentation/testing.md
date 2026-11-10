@@ -34,14 +34,23 @@ required. Dashboard tests cover promise rejections and out-of-order responses.
 
 ### November 2026 coverage baseline
 
-Vitest 5.1: 487 tests in 63 files, 85.95% lines, 79.70% branches and 78.26%
-functions (`npm run test:coverage`). In September 2026 it was 401 tests,
-64.93% lines and 65.51% branches. The gain comes from new tests for pages,
-primitives, toasts, the contact form, dates and archive grouping, and from
-deleting dead modules.
-App wiring, styling and decorative canvases still rely on browser verification
-and are not unit-complete.
-Do not exclude these files merely to inflate the percentage.
+Vitest 5.1: 614 tests in 71 files, 97.02% lines, 92.56% branches, 96.90%
+functions and 96.22% statements (`npm run test:coverage`). Earlier the same
+month it was 487 tests, 85.95% lines and 79.70% branches; in September 2026,
+401 tests, 64.93% lines and 65.51% branches. The latest gain covers the intro
+gate and deep links in `App`, the decorative layers' timing, input and cleanup,
+navigation keyboard and viewport behaviour, post sharing, dashboard states,
+the route error fallback and build-helper corner cases. Two of those tests
+found real bugs (telemetry lifetimes and cursor pointer targets) and fail on
+the earlier code.
+
+What stays uncovered is deliberate: the three.js scene in
+`Hero/FloatingShape.jsx` (end-to-end pixel checks cover it), animation
+callbacks that only run inside real Framer Motion, per-frame canvas physics,
+post-unmount guards and defensive branches for input the app never produces.
+`scripts/*.mjs` entry points sit outside the coverage config; `verify:build`
+checks their output, and the `scripts/lib` helpers have their own tests.
+Do not exclude files merely to inflate the percentage.
 
 WebGL pixel tests wait until the canvas matches its reserved scene dimensions
 before capturing. A visible canvas can still have its initial 300x150 dimensions
