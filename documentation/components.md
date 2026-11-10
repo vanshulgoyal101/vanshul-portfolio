@@ -183,7 +183,7 @@ page's single `<main>`. Their titles use `PageHeader`.
   release fails on its next lazy route; on mount `RouteError` therefore reloads
   once when `shouldRetry()` from `utils/routeRetry.js` allows it. That stores
   the attempt time in `sessionStorage` (`vg.routeRetryAt`) and refuses another
-  automatic reload within ten seconds, while offline, or when storage is
+  automatic reload within a minute, while offline, or when storage is
   unavailable.
 - **BackgroundElements** (`components/BackgroundElements.jsx`): fixed,
   `aria-hidden`, pointer-transparent gradient wash rendered once by `App`.

@@ -175,7 +175,7 @@ in detail.
 | [`utils/seoValues.js`](../src/utils/seoValues.js) | `parsePostDate`, `postDate`, `postPublishedAt`, `postTimestamp`, `compareNewestFirst`, `PUBLICATION_TIMEZONE_OFFSET`, `parseTags`, `postKeywords` | [data.md](data.md#frontmatter-schema), [seo.md](seo.md) |
 | [`utils/scrollToSection.js`](../src/utils/scrollToSection.js) | `scrollToSection`, `getHashTarget`, `getScrollOffset`, `getSectionScrollTop` | [Routing & navigation](#routing--navigation) above |
 | [`utils/cursorPreference.js`](../src/utils/cursorPreference.js) | `getCursorPreference`, `setCursorPreference`, `isPointerFine`, `isAutoCursorCapable`, `isCustomCursorEnabled`, `CURSOR_PREF_EVENT` | [components.md](components.md#shared-ui) |
-| [`utils/routeRetry.js`](../src/utils/routeRetry.js) | `shouldRetry`, `RETRY_KEY` (the once-per-ten-seconds reload guard used by `RouteError`) | [components.md](components.md) |
+| [`utils/routeRetry.js`](../src/utils/routeRetry.js) | `shouldRetry`, `RETRY_KEY` (the once-a-minute reload guard used by `RouteError`) | [components.md](components.md) |
 | [`utils/magnetic.js`](../src/utils/magnetic.js) | `magneticOffset`, `FOLLOW_RATIO` | [components.md](components.md#decorative-elements--componentsfunelements) |
 | [`utils/dashboardData.js`](../src/utils/dashboardData.js) | `formatNumber`, `fillDailySeries`, `hourSeries`, `toBars`, `shortenUrl`, `percentDelta`, `statsToCsv` | [analytics.md](analytics.md#4-the-dashboard--dashboard) |
 | [`lib/supabaseClient.js`](../src/lib/supabaseClient.js) | `isSupabaseConfigured`, `getSupabase` (lazy view-count client) | [data.md](data.md#view-counts-supabase) |

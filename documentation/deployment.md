@@ -446,7 +446,7 @@ Already done for vanshul.com; listed for a new setup.
 Each deploy replaces every hashed file in `assets/`, so a tab that loaded the
 previous build cannot fetch that build's lazy chunks any more. `RouteError`
 reloads such a tab once on its own, which picks up the new build. If the page
-still fails within ten seconds (or the visitor is offline), it stays on "This
+still fails within a minute (or the visitor is offline), it stays on "This
 page didn't load" with **Reload page** and **Back home**. Nothing needs to be
 done on the server.
 
