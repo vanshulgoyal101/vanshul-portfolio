@@ -24,10 +24,10 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
   page has exactly one `main`. The homepage's comes from `App`; subpages get
   theirs from `PageLayout`, the dashboard included. The footer
   (`contentinfo`) contains a "Footer links" nav. Named regions include "More
-  things I've built", "More writing", and the Books and Essays collections.
+  things I've built", "More writings", and the Books and Essays collections.
 - **Headings**: one `h1` per page (the name on the homepage; the page or
   article title elsewhere). Then `h2` for sections (homepage sections, archive
-  years, article sections, "More writing") and `h3` for items. Section
+  years, article sections, "More writings") and `h3` for items. Section
   eyebrows inside homepage `h2`s are `aria-hidden`, so a heading's name is just
   its title. Toast titles are paragraphs, not headings, so notifications never
   change the outline.

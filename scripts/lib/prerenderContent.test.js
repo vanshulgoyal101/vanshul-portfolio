@@ -18,6 +18,13 @@ describe('crawler-readable content', () => {
     expect(document.querySelector('script')).toBeNull();
     expect([...document.querySelectorAll('a')].some(anchor => anchor.href.startsWith('javascript:'))).toBe(false);
   });
+  it('ends an article with a "More writings" list of the other posts', () => {
+    const document = parse({ post: posts[0], posts: [...posts, { slug: 'other', title: 'Another post' }] });
+    const related = document.querySelector('nav[aria-label="More writings"]');
+    expect(related.querySelector('h2').textContent).toBe('More writings');
+    expect([...related.querySelectorAll('a')].map(anchor => anchor.getAttribute('href'))).toEqual(['/blog/other/']);
+  });
+
   it('adds a table of contents with working fragment links to long articles only', () => {
     const body = '## One\n\nText.\n\n## Two\n\nText.\n\n## Three\n\nText.';
     const long = parse({ post: { ...posts[0], body }, posts });

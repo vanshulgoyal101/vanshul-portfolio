@@ -72,7 +72,7 @@ describe('BlogPost', () => {
   it('keeps the article and related writing in one main landmark', () => {
     renderAt(`/blog/${sample.slug}`);
     expect(screen.getAllByRole('main')).toHaveLength(1);
-    const related = screen.getByRole('region', { name: 'More writing' });
+    const related = screen.getByRole('region', { name: 'More writings' });
     expect(screen.getByRole('main')).toContainElement(related);
     expect(within(related).getByRole('link', { name: 'All posts' })).toHaveAttribute('href', '/blog/');
   });
@@ -90,9 +90,9 @@ describe('BlogPost', () => {
     }));
   });
 
-  it('renders a "More writing" section linking to other posts', () => {
+  it('renders a "More writings" section linking to other posts', () => {
     renderAt(`/blog/${sample.slug}`);
-    expect(screen.getByText('More writing')).toBeInTheDocument();
+    expect(screen.getByText('More writings')).toBeInTheDocument();
     const otherLinks = [...document.querySelectorAll('a[href^="/blog/"]')].filter(
       (a) => a.getAttribute('href') !== `/blog/${sample.slug}`
     );

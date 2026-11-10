@@ -50,7 +50,7 @@
   with links to the RSS feed and the reading list.
 - ✅ Articles: a ~70-character reading measure, a byline (avatar, date, read
   time, live views, Share), "On this page" contents, an author card and
-  "More writing" related posts.
+  "More writings" related posts.
 - ✅ Article sections have stable deep-link ids; posts with three or more
   `h2`/`h3` headings show a table of contents (also in the no-JavaScript HTML).
 - ✅ Frontmatter schema (title, slug, summary, date, readTime, category, optional

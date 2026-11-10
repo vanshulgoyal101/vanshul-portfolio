@@ -472,9 +472,9 @@ const BlogPost = () => {
       </motion.article>
 
       {related.length > 0 && (
-        <Related aria-labelledby="more-writing">
+        <Related aria-labelledby="more-writings">
           <RelatedHeader>
-            <h2 id="more-writing">More writing</h2>
+            <h2 id="more-writings">More writings</h2>
             <TextLink to={BLOG_PATH}>
               All posts <HiArrowRight aria-hidden="true" data-arrow="forward" />
             </TextLink>

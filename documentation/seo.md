@@ -25,7 +25,7 @@ redirecting URL. Every public URL now uses its final, non-redirecting form:
 | Page | Canonical URL |
 | --- | --- |
 | Home | `https://vanshul.com/` |
-| Writing archive | `https://vanshul.com/blog/` |
+| Writings archive | `https://vanshul.com/blog/` |
 | Article | `https://vanshul.com/blog/<slug>/` |
 | Reading list | `https://vanshul.com/reading-list/` |
 
@@ -87,7 +87,7 @@ accurate facts and canonical links without crawling the whole site.
 
 - **Contents**: the author name (H1), the homepage description (blockquote),
   one paragraph of profile facts (role, employer, location, education,
-  topics), then link lists: `## Writing` (every post, newest first, with its
+  topics), then link lists: `## Writings` (every post, newest first, with its
   `summary`), `## Projects`, `## Pages` (home, archive, reading list, RSS feed,
   sitemap) and `## Elsewhere` (social profiles).
 - **Data sources**: the same posts as the feed (`readPosts`, sorted with

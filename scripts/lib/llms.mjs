@@ -55,7 +55,7 @@ export const buildLlmsTxt = (
     `Topics: ${profile.knowsAbout.join(', ')}.`,
   ].join(' ');
 
-  const writing = [...posts]
+  const writings = [...posts]
     .sort(byDateDesc)
     .map((post) => entry(post.title, absoluteUrl(postPath(post.slug), site), post.summary));
 
@@ -75,11 +75,11 @@ export const buildLlmsTxt = (
     `# ${inline(authorName)}`,
     `> ${inline(description)}`,
     inline(facts),
-    section('Writing', writing),
+    section('Writings', writings),
     section('Projects', [...featured, ...directory]),
     section('Pages', [
       entry('Home', absoluteUrl(HOME_PATH, site), 'Profile, projects, work experience, latest writing and contact.'),
-      entry('Writing archive', absoluteUrl(BLOG_PATH, site), BLOG_INDEX_DESCRIPTION),
+      entry('Writings', absoluteUrl(BLOG_PATH, site), BLOG_INDEX_DESCRIPTION),
       entry('Reading list', absoluteUrl(READING_LIST_PATH, site), READING_LIST_DESCRIPTION),
       entry('RSS feed', absoluteUrl('/feed.xml', site), 'Every post in full.'),
       entry('Sitemap', absoluteUrl('/sitemap.xml', site), 'Every public page.'),

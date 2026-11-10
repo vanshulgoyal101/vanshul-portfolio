@@ -127,7 +127,7 @@ page's single `<main>`. Their titles use `PageHeader`.
 | Page | File | Notes |
 | --- | --- | --- |
 | Archive | `pages/BlogIndex.jsx` | "Archive · N posts" eyebrow above the "Writings" title; links to the RSS feed (`/feed.xml`) and the reading list. Posts are grouped by year (h2, sticky above 640px) and listed newest first with `PostList`, with view counts when available. Uses the shared `blogIndexJsonLd`. |
-| Article | `pages/BlogPost.jsx` | Opens with "Back to Blog" (`/blog/`), the category eyebrow, the title and the summary as a dek. Then a byline (avatar, author, `<time>`, read time, live view count, Share via the Web Share API or clipboard) and an "On this page" list for posts with three or more `h2`/`h3` headings. The markdown body has stable `h2`/`h3` ids. It ends with an author card linking to `/#about` and "More writing" (three related posts from `getRelatedPosts` and an "All posts" link). Emits `postJsonLd`. Unknown slugs get a noindex "Blog Post Not Found" state with a "Browse all posts" button. |
+| Article | `pages/BlogPost.jsx` | Opens with "Back to Blog" (`/blog/`), the category eyebrow, the title and the summary as a dek. Then a byline (avatar, author, `<time>`, read time, live view count, Share via the Web Share API or clipboard) and an "On this page" list for posts with three or more `h2`/`h3` headings. The markdown body has stable `h2`/`h3` ids. It ends with an author card linking to `/#about` and "More writings" (three related posts from `getRelatedPosts` and an "All posts" link). Emits `postJsonLd`. Unknown slugs get a noindex "Blog Post Not Found" state with a "Browse all posts" button. |
 | Reading list | `pages/ReadingList.jsx` | "Back to Writings" (`/#blog`), a header with Books/Essays pills, a numbered two-column book catalogue and an essay list with source hostnames from `constants/books.js`. Deep links to `#books`, `#essays` and `#shelf-top`. |
 | Dashboard | `pages/Dashboard.jsx` | Private analytics UI; see [analytics.md](analytics.md). |
 | Not found | `pages/NotFound.jsx` | noindex 404 with a large "404", "This page wandered off." and buttons home, to the blog and to the shelf. |
@@ -138,7 +138,7 @@ page's single `<main>`. Their titles use `PageHeader`.
   `PageLayout`, `Button`/`ButtonLink`/`TextLink` and the `eyebrow` mixin.
   See [styles.md](styles.md#shared-primitives-srccomponentsui).
 - **PostList** (`components/Blog/PostList.jsx`): the editorial post list shared
-  by the archive and "More writing".
+  by the archive and "More writings".
   - each row has a mono `<time>` (with or without the year), an h3 title link,
     a two-line summary and "category · read time · views"
   - the title link covers the whole row but is named by the title alone

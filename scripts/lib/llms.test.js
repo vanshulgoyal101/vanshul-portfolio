@@ -75,7 +75,7 @@ describe('llms/buildLlmsTxt', () => {
     const headings = tree.children.filter((node) => node.type === 'heading');
     expect(headings.map((node) => [node.depth, toText(node)])).toEqual([
       [1, 'Jane Doe'],
-      [2, 'Writing'],
+      [2, 'Writings'],
       [2, 'Projects'],
       [2, 'Pages'],
       [2, 'Elsewhere'],
@@ -85,7 +85,7 @@ describe('llms/buildLlmsTxt', () => {
   });
 
   it('lists every post newest first with its absolute trailing-slash URL and summary', () => {
-    expect(sections.Writing).toEqual([
+    expect(sections.Writings).toEqual([
       { title: 'Brackets ] [ and a trailing backslash \\', url: 'https://example.com/blog/brackets/', notes: 'First line. - not an item ## nor a heading' },
       { title: 'No summary', url: 'https://example.com/blog/no-summary/', notes: '' },
       { title: 'Older', url: 'https://example.com/blog/older/', notes: 'Old.' },
@@ -116,7 +116,7 @@ describe('llms/buildLlmsTxt', () => {
   it('links the key pages by canonical URL, plus the feed and sitemap', () => {
     expect(sections.Pages.map((page) => [page.title, page.url])).toEqual([
       ['Home', 'https://example.com/'],
-      ['Writing archive', 'https://example.com/blog/'],
+      ['Writings', 'https://example.com/blog/'],
       ['Reading list', 'https://example.com/reading-list/'],
       ['RSS feed', 'https://example.com/feed.xml'],
       ['Sitemap', 'https://example.com/sitemap.xml'],

@@ -89,7 +89,7 @@ export const prerenderContent = ({ post, posts = [], page = 'home' } = {}) => {
   let content;
   if (post) {
     const markdown = renderMarkdown(post.body);
-    content = `<article><h1>${escapeText(post.title)}</h1><p>By ${escapeText(AUTHOR_NAME)}</p>${tableOfContents(post.body)}${markdown}</article><nav aria-label="More writing"><h2>More Writing</h2>${postLinks(posts.filter(item => item.slug !== post.slug))}</nav>`;
+    content = `<article><h1>${escapeText(post.title)}</h1><p>By ${escapeText(AUTHOR_NAME)}</p>${tableOfContents(post.body)}${markdown}</article><nav aria-label="More writings"><h2>More writings</h2>${postLinks(posts.filter(item => item.slug !== post.slug))}</nav>`;
   } else if (page === 'blog') {
     content = `<h1>Writings</h1>${paragraph(BLOG_INDEX_DESCRIPTION)}${postLinks(posts)}`;
   } else if (page === 'reading-list') {

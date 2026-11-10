@@ -35,7 +35,7 @@ party. To update a font, copy the `*-latin-wght-normal.woff2` and
   rest on `--shadow-sm` and take `--shadow-md` on hover; only the contact form
   card, the About photo, the shelf banner and toasts carry `--shadow-md` at
   rest. Strong 1px ink rules divide major groups: archive years, shelf
-  collections and "More writing".
+  collections and "More writings".
 - **Mono eyebrows.** Small uppercase JetBrains Mono labels sit above titles
   (`01 / Selected work`, `Archive · 8 posts`) and carry metadata (dates, read
   times, tech chips).
@@ -153,7 +153,7 @@ Icons with `data-arrow="forward" | "back" | "up"` inside `Button`,
   does not react. Hover lifts use Framer Motion `whileHover={{ y: -4 }}`,
   never CSS `:hover` transforms, because Framer's inline transform would
   override them.
-- **Editorial lists** (`Blog/PostList` in the archive and "More writing"; the
+- **Editorial lists** (`Blog/PostList` in the archive and "More writings"; the
   shelf's essay list):
   - rows are separated by hairlines with an h3 title
   - `PostList` adds a mono date column and stretches the title link over the

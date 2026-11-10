@@ -138,7 +138,7 @@ suffixes for repeats. For example `## The counter-force` becomes
 - `sortBlogsByDate(posts)` returns a new array sorted newest-first (does not
   mutate its input; returns `[]` for non-array input).
 - `getRelatedPosts(posts, current, limit = 3)` returns same-category posts
-  first, then the newest others, never the current post ("More writing").
+  first, then the newest others, never the current post ("More writings").
 - `formatPostDate(value, { year = true })` formats a frontmatter date as
   `29 Jul 2026` (or `29 Jul`); unparseable values are returned unchanged.
 - `groupPostsByYear(posts)` splits newest-first posts into
@@ -207,7 +207,7 @@ counts are shown — the site builds and runs exactly as before.
 
 The homepage preview passes each count to `BlogCard` and the archive passes
 the map to `PostList`; `BlogPost.jsx` shows the count in the article byline.
-"More writing" lists show no counts. Counts are popularity
+"More writings" lists show no counts. Counts are popularity
 signals for display, not unique-reader measurements: the endpoint is anonymous
 and can be called directly.
 

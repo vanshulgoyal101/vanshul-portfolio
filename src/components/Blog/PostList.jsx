@@ -114,7 +114,7 @@ const Arrow = styled(HiArrowRight)`
 `;
 
 // Editorial list of posts: date, linked title, summary and reading facts.
-// Used by the archive and by "More writing" under each article.
+// Used by the archive and by "More writings" under each article.
 const PostList = ({ posts, views = {}, showYear = true }) => (
   <List>
     {posts.map((post) => {
