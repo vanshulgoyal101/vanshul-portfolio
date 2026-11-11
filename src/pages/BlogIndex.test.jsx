@@ -12,10 +12,10 @@ vi.mock('../utils/blogPostLoader', () => ({ loadFullBlogPosts: vi.fn() }));
 
 // View counts arrive from an async fetch; let it settle so React state updates
 // happen inside act().
-const renderPage = async () => {
+const renderPage = async (props) => {
   const result = render(
     <MemoryRouter initialEntries={['/blog/']}>
-      <BlogIndex />
+      <BlogIndex {...props} />
     </MemoryRouter>
   );
   await act(async () => {});
@@ -77,9 +77,18 @@ describe('BlogIndex', () => {
     expect(screen.getByRole('main')).toContainElement(screen.getByRole('heading', { level: 1, name: 'Writings' }));
   });
 
+  it('hides the search controls while archive search is switched off', async () => {
+    await renderPage({ searchEnabled: false });
+    expect(screen.queryByRole('search')).toBeNull();
+    expect(screen.queryByRole('searchbox')).toBeNull();
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(posts.length);
+    expect(loadFullBlogPosts).not.toHaveBeenCalled();
+  });
+
   it('searches article text, announces results, and clears both filters with focus restored', async () => {
     const user = userEvent.setup();
-    await renderPage();
+    await renderPage({ searchEnabled: true });
     const search = screen.getByRole('searchbox', { name: 'Search writings' });
     const topic = screen.getByRole('combobox', { name: 'Topic' });
     const clear = screen.getByRole('button', { name: 'Clear filters' });
@@ -99,7 +108,7 @@ describe('BlogIndex', () => {
 
   it('shows a useful empty state without changing the canonical or full archive schema', async () => {
     const user = userEvent.setup();
-    await renderPage();
+    await renderPage({ searchEnabled: true });
     await user.type(screen.getByRole('searchbox'), 'no-article-has-this-phrase');
     await act(() => vi.dynamicImportSettled());
     expect(screen.queryAllByRole('heading', { level: 3 })).toHaveLength(0);
@@ -112,7 +121,7 @@ describe('BlogIndex', () => {
 
   it('offers every actual topic once, sorted, and filters without reordering posts', async () => {
     const user = userEvent.setup();
-    await renderPage();
+    await renderPage({ searchEnabled: true });
     const select = screen.getByRole('combobox');
     const topics = [...new Set(posts.map(post => post.category))].sort();
     expect(within(select).getAllByRole('option').map(option => option.value)).toEqual(['', ...topics]);
@@ -123,7 +132,7 @@ describe('BlogIndex', () => {
   });
 
   it('loads article bodies only for a text query and matches body-only words', async () => {
-    await renderPage();
+    await renderPage({ searchEnabled: true });
     expect(loadFullBlogPosts).not.toHaveBeenCalled();
     fireEvent.change(screen.getByRole('combobox'), { target: { value: posts[0].category } });
     expect(loadFullBlogPosts).not.toHaveBeenCalled();
@@ -136,7 +145,7 @@ describe('BlogIndex', () => {
   it('announces pending full-text loading and ignores a late result after clearing', async () => {
     let resolve;
     loadFullBlogPosts.mockReturnValue(new Promise(done => { resolve = done; }));
-    await renderPage();
+    await renderPage({ searchEnabled: true });
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'body-only-search-token' } });
     await act(() => vi.dynamicImportSettled());
     expect(screen.getByRole('status')).toHaveTextContent('Searching all writings');
@@ -152,7 +161,7 @@ describe('BlogIndex', () => {
     const log = vi.spyOn(console, 'error').mockImplementation(() => {});
     loadFullBlogPosts.mockRejectedValue(error);
     try {
-      await renderPage();
+      await renderPage({ searchEnabled: true });
       fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'word' } });
       await act(() => vi.dynamicImportSettled());
       expect(await screen.findByRole('alert')).toHaveTextContent('Article text could not be loaded');

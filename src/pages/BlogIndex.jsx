@@ -12,7 +12,7 @@ import { useBlogViews } from '../hooks/useBlogViews';
 import { useSeo } from '../hooks/useSeo';
 import { SITE_URL, AUTHOR_NAME } from '../constants/siteConfig';
 import { BLOG_PATH, READING_LIST_PATH } from '../constants/routes';
-import { BLOG_INDEX_DESCRIPTION } from '../constants/blogConstants';
+import { ARCHIVE_SEARCH_ENABLED, BLOG_INDEX_DESCRIPTION } from '../constants/blogConstants';
 import { blogIndexJsonLd } from '../../scripts/lib/structuredData.mjs';
 import { filterPosts } from '../utils/blogSearch';
 
@@ -92,7 +92,7 @@ const ResultCount = styled.p`
   font-size: 0.875rem;
 `;
 
-const BlogIndex = () => {
+const BlogIndex = ({ searchEnabled = ARCHIVE_SEARCH_ENABLED }) => {
   const posts = useMemo(() => sortBlogsByDate(loadBlogPosts()), []);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
@@ -152,6 +152,7 @@ const BlogIndex = () => {
         </Links>
       </PageHeader>
 
+      {searchEnabled && (<>
       <Filters role="search" aria-label="Search writings">
         <label>
           Search writings
@@ -177,6 +178,7 @@ const BlogIndex = () => {
       </ResultCount>
       {failed && <p role="alert">Article text could not be loaded. <a href={BLOG_PATH}>Reload the archive</a> to retry, or clear the search to browse every writing.</p>}
       {!pending && !failed && filtered.length === 0 && <p>No writings match these filters. Try another word or clear the filters.</p>}
+      </>)}
 
       {!pending && !failed && years.map(({ year, posts: yearPosts }) => (
         <Year key={year}>

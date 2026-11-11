@@ -175,6 +175,12 @@ carry every article:
 
 ### Archive search
 
+**Currently switched off.** `ARCHIVE_SEARCH_ENABLED` in
+[`src/constants/blogConstants.js`](../src/constants/blogConstants.js) is
+`false`, so `/blog/` shows only the year-grouped list. Set it to `true` to bring
+back the controls described below; their code, unit tests (`BlogIndex` takes a
+`searchEnabled` prop) and the e2e test (skipped while the flag is off) are kept.
+
 The archive searches title, summary, category, tags and body locally. Matching is
 literal, case/accent-insensitive and requires every whitespace-separated query
 word; the topic filter matches an exact category. Publication order and year

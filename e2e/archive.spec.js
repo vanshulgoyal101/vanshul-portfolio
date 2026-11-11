@@ -2,11 +2,13 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readPosts } from '../scripts/lib/seo.mjs';
 import { join } from 'node:path';
+import { ARCHIVE_SEARCH_ENABLED } from '../src/constants/blogConstants.js';
 
 const posts = readPosts(join(process.cwd(), 'src', 'blogs'));
 const localOnly = route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort();
 
 test('archive search and topic filtering work with keyboard, clear, and article navigation', async ({ page }) => {
+  test.skip(!ARCHIVE_SEARCH_ENABLED, 'Archive search is switched off in src/constants/blogConstants.js');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.route('**/*', localOnly);
   await page.goto('/blog/');

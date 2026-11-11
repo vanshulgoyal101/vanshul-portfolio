@@ -4,7 +4,7 @@
 > proposed, ⛔ non-goal. React 19 + Vite SPA on GitHub Pages, markdown blog, 3D
 > hero, strong SEO. Deep docs: [documentation/README.md](documentation/README.md).
 
-**Legend:** ✅ shipped · 🔜 proposed/potential · ⛔ deliberate non-goal.
+**Legend:** ✅ shipped · ⏸️ built but switched off · 🔜 proposed/potential · ⛔ deliberate non-goal.
 
 ## Site (✅ shipped)
 
@@ -98,8 +98,10 @@
   sanitized analytics URLs and shared build/runtime article structured data.
 - ✅ **Auto-deploy** to GitHub Pages on push to `main`, only after the audit,
   lint, unit, build, build-verification and browser gates pass in CI.
-- ✅ Local full-text archive search and topic filtering with announced loading,
-  results, visible failures and recovery. Article bodies load only for a text
+- ⏸️ Archive search and topic filter, switched off for simplicity
+  (`ARCHIVE_SEARCH_ENABLED` in `src/constants/blogConstants.js`). When on: local
+  full-text search with announced loading, results, visible failures and
+  recovery. Article bodies load only for a text
   query; the complete static archive remains readable without JavaScript.
 - ✅ Shared build/article publishing validation, literal metadata replacements,
   substantive revision dates and collision-free heading anchors.
