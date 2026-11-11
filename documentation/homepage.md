@@ -1,8 +1,12 @@
 # Homepage and Navigation
 
 The homepage presents the introduction, selected projects, biography, employment,
-writings, and contact section in that order. Featured projects have native
-`details` case studies. The wider project directory sits below them in a native
+writings, and contact section in that order. Each featured project card ends
+with "Read the full story" (a router link to `/projects/<id>/`, named "Read
+the full story: ⟨project⟩") and "Visit Website". The four-part case study and
+the longer story live on that page, which replaced the earlier in-card
+`details` disclosure: one short card, one clear way to read more. The wider
+project directory sits below them in a native
 `details` disclosure, collapsed by default. Its summary pairs
 "More things I've built" with a rotating chevron.
 The open directory is grouped by category in compact two-column rows (one column on mobile). It retains
@@ -12,8 +16,12 @@ omitted from the compact rows; icon links have descriptive accessible names,
 hover titles, and 44px targets. The summary has a visible keyboard focus ring;
 Enter and Space toggle it, and closed project links leave the tab order. This
 collapsed default supersedes the earlier always-visible design preference.
-Case-study text should describe supported project facts, not inferred customer
-results or invented metrics.
+Case-study and story text should describe supported project facts, not
+inferred customer results or invented metrics. Story copy
+(`src/constants/projectStories.js`) is written in plain, short sentences and
+uses only facts from the owner's notes, with their limits: HERC figures are
+team figures, the sample-collection tool was team work, and the rover's own
+result was partial.
 
 Of the two standalone MCP servers, only `ctx` is listed (in "Live products &
 tools"); it was chosen as the stronger of the two. `vbrain`, in "Open source &
@@ -70,7 +78,8 @@ becomes visible with no delay and hides only after its 0.35s slide-out. If
 focus call would silently fail.
 
 The active navigation item follows scroll-spy only on `/`. "Blog" stays
-active on `/blog*` and `/reading-list/`, and no item is active on other routes
+active on `/blog*` and `/reading-list/`, "Projects" on `/projects/*`, and no
+item is active on other routes
 (such as the 404). The desktop header is a floating pill with its blur on a
 `::before` layer: `backdrop-filter` on the `nav` would become the containing
 block of the fixed drawer and clip it.

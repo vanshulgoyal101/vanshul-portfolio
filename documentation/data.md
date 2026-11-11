@@ -15,12 +15,13 @@ maps to an icon component.
 | --- | --- | --- |
 | [`constants/siteConfig.js`](../src/constants/siteConfig.js) | `SITE_URL`, `AUTHOR_NAME`, `HOME_DESCRIPTION`, `DEFAULT_OG_IMAGE`, `SOCIAL_LINKS`, `AUTHOR_SAME_AS`, `SOCIAL_PROFILES` | Hero, Contact, footer, dashboard footer, SEO and build scripts |
 | [`constants/profile.js`](../src/constants/profile.js) | `PROFILE` (headline, role, employer, education, summary, location, languages, photo, `photoAlt`, `avatar`, `knowsAbout`), `HIGHLIGHTS`, `SKILL_GROUPS` | Hero, About, Contact, article byline and author card, homepage JSON-LD |
-| [`constants/projects.js`](../src/constants/projects.js) | `FEATURED_PROJECTS`, `CASE_STUDY_FIELDS`, `PROJECT_DIRECTORY` | Projects |
+| [`constants/projects.js`](../src/constants/projects.js) | `FEATURED_PROJECTS`, `CASE_STUDY_FIELDS`, `PROJECT_DIRECTORY` | Projects, project pages |
+| [`constants/projectStories.js`](../src/constants/projectStories.js) | `PROJECT_STORIES` (per featured `id`: `seoTitle`, meta `description`, one-paragraph `summary`, extra `facts`, story `sections` of `{ heading, paragraphs }`, optional public `repo`, `linkLabel`, schema.org `about`), `getProjectPage(id)` (the project merged with its story, `path` and `pageTitle`, or `null`), `PROJECT_PAGES` | Project pages, their prerendered shells, sitemap, llms.txt (imported only by the lazy page and the build scripts, so the homepage bundle never carries it) |
 | [`constants/experience.js`](../src/constants/experience.js) | `EXPERIENCE` (full cards, newest first; the first entry is the current role), `EARLIER_EXPERIENCE` (shorter earlier roles for the compact list, newest first by start date) | Work, About |
 | [`constants/books.js`](../src/constants/books.js) | `BOOKS`, `ESSAYS`, `SHELF_ITEMS` (books then essays) | Reading list, shelf card |
 | [`constants/readingListSeo.js`](../src/constants/readingListSeo.js) | `READING_LIST_DESCRIPTION`, `READING_LIST_JSON_LD` (an `ItemList` of `SHELF_ITEMS` plus a `BreadcrumbList`) | Reading list page metadata and its prerendered shell (`verify:build` checks that shell's `ItemList` against `books.js`) |
 | [`constants/blogConstants.js`](../src/constants/blogConstants.js) | `BLOG_CONTENT`, `BLOG_INDEX_DESCRIPTION` | Blog preview, archive |
-| [`constants/routes.js`](../src/constants/routes.js) | `HOME_PATH`, `BLOG_PATH`, `READING_LIST_PATH`, `postPath`, `homeSectionPath`, `absoluteUrl` | Links, canonicals, sitemap, feed |
+| [`constants/routes.js`](../src/constants/routes.js) | `HOME_PATH`, `BLOG_PATH`, `READING_LIST_PATH`, `postPath`, `projectPath`, `homeSectionPath`, `absoluteUrl` | Links, canonicals, sitemap, feed |
 
 `prerenderContent.mjs` also renders the site, profile, project, experience,
 shelf and blog-copy modules into the static fallback HTML. The motion presets
@@ -40,6 +41,12 @@ Rules:
 - Editing a module updates the UI, the fallback HTML and the structured data
   together; no other file needs to change unless a new icon key is introduced
   (add it to the component's `ICONS` map).
+- A new featured project also needs an entry in `PROJECT_STORIES`:
+  `npm test` (`projectStories.test.js`) and `npm run verify:build` fail until
+  every featured project has a story page. Story copy uses only facts from the
+  owner's notes, credits team work to the team and keeps stated limits (the
+  HERC rover's result was partial). Nothing private: no AdBrain customers,
+  prospects, internal metrics or finances.
 
 ## The blog
 

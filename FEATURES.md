@@ -25,13 +25,19 @@
 - ✅ Work: full cards for the current and most recent roles, then a compact
   "Earlier" list of shorter roles (internships, NASA HERC team lead, Space Apps
   Collective volunteer).
+- ✅ **Project story pages** at `/projects/<id>/` (AdBrain, Tiny Arcade, NASA
+  HERC): role, title, summary, image, key facts, the four-part case study, a
+  longer story in plain sentences, live/source links and "More projects".
+  Homepage cards link to them with "Read the full story". Lazy-loaded,
+  prerendered, in the sitemap and llms.txt; unknown ids get the noindex 404.
 - ✅ **Editorial design system**: one palette of paper, ink and a single blue
   accent; hairline surfaces; mono eyebrows; motion tokens; shared
   `SectionHeader`, `PageHeader`, `PageLayout` and `Button`/`ButtonLink`/
   `TextLink` primitives
   ([documentation/styles.md](documentation/styles.md)).
 - ✅ Floating frosted navigation. On `/` the active item follows scroll-spy;
-  "Blog" is active on `/blog*` and `/reading-list`. On mobile, a numbered,
+  "Blog" is active on `/blog*` and `/reading-list`, "Projects" on
+  `/projects/*`. On mobile, a numbered,
   focus-managed drawer. The site footer ends every route.
 - ✅ Screen-reader-announced notifications (polite live region). Failed contact
   submits move focus to the first invalid field. Every page has one `main`
@@ -60,7 +66,7 @@
   updated and tags), read by one parser shared by the app and the build. An
   `updated` date drives `dateModified`, `article:modified_time`, sitemap
   `<lastmod>` and an "Updated" note in the byline.
-- ✅ Readable static article bodies, writing index, shelf and homepage content;
+- ✅ Readable static article bodies, writing index, shelf, project story and homepage content;
   public navigation works without JavaScript. Per-post OG images, RSS, sitemap.
 
 ## SEO (✅ strong)
@@ -68,7 +74,7 @@
 - ✅ Per-page title/description/canonical/OG/Twitter; **JSON-LD** (an `@graph`
   of WebSite + Person + ProfilePage on the homepage only; BlogPosting +
   BreadcrumbList per post; Blog + BreadcrumbList on the archive; ItemList +
-  BreadcrumbList on the shelf).
+  BreadcrumbList on the shelf; WebPage + BreadcrumbList per project story).
 - ✅ **PNG OG images** generated via `sharp` (scrapers don't render SVG); sitemap,
   sitemap index and robots; RSS. Build-time scripts under `scripts/` (shared
   `scripts/lib/*`).
@@ -90,8 +96,8 @@
 
 ## Proposed / potential 🔜
 
-- Smaller first load: Framer Motion is 45 KB of the 187 KB every page loads up
-  front. Switching to `LazyMotion` with `m.*` components would defer most of it,
+- Smaller first load: Framer Motion is 45 KB of the 200 KB the heaviest page
+  loads up front. Switching to `LazyMotion` with `m.*` components would defer most of it,
   but touches every animated component, so it waits for a dedicated pass with
   browser verification of each animation.
 - Search Console and field Core Web Vitals monitoring: `index.html` already
@@ -104,8 +110,9 @@
 - Analytics retention and abuse protection: define a retention window and
   ingestion quota before adding a server-side ingestion endpoint. Public metrics
   remain forgeable; client-side identifiers are not an abuse-control mechanism.
-- More original posts and evidenced project case studies. Add only authored,
-  reviewed material; no generated keyword pages or fabricated achievements.
+- More original posts and evidenced project stories (the three featured
+  projects have pages; directory projects do not). Add only authored, reviewed
+  material; no generated keyword pages or fabricated achievements.
 - Manual assistive-technology review and live OAuth/contact verification remain
   operational checks. Automated accessibility tests are not certification.
 

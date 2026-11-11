@@ -108,9 +108,13 @@ runner), `sharp` (image generation), `gh-pages`, and React types.
   `react-vendor` (react-dom and react-router, 71 KB), the entry (46 KB),
   `framer` (45 KB), `icons` (13 KB), `styled` (12 KB), `react-core` (3 KB),
   CSS and the preload helper. Raise the budget only for a deliberate change.
+  Adding the lazy project pages (November 2026) took the heaviest page from
+  198.5 KB to 200.0 KB: the project copy stays in its own chunk, but a fifth
+  lazy page sharing `PageLayout` makes Rolldown preload the shared page shell
+  as a separate common chunk, which compresses slightly worse.
 - **Verifying code-splitting**: `npm run verify:build` fails if any published
   page eagerly loads `three-core`, `three-react`, `markdown`, `supabase`,
-  `Dashboard` or `HeroScene`. After `npm run build` the entry HTML should load
+  `Dashboard`, `HeroScene` or `ProjectPage`. After `npm run build` the entry HTML should load
   only the entry plus shared runtime/core vendor dependencies, never the lazy
   groups above. Vite 8 also emits a small `rolldown-runtime` helper.
   Moving supabase-js out of the entry cut it from about
@@ -202,12 +206,12 @@ analytics dashboard's Supabase URL and publishable key are hard-coded in
 
 | Script | When it runs | Output | Details |
 | --- | --- | --- | --- |
-| `generate-sitemap.mjs` | `prebuild` | `public/sitemap.xml`: home, `/blog/`, `/reading-list/` and every post (with its social image) | [seo.md](seo.md#build-time-generation) |
+| `generate-sitemap.mjs` | `prebuild` | `public/sitemap.xml`: home, `/blog/`, `/reading-list/`, each `/projects/<id>/` (with its project image) and every post (with its social image) | [seo.md](seo.md#build-time-generation) |
 | `generate-og-images.mjs` | `prebuild`, `npm run generate:og` | `public/og/<slug>.png` (1200×630, rendered with `sharp`) | [seo.md](seo.md#build-time-generation) |
 | `generate-feed.mjs` | `prebuild` | `public/feed.xml` (RSS 2.0 with full article HTML) | [seo.md](seo.md#build-time-generation) |
 | `generate-llms.mjs` | `prebuild` | `public/llms.txt` (a curated Markdown map of the site for AI assistants) | [seo.md](seo.md#llmstxt) |
 | `indexnow-plan.mjs` | CI on `main`, after the build | The step output `payload`: the IndexNow submission for URLs changed since the live sitemap | [seo.md](seo.md#indexnow) |
-| `prerender-blog.mjs` | `postbuild` | `dist/index.html` (homepage JSON-LD and content), `dist/blog/index.html`, `dist/blog/<slug>/index.html`, `dist/reading-list/index.html` | [seo.md](seo.md#build-time-generation) |
+| `prerender-blog.mjs` | `postbuild` | `dist/index.html` (homepage JSON-LD and content), `dist/blog/index.html`, `dist/blog/<slug>/index.html`, `dist/reading-list/index.html`, `dist/projects/<id>/index.html` | [seo.md](seo.md#build-time-generation) |
 | `gen-sitemap-index.mjs` | `postbuild` | `dist/sitemap-index.xml` from `sitemap-sites.json` | [seo.md](seo.md#build-time-generation) |
 | `verify-build.mjs` | `npm run verify:build` | Fails on any broken published route, metadata, eager lazy chunk, missing or third-party font, feed item or llms.txt link | [testing.md](testing.md#production-browser-checks) |
 | `generate-og-image.mjs` | By hand | `public/og-image.png`, the default social card | [assets.md](assets.md#icons-and-social-images) |
@@ -230,8 +234,8 @@ and prerender tests exercise:
 | `llms.mjs` | `buildLlmsTxt` | `generate-llms.mjs` |
 | `indexnow.mjs` | `INDEXNOW_KEY`, `sitemapEntries`, `changedUrls`, `indexNowPayload` | `indexnow-plan.mjs`, `verify-build.mjs` |
 | `markdown.mjs` | `renderMarkdown`: react-markdown with `rehypeHeadingIds`, no raw HTML, unsafe URLs removed; an `origin` option makes root-relative URLs absolute | `feed.mjs`, `prerenderContent.mjs` |
-| `prerenderContent.mjs` | `prerenderContent`: the readable fallback HTML for the home, archive, article and shelf pages | `prerender-blog.mjs` |
-| `structuredData.mjs` | `breadcrumbList`, `postJsonLd`, `homeJsonLd`, `blogIndexJsonLd` | `prerender-blog.mjs` and the app (`App.jsx`, `BlogIndex`, `BlogPost`) |
+| `prerenderContent.mjs` | `prerenderContent`: the readable fallback HTML for the home, archive, article, shelf and project pages | `prerender-blog.mjs` |
+| `structuredData.mjs` | `breadcrumbList`, `postJsonLd`, `homeJsonLd`, `blogIndexJsonLd`, `projectJsonLd` | `prerender-blog.mjs` and the app (`App.jsx`, `BlogIndex`, `BlogPost`, `ProjectPage`) |
 | `databaseConfig.mjs` | `databaseConfig` (reads a CA file when one is configured) | `db.mjs` |
 
 ---

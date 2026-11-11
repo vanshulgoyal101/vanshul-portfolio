@@ -4,7 +4,7 @@
 This project deploys to **GitHub Pages** through `.github/workflows/deploy.yml`.
 The domain is served through Cloudflare in front of GitHub Pages (see
 [DNS and Cloudflare](#dns-and-cloudflare)). Public routes (`/`, `/blog/`, every
-post and `/reading-list/`) have generated HTML files. A custom SPA fallback
+post, `/reading-list/` and each `/projects/<id>/`) have generated HTML files. A custom SPA fallback
 supports other client-side routes (such as `/dashboard`), but those responses
 carry HTTP status 404; it is not a substitute for a generated page.
 
@@ -137,6 +137,8 @@ dist/
 │   └── <slug>/index.html   # One shell per post
 ├── reading-list/
 │   └── index.html          # Shelf shell
+├── projects/
+│   └── <id>/index.html     # One shell per featured project story
 ├── sitemap.xml             # Generated in prebuild
 ├── sitemap-index.xml       # Generated in postbuild
 ├── feed.xml                # Generated in prebuild
@@ -150,7 +152,7 @@ dist/
     ├── index-[hash].js     # Entry chunk
     ├── index-[hash].css    # src/index.css
     ├── <vendor>-[hash].js  # Manual vendor chunks (below)
-    └── <Name>-[hash].js    # Lazy chunks, e.g. BlogPost, Dashboard, HeroScene
+    └── <Name>-[hash].js    # Lazy chunks, e.g. BlogPost, ProjectPage, Dashboard, HeroScene
 ```
 
 ### Code Splitting
@@ -161,7 +163,7 @@ dependencies), `three-core` (`three`), `three-react` (`@react-three/fiber`,
 `@react-three/drei`) and `supabase`. Pages, the hero scene and the ambient
 decorations are separate lazy chunks. `npm run verify:build` fails if a
 published page loads `three-core`, `three-react`, `markdown`, `supabase`,
-`Dashboard` or `HeroScene` eagerly. Details in
+`Dashboard`, `HeroScene` or `ProjectPage` eagerly. Details in
 [config.md](config.md#viteconfigjs).
 
 **Benefits**:
@@ -187,11 +189,13 @@ them (see [homepage.md](homepage.md#project-media)).
 ### Problem
 GitHub Pages serves static files only. A request for a path without a file
 gets `404.html` with HTTP status 404. The build emits files for `/`, `/blog/`,
-each published post and `/reading-list/`; GitHub Pages answers the slash-less
+each published post, `/reading-list/` and each featured project's
+`/projects/<id>/`; GitHub Pages answers the slash-less
 form of those with a 301 to the trailing-slash URL (see
 [seo.md](seo.md#url-and-canonical-policy)). Every other path, such as
-`/dashboard`, the `/blogs` aliases and unknown URLs, goes through the
-fallback below.
+`/dashboard`, the `/blogs` aliases and unknown URLs (an unknown
+`/projects/<id>/` included, which then renders the noindex 404 page), goes
+through the fallback below.
 
 ### Solution
 Two-script system that intercepts 404s and restores client-side routing:
@@ -314,10 +318,11 @@ hand)
 
 **Generation**: [`scripts/generate-sitemap.mjs`](../scripts/generate-sitemap.mjs)
 runs in `prebuild` before every `npm run build`. It lists the home page,
-`/blog/`, `/reading-list/` and one entry per post, all with trailing-slash
-URLs. Each post entry has its own date as `lastmod` and its social card as an
-image entry; the home page and `/blog/` take the newest post's date; the
-reading list has no `lastmod`. Adding a post and building regenerates it.
+`/blog/`, `/reading-list/`, one entry per project story and one entry per
+post, all with trailing-slash URLs. Each post entry has its own date as
+`lastmod` and its social card as an image entry; each project entry has its
+project image; the home page and `/blog/` take the newest post's date; the
+reading list and project pages have no `lastmod`. Adding a post and building regenerates it.
 
 `postbuild` also writes `dist/sitemap-index.xml`, which lists the sitemaps of
 the vanshul.com family from `sitemap-sites.json`.
@@ -354,7 +359,10 @@ duplicate `<title>`/description tags.
 - `dist/blog/<slug>/index.html`: the post's title, description, canonical,
   Open Graph, Twitter and `article:*` tags and its JSON-LD;
 - `dist/blog/index.html` and `dist/reading-list/index.html`: their own
-  metadata and JSON-LD.
+  metadata and JSON-LD;
+- `dist/projects/<id>/index.html`: the project's own title, description,
+  canonical, Open Graph and Twitter tags and its `WebPage`/`BreadcrumbList`
+  JSON-LD.
 
 Every file also gets readable content inside `#root` (see
 [seo.md](seo.md#readable-html-and-input-validation)), and these URLs return a

@@ -81,25 +81,32 @@ npm run test:e2e
 ```
 
 `verify:build` parses the final sitemap and requires a matching HTML shell and
-canonical URL for every listed route, including the reading list. It also
+canonical URL for every listed route, including the reading list and every
+featured project's story page. Each project page must have its exact title,
+an `h1` equal to the project title, every story section, a `WebPage` for its
+URL plus a `BreadcrumbList` (and no `ProfilePage`, `BlogPosting` or
+`Article`), and links to the other stories and back to `/#projects`; the
+static homepage must link to every story. It also
 fails on an eagerly loaded lazy-only chunk, a fallback link to an unpublished
 URL or a missing in-page anchor, and feed items that differ from the published
 articles or lack full content. Fonts are checked too: every preloaded font and
 every `@font-face` source in the built CSS must exist in `dist/`, and no page
 may link a Google Fonts stylesheet. `dist/llms.txt` must exist, start with an
-H1 and link the archive and every published article. Every published page
+H1 and link the archive, every published article and every project page. Every published page
 needs a non-empty title and description that no other page repeats, and an
 article's JSON-LD `datePublished`/`dateModified` must equal its
 `article:published_time`/`article:modified_time` (modified never before
 published). Finally, the gzipped JS and CSS a page loads up front (entry
 script, module preloads and stylesheets) must stay within
-`FIRST_LOAD_BUDGET_KB` (205 KB; every page measured 187 KB in November 2026),
+`FIRST_LOAD_BUDGET_KB` (205 KB; every page measured 187 KB earlier in
+November 2026 and 200.0 KB after the project pages were added),
 so an accidental heavy import fails the build. It also requires the IndexNow
 key file at the root of `dist/`. Playwright
 starts a production preview on port 4327 and tests desktop and mobile Chromium.
 The suite covers unique section IDs, heading clearance under the fixed header,
 reduced motion, cross-route links, skip-link focus, mobile menu focus and Escape,
-case-study disclosures, image loading, and the absence of 3D requests on mobile
+project cards opening their story pages from the keyboard (and the story
+pages' "More projects" and "All projects" links), image loading, and the absence of 3D requests on mobile
 and reduced-motion visits. Hero checks measure shared gutters and first-viewport
 project visibility across six viewport sizes. Desktop WebGL checks at 1025, 1440,
 and 1920px sample screenshot pixels for a nonblank, contained sculpture, compare
@@ -195,7 +202,7 @@ container.querySelector('button[aria-label="Toggle mobile menu"]');
 | Homepage sections | `src/components/{Hero,Projects,About,Work,Contact}/*.test.jsx`, `src/components/Blog/{Blog,BlogCard,ReadingList}.test.jsx` |
 | Shared primitives: section/page headers, page layout landmark, buttons and links | `src/components/ui/*.test.jsx` |
 | Editorial post list (titles, dates, facts) | `src/components/Blog/PostList.test.jsx` |
-| Pages: archive (year groups, feed link), article (byline, contents, author card, related, 404 state), shelf, 404, dashboard | `src/pages/*.test.jsx` |
+| Pages: archive (year groups, feed link), article (byline, contents, author card, related, 404 state), shelf, project stories (every section, links, metadata, JSON-LD, unknown-id 404), 404, dashboard | `src/pages/*.test.jsx` |
 | Navigation (scroll-spy, route-aware active item, mobile menu) and footer settings | `src/components/Navigation/Navigation.test.jsx`, `src/components/SiteFooter.test.jsx`, `src/components/CursorToggle.test.jsx` |
 | Toasts (API, auto-dismiss, live region, close button) | `src/components/Toast/ToastProvider.test.jsx` |
 | Contact form (validation, focus to first invalid field, submission) | `src/components/Contact/Contact.test.jsx`, `src/hooks/useContactForm.test.jsx` |
@@ -207,11 +214,11 @@ container.querySelector('button[aria-label="Toggle mobile menu"]');
 | Analytics beacon and dashboard data shaping | `src/utils/analyticsBeacon.test.js`, `src/utils/dashboardData.test.js`, `src/components/Analytics.test.jsx` |
 | Scrolling, cursor preference and magnetic maths | `src/utils/{scrollToSection,cursorPreference,magnetic}.test.js` |
 | Decorative elements (boot greeting, rocket, smoke, starfield, cursor, magnetic) | `src/components/FunElements/*.test.jsx`, `src/components/BackgroundElements.test.jsx` |
-| Constants (routes, site config, blog copy, motion variants) | `src/constants/*.test.js` |
+| Constants (routes, site config, blog copy, motion variants, project stories: one page per featured project, unique titles/descriptions, HERC limits, no private terms) | `src/constants/*.test.js` |
 | Error boundary (`resetKey` included), page-level `RouteError` and its once-a-minute reload guard | `src/components/ErrorBoundary.test.jsx`, `src/components/RouteError.test.jsx`, `src/utils/routeRetry.test.js` |
 | Build pipeline: frontmatter/escaping, tags, update dates, sitemap and index, RSS, llms.txt, IndexNow change detection, structured data, prerendered content, database config | `scripts/lib/*.test.js` |
 | SQL schema and authorization in PGlite | `scripts/database.test.js` |
-| Browser contracts (layout, a11y, rocket, boot, article, shelf) | `e2e/*.spec.js` |
+| Browser contracts (layout, a11y, rocket, boot, article, shelf, project stories) | `e2e/*.spec.js` |
 
 Hero unit tests cover idle and media-preference gates, including preference
 changes and listener cleanup. Its real WebGL scene is covered by the production

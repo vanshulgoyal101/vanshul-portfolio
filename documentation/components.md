@@ -19,9 +19,10 @@ credentials line beyond "Associate Analyst at United Airlines".
   wash for every route and the deferred decorative layer. The GoatCounter
   loader (`Analytics`, below) is mounted inside the router.
 - Routes: `/` (portfolio), `/blog/` (archive), `/blog/:slug` (article),
-  `/reading-list/`, `/dashboard` (private), `/blogs` and `/blogs/:slug`
-  (redirect aliases) and `*` (noindex 404). Long-form pages and the dashboard
-  are lazy-loaded. React Router matches each path with or without the
+  `/reading-list/`, `/projects/:id` (a featured project's story; unknown ids
+  render the noindex 404), `/dashboard` (private), `/blogs` and `/blogs/:slug`
+  (redirect aliases) and `*` (noindex 404). Long-form pages, project stories
+  and the dashboard are lazy-loaded. React Router matches each path with or without the
   trailing slash.
 - While a lazy page loads, `PageLoading` (a `role="status"` "Loading page..."
   block, 70vh tall so the footer does not jump) fills the page. Every lazy
@@ -74,8 +75,9 @@ a numbered mono eyebrow inside a centred h2, followed by a lede.
   - an 8:5 image frame (`object-position: 50% 100%`) with an icon fallback
   - a mono role label, a title with an optional brand mark, a description
     and a stats list
-  - a native `<details>` case study (fields from `CASE_STUDY_FIELDS`) and a
-    "Visit Website" link
+  - a "Read the full story" router link to `/projects/<id>/` (named "Read
+    the full story: ⟨project⟩") and a "Visit Website" link. The case study
+    itself lives on the project page, so the card stays short.
 - Cards lift 4px on hover with Framer `whileHover`. The image itself never
   transforms.
 - "More things I've built": a collapsed native `<details>` labelled with the
@@ -131,6 +133,7 @@ page's single `<main>`. Their titles use `PageHeader`.
 | --- | --- | --- |
 | Archive | `pages/BlogIndex.jsx` | "Archive · N posts" eyebrow above the "Writings" title; links to the RSS feed (`/feed.xml`) and the reading list. Posts are grouped by year (h2, sticky above 640px) and listed newest first with `PostList`, with view counts when available. Uses the shared `blogIndexJsonLd`. |
 | Article | `pages/BlogPost.jsx` | Opens with "Back to Blog" (`/blog/`), the category eyebrow, the title and the summary as a dek. Then a byline (avatar, author, `<time>`, read time, live view count, Share via the Web Share API or clipboard) and an "On this page" list for posts with three or more `h2`/`h3` headings. The markdown body has stable `h2`/`h3` ids. It ends with an author card linking to `/#about` and "More writings" (three related posts from `getRelatedPosts` and an "All posts" link). Emits `postJsonLd`. Unknown slugs get a noindex "Blog Post Not Found" state with a "Browse all posts" button. |
+| Project story | `pages/ProjectPage.jsx` | `/projects/<id>/` for each `FEATURED_PROJECTS` entry. "All projects" (`/#projects`), the role as eyebrow, the title, the story summary as lede, the 8:5 project image, "Key facts" (the card stats plus `story.facts`), "In short" (the four `CASE_STUDY_FIELDS`), the story sections, the live link and source code link (when public), and a "More projects" nav linking to the other stories and back to `/#projects`. Copy comes from `constants/projectStories.js`. Emits `projectJsonLd`. Unknown ids render `NotFound`. |
 | Reading list | `pages/ReadingList.jsx` | "Back to Writings" (`/#blog`), a header with Books/Essays pills, a numbered two-column book catalogue and an essay list with source hostnames from `constants/books.js`. Deep links to `#books`, `#essays` and `#shelf-top`. |
 | Dashboard | `pages/Dashboard.jsx` | Private analytics UI; see [analytics.md](analytics.md). |
 | Not found | `pages/NotFound.jsx` | noindex 404 with a large "404", "This page wandered off." and buttons home, to the blog and to the shelf. |
@@ -150,7 +153,8 @@ page's single `<main>`. Their titles use `PageHeader`.
     scroll-progress ring around the "VG" logo and an underline indicator on
     the active link, which also gets `aria-current`
   - the active item comes from scroll-spy on `/` only; "Blog" is active on
-    `/blog*` and `/reading-list`, and nothing on other routes
+    `/blog*` and `/reading-list`, "Projects" on `/projects/*`, and nothing on
+    other routes
   - every link is a `/#section` URL; a plain click calls
     `navigate('/#section')` and `ScrollToHash` in `App` does the scrolling
   - at 768px and below, a numbered drawer that locks body scroll, focuses its

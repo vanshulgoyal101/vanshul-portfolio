@@ -68,7 +68,8 @@ src/
                        # projects, experience, books, blog copy, routes)
   hooks/               # useSeo, useBlogViews, useContactForm, useIdle
   lib/                 # Supabase clients (view counts, private analytics)
-  pages/               # BlogIndex, BlogPost, ReadingList, Dashboard, NotFound
+  pages/               # BlogIndex, BlogPost, ReadingList, ProjectPage,
+                       # Dashboard, NotFound
   styles/              # GlobalStyles (design tokens, element defaults)
   test/                # Vitest setup
   utils/               # Blog loading, dates, view counts, scrolling, helpers

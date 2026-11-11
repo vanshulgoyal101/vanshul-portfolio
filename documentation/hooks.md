@@ -154,7 +154,8 @@ removeToast(id);
   ``navigate(`/#${id}`)``, from the homepage and from any other route. Clicks
   with a modifier key or a non-primary button keep the browser default.
 - **`useLocation`** — `pathname` decides the active item (scroll-spy on `/`,
-  "Blog" on `/blog*` and `/reading-list`, nothing elsewhere) and re-runs the
+  "Blog" on `/blog*` and `/reading-list`, "Projects" on `/projects/*`,
+  nothing elsewhere) and re-runs the
   scroll-spy effect after route changes.
 
 ```javascript

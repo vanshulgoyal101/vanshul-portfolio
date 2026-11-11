@@ -28,10 +28,11 @@ redirecting URL. Every public URL now uses its final, non-redirecting form:
 | Writings archive | `https://vanshul.com/blog/` |
 | Article | `https://vanshul.com/blog/<slug>/` |
 | Reading list | `https://vanshul.com/reading-list/` |
+| Project story | `https://vanshul.com/projects/<id>/` (`adbrain`, `tiny-arcade`, `nasa-herc`) |
 
 [`src/constants/routes.js`](../src/constants/routes.js) is the single source
 for these paths (`BLOG_PATH`, `READING_LIST_PATH`, `postPath(slug)`,
-`homeSectionPath(id)`, `absoluteUrl(path)`). The application links, `useSeo`
+`projectPath(id)`, `homeSectionPath(id)`, `absoluteUrl(path)`). The application links, `useSeo`
 canonicals, prerendered shells, sitemap, feed links, JSON-LD and the build
 verifier all use it. `npm run verify:build` fails if a sitemap URL does not end
 in `/`, if a page's canonical differs from its sitemap URL, or if fallback
@@ -64,11 +65,11 @@ runs SEO generators around the Vite build:
 
 | Script | Output | Purpose |
 | --- | --- | --- |
-| `scripts/generate-sitemap.mjs` | `public/sitemap.xml` | Lists home, blog, shelf and every post. A post's `lastmod` is its `updated` date, else its publication date; home and `/blog/` take the latest of those. |
+| `scripts/generate-sitemap.mjs` | `public/sitemap.xml` | Lists home, blog, shelf, each project story (with an `image:image` entry for its project image) and every post. A post's `lastmod` is its `updated` date, else its publication date; home and `/blog/` take the latest of those. The shelf and project pages carry no `lastmod`: the data has no reliable change date, and inventing one would mislead crawlers. |
 | `scripts/generate-og-images.mjs` | `public/og/<slug>.png` | Per-post Open Graph images (rendered with `sharp`; needs Node ≥ 20.9). |
 | `scripts/generate-feed.mjs` | `public/feed.xml` | Full-content RSS 2.0 feed (`content:encoded` article HTML, `dc:creator`, canonical links, stable GUIDs), built by `scripts/lib/feed.mjs` and linked from `index.html` via `<link rel="alternate" type="application/rss+xml">`. |
 | `scripts/generate-llms.mjs` | `public/llms.txt` | Curated Markdown map of the site for AI assistants (see [llms.txt](#llmstxt)). |
-| `scripts/prerender-blog.mjs` | Home, blog index, article and shelf HTML | Readable static content, metadata and JSON-LD from the existing Markdown and constants. |
+| `scripts/prerender-blog.mjs` | Home, blog index, article, shelf and project HTML | Readable static content, metadata and JSON-LD from the existing Markdown and constants. Each `dist/projects/<id>/index.html` gets its own title (`story.seoTitle — Vanshul Goyal`), description, canonical, Open Graph/Twitter URLs (default social card) and `projectJsonLd`. |
 | `scripts/gen-sitemap-index.mjs` | `dist/sitemap-index.xml` | Master sitemap index referencing every sitemap in the vanshul.com family (edit `sitemap-sites.json`). Runs in `postbuild`; XML shape in `scripts/lib/sitemapIndex.mjs` (unit-tested). Submit this one URL to Search Console. |
 
 `scripts/generate-icons.mjs` regenerates the favicon/app-icon PNG set
@@ -97,9 +98,11 @@ accurate facts and canonical links without crawling the whole site.
   published) and the modules the site renders: `AUTHOR_NAME`,
   `HOME_DESCRIPTION` and `SOCIAL_PROFILES` (`siteConfig.js`), `PROFILE`,
   `FEATURED_PROJECTS` and `PROJECT_DIRECTORY`, plus the archive and shelf meta
-  descriptions. URLs come from `routes.js`. Projects link only to URLs in the
-  data (live site first, else the repository), or to the homepage `#projects`
-  section when they have none.
+  descriptions. URLs come from `routes.js`. A featured project with a story
+  page links to that page (`/projects/<id>/`), with its own site noted as
+  "Website: …". Other projects link only to URLs in the data (live site first,
+  else the repository), or to the homepage `#projects` section when they have
+  none.
 - **Generator**: `scripts/generate-llms.mjs` writes the gitignored
   `public/llms.txt` during `prebuild`, and Vite copies it into `dist/`. The
   pure builder `buildLlmsTxt` (`scripts/lib/llms.mjs`, tested in
@@ -107,8 +110,8 @@ accurate facts and canonical links without crawling the whole site.
   link text and adds no timestamps, so the same content always yields the
   same file.
 - **Verification**: `npm run verify:build` fails unless `dist/llms.txt` exists,
-  starts with an H1 and links the archive and every published article by its
-  canonical URL.
+  starts with an H1 and links the archive, every published article and every
+  project page by its canonical URL.
 
 ## IndexNow
 
@@ -156,6 +159,15 @@ take part; it relies on the sitemap.
   homepage `ProfilePage` onto every article, the archive and the shelf.
   `src/seo.test.js` keeps the template clean and `verify:build` fails if a
   `ProfilePage` appears on any page other than `/`.
+- **Project pages** (`projectJsonLd`) emit a `WebPage` (canonical `url`, story
+  description, `isPartOf` the `WebSite`, `author` the `Person` by `@id`, the
+  project image as `primaryImageOfPage`, and `about` the project itself:
+  `SoftwareApplication` for AdBrain, `WebSite` for Tiny Arcade, a `Thing`
+  linking NASA's challenge page for HERC) plus a Home → project
+  `BreadcrumbList`. No `Article`/`BlogPosting` and no dates: the stories have
+  no publication date, and none is invented. `verify:build` checks the
+  `WebPage` URL, the breadcrumb and that no project page claims
+  `ProfilePage`, `BlogPosting` or `Article`.
 - `Person` facts come from [`src/constants/profile.js`](../src/constants/profile.js),
   the same module the hero and About section render: `jobTitle`
   (Associate Analyst), `worksFor` (United Airlines), `alumniOf` (Punjab
@@ -190,7 +202,9 @@ JavaScript disabled and check runtime metadata after direct subpage entry.
   AI-crawler rules (see [deployment.md](deployment.md#dns-and-cloudflare)).
 - **Unknown routes** render a real `NotFound` page (`src/pages/NotFound.jsx`) that
   sets `robots: noindex, follow` via `useSeo` and offers recovery links, so soft-404s
-  aren't indexed. The private `/dashboard` is likewise `noindex, nofollow`, unlinked
+  aren't indexed. An unknown `/projects/<id>/` has no prerendered file, so
+  GitHub Pages serves `404.html`, the SPA boots and `ProjectPage` renders the
+  same `NotFound`. The private `/dashboard` is likewise `noindex, nofollow`, unlinked
   and absent from the sitemap.
 - **`public/404.html`** — SPA fallback so deep links resolve on GitHub Pages
   (see [deployment.md](deployment.md)).
@@ -211,6 +225,10 @@ Each blog post ends with a **related-posts** section (`getRelatedPosts` in
 recent remaining posts fill any gap, excluding the current post. Beyond the UX
 value, this adds crawlable internal links between articles, which helps search
 engines discover and relate the content.
+
+Every homepage project card (and its static fallback) links to its story
+page, and each story ends with "More projects" links to the other stories and
+back to `/#projects`; `verify:build` checks both directions.
 
 ## Blog frontmatter
 

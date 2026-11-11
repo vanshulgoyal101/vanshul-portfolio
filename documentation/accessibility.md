@@ -8,7 +8,7 @@ does and which test protects it. Keep both in step when behaviour changes.
 
 | Check | Where | What it asserts |
 | --- | --- | --- |
-| axe (`wcag2a`, `wcag2aa`, `wcag21aa`) | `e2e/accessibility.spec.js` | Zero violations on `/`, `/blog/`, an article, `/reading-list/`, a 404 and `/dashboard/`, on desktop and mobile. The project directory and footer settings are opened first. Each scan waits until no element's opacity changes, because contrast measured mid-fade is meaningless. |
+| axe (`wcag2a`, `wcag2aa`, `wcag21aa`) | `e2e/accessibility.spec.js` | Zero violations on `/`, `/blog/`, an article, `/reading-list/`, a project story (`/projects/nasa-herc/`), a 404 and `/dashboard/`, on desktop and mobile. The project directory and footer settings are opened first. Each scan waits until no element's opacity changes, because contrast measured mid-fade is meaningless. |
 | Owner dashboard | `e2e/accessibility.spec.js` | Same axe tags with data loaded. The year chart is a focusable, keyboard-scrollable region. |
 | Keyboard and focus contracts | `e2e/portfolio.spec.js`, `e2e/shelf.spec.js`, `e2e/article.spec.js` | Mobile menu focus handling; hash and skip-link focus without page-sized outlines; headings clear of the fixed header; 44px targets in the project directory and essay list; no horizontal overflow at 320px. |
 | Unit checks | `src/**/*.test.jsx` | Landmarks (one `main` per page), heading levels, accessible names, form error wiring, toast live region. |
@@ -58,9 +58,13 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
     drawer and toggle, and locks body scroll
   - Escape closes it and returns focus to the toggle
   - the drawer is visible from the first frame, so that focus call cannot fail
-- **Disclosures** are native `details`/`summary` (case studies, the project
-  directory, Display settings), so Enter and Space work without scripting.
-  Case-study summaries are named "Read case study: ⟨project⟩".
+- **Disclosures** are native `details`/`summary` (the project directory,
+  Display settings), so Enter and Space work without scripting.
+- **Project cards** link to their story pages with "Read the full story",
+  named "Read the full story: ⟨project⟩" so the three links stay distinct in a
+  links list while the name still starts with the visible text. Each story
+  page has one `h1`, labelled sections ("Key facts", "In short", one per story
+  heading) and a "More projects" navigation landmark.
 - **Boot greeting**: the app behind it is `inert` and cannot scroll. The
   overlay is a `role="status"` whose rotating greetings are `aria-hidden`.
   Reduced motion skips the sequence entirely.

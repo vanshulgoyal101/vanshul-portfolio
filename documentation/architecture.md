@@ -26,11 +26,12 @@ src/
                        # (GoatCounter), ui/ (shared primitives), FunElements/
                        # (decorative), socialIcons.js
   constants/           # Content and config data (see data.md): siteConfig,
-                       # profile, projects, experience, books, blogConstants,
-                       # routes, readingListSeo, motionVariants
+                       # profile, projects, projectStories, experience, books,
+                       # blogConstants, routes, readingListSeo, motionVariants
   hooks/               # useSeo, useBlogViews, useContactForm, useIdle
   lib/                 # Supabase clients (view counts; private analytics)
-  pages/               # BlogIndex, BlogPost, ReadingList, Dashboard, NotFound
+  pages/               # BlogIndex, BlogPost, ReadingList, ProjectPage,
+                       # Dashboard, NotFound
   styles/              # GlobalStyles.js
   test/                # Vitest setup
   utils/               # articleHeadings, blogLoader, blogUtils, blogViews,
@@ -53,9 +54,12 @@ documentation/         # This documentation
   - `/blog/<slug>/` — an individual blog post ([`pages/BlogPost.jsx`](../src/pages/BlogPost.jsx)).
   - `/blog/` - full writing index.
   - `/reading-list/` - separate Books and Essays collections with anchor links.
+  - `/projects/<id>/` - the full story of a featured project
+    ([`pages/ProjectPage.jsx`](../src/pages/ProjectPage.jsx)); there is no
+    `/projects/` index, the homepage `#projects` section is the list.
   - `/dashboard` - noindex private reporting UI; authorization is enforced in SQL.
   - `/blogs` and `/blogs/:slug` - legacy aliases to the canonical writing routes.
-  - Unknown paths/posts - friendly noindex recovery.
+  - Unknown paths, posts and project ids - friendly noindex recovery.
 - **Public publishing**: prebuild validates Markdown metadata and generates
   sitemap, social images and feed. Postbuild uses ReactMarkdown to emit readable
   articles, indexes, shelf and homepage content inside `#root`. These are
@@ -135,9 +139,13 @@ documentation/         # This documentation
   after the browser is idle. None of them load for reduced motion; the
   ambient four also wait for the boot loader and the ambient-motion switch,
   and the hero scene only loads above 1024px.
-- **Lazy routes**: `BlogPost`, `BlogIndex`, `ReadingList` and `Dashboard` are
-  `React.lazy` chunks, so the markdown renderer and the dashboard stay off the
-  homepage bundle.
+- **Lazy routes**: `BlogPost`, `BlogIndex`, `ReadingList`, `ProjectPage` and
+  `Dashboard` are `React.lazy` chunks, so the markdown renderer, the project
+  stories (`constants/projectStories.js`) and the dashboard stay off the
+  homepage bundle. With five lazy pages sharing `PageLayout`, Rolldown emits
+  the shared shell (router, `Navigation`, `PageLayout`, `PageHeader`,
+  `useSeo`) as a common chunk the entry HTML preloads, instead of keeping it
+  inside the entry chunk; that split costs about 1.5 KB of gzip on first load.
 - **Manual chunking**: `vite.config.js` splits vendors (`vite-preload`, react,
   framer-motion, styled-components, three core, three-react, icons, markdown,
   supabase) for better caching. three.js is unavoidably the largest chunk and
