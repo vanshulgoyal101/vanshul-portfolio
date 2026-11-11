@@ -17,6 +17,14 @@ describe('About', () => {
     expect(screen.getAllByText(/NASA/i).length).toBeGreaterThan(0);
   });
 
+  it('closes the bio with interests and the motto, without cliches', () => {
+    const { container } = render(<About />);
+    const bio = container.querySelector('h3').parentElement.textContent;
+    expect(bio).toMatch(/AI, robotics and space/);
+    expect(bio).toMatch(/serious about my craft, serious about my people, laughing at myself/);
+    expect(bio).not.toMatch(/passionate|journey|innovation/i);
+  });
+
   it('renders the achievement stats', () => {
     render(<About />);
     expect(screen.getByText(/Top 20/i)).toBeInTheDocument();

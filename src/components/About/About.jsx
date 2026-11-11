@@ -271,35 +271,37 @@ const About = () => {
   return (
     <AboutSection>
       <Container>
-        <SectionHeader index="02" eyebrow="Background" title="About Me" lede="Engineer and a passionate learner." />
+        <SectionHeader index="02" eyebrow="Background" title="About Me" lede="What I build, and what I care about." />
 
         <AboutGrid>
           <AboutContent variants={reveal} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }}>
             <AboutText>
               <h3>Hey There!</h3>
               <p>
-                I&apos;m <HighlightText>{AUTHOR_NAME}</HighlightText>, a recent graduate from{' '}
-                {PROFILE.education.school} with a {PROFILE.education.degree} in{' '}
-                <HighlightText>{PROFILE.education.field}</HighlightText> and a minor in{' '}
-                {PROFILE.education.minor}.
+                I&apos;m <HighlightText>{AUTHOR_NAME}</HighlightText>. I studied{' '}
+                <HighlightText>{PROFILE.education.field}</HighlightText> at {PROFILE.education.school},
+                with a minor in {PROFILE.education.minor}.
               </p>
               <p>
-                Currently, I work as an <HighlightText>{PROFILE.role}</HighlightText> at{' '}
+                I&apos;m an <HighlightText>{PROFILE.role}</HighlightText> at{' '}
                 <a href={PROFILE.employer.url} target="_blank" rel="noopener noreferrer">
                   {PROFILE.employer.name}
                 </a>{' '}
-                in the {CURRENT_ROLE.department} department.
+                in the {CURRENT_ROLE.department} department. In my own time I build and ship my own
+                products.
               </p>
               <p>
-                My journey has been shaped by incredible experiences — from leading a team to{' '}
-                <HighlightText>NASA&apos;s Human Exploration Rover Challenge</HighlightText> to being
-                selected among <HighlightText>30 global space leaders</HighlightText> for the
-                NASA Space Apps Collective. Innovation happens at the intersection of technology,
-                teamwork, and purpose.
+                I&apos;m most curious about <HighlightText>AI, robotics and space</HighlightText>, and
+                about abundance: what happens to work, money and health when AI, robots and cheap
+                solar make production nearly free. Space is hands-on for me. I led a team to{' '}
+                <HighlightText>NASA&apos;s Human Exploration Rover Challenge</HighlightText> and was
+                selected among <HighlightText>30 global space leaders</HighlightText> for the NASA
+                Space Apps Collective.
               </p>
               <p>
-                When I&apos;m not coding or optimizing business operations, you&apos;ll find me lost in
-                books or playing cricket in the park.
+                Off-screen I read, play cricket, take photographs, look at the stars, travel, teach,
+                write and meditate. My motto: serious about my craft, serious about my people,
+                laughing at myself.
               </p>
             </AboutText>
           </AboutContent>

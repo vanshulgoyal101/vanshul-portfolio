@@ -55,8 +55,8 @@ const aboutSection = () => {
   const { education, employer } = PROFILE;
   const [currentRole] = EXPERIENCE;
   return `<section id="about"><h2>About Me</h2>`
-    + paragraph(`I'm ${AUTHOR_NAME}, a recent graduate from ${education.school} with a ${education.degree} in ${education.field} and a minor in ${education.minor}.`)
-    + paragraph(`Currently, I work as an ${PROFILE.role} at ${employer.name} in the ${currentRole.department} department.`)
+    + paragraph(`I'm ${AUTHOR_NAME}. I studied ${education.field} at ${education.school}, with a minor in ${education.minor}.`)
+    + paragraph(`I'm an ${PROFILE.role} at ${employer.name} in the ${currentRole.department} department. In my own time I build and ship my own products.`)
     + list(HIGHLIGHTS.map(item => `${escapeText(item.value)} — ${escapeText(item.label)}`))
     + `<h3>Technical Skills</h3>`
     + list(SKILL_GROUPS.map(group => `${escapeText(group.category)}: ${escapeText(group.skills.join(', '))}`))
