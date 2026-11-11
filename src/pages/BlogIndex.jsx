@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { HiArrowRight, HiOutlineRss } from 'react-icons/hi';
 
@@ -96,9 +96,29 @@ const BlogIndex = () => {
   const posts = useMemo(() => sortBlogsByDate(loadBlogPosts()), []);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
+  const [fullPosts, setFullPosts] = useState(null);
+  const [searchError, setSearchError] = useState(false);
   const searchRef = useRef(null);
+  useEffect(() => {
+    if (!query.trim() || fullPosts) return;
+    let active = true;
+    setSearchError(false);
+    import('../utils/blogPostLoader')
+      .then(module => module.loadFullBlogPosts())
+      .then(loaded => {
+        if (active) setFullPosts(sortBlogsByDate(loaded));
+      })
+      .catch(error => {
+        if (!active) return;
+        console.error('Could not load article text for search:', error);
+        setSearchError(true);
+      });
+    return () => { active = false; };
+  }, [query, fullPosts]);
+  const failed = Boolean(query.trim()) && searchError;
+  const pending = Boolean(query.trim()) && !fullPosts && !failed;
   const categories = useMemo(() => [...new Set(posts.map(post => post.category).filter(Boolean))].sort(), [posts]);
-  const filtered = useMemo(() => filterPosts(posts, query, category), [posts, query, category]);
+  const filtered = useMemo(() => filterPosts(fullPosts ?? posts, query, category), [fullPosts, posts, query, category]);
   const years = useMemo(() => groupPostsByYear(filtered), [filtered]);
   const views = useBlogViews();
   const reset = () => {
@@ -150,11 +170,12 @@ const BlogIndex = () => {
         </Button>
       </Filters>
       <ResultCount id="archive-results" role="status" aria-atomic="true">
-        {filtered.length} of {posts.length} posts
+        {pending ? 'Searching all writings...' : failed ? 'Search unavailable' : `${filtered.length} of ${posts.length} posts`}
       </ResultCount>
-      {filtered.length === 0 && <p>No writings match these filters. Try another word or clear the filters.</p>}
+      {failed && <p role="alert">Article text could not be loaded. <a href={BLOG_PATH}>Reload the archive</a> to retry, or clear the search to browse every writing.</p>}
+      {!pending && !failed && filtered.length === 0 && <p>No writings match these filters. Try another word or clear the filters.</p>}
 
-      {years.map(({ year, posts: yearPosts }) => (
+      {!pending && !failed && years.map(({ year, posts: yearPosts }) => (
         <Year key={year}>
           <YearHeading>{year}</YearHeading>
           <PostList posts={yearPosts} views={views} showYear={false} />

@@ -37,11 +37,13 @@ beforeEach(() => {
 vi.mock('framer-motion', async (importOriginal) => {
   const React = await import('react');
   const original = await importOriginal();
+  const components = new Map();
   const motion = new Proxy(
     {},
     {
-      get: (_target, tag) =>
-        React.forwardRef(function MotionMock(props, ref) {
+      get: (_target, tag) => {
+        if (components.has(tag)) return components.get(tag);
+        const Component = React.forwardRef(function MotionMock(props, ref) {
           const {
             children,
             initial,
@@ -65,7 +67,10 @@ vi.mock('framer-motion', async (importOriginal) => {
           } = props;
           const type = typeof tag === 'string' ? tag : 'div';
           return React.createElement(type, { ...rest, ref }, children);
-        }),
+        });
+        components.set(tag, Component);
+        return Component;
+      },
     }
   );
   return {

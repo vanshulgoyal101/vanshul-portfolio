@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi } from 'vitest';
 import { assetReferences, linkHrefs, metaContents, runLiveSmoke, servedCommit, sitemapUrls } from './liveSmoke.mjs';
 

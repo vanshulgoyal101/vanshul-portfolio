@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -10,17 +11,20 @@ const prepare = (files) => {
   directory = mkdtempSync(join(tmpdir(), 'blog-index-'));
   for (const [name, text] of Object.entries(files)) writeFileSync(join(directory, name), text);
 };
-const post = (slug) => `---\ntitle: "Post ${slug}"\nslug: "${slug}"\ndate: "2026-11-11"\n---\nThree body words`;
+const post = (slug) => `---\ntitle: "Post ${slug}"\nslug: "${slug}"\nsummary: "A post summary"\nreadTime: "1 min read"\ndate: "2026-11-11"\n---\nThree body words`;
 
 describe('blogIndex', () => {
   it('keeps metadata and word counts and drops the bodies', () => {
     prepare({ 'a.md': post('a'), 'notes.txt': 'ignored' });
-    expect(blogIndex(directory)).toEqual([{ title: 'Post a', slug: 'a', date: '2026-11-11', wordCount: 3, filename: 'a' }]);
+    expect(blogIndex(directory)).toEqual([{
+      title: 'Post a', slug: 'a', summary: 'A post summary', readTime: '1 min read',
+      date: '2026-11-11', wordCount: 3, filename: 'a',
+    }]);
   });
 
   it('fails like the build does on an invalid post', () => {
     prepare({ 'a.md': post('Bad Slug') });
-    expect(() => blogIndex(directory)).toThrow('Invalid title or URL slug');
+    expect(() => blogIndex(directory)).toThrow('Invalid URL slug');
   });
 });
 

@@ -1,11 +1,14 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, act, within } from '@testing-library/react';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
+import { render, screen, act, within, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import BlogIndex from './BlogIndex';
 import { loadBlogPosts } from '../utils/blogLoader';
 import { sortBlogsByDate } from '../utils/blogUtils';
 import { parsePostDate } from '../utils/seoValues';
+import { loadFullBlogPosts } from '../utils/blogPostLoader';
+
+vi.mock('../utils/blogPostLoader', () => ({ loadFullBlogPosts: vi.fn() }));
 
 // View counts arrive from an async fetch; let it settle so React state updates
 // happen inside act().
@@ -22,6 +25,12 @@ const renderPage = async () => {
 const posts = loadBlogPosts();
 
 describe('BlogIndex', () => {
+  beforeEach(() => {
+    loadFullBlogPosts.mockReset();
+    loadFullBlogPosts.mockReturnValue(posts.map((post, index) => ({
+      ...post, content: index === 0 ? 'body-only-search-token' : 'Other article text',
+    })));
+  });
   it('sets a blog-specific document title and canonical', async () => {
     await renderPage();
     expect(document.title).toBe('Blog — Vanshul Goyal');
@@ -77,6 +86,7 @@ describe('BlogIndex', () => {
     expect(clear).toBeDisabled();
     await user.selectOptions(topic, posts[0].category);
     await user.type(search, posts[0].title);
+    await act(() => vi.dynamicImportSettled());
     expect(screen.getAllByRole('heading', { level: 3 }).map(heading => heading.textContent)).toEqual([posts[0].title]);
     expect(screen.getByRole('status')).toHaveTextContent(`1 of ${posts.length} posts`);
     await user.click(clear);
@@ -91,6 +101,7 @@ describe('BlogIndex', () => {
     const user = userEvent.setup();
     await renderPage();
     await user.type(screen.getByRole('searchbox'), 'no-article-has-this-phrase');
+    await act(() => vi.dynamicImportSettled());
     expect(screen.queryAllByRole('heading', { level: 3 })).toHaveLength(0);
     expect(screen.getByRole('status')).toHaveTextContent(`0 of ${posts.length} posts`);
     expect(screen.getByText(/No writings match these filters/)).toBeInTheDocument();
@@ -109,5 +120,49 @@ describe('BlogIndex', () => {
     expect(screen.getAllByRole('heading', { level: 3 }).map(heading => heading.textContent)).toEqual(
       sortBlogsByDate(posts).filter(post => post.category === topics[0]).map(post => post.title),
     );
+  });
+
+  it('loads article bodies only for a text query and matches body-only words', async () => {
+    await renderPage();
+    expect(loadFullBlogPosts).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: posts[0].category } });
+    expect(loadFullBlogPosts).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'body-only-search-token' } });
+    await act(() => vi.dynamicImportSettled());
+    expect(screen.getAllByRole('heading', { level: 3 }).map(heading => heading.textContent)).toEqual([posts[0].title]);
+    expect(screen.getByRole('status')).toHaveTextContent(`1 of ${posts.length} posts`);
+  });
+
+  it('announces pending full-text loading and ignores a late result after clearing', async () => {
+    let resolve;
+    loadFullBlogPosts.mockReturnValue(new Promise(done => { resolve = done; }));
+    await renderPage();
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'body-only-search-token' } });
+    await act(() => vi.dynamicImportSettled());
+    expect(screen.getByRole('status')).toHaveTextContent('Searching all writings');
+    expect(screen.queryAllByRole('heading', { level: 3 })).toHaveLength(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    await act(async () => resolve([]));
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(posts.length);
+    expect(screen.getByRole('status')).toHaveTextContent(`${posts.length} of ${posts.length} posts`);
+  });
+
+  it('surfaces a body-loading failure with reload and clear recovery', async () => {
+    const error = new Error('Article chunk unavailable');
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    loadFullBlogPosts.mockRejectedValue(error);
+    try {
+      await renderPage();
+      fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'word' } });
+      await act(() => vi.dynamicImportSettled());
+      expect(await screen.findByRole('alert')).toHaveTextContent('Article text could not be loaded');
+      expect(screen.getByRole('link', { name: 'Reload the archive' })).toHaveAttribute('href', '/blog/');
+      expect(log).toHaveBeenCalledWith('Could not load article text for search:', error);
+      fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(posts.length);
+    } finally {
+      log.mockRestore();
+    }
   });
 });

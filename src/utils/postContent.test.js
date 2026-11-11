@@ -51,7 +51,7 @@ describe('shared publishing contract', () => {
     expect(() => parseBlogPost(markdown({ ...fields, date }), 'example')).toThrow('Invalid publication date');
   });
   it.each(['2026-11-10', '2026-02-30', '', 'soon'])('rejects invalid or backdated update %s', updated => {
-    expect(() => parseBlogPost(markdown({ ...fields, updated }), 'example')).toThrow('Invalid updated date');
+    expect(() => parseBlogPost(markdown({ ...fields, updated }), 'example')).toThrow(/[Uu]pdate date/);
   });
   it.each(['2026-11-11', '12 Nov, 2026'])('accepts a real update on or after publication: %s', updated => {
     expect(parseBlogPost(markdown({ ...fields, updated }), 'example').updated).toBe(updated);

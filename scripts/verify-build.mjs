@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
-import { SITE_URL } from '../src/constants/siteConfig.js';
+import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
 import { BOOKS, ESSAYS, SHELF_ITEMS } from '../src/constants/books.js';
 import { BLOG_PATH, READING_LIST_PATH, absoluteUrl } from '../src/constants/routes.js';
 import { PROJECT_PAGES } from '../src/constants/projectStories.js';
@@ -12,11 +12,16 @@ import { EXPERIENCE, EARLIER_EXPERIENCE } from '../src/constants/experience.js';
 import { ANALYTICS_SUPABASE_URL } from '../src/lib/runtimeConfig.js';
 import { INDEXNOW_KEY } from './lib/indexnow.mjs';
 import { REFERRER_POLICY, inlineScripts, parsePolicy, scriptHash } from './lib/securityPolicy.mjs';
+import { readPosts } from './lib/seo.mjs';
+import { postJsonLd } from './lib/structuredData.mjs';
+import { postLastModified, postPublishedAt } from '../src/utils/seoValues.js';
 
 const dist = new URL('../dist/', import.meta.url);
+const posts = readPosts(fileURLToPath(new URL('../src/blogs/', import.meta.url)));
+const documents = new Map();
 // Heavy or single-route code must stay lazy: no page may fetch these before
 // first paint (see the manualChunks notes in documentation/config.md).
-const LAZY_ONLY_CHUNKS = /\/assets\/(three-core|three-react|markdown|supabase|Dashboard|HeroScene|ProjectPage|projectStories)-/;
+const LAZY_ONLY_CHUNKS = /\/assets\/(three-core|three-react|markdown|supabase|Dashboard|HeroScene|Home|ProjectPage|projectStories)-/;
 // First-load budget: the gzipped JS and CSS a published page fetches before it
 // can render (187 KB early in November 2026; 200 KB once the lazy project
 // pages split the shared page shell into its own chunk). Raise it only for a
@@ -68,6 +73,7 @@ const assertSecurityPolicy = (html, document, from) => {
 };
 const sitemap = new JSDOM(readFileSync(new URL('sitemap.xml', dist), 'utf8'), { contentType: 'text/xml' });
 const urls = [...sitemap.window.document.querySelectorAll('url > loc')].map(element => element.textContent);
+assert.equal(sitemap.window.document.querySelector('parsererror'), null, 'sitemap.xml must be well-formed XML');
 assert.equal(new Set(urls).size, urls.length, 'Sitemap URLs must be unique');
 assert(!urls.some(url => url.includes('/dashboard')), 'Private dashboard must not be in the sitemap');
 assert(urls.includes(absoluteUrl(READING_LIST_PATH)), 'Reading list must appear in the published sitemap');
@@ -84,6 +90,7 @@ for (const url of urls) {
   const file = new URL(path ? `${path}/index.html` : 'index.html', dist);
   const html = readFileSync(fileURLToPath(file), 'utf8');
   const document = new JSDOM(html).window.document;
+  documents.set(url, document);
   assert.equal(document.querySelector('link[rel="canonical"]')?.getAttribute('href'), url, `Canonical mismatch for ${url}`);
   const policy = assertSecurityPolicy(html, document, url);
   // The SPA serves /dashboard from this shell, so its analytics API must stay allowed.
@@ -104,6 +111,8 @@ for (const url of urls) {
   assert(!document.querySelector('link[href*="fonts.googleapis.com"], link[href*="fonts.gstatic.com"]'), `Third-party font request in ${url}`);
   assert(document.querySelector('#root main')?.textContent.trim().length > 100, `Missing readable static content for ${url}`);
   assert.equal(document.querySelectorAll('h1').length, 1, `Expected one main heading for ${url}`);
+  const ids = [...document.querySelectorAll('[id]')].map(element => element.id);
+  assert.equal(new Set(ids).size, ids.length, `Duplicate element IDs in ${url}`);
   for (const selector of ['title', 'meta[name="description"]', 'meta[name="robots"]', 'link[rel="canonical"]', 'meta[property="og:url"]', 'meta[name="twitter:url"]']) {
     assert.equal(document.querySelectorAll(selector).length, 1, `Duplicate or missing ${selector} for ${url}`);
   }
@@ -144,6 +153,17 @@ for (const url of urls) {
     assert.equal(posting.datePublished, published, `datePublished disagrees with article:published_time for ${url}`);
     assert.equal(posting.dateModified, modified, `dateModified disagrees with article:modified_time for ${url}`);
     assert(modified >= published, `Article modified before it was published: ${url}`);
+    const slug = route.pathname.split('/')[2];
+    const post = posts.find(post => post.slug === slug);
+    assert(post, `Published article is not an authored post: ${url}`);
+    assert.equal(document.title, `${post.title} — ${AUTHOR_NAME}`, `Article title mismatch for ${url}`);
+    for (const selector of ['meta[name="description"]', 'meta[property="og:description"]', 'meta[name="twitter:description"]']) {
+      assert.equal(document.querySelector(selector)?.content, post.summary, `Article description mismatch for ${url}`);
+    }
+    assert.equal(document.querySelector('meta[property="article:published_time"]')?.content, postPublishedAt(post.date), `Publication date mismatch for ${url}`);
+    assert.equal(document.querySelector('meta[property="article:modified_time"]')?.content, postPublishedAt(postLastModified(post)), `Modification date mismatch for ${url}`);
+    const schema = [...document.querySelectorAll('script[data-route-seo]')].flatMap(element => JSON.parse(element.textContent));
+    assert.deepEqual(schema, postJsonLd(post, { site: SITE_URL, authorName: AUTHOR_NAME, authorSameAs: AUTHOR_SAME_AS }), `Article structured data mismatch for ${url}`);
   }
   // Same-origin links, absolute or relative: pages must be published URLs and
   // files (the feed, llms.txt) must ship.
@@ -198,6 +218,14 @@ for (const url of urls) {
     assert.deepEqual(shelf.itemListElement.map(entry => entry.item.name), SHELF_ITEMS.map(item => item.title));
     assert.equal(shelf.itemListElement.filter(entry => entry.item['@type'] === 'Book').length, BOOKS.length);
     assert.deepEqual(shelf.itemListElement.filter(entry => entry.item['@type'] === 'Article').map(entry => entry.item.url), ESSAYS.map(essay => essay.url));
+  }
+}
+for (const [url, document] of documents) {
+  for (const anchor of document.querySelectorAll('#root a[href]')) {
+    const target = new URL(anchor.getAttribute('href'), url);
+    if (target.origin !== SITE_URL || !target.hash) continue;
+    const targetDocument = documents.get(`${target.origin}${target.pathname}`);
+    assert(targetDocument?.getElementById(decodeURIComponent(target.hash.slice(1))), `Broken cross-page fragment ${target} in ${url}`);
   }
 }
 const feed = new JSDOM(readFileSync(new URL('feed.xml', dist), 'utf8'), { contentType: 'text/xml' }).window.document;

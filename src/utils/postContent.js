@@ -18,8 +18,11 @@ export const parseBlogPost = (markdown, filename) => {
   if (!parsePostDate(data.date)) {
     throw new Error(`Invalid publication date in ${filename}.md: use "29 Jul, 2026" or "2026-07-29".`);
   }
-  if (data.updated !== undefined && (!parsePostDate(data.updated) || postTimestamp(data.updated) < postTimestamp(data.date))) {
-    throw new Error(`Invalid updated date in ${filename}.md: use a real date on or after publication.`);
+  if (data.updated !== undefined) {
+    if (!parsePostDate(data.updated)) throw new Error(`Invalid update date in ${filename}.md: use a real calendar date.`);
+    if (postTimestamp(data.updated) < postTimestamp(data.date)) {
+      throw new Error(`Update date before the publication date in ${filename}.md.`);
+    }
   }
   if (!/^[1-9]\d* min read$/.test(data.readTime)) {
     throw new Error(`Invalid readTime in ${filename}.md: use a positive number followed by " min read".`);

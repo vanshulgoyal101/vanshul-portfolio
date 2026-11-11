@@ -77,7 +77,13 @@ export default defineConfig(({ command, mode }) => {
       coverage: {
         provider: 'v8',
         reporter: ['text', 'html'],
-        include: ['src/**/*.{js,jsx}'],
+        include: ['src/**/*.{js,jsx}', 'scripts/lib/*.mjs'],
+        thresholds: {
+          statements: 95,
+          branches: 90,
+          functions: 95,
+          lines: 95,
+        },
         exclude: [
           'src/main.jsx',
           'src/test/**',
