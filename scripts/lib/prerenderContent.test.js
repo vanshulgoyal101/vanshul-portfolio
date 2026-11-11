@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { prerenderContent } from './prerenderContent.mjs';
@@ -24,6 +25,11 @@ describe('crawler-readable content', () => {
     const related = document.querySelector('nav[aria-label="More writings"]');
     expect(related.querySelector('h2').textContent).toBe('More writings');
     expect([...related.querySelectorAll('a')].map(anchor => anchor.getAttribute('href'))).toEqual(['/blog/other/']);
+  });
+  it('shows publication and authored revision dates in readable static HTML', () => {
+    const document = parse({ post: { ...posts[0], date: '2026-10-01', updated: '2026-11-11' } });
+    expect([...document.querySelectorAll('article time')].map(time => time.getAttribute('datetime'))).toEqual(['2026-10-01', '2026-11-11']);
+    expect(document.querySelector('article').textContent).toContain('Updated');
   });
 
   it('adds a table of contents with working fragment links to long articles only', () => {

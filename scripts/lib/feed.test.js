@@ -64,6 +64,13 @@ describe('feed/buildFeed', () => {
     expect(empty.querySelectorAll('item')).toHaveLength(0);
     expect(empty.getElementsByTagName('lastBuildDate')).toHaveLength(0);
   });
+  it('changes the channel build date on revision but preserves item publication dates and GUIDs', () => {
+    const updated = parse(buildFeed([posts[0], { ...posts[1], updated: '2026-11-11' }], options));
+    expect(child(updated.querySelector('channel'), 'lastBuildDate')).toBe('Tue, 10 Nov 2026 18:30:00 GMT');
+    const updatedItems = [...updated.querySelectorAll('item')];
+    expect(updatedItems.map(item => child(item, 'guid'))).toEqual(items.map(item => child(item, 'guid')));
+    expect(updatedItems.map(item => child(item, 'pubDate'))).toEqual(items.map(item => child(item, 'pubDate')));
+  });
 
   it('keeps a post without a summary or body well-formed and empty rather than "undefined"', () => {
     const bare = parse(buildFeed([{ slug: 'bare', title: 'Bare', date: '2025-01-01' }], options));

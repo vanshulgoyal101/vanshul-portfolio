@@ -3,7 +3,7 @@
  * so import this only from the lazily loaded article page; listings use
  * ./blogLoader, which carries metadata only.
  */
-import { parseFrontmatter } from './frontmatter';
+import { parseBlogPost } from './postContent';
 
 const blogFiles = import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true });
 
@@ -13,8 +13,7 @@ let cachedPosts = null;
 export const loadFullBlogPosts = () => {
   if (cachedPosts) return cachedPosts;
   cachedPosts = Object.entries(blogFiles).map(([path, markdown]) => {
-    const { data, content } = parseFrontmatter(markdown);
-    return { ...data, content, filename: path.split('/').pop().replace(/\.md$/, '') };
+    return parseBlogPost(markdown, path.split('/').pop().replace(/\.md$/, ''));
   });
   return cachedPosts;
 };

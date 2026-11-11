@@ -5,8 +5,10 @@
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { parseFrontmatter } from '../../src/utils/frontmatter.js';
-import { parsePostDate, postTimestamp, compareNewestFirst } from '../../src/utils/seoValues.js';
+import { postTimestamp, compareNewestFirst } from '../../src/utils/seoValues.js';
+import { parseFrontmatter as parsePostFrontmatter, parseBlogPost } from '../../src/utils/postContent.js';
+
+export const parseFrontmatter = (md) => parsePostFrontmatter(md).data;
 
 /** Escape a string for use in an XML/HTML attribute value (escapes quotes too). */
 export const escapeXml = (s) =>
@@ -24,35 +26,18 @@ export const rfc822 = (value) => {
 
 /**
  * Read every `*.md` post in a directory, returning parsed frontmatter enriched
- * with `body`, `wordCount` and `filename`. Throws on a missing title, an invalid
- * or duplicate slug, an invalid date, or an `updated` date that is invalid or
- * earlier than `date`, so a bad post fails the build instead of being silently
- * skipped.
+ * with `body`, `wordCount` and `filename`. Uses the same publishing validation
+ * as the browser, so malformed posts fail the build instead of being skipped.
  * @param {string} blogsDir
  * @returns {Array<Record<string, unknown>>}
  */
 export const readPosts = (blogsDir) => {
-  const slugs = new Set();
   return readdirSync(blogsDir)
     .filter((f) => f.endsWith('.md'))
     .map((f) => {
-      const { data, content: body } = parseFrontmatter(readFileSync(join(blogsDir, f), 'utf8'));
-      if (!data.title || !data.slug || data.slug.length > 120 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug)) {
-        throw new Error(`Invalid title or URL slug in ${f}`);
-      }
-      if (slugs.has(data.slug)) throw new Error(`Duplicate blog slug in ${f}: ${data.slug}`);
-      if (!parsePostDate(data.date)) throw new Error(`Invalid publication date in ${f}: use "29 Jul, 2026" or "2026-07-29"`);
-      if (data.updated !== undefined) {
-        if (!parsePostDate(data.updated)) throw new Error(`Invalid update date in ${f}: use "29 Jul, 2026" or "2026-07-29"`);
-        if (postTimestamp(data.updated) < postTimestamp(data.date)) throw new Error(`Update date before the publication date in ${f}`);
-      }
-      slugs.add(data.slug);
-      return {
-        ...data,
-        body,
-        wordCount: body ? body.split(/\s+/).length : undefined,
-        filename: f.replace(/\.md$/, ''),
-      };
+      const raw = readFileSync(join(blogsDir, f), 'utf8');
+      const { content, ...post } = parseBlogPost(raw, f.replace(/\.md$/, ''));
+      return { ...post, body: content };
     });
 };
 

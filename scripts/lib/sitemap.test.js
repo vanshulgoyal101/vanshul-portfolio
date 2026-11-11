@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { buildSitemap } from './sitemap.mjs';
 import { PROJECT_PAGES } from '../../src/constants/projectStories.js';
@@ -71,5 +72,19 @@ describe('sitemap/buildSitemap', () => {
     const newerAt = xml.indexOf('/blog/newer');
     const olderAt = xml.indexOf('/blog/older');
     expect(newerAt).toBeLessThan(olderAt);
+  });
+  it('reflects substantive revisions in article and hub lastmod without reordering publication', () => {
+    const revised = buildSitemap([
+      { ...posts[0], updated: '2026-11-11' },
+      posts[1],
+    ], { site });
+    expect(revised).toContain(`<loc>${site}/blog/older/</loc><lastmod>2026-11-11</lastmod>`);
+    expect(revised).toContain(`<loc>${site}/blog/newer/</loc><lastmod>2025-08-27</lastmod>`);
+    expect(revised).toContain(`<loc>${site}/</loc><lastmod>2026-11-11</lastmod>`);
+    expect(revised).toContain(`<loc>${site}/blog/</loc><lastmod>2026-11-11</lastmod>`);
+    expect(revised.indexOf('/blog/newer/')).toBeLessThan(revised.indexOf('/blog/older/'));
+  });
+  it('keeps an empty collection free of invented modification dates', () => {
+    expect(buildSitemap([], { site })).not.toContain('<lastmod>');
   });
 });

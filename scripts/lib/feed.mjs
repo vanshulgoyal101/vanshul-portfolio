@@ -5,6 +5,7 @@
 import { escapeXml, rfc822 } from './seo.mjs';
 import { renderMarkdown } from './markdown.mjs';
 import { BLOG_PATH, postPath, absoluteUrl } from '../../src/constants/routes.js';
+import { postModifiedDate, postTimestamp } from '../../src/utils/seoValues.js';
 
 // CDATA cannot contain "]]>"; split it across two sections.
 const cdata = (text) => `<![CDATA[${String(text).replace(/]]>/g, ']]]]><![CDATA[>')}]]>`;
@@ -37,7 +38,8 @@ export const buildFeed = (posts, { site, authorName, description }) => {
     })
     .join('\n');
 
-  const lastBuild = posts.length ? rfc822(posts[0].date) : undefined;
+  const newestChange = posts.map(postModifiedDate).sort((a, b) => postTimestamp(b) - postTimestamp(a))[0];
+  const lastBuild = newestChange ? rfc822(newestChange) : undefined;
 
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',

@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { afterEach, describe, it, expect } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -66,19 +67,19 @@ describe('seo/readPosts', () => {
 describe('publishing input validation', () => {
   let directory;
   afterEach(() => { if (directory) rmSync(directory, { recursive: true, force: true }); });
-  const fixture = (slug, date = '2026-09-16') => `---\ntitle: Example\nslug: ${slug}\ndate: ${date}\n---\nActual content`;
+  const fixture = (slug, date = '2026-09-16') => `---\ntitle: Example\nslug: ${slug}\nsummary: An example post.\ndate: ${date}\nreadTime: 1 min read\ncategory: Engineering\n---\nActual content`;
   const prepare = text => {
     directory = mkdtempSync(join(tmpdir(), 'portfolio-posts-'));
-    writeFileSync(join(directory, 'post.md'), text);
+    writeFileSync(join(directory, 'example.md'), text);
   };
   it.each(['../escape', '/absolute', 'with spaces', 'mixedCase', 'a'.repeat(121)])('rejects invalid slug %s', slug => {
     prepare(fixture(slug));
-    expect(() => readPosts(directory)).toThrow('Invalid title or URL slug');
+    expect(() => readPosts(directory)).toThrow('Invalid URL slug');
   });
   it('rejects duplicate paths instead of overwriting a published article', () => {
     prepare(fixture('example'));
     writeFileSync(join(directory, 'duplicate.md'), fixture('example'));
-    expect(() => readPosts(directory)).toThrow('Duplicate blog slug');
+    expect(() => readPosts(directory)).toThrow('Slug must match filename');
   });
   it('rejects invalid publication dates', () => {
     prepare(fixture('example', 'not-a-date'));

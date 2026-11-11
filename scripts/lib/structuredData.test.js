@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { postJsonLd, blogIndexJsonLd, breadcrumbList, homeJsonLd, projectJsonLd } from './structuredData.mjs';
 import { PROJECT_PAGES } from '../../src/constants/projectStories.js';
@@ -77,6 +78,13 @@ describe('structuredData/postJsonLd', () => {
   it('sets datePublished/dateModified from the post date in the author timezone', () => {
     expect(posting.datePublished).toBe('2025-08-27T00:00:00+05:30');
     expect(posting.dateModified).toBe('2025-08-27T00:00:00+05:30');
+  });
+  it('uses an explicit substantive update without changing the publication date', () => {
+    const [revised] = postJsonLd({ ...post, updated: '2026-11-11' }, identity);
+    expect(revised.datePublished).toBe(posting.datePublished);
+    expect(revised.dateModified).toBe('2026-11-11T00:00:00+05:30');
+    const [archive] = blogIndexJsonLd([{ ...post, updated: '2026-11-11' }], identity);
+    expect(archive.blogPost[0].dateModified).toBe(revised.dateModified);
   });
 
   it('takes dateModified from an update date, keeping datePublished', () => {

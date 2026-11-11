@@ -25,15 +25,16 @@ const textOf = (node) =>
 
 // Assigns unique ids to h2/h3 elements of a hast tree and returns them in order.
 const assignHeadingIds = (tree) => {
-  const seen = new Map();
+  const seen = new Set();
   const headings = [];
   const visit = (node) => {
     if (node.type === 'element' && SECTION_TAGS.has(node.tagName)) {
       const text = textOf(node).trim();
       const base = headingSlug(text) || 'section';
-      const count = seen.get(base) ?? 0;
-      seen.set(base, count + 1);
-      const id = count ? `${base}-${count}` : base;
+      let id = base;
+      let suffix = 0;
+      while (seen.has(id)) id = `${base}-${++suffix}`;
+      seen.add(id);
       node.properties = { ...node.properties, id };
       headings.push({ id, text, level: Number(node.tagName.slice(1)) });
     }

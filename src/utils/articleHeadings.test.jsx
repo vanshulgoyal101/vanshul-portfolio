@@ -28,6 +28,14 @@ describe('articleHeadings', () => {
     expect(articleHeadings('## Notes\n\n## Notes\n\n## ???').map((heading) => heading.id)).toEqual(['notes', 'notes-1', 'section']);
   });
 
+  it('avoids collisions between generated suffixes and authored heading names', () => {
+    const markdown = '## Notes\n\n## Notes\n\n## Notes 1\n\n## Notes\n\n## Section\n\n## ???';
+    const ids = articleHeadings(markdown).map(heading => heading.id);
+    expect(ids).toEqual(['notes', 'notes-1', 'notes-1-1', 'notes-2', 'section', 'section-1']);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect([...render(markdown).querySelectorAll('h2')].map(heading => heading.id)).toEqual(ids);
+  });
+
   it('returns no headings for empty input', () => {
     expect(articleHeadings('')).toEqual([]);
     expect(articleHeadings(undefined)).toEqual([]);

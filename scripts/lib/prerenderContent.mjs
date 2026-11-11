@@ -13,6 +13,7 @@ import { HOME_PATH, BLOG_PATH, READING_LIST_PATH, postPath, projectPath, homeSec
 import { escapeXml, escapeText } from './seo.mjs';
 import { renderMarkdown } from './markdown.mjs';
 import { articleHeadings, MIN_TOC_HEADINGS } from '../../src/utils/articleHeadings.js';
+import { postDate } from '../../src/utils/seoValues.js';
 
 const link = (href, label) => `<a href="${escapeXml(href)}">${escapeText(label)}</a>`;
 const paragraph = text => `<p>${escapeText(text)}</p>`;
@@ -113,7 +114,9 @@ export const prerenderContent = ({ post, project, posts = [], page = 'home' } = 
   let content;
   if (post) {
     const markdown = renderMarkdown(post.body);
-    content = `<article><h1>${escapeText(post.title)}</h1><p>By ${escapeText(AUTHOR_NAME)}</p>${tableOfContents(post.body)}${markdown}</article><nav aria-label="More writings"><h2>More writings</h2>${postLinks(posts.filter(item => item.slug !== post.slug))}</nav>`;
+    const dates = postDate(post.date) ? `<p>Published <time datetime="${postDate(post.date)}">${escapeText(post.date)}</time>`
+      + (post.updated ? ` · Updated <time datetime="${postDate(post.updated)}">${escapeText(post.updated)}</time>` : '') + '</p>' : '';
+    content = `<article><h1>${escapeText(post.title)}</h1><p>By ${escapeText(AUTHOR_NAME)}</p>${dates}${tableOfContents(post.body)}${markdown}</article><nav aria-label="More writings"><h2>More writings</h2>${postLinks(posts.filter(item => item.slug !== post.slug))}</nav>`;
   } else if (project) {
     content = projectContent(project);
   } else if (page === 'blog') {

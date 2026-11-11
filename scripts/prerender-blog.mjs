@@ -8,8 +8,9 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
-import { readPosts, byDateDesc, escapeXml as escAttr, escapeText as escText, parseTags, postPublishedAt, postLastModified } from './lib/seo.mjs';
+import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS, HOME_DESCRIPTION } from '../src/constants/siteConfig.js';
+import { readPosts, byDateDesc, escapeXml as escAttr, parseTags, postPublishedAt, postLastModified } from './lib/seo.mjs';
+import { jsonLdScript, setMeta, setTitle, setCanonical } from './lib/pageShell.mjs';
 import { prerenderContent } from './lib/prerenderContent.mjs';
 import { postJsonLd, blogIndexJsonLd, homeJsonLd, projectJsonLd } from './lib/structuredData.mjs';
 import { PROFILE } from '../src/constants/profile.js';
@@ -25,31 +26,17 @@ const distDir = join(root, 'dist');
 const template = readFileSync(join(distDir, 'index.html'), 'utf8');
 const identity = { site: SITE, authorName: AUTHOR_NAME, authorSameAs: AUTHOR_SAME_AS };
 
-// Serialize JSON-LD for safe inline embedding (escape `<` to avoid closing the
-// script element early).
-const jsonLdScript = (data) =>
-  `<script type="application/ld+json" data-route-seo>${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
-
-// Replace a <meta ... content="..."> value, tolerant of attribute order.
-const setMeta = (html, attr, key, value) => {
-  const v = escAttr(value);
-  const a = new RegExp(`(<meta\\s+${attr}="${key}"\\s+content=")[^"]*(")`, 'i');
-  if (a.test(html)) return html.replace(a, `$1${v}$2`);
-  const b = new RegExp(`(<meta\\s+content=")[^"]*("\\s+${attr}="${key}")`, 'i');
-  return html.replace(b, `$1${v}$2`);
-};
-
 const buildShell = (post) => {
   const canonical = absoluteUrl(postPath(post.slug));
   const ogImage = `${SITE}/og/${post.slug}.png`;
-  const title = `${post.title} — Vanshul Goyal`;
+  const title = `${post.title} — ${AUTHOR_NAME}`;
   const desc = post.summary || '';
   const publishedISO = postPublishedAt(post.date);
   const modifiedISO = postPublishedAt(postLastModified(post));
   const tags = parseTags(post.tags);
 
   let html = template;
-  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escText(title)}</title>`);
+  html = setTitle(html, title);
   html = setMeta(html, 'name', 'description', desc);
   html = setMeta(html, 'property', 'og:type', 'article');
   html = setMeta(html, 'property', 'og:title', title);
@@ -61,7 +48,7 @@ const buildShell = (post) => {
   html = setMeta(html, 'name', 'twitter:description', desc);
   html = setMeta(html, 'name', 'twitter:url', canonical);
   html = setMeta(html, 'name', 'twitter:image', ogImage);
-  html = html.replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/i, `$1${canonical}$2`);
+  html = setCanonical(html, canonical);
 
   // Article-specific Open Graph tags (not present in the base template).
   const articleTags = [
@@ -76,7 +63,7 @@ const buildShell = (post) => {
 
   html = html.replace(
     '</head>',
-    `  ${articleTags}\n  ${jsonLdScript(postJsonLd(post, identity))}</head>`,
+    () => `  ${articleTags}\n  ${jsonLdScript(postJsonLd(post, identity))}</head>`,
   );
   return html;
 };
@@ -89,20 +76,21 @@ const buildPageShell = ({ path, title, description: desc, jsonLd }) => {
   const ogImage = `${SITE}/og-image.png`;
 
   let html = template;
-  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escText(title)}</title>`);
+  html = setTitle(html, title);
   html = setMeta(html, 'name', 'description', desc);
   html = setMeta(html, 'property', 'og:type', 'website');
   html = setMeta(html, 'property', 'og:title', title);
   html = setMeta(html, 'property', 'og:description', desc);
   html = setMeta(html, 'property', 'og:url', canonical);
   html = setMeta(html, 'property', 'og:image', ogImage);
+  html = setMeta(html, 'property', 'og:image:alt', title);
   html = setMeta(html, 'name', 'twitter:title', title);
   html = setMeta(html, 'name', 'twitter:description', desc);
   html = setMeta(html, 'name', 'twitter:url', canonical);
   html = setMeta(html, 'name', 'twitter:image', ogImage);
-  html = html.replace(/(<link\s+rel="canonical"\s+href=")[^"]*(")/i, `$1${canonical}$2`);
+  html = setCanonical(html, canonical);
 
-  html = html.replace('</head>', `  ${jsonLdScript(jsonLd)}</head>`);
+  html = html.replace('</head>', () => `  ${jsonLdScript(jsonLd)}</head>`);
   return html;
 };
 
@@ -111,7 +99,12 @@ const withContent = (html, options) => html.replace('<div id="root"></div>', () 
 
 // Only the homepage carries the WebSite/Person/ProfilePage graph; the other
 // shells are built from the untouched template.
-const homeShell = template.replace('</head>', `  ${jsonLdScript(homeJsonLd({ ...identity, profile: PROFILE }))}</head>`);
+const homeShell = buildPageShell({
+  path: '/',
+  title: AUTHOR_NAME,
+  description: HOME_DESCRIPTION,
+  jsonLd: homeJsonLd({ ...identity, profile: PROFILE }),
+});
 writeFileSync(join(distDir, 'index.html'), withContent(homeShell));
 
 for (const post of posts) {

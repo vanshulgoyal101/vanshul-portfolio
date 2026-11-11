@@ -20,9 +20,11 @@ export const parseFrontmatter = (markdown) => {
   for (const line of match[1].split('\n')) {
     const colon = line.indexOf(':');
     if (colon <= 0) continue;
+    const key = line.slice(0, colon).trim();
+    if (!key) continue;
     const value = line.slice(colon + 1).trim();
     const quoted = value.match(/^(["'])(.*)\1$/);
-    data[line.slice(0, colon).trim()] = quoted ? quoted[2] : value;
+    data[key] = quoted ? quoted[2] : value;
   }
   return { data, content: match[2].trim() };
 };

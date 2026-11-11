@@ -79,6 +79,9 @@ export const postTimestamp = value => {
   return parts ? Date.UTC(parts.year, parts.month - 1, parts.day) - OFFSET_MINUTES * 60000 : NaN;
 };
 
+/** Last substantive revision, falling back to publication for unchanged posts. */
+export const postModifiedDate = postLastModified;
+
 /** Comparator ordering posts newest first; undated posts sort last. */
 export const compareNewestFirst = (a, b) => {
   const time = post => {

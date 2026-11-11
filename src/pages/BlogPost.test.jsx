@@ -4,6 +4,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import BlogPost from './BlogPost';
 import { ToastProvider } from '../components/Toast';
 import { loadFullBlogPosts as loadBlogPosts } from '../utils/blogPostLoader';
+import * as blogLoader from '../utils/blogPostLoader';
 import * as blogViews from '../utils/blogViews';
 import { postJsonLd } from '../../scripts/lib/structuredData.mjs';
 import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';
@@ -27,6 +28,21 @@ const posts = loadBlogPosts();
 const sample = posts[0];
 
 describe('BlogPost', () => {
+  it('renders a substantive update and keeps runtime structured data and OG dates consistent', () => {
+    const revised = { ...sample, updated: '2026-11-11' };
+    const loader = vi.spyOn(blogLoader, 'loadBlogBySlug').mockReturnValue(revised);
+    try {
+      renderAt(`/blog/${sample.slug}/`);
+      const article = screen.getByRole('article');
+      expect(within(article).getByText('11 Nov 2026')).toHaveAttribute('datetime', '2026-11-11');
+      expect(document.head.querySelector('meta[property="article:modified_time"]').content).toBe('2026-11-11T00:00:00+05:30');
+      const schema = JSON.parse(document.head.querySelector('script[data-route-seo]').textContent)[0];
+      expect(schema.dateModified).toBe('2026-11-11T00:00:00+05:30');
+      expect(schema.datePublished).not.toBe(schema.dateModified);
+    } finally {
+      loader.mockRestore();
+    }
+  });
   it('has at least one real post to test against', () => {
     expect(posts.length).toBeGreaterThan(0);
     expect(sample.slug).toBeTruthy();
