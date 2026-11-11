@@ -90,7 +90,7 @@ describe('BlogPost', () => {
   it('renders Back and Share controls', () => {
     renderAt(`/blog/${sample.slug}`);
     expect(screen.getByText(/Back to Blog/i)).toBeInTheDocument();
-    expect(screen.getByText(/Share/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Share' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Back to Blog' })).toHaveAttribute('href', '/blog/');
     expect(screen.getByRole('button', { name: 'Share' })).toHaveAttribute('type', 'button');
   });
