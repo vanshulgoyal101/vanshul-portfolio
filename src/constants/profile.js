@@ -33,7 +33,7 @@ export const PROFILE = {
 // About-section highlight cards. `icon` is a key the About component maps.
 export const HIGHLIGHTS = [
   { icon: 'graduation', value: '2025', label: 'B.Tech — Electronics & Communication Engineering' },
-  { icon: 'trophy', value: 'State gold', label: 'Softball, 2015 · plus state silver in baseball and district gold in cricket' },
+  { icon: 'trophy', value: 'State gold', label: 'Softball, 2015 · state silver in baseball, district gold in cricket' },
   { icon: 'rocket', value: 'Top 20', label: 'NASA HERC 2023 Global Ranking' },
   { icon: 'trophy', value: '98.6%', label: 'JEE Mains Percentile' },
 ];
