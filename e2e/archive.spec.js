@@ -34,6 +34,17 @@ test('archive search and topic filtering work with keyboard, clear, and article 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(accessibility.violations).toEqual([]);
+  await page.setViewportSize({ width: 320, height: 780 });
+  expect(await page.evaluate(() => innerWidth)).toBe(320);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  for (const control of [search, topic, clear]) {
+    const bounds = await control.boundingBox();
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(320);
+  }
+  await search.fill(posts[0].title);
+  await topic.selectOption(posts[0].category);
+  await expect(page.getByRole('status')).toHaveText(`1 of ${posts.length} posts`);
   await page.getByRole('link', { name: posts[0].title, exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: posts[0].title })).toBeVisible();
 });
