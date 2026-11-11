@@ -81,7 +81,7 @@ The hook updates canonical, Open Graph, and Twitter URLs together. Home mounts i
 own metadata so navigating from a directly loaded subpage cannot leave that
 subpage's original HTML title/canonical on Home. Missing posts use `noindex, follow`.
 Cleanup restores the previous head state for the next route's hook to replace.
-Used by `HomeMetadata` in `App.jsx` and by every page in `src/pages/`.
+Used by `HomeMetadata` in `pages/Home.jsx` and by every public page in `src/pages/`.
 
 ---
 

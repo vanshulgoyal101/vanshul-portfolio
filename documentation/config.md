@@ -22,10 +22,10 @@ in `scripts/`.
 | `test` | `vitest run` | Run the unit test suite once. |
 | `test:watch` | `vitest` | Run tests in watch mode. |
 | `test:ui` | `vitest --ui` | Vitest browser UI. `@vitest/ui` is not a dependency, so Vitest offers to install it on first use. |
-| `test:coverage` | `vitest run --coverage` | Tests with a V8 coverage report. |
+| `test:coverage` | `vitest run --coverage` | Tests with a V8 report and enforced coverage floors. |
 | `verify:build` | `node scripts/verify-build.mjs` | Check every published route in `dist/` (run after `build`). |
 | `test:e2e` | `playwright test` | Desktop and mobile browser tests against a production preview. |
-| `check` | `npm audit --audit-level=moderate && npm run lint && npm test && npm run build && npm run verify:build && npm run test:e2e` | The full release gate, in the same order as CI; stops at the first failure. |
+| `check` | `npm audit --audit-level=moderate && npm run lint && npm run test:coverage && npm run build && npm run verify:build && npm run test:e2e` | The full release gate, in the same order as CI; stops at the first failure. |
 | `predeploy` | `npm run build` | Runs automatically before `deploy`. |
 | `deploy` | `gh-pages -d dist` | Legacy: publish `dist/` to the `gh-pages` branch. Not the production path (see [deployment.md](deployment.md#legacy-branch-deployment)). |
 
@@ -86,8 +86,9 @@ runner), `sharp` (image generation), `gh-pages`, and React types.
   - `env` forces `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to empty
     strings, so tests never reach Supabase even when a local `.env` exists
   - coverage: V8 provider, `text` and `html` reporters, `src/**/*.{js,jsx}`
-    only, excluding `src/main.jsx`, `src/test/**`, test files and
-    `src/**/index.js`
+    and `scripts/lib/*.mjs`, excluding `src/main.jsx`, `src/test/**`, test
+    files and `src/**/index.js`; global floors of 95% statements, 90% branches,
+    95% functions and 95% lines
 - **Build**: `outDir: 'dist'`, `assetsDir: 'assets'`,
   `chunkSizeWarningLimit: 600`, and a `manualChunks(id)` function (through
   Vite 8's `rollupOptions` compatibility configuration) that
@@ -154,7 +155,9 @@ Run with `npm run lint`.
 
 ## playwright.config.js
 
-- `testDir: './e2e'`, `fullyParallel: true`, 2 workers, no retries.
+- `testDir: './e2e'`, `fullyParallel: true`, 1 worker, no retries. WebGL captures
+  and real pointer/canvas checks share renderer resources; parallel capture
+  produced GPU stalls rather than useful additional coverage.
 - `baseURL: 'http://127.0.0.1:4327'`; traces are kept and screenshots taken
   only for failures.
 - Two Chromium projects: `desktop` (1440×1000) and `mobile` (390×844,

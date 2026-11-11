@@ -110,11 +110,15 @@ and mobile sizes after the intro.
 The original multilingual greeting runs once per app load: eight shuffled
 greetings at 220ms intervals, then Welcome and a 500ms fade. Internal navigation
 does not replay it. The underlying app is inert and body scrolling is locked
-until completion; hash navigation waits until the overlay is gone. Reduced-motion
+until completion; hash navigation waits until the overlay is gone and the route
+has loaded. Initial deep links land instantly; later section clicks scroll
+smoothly. Reduced-motion
 visitors bypass the sequence. All greeting and exit timers are cleaned up.
 
 The unframed hero sculpture loads after the greeting and browser idle only above
-1024px and without reduced motion. Its reserved area avoids layout
+1024px and without reduced motion, when its reserved area first enters the
+viewport. A direct link to a lower section avoids downloading Three.js until the
+visitor returns to the hero. Its reserved area avoids layout
 shifts while loading, and its own error boundary keeps failures from replacing
 the introduction. Mobile and reduced-motion visits do not request the scene or
 Three.js chunks. Media-query changes unmount the scene when it is no longer allowed.

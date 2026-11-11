@@ -10,7 +10,7 @@ then dive into specific areas.
 | -------- | -------- |
 | [architecture.md](architecture.md) | Project structure, routing, SPA/GitHub Pages setup, section navigation, state and browser storage, data flow, utility and library modules, tech stack, performance strategy. |
 | [components.md](components.md) | Every React component: app shell, homepage sections, pages, shared UI primitives, Blog system, Toast, Navigation, footer, GoatCounter loader, FunElements. |
-| [hooks.md](hooks.md) | Custom hooks (`useContactForm`, `useSeo`, `useBlogViews`/`useBlogView`, `useIdle`), the `useToast` context hook, and the react-router hooks used in navigation. |
+| [hooks.md](hooks.md) | Custom hooks (`useContactForm`, `useSeo`, `useBlogViews`/`useBlogView`, `useIdle`, `useAwayTitle`, `useKonamiCode`), the `useToast` context hook, and the react-router hooks used in navigation. |
 | [data.md](data.md) | Portfolio content modules, the markdown blog system (frontmatter schema, dates, headings, loading/parsing, sorting, adding posts) and Supabase view counts (client, schema, database runner). |
 | [styles.md](styles.md) | Design system: visual language, tokens, shared primitives (`components/ui`), recurring patterns, focus/tap-target rules, motion and reduced motion. |
 | [assets.md](assets.md) | Images, public assets, and file organisation. |
@@ -22,6 +22,7 @@ then dive into specific areas.
 | [analytics.md](analytics.md) | Optional GoatCounter page counts, the first-party `a.js` beacon, the `web_events` schema + RLS, the owner-gated `web_stats()` RPC, and the private `/dashboard`. |
 | [homepage.md](homepage.md) | Preserved loader, layout, disclosure, rocket/exhaust and responsive contracts. |
 | [audit-2026-09.md](audit-2026-09.md) | Verified fixes, evidence, coverage boundaries and operational follow-up. |
+| [audit-2026-11.md](audit-2026-11.md) | Publishing parity, literal metadata, substantive revision dates, archive search, anchor correctness, test gates and operational limits. |
 | [../FEATURES.md](../FEATURES.md) | Shipped capabilities, proposed work and deliberate non-goals. |
 
 ## Maintenance

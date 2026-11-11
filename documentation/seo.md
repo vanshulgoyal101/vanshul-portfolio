@@ -163,7 +163,7 @@ take part; it relies on the sitemap.
 - The homepage graph (`homeJsonLd`) contains the `WebSite`, the `Person` and the
   `ProfilePage` whose `mainEntity` is that person. It is emitted **only on the
   homepage**: the prerender step injects it into `dist/index.html`, and
-  `HomeMetadata` in `App.jsx` adds it at runtime. `index.html` itself carries no
+  `HomeMetadata` in `pages/Home.jsx` adds it at runtime. `index.html` itself carries no
   JSON-LD because every other shell is built from it; earlier builds leaked the
   homepage `ProfilePage` onto every article, the archive and the shelf.
   `src/seo.test.js` keeps the template clean and `verify:build` fails if a

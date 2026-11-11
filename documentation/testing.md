@@ -4,6 +4,24 @@ The project uses **Vitest** with **React Testing Library** and a **jsdom**
 environment. Configuration lives in `vite.config.js` (the `test` block); global
 setup lives in [`src/test/setup.js`](../src/test/setup.js).
 
+`npm run check` and CI enforce global coverage floors: 95% statements, 90%
+branches, 95% functions and 95% lines. Coverage includes `src` and the
+`scripts/lib/*.mjs` build helpers. `npm test` remains the no-coverage
+development command. Build entry points are checked through their actual
+generated output rather than excluded code being treated as covered.
+
+Build-helper tests run in Vitest's Node environment; helpers needing DOM parsing
+construct an explicit `JSDOM` instance. Browser globals are reserved for frontend
+tests. The shared motion mock caches each `motion.*` component type, like the
+real library: parent rerenders must not remount children, lose focus or reset
+their local state. A regression test in `src/test/motionMock.test.jsx` protects
+that test-harness invariant.
+
+Dashboard fixtures render inside asynchronous `act`, flushing mocked session
+and statistics promises before asserting the loaded view. Deliberately pending
+promises remain controllable for loading, cancellation and race tests; no larger
+global async timeout is needed to accommodate cold rendering.
+
 Vitest and its V8 coverage adapter are upgraded together (currently 5.1.0).
 Use Node 22.22.2+, 24.15+, or 26+; CI uses Node LTS.
 jsdom 31 rejects focus on `display: none` elements. Mobile navigation unit
@@ -37,13 +55,16 @@ required. Dashboard tests cover promise rejections and out-of-order responses.
 
 ### November 2026 coverage baseline
 
-Vitest 5.1: 614 tests in 71 files, 97.02% lines, 92.56% branches, 96.90%
-functions and 96.22% statements (`npm run test:coverage`). Earlier the same
+Vitest 5.1: 775 tests in 85 files, 97.56% lines, 93.67% branches, 97.61%
+functions and 96.89% statements (`npm run test:coverage`, including build helpers).
+The prior 614-test snapshot had 97.02% lines and 92.56% branches. Earlier the same
 month it was 487 tests, 85.95% lines and 79.70% branches; in September 2026,
-401 tests, 64.93% lines and 65.51% branches. The latest gain covers the intro
-gate and deep links in `App`, the decorative layers' timing, input and cleanup,
-navigation keyboard and viewport behaviour, post sharing, dashboard states,
-the route error fallback and build-helper corner cases. Two of those tests
+401 tests, 64.93% lines and 65.51% branches. The latest baseline adds shared
+publishing/revision contracts, archive search, stable motion mocks and performance
+regressions on top of the intro gate and deep links in `App`, the decorative
+layers' timing, input and cleanup, navigation keyboard and viewport behaviour,
+post sharing, dashboard states, the route error fallback and build-helper corner
+cases. Two earlier tests
 found real bugs (telemetry lifetimes and cursor pointer targets) and fail on
 the earlier code.
 
@@ -52,13 +73,17 @@ What stays uncovered is deliberate: the three.js scene in
 callbacks that only run inside real Framer Motion, per-frame canvas physics,
 post-unmount guards and defensive branches for input the app never produces.
 `scripts/*.mjs` entry points sit outside the coverage config; `verify:build`
-checks their output, and the `scripts/lib` helpers have their own tests.
+checks their output, and the `scripts/lib` helpers are included in coverage.
 Do not exclude files merely to inflate the percentage.
 
 WebGL pixel tests wait until the canvas matches its reserved scene dimensions
 before capturing. A visible canvas can still have its initial 300x150 dimensions
 before renderer measurement. Framing, motion, dragging and offscreen pause remain
 asserted, without retry-based success or relaxed pixel bounds.
+
+Portfolio browser fixtures also wait for the route's visible main heading.
+The absence of an intro overlay alone does not mean a reduced-motion visit has
+finished loading the lazy homepage.
 
 ## Running tests
 
@@ -103,6 +128,11 @@ November 2026 and 200.0 KB after the project pages were added),
 so an accidental heavy import fails the build. It also requires the IndexNow
 key file at the root of `dist/`. Playwright
 starts a production preview on port 4327 and tests desktop and mobile Chromium.
+One browser worker keeps WebGL readbacks from competing with canvas, timing
+and pointer checks on a shared renderer. Two-worker traces showed multi-second
+capture/selector stalls; focused sculpture checks passed with the original
+pixel thresholds. This resource isolation changes neither site animation nor
+assertions and adds no retries.
 The suite covers unique section IDs, heading clearance under the fixed header,
 reduced motion, cross-route links, skip-link focus, mobile menu focus and Escape,
 project cards opening their story pages from the keyboard (and the story
@@ -113,6 +143,18 @@ and 1920px sample screenshot pixels for a nonblank, contained sculpture, compare
 frames during animation and dragging, and verify off-screen pausing.
 External requests are blocked in browser tests; this does not verify live
 analytics, contact submission, or authenticated services.
+
+`e2e/archive.spec.js` exercises text/topic filtering, announced counts,
+no-results recovery, keyboard order, clear/focus restoration, overflow,
+axe checks and navigation to a result on both browser projects. A
+JavaScript-disabled test verifies every authored post remains discoverable.
+Unit tests cover literal punctuation, accent folding, matching every query
+word and preservation of ordering. Publishing tests compare the build and
+browser readers for every real post, reject malformed frontmatter and revision
+dates, and preserve dollar-sign sequences in prerendered metadata.
+Both archive browser projects additionally set and measure an exact 320px
+viewport, check every filter control's bounds and exercise combined filtering
+and article navigation at that width.
 
 Footer checks exercise enabled defaults, saved on/off choices across reloads,
 pointer and keyboard opening, settings fully inside the viewport, and reduced
