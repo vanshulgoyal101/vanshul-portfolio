@@ -1,75 +1,48 @@
 import { describe, it, expect } from 'vitest';
-import { loadBlogPosts, loadBlogBySlug } from './blogLoader';
+import { loadBlogPosts } from './blogLoader';
+import { loadFullBlogPosts, loadBlogBySlug } from './blogPostLoader';
 
-describe('loadBlogPosts', () => {
-  const posts = loadBlogPosts();
+const index = loadBlogPosts();
+const full = loadFullBlogPosts();
 
-  it('returns an array', () => {
-    expect(Array.isArray(posts)).toBe(true);
+describe('loadBlogPosts (listing metadata)', () => {
+  it('lists every post once, by slug', () => {
+    expect(index.length).toBeGreaterThan(0);
+    expect(new Set(index.map((post) => post.slug)).size).toBe(index.length);
+    expect(index.map((post) => post.slug).sort()).toEqual(full.map((post) => post.slug).sort());
   });
 
-  it('loads at least one post from the blogs directory', () => {
-    expect(posts.length).toBeGreaterThan(0);
-  });
-
-  it('parses frontmatter into each post object', () => {
-    for (const post of posts) {
-      expect(post).toHaveProperty('title');
-      expect(post).toHaveProperty('slug');
-      expect(post).toHaveProperty('content');
-      expect(post).toHaveProperty('filename');
-    }
-  });
-
-  it('strips the .md extension from filenames', () => {
-    for (const post of posts) {
-      expect(post.filename).not.toMatch(/\.md$/);
-    }
-  });
-
-  it('produces non-empty content for every post', () => {
-    for (const post of posts) {
-      expect(typeof post.content).toBe('string');
-      expect(post.content.length).toBeGreaterThan(0);
-    }
-  });
-
-  it('gives every post a unique slug', () => {
-    const slugs = posts.map((p) => p.slug);
-    expect(new Set(slugs).size).toBe(slugs.length);
-  });
-
-  it('trims frontmatter string values (no surrounding quotes)', () => {
-    for (const post of posts) {
-      if (typeof post.title === 'string') {
-        expect(post.title.startsWith('"')).toBe(false);
-        expect(post.title.startsWith("'")).toBe(false);
+  it('carries the frontmatter and a word count but never the body', () => {
+    for (const post of index) {
+      const article = full.find((candidate) => candidate.slug === post.slug);
+      for (const field of ['title', 'slug', 'summary', 'date', 'readTime']) {
+        expect(post[field], `${field} of ${post.slug}`).toBe(article[field]);
       }
+      expect(post.filename).toBe(article.filename);
+      expect(post.wordCount).toBe(article.content.split(/\s+/).length);
+      expect(post).not.toHaveProperty('content');
+      expect(post).not.toHaveProperty('body');
     }
   });
 });
 
-describe('loadBlogBySlug', () => {
-  const posts = loadBlogPosts();
+describe('loadFullBlogPosts and loadBlogBySlug (article bodies)', () => {
+  it('parses each file into frontmatter, a non-empty body and its filename', () => {
+    for (const post of full) {
+      expect(post.title.startsWith('"')).toBe(false);
+      expect(typeof post.content).toBe('string');
+      expect(post.content.length).toBeGreaterThan(0);
+      expect(post.filename).not.toMatch(/\.md$/);
+    }
+  });
 
-  it('returns the matching post for a known slug', () => {
-    const known = posts[0];
-    const found = loadBlogBySlug(known.slug);
-    expect(found).not.toBeNull();
-    expect(found.slug).toBe(known.slug);
+  it('parses once and returns the same objects', () => {
+    expect(loadFullBlogPosts()).toBe(full);
+    expect(loadBlogBySlug(full[0].slug)).toBe(full[0]);
   });
 
   it('returns null for an unknown slug', () => {
-    expect(loadBlogBySlug('this-slug-does-not-exist-xyz')).toBeNull();
-  });
-
-  it('returns null for an empty slug', () => {
-    expect(loadBlogBySlug('')).toBeNull();
-  });
-
-  it('returns the same content as the corresponding entry from loadBlogPosts', () => {
-    const known = posts[0];
-    const found = loadBlogBySlug(known.slug);
-    expect(found.content).toBe(known.content);
+    expect(loadBlogBySlug('no-such-post')).toBeNull();
+    expect(loadBlogBySlug(undefined)).toBeNull();
   });
 });

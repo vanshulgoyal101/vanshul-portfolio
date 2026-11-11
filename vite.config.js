@@ -1,9 +1,11 @@
 // vite.config.js
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
+import { blogIndexPlugin } from './scripts/lib/blogIndexPlugin.mjs'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), blogIndexPlugin({ blogsDir: fileURLToPath(new URL('./src/blogs', import.meta.url)) })],
   base: '/',
   test: {
     include: ['src/**/*.test.{js,jsx}', 'scripts/**/*.test.{js,mjs}'],

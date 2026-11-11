@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import ReactMarkdown from 'react-markdown';
 import { JSDOM } from 'jsdom';
 import { articleHeadings, headingSlug, rehypeHeadingIds } from './articleHeadings';
-import { loadBlogPosts } from './blogLoader';
+import { loadFullBlogPosts as loadBlogPosts } from './blogPostLoader';
 
 const render = (markdown) =>
   new JSDOM(renderToStaticMarkup(<ReactMarkdown rehypePlugins={[rehypeHeadingIds]}>{markdown}</ReactMarkdown>)).window.document;

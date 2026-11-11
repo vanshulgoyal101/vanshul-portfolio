@@ -132,10 +132,22 @@ suffixes for repeats. For example `## The counter-force` becomes
 
 ### Loading & parsing
 
-[`src/utils/blogLoader.js`](../src/utils/blogLoader.js):
+Listings and articles load posts differently, so that the homepage doesn't
+carry every article:
 
-- `import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true })`
-  inlines every post's raw markdown at build time.
+- [`src/utils/blogLoader.js`](../src/utils/blogLoader.js): `loadBlogPosts()`
+  returns each post's frontmatter plus `filename` and `wordCount`, with no
+  body. It reads `virtual:blog-index`, which
+  [`scripts/lib/blogIndexPlugin.mjs`](../scripts/lib/blogIndexPlugin.mjs)
+  builds at build (and dev) time from `readPosts`, so an invalid post fails
+  there too. The homepage, the archive and view counts use it.
+- [`src/utils/blogPostLoader.js`](../src/utils/blogPostLoader.js):
+  `import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true })`
+  inlines every post's raw markdown; `loadFullBlogPosts()` returns
+  `{ ...frontmatter, content, filename }` (parsed once, cached) and
+  `loadBlogBySlug(slug)` one post or `null`. Only the lazy article page
+  imports it. Before this split, six more posts pushed the homepage past the
+  first-load budget; the split cut it from 217.8 KB to 191.4 KB.
 - `parseFrontmatter(markdown)` from
   [`src/utils/frontmatter.js`](../src/utils/frontmatter.js) returns
   `{ data, content }`: it splits each frontmatter line on its first colon,
@@ -144,9 +156,6 @@ suffixes for repeats. For example `## The counter-force` becomes
   through the same function (`readPosts` in `scripts/lib/seo.mjs`), so the
   prerendered metadata and the app always agree; they used to have separate
   parsers that disagreed on quotes and numbers.
-- `loadBlogPosts()` returns an array of `{ ...frontmatter, content, filename }`,
-  parsed on the first call and cached.
-- `loadBlogBySlug(slug)` returns a single post or `null`.
 
 [`src/utils/blogUtils.js`](../src/utils/blogUtils.js):
 

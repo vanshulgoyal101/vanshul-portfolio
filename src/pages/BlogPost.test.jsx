@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import BlogPost from './BlogPost';
 import { ToastProvider } from '../components/Toast';
-import { loadBlogPosts } from '../utils/blogLoader';
+import { loadFullBlogPosts as loadBlogPosts } from '../utils/blogPostLoader';
 import * as blogViews from '../utils/blogViews';
 import { postJsonLd } from '../../scripts/lib/structuredData.mjs';
 import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS } from '../constants/siteConfig';

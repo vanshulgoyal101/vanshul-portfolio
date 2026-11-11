@@ -72,7 +72,9 @@ runner), `sharp` (image generation), `gh-pages`, and React types.
 
 ## vite.config.js
 
-- Vite 8 with `@vitejs/plugin-react` 6, `plugins: [react()]`, `base: '/'`.
+- Vite 8 with `@vitejs/plugin-react` 6 and `blogIndexPlugin` (serves
+  `virtual:blog-index`, post metadata without bodies; see
+  [data.md](data.md#loading--parsing)), `base: '/'`.
 - **Test config** (Vitest reads the same file; see [testing.md](testing.md)):
   - `include`: `src/**/*.test.{js,jsx}` and `scripts/**/*.test.{js,mjs}`
   - `globals: true`, `environment: 'jsdom'`,
@@ -233,6 +235,7 @@ and prerender tests exercise:
 | `feed.mjs` | `buildFeed` | `generate-feed.mjs` |
 | `llms.mjs` | `buildLlmsTxt` | `generate-llms.mjs` |
 | `indexnow.mjs` | `INDEXNOW_KEY`, `sitemapEntries`, `changedUrls`, `indexNowPayload` | `indexnow-plan.mjs`, `verify-build.mjs` |
+| `blogIndexPlugin.mjs` | `blogIndex`, `blogIndexPlugin` | `vite.config.js` |
 | `markdown.mjs` | `renderMarkdown`: react-markdown with `rehypeHeadingIds`, no raw HTML, unsafe URLs removed; an `origin` option makes root-relative URLs absolute | `feed.mjs`, `prerenderContent.mjs` |
 | `prerenderContent.mjs` | `prerenderContent`: the readable fallback HTML for the home, archive, article, shelf and project pages | `prerender-blog.mjs` |
 | `structuredData.mjs` | `breadcrumbList`, `postJsonLd`, `homeJsonLd`, `blogIndexJsonLd`, `projectJsonLd` | `prerender-blog.mjs` and the app (`App.jsx`, `BlogIndex`, `BlogPost`, `ProjectPage`) |

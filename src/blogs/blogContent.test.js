@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { loadBlogPosts } from '../utils/blogLoader';
+import { loadFullBlogPosts as loadBlogPosts } from '../utils/blogPostLoader';
 import { parsePostDate } from '../utils/seoValues';
 
 const posts = loadBlogPosts();

@@ -34,7 +34,8 @@ src/
                        # Dashboard, NotFound
   styles/              # GlobalStyles.js
   test/                # Vitest setup
-  utils/               # articleHeadings, blogLoader, blogUtils, blogViews,
+  utils/               # articleHeadings, blogLoader, blogPostLoader,
+                       # blogUtils, blogViews,
                        # seoValues, frontmatter, links, scrollToSection,
                        # cursorPreference, magnetic, dashboardData,
                        # routeRetry (see the module table below)
@@ -118,11 +119,15 @@ documentation/         # This documentation
    the background wash, the idle decorative layer, the routes (inside a
    `Suspense` loading fallback and `RouteBoundary`, which shows `RouteError`
    when a page fails to load or render) and the footer.
-3. Blog data is bundled at build time and parsed synchronously on first use:
-   - `utils/blogLoader.js` uses
+3. Blog data is bundled at build time, in two parts so listings stay light:
+   - `utils/blogLoader.js` (`loadBlogPosts`) returns metadata only, from the
+     `virtual:blog-index` module that `scripts/lib/blogIndexPlugin.mjs` builds
+     with the same validated `readPosts` as the other build steps. The
+     homepage, the archive and view counts use it.
+   - `utils/blogPostLoader.js` (`loadBlogBySlug`, `loadFullBlogPosts`) uses
      `import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true })`
-     to inline every post's raw markdown at build time, and caches the parsed
-     posts after the first `loadBlogPosts()` call.
+     to inline the bodies. Only the lazy article page imports it, so the
+     bodies never join the first load; parsed posts are cached.
    - `utils/frontmatter.js`, an in-house parser shared with the build scripts,
      extracts the YAML-style frontmatter (no `gray-matter` dependency); the
      body is kept as a markdown string.
@@ -180,7 +185,8 @@ in detail.
 | [`utils/articleHeadings.js`](../src/utils/articleHeadings.js) | `headingSlug`, `rehypeHeadingIds`, `articleHeadings`, `MIN_TOC_HEADINGS` | [data.md](data.md#section-headings-and-the-table-of-contents) |
 | [`utils/frontmatter.js`](../src/utils/frontmatter.js) | `parseFrontmatter` (shared by the app and `scripts/lib/seo.mjs`) | [data.md](data.md#loading--parsing) |
 | [`utils/links.js`](../src/utils/links.js) | `classifyLink` (article links: in-app, new tab or plain) | [data.md](data.md#rendering) |
-| [`utils/blogLoader.js`](../src/utils/blogLoader.js) | `loadBlogPosts`, `loadBlogBySlug` | [data.md](data.md#loading--parsing) |
+| [`utils/blogLoader.js`](../src/utils/blogLoader.js) | `loadBlogPosts` (metadata, no bodies) | [data.md](data.md#loading--parsing) |
+| [`utils/blogPostLoader.js`](../src/utils/blogPostLoader.js) | `loadFullBlogPosts`, `loadBlogBySlug` (with bodies; article page only) | [data.md](data.md#loading--parsing) |
 | [`utils/blogUtils.js`](../src/utils/blogUtils.js) | `sortBlogsByDate`, `getRelatedPosts`, `formatPostDate`, `groupPostsByYear` | [data.md](data.md#loading--parsing) |
 | [`utils/blogViews.js`](../src/utils/blogViews.js) | `incrementBlogView`, `getBlogView`, `recordBlogView`, `getAllBlogViews`, `formatViews` | [data.md](data.md#client-code) |
 | [`utils/seoValues.js`](../src/utils/seoValues.js) | `parsePostDate`, `postDate`, `postPublishedAt`, `postLastModified`, `postTimestamp`, `compareNewestFirst`, `PUBLICATION_TIMEZONE_OFFSET`, `parseTags`, `postKeywords` | [data.md](data.md#frontmatter-schema), [seo.md](seo.md) |
