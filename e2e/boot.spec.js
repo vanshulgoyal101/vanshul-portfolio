@@ -2,8 +2,17 @@ import { test, expect } from '@playwright/test';
 import { writeFile } from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 
+// Headless Chromium reads every WebGL frame back from the GPU, so the desktop
+// sculpture slows every frame after the greeting. Under parallel load that
+// starves these intro checks. The sculpture has its own desktop tests; here
+// its error boundary leaves the reserved area empty, as on a failed load.
+const SCULPTURE_CHUNK = /\/assets\/(?:HeroScene|three-[a-z]+)-[^/]+\.js$/;
+
 test.beforeEach(async ({ page }) => {
-  await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
+  await page.route('**/*', route => {
+    const url = new URL(route.request().url());
+    return url.hostname === '127.0.0.1' && !SCULPTURE_CHUNK.test(url.pathname) ? route.continue() : route.abort();
+  });
 });
 
 test('multilingual greeting finishes and reveals centered projects', async ({ page }, testInfo) => {
