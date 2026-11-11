@@ -108,6 +108,11 @@ describe('llms/buildLlmsTxt', () => {
     ]);
   });
 
+  it('keeps the public link for a featured project that has no story page', () => {
+    const noPage = buildLlmsTxt(posts, { ...options, featuredProjects: [{ id: 'not-a-page', title: 'Rover', role: 'Team Lead', description: 'A rover.', link: 'https://rover.example' }] });
+    expect(parse(noPage).sections.Projects[0]).toEqual({ title: 'Rover', url: 'https://rover.example', notes: 'A rover. Role: Team Lead.' });
+  });
+
   it('points a featured project without a public link at the homepage projects section', () => {
     const unlinked = buildLlmsTxt(posts, { ...options, featuredProjects: [{ title: 'Rover', role: 'Team Lead', description: 'A rover.' }] });
     expect(parse(unlinked).sections.Projects[0]).toEqual({ title: 'Rover', url: 'https://example.com/#projects', notes: 'A rover. Role: Team Lead.' });
@@ -157,6 +162,11 @@ describe('llms/buildLlmsTxt', () => {
     const projects = [...FEATURED_PROJECTS, ...PROJECT_DIRECTORY.flatMap((group) => group.items)];
     expect(found.Projects.map((project) => project.title)).toEqual(projects.map((project) => project.title));
     expect(found.Projects.every((project) => project.url.startsWith('https://') && project.notes)).toBe(true);
+    // Featured projects point at their story pages and still name their own site.
+    for (const [index, project] of FEATURED_PROJECTS.entries()) {
+      expect(found.Projects[index].url).toBe(`${site}/projects/${project.id}/`);
+      expect(found.Projects[index].notes).toContain(`Website: ${project.link}`);
+    }
     expect(found.Elsewhere.map((link) => link.url)).toEqual(SOCIAL_PROFILES.map((link) => link.url));
     expect(real).toContain(`${PROFILE.role} at ${PROFILE.employer.name}`);
     expect(real).not.toContain('undefined');

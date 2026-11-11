@@ -94,6 +94,19 @@ describe('App routing', () => {
     expect(await findPageHeading('Blog Post Not Found')).toBeInTheDocument();
     await waitFor(() => expect(robots()).toMatch(/noindex/));
   });
+
+  it('serves a featured project story at its canonical URL', async () => {
+    await renderAt('/projects/nasa-herc/');
+    expect(await findPageHeading('NASA Human Exploration Rover Challenge')).toBeInTheDocument();
+    await waitFor(() => expect(canonical()).toBe('https://vanshul.com/projects/nasa-herc/'));
+    expect(robots()).not.toMatch(/noindex/);
+  });
+
+  it('renders the noindex 404 state for an unknown project', async () => {
+    await renderAt('/projects/not-a-project/');
+    expect(await screen.findByRole('heading', { name: /wandered off/i }, LAZY)).toBeInTheDocument();
+    await waitFor(() => expect(robots()).toMatch(/noindex/));
+  });
 });
 
 const schemaTypes = () =>

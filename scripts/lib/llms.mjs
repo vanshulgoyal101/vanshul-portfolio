@@ -7,11 +7,13 @@
 import { byDateDesc } from './seo.mjs';
 import { BLOG_INDEX_DESCRIPTION } from '../../src/constants/blogConstants.js';
 import { READING_LIST_DESCRIPTION } from '../../src/constants/readingListSeo.js';
+import { getProjectPage } from '../../src/constants/projectStories.js';
 import {
   HOME_PATH,
   BLOG_PATH,
   READING_LIST_PATH,
   postPath,
+  projectPath,
   homeSectionPath,
   absoluteUrl,
 } from '../../src/constants/routes.js';
@@ -60,10 +62,14 @@ export const buildLlmsTxt = (
     .map((post) => entry(post.title, absoluteUrl(postPath(post.slug), site), post.summary));
 
   // The homepage lists every project, so it stands in for a missing public URL.
+  // A featured project with a story page links there, with its own site noted.
   const projectsUrl = absoluteUrl(homeSectionPath('projects'), site);
-  const featured = featuredProjects.map((project) =>
-    entry(project.title, project.link || projectsUrl, `${project.description} Role: ${project.role}.`),
-  );
+  const featured = featuredProjects.map((project) => {
+    const notes = `${project.description} Role: ${project.role}.`;
+    if (!getProjectPage(project.id)) return entry(project.title, project.link || projectsUrl, notes);
+    const url = absoluteUrl(projectPath(project.id), site);
+    return entry(project.title, url, project.link ? `${notes} Website: ${project.link}` : notes);
+  });
   const directory = projectDirectory
     .flatMap((group) => group.items)
     .map((item) => {

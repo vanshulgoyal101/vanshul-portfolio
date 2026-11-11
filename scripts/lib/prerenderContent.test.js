@@ -6,6 +6,7 @@ import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../../src/constants/projec
 import { EXPERIENCE, EARLIER_EXPERIENCE } from '../../src/constants/experience.js';
 import { PROFILE, HIGHLIGHTS, SKILL_GROUPS } from '../../src/constants/profile.js';
 import { SOCIAL_PROFILES } from '../../src/constants/siteConfig.js';
+import { PROJECT_PAGES, getProjectPage } from '../../src/constants/projectStories.js';
 
 const posts = [{ slug: 'example', title: 'An example', summary: 'A summary', body: '## A section\n\nActual **article** text.\n\n[Unsafe](javascript:alert%281%29)\n\n<script>alert(1)</script>' }];
 const parse = options => new JSDOM(prerenderContent(options)).window.document;
@@ -56,6 +57,27 @@ describe('crawler-readable content', () => {
   it('lists a post without a summary as just its link', () => {
     const document = parse({ page: 'blog', posts: [{ slug: 'bare', title: 'Bare post' }] });
     expect(document.querySelector('a[href="/blog/bare/"]').closest('li').textContent).toBe('Bare post');
+  });
+  it('publishes a project story with its facts, case study, sections and links', () => {
+    const page = getProjectPage('nasa-herc');
+    const document = parse({ project: page, posts });
+    expect(document.querySelectorAll('h1')).toHaveLength(1);
+    expect(document.querySelector('h1').textContent).toBe(page.title);
+    const text = document.querySelector('main').textContent;
+    for (const fact of [...page.stats.map(stat => stat.text), ...page.story.facts]) expect(text).toContain(fact);
+    for (const value of Object.values(page.caseStudy)) expect(text).toContain(value);
+    const headings = [...document.querySelectorAll('h2')].map(heading => heading.textContent);
+    expect(headings).toEqual(['Key facts', 'In short', ...page.story.sections.map(section => section.heading), 'More projects']);
+    expect(document.querySelector('img').getAttribute('src')).toBe(page.image);
+    expect(document.querySelector(`a[href="${page.link}"]`).textContent).toBe(page.story.linkLabel);
+    const more = [...document.querySelectorAll('nav[aria-label="More projects"] a')].map(anchor => anchor.getAttribute('href'));
+    expect(more).toEqual([...PROJECT_PAGES.filter(other => other.id !== page.id).map(other => other.path), '/#projects']);
+  });
+  it('links each homepage project to its full story', () => {
+    const document = parse({ page: 'home', posts });
+    for (const page of PROJECT_PAGES) {
+      expect(document.querySelector(`#projects a[href="${page.path}"]`).textContent).toBe('Read the full story');
+    }
   });
   it('publishes the full homepage content from the shared data modules', () => {
     const document = parse({ page: 'home', posts });

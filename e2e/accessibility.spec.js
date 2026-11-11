@@ -39,7 +39,7 @@ test('owner dashboard keeps year data scrollable and accessible', async ({ page 
   await page.screenshot({ path: testInfo.outputPath('owner-year-chart.png') });
 });
 
-for (const route of ['/', '/blog/', '/blog/the-new-leverage/', '/reading-list/', '/missing-audit-route', '/dashboard/']) {
+for (const route of ['/', '/blog/', '/blog/the-new-leverage/', '/reading-list/', '/projects/nasa-herc/', '/missing-audit-route', '/dashboard/']) {
   test(`accessible document structure and controls at ${route}`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.route('**/*', request => new URL(request.request().url()).hostname === '127.0.0.1' ? request.continue() : request.abort());

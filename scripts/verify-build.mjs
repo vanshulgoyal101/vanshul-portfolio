@@ -6,6 +6,7 @@ import { JSDOM } from 'jsdom';
 import { SITE_URL } from '../src/constants/siteConfig.js';
 import { BOOKS, ESSAYS, SHELF_ITEMS } from '../src/constants/books.js';
 import { BLOG_PATH, READING_LIST_PATH, absoluteUrl } from '../src/constants/routes.js';
+import { PROJECT_PAGES } from '../src/constants/projectStories.js';
 import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../src/constants/projects.js';
 import { EXPERIENCE, EARLIER_EXPERIENCE } from '../src/constants/experience.js';
 import { INDEXNOW_KEY } from './lib/indexnow.mjs';
@@ -13,9 +14,11 @@ import { INDEXNOW_KEY } from './lib/indexnow.mjs';
 const dist = new URL('../dist/', import.meta.url);
 // Heavy or single-route code must stay lazy: no page may fetch these before
 // first paint (see the manualChunks notes in documentation/config.md).
-const LAZY_ONLY_CHUNKS = /\/assets\/(three-core|three-react|markdown|supabase|Dashboard|HeroScene)-/;
+const LAZY_ONLY_CHUNKS = /\/assets\/(three-core|three-react|markdown|supabase|Dashboard|HeroScene|ProjectPage|projectStories)-/;
 // First-load budget: the gzipped JS and CSS a published page fetches before it
-// can render (187 KB in November 2026). Raise it only for a deliberate change.
+// can render (187 KB early in November 2026; 200 KB once the lazy project
+// pages split the shared page shell into its own chunk). Raise it only for a
+// deliberate change.
 const FIRST_LOAD_BUDGET_KB = 205;
 const gzipKb = path => gzipSync(readFileSync(new URL(path.slice(1), dist))).length / 1024;
 let heaviestFirstLoadKb = 0;
@@ -26,6 +29,9 @@ const urls = [...sitemap.window.document.querySelectorAll('url > loc')].map(elem
 assert.equal(new Set(urls).size, urls.length, 'Sitemap URLs must be unique');
 assert(!urls.some(url => url.includes('/dashboard')), 'Private dashboard must not be in the sitemap');
 assert(urls.includes(absoluteUrl(READING_LIST_PATH)), 'Reading list must appear in the published sitemap');
+assert.equal(PROJECT_PAGES.length, FEATURED_PROJECTS.length, 'Every featured project needs a story page');
+const projectUrls = PROJECT_PAGES.map(project => absoluteUrl(project.path));
+for (const url of projectUrls) assert(urls.includes(url), `Project page ${url} must appear in the published sitemap`);
 for (const url of urls) {
   const route = new URL(url);
   assert.equal(route.origin, SITE_URL);
@@ -104,6 +110,25 @@ for (const url of urls) {
     ];
     for (const phrase of expected) assert(text.includes(phrase), `Homepage static content is missing "${phrase}"`);
   }
+  const project = PROJECT_PAGES.find(page => page.path === route.pathname);
+  if (project) {
+    assert.equal(document.title, project.pageTitle, `Project page title mismatch for ${url}`);
+    assert.equal(document.querySelector('#root h1')?.textContent, project.title, `Project page heading mismatch for ${url}`);
+    const webPage = schemas.find(schema => schema['@type'] === 'WebPage');
+    assert.equal(webPage?.url, url, `Missing WebPage for ${url}`);
+    assert(schemaTypes.includes('BreadcrumbList'), `Missing BreadcrumbList for ${url}`);
+    assert(!schemaTypes.some(type => ['ProfilePage', 'BlogPosting', 'Article'].includes(type)), `Project page ${url} claims the wrong page type`);
+    const text = document.querySelector('#root main').textContent;
+    for (const section of project.story.sections) assert(text.includes(section.heading), `${url} is missing the "${section.heading}" section`);
+    // Each story links to the other stories and back to the homepage list.
+    const links = [...document.querySelectorAll('#root main a[href^="/"]')].map(anchor => anchor.getAttribute('href'));
+    for (const other of PROJECT_PAGES.filter(other => other !== project)) assert(links.includes(other.path), `${url} must link to ${other.path}`);
+    assert(links.includes('/#projects'), `${url} must link back to the homepage projects`);
+  }
+  if (route.pathname === '/') {
+    const links = [...document.querySelectorAll('#root main a[href^="/projects/"]')].map(anchor => anchor.getAttribute('href'));
+    assert.deepEqual([...new Set(links)], PROJECT_PAGES.map(page => page.path), 'The static homepage must link to every project page');
+  }
   if (path === 'reading-list') {
     assert(document.title.startsWith('Reading List'));
     const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')].flatMap(element => JSON.parse(element.textContent));
@@ -134,7 +159,7 @@ const llmsFile = new URL('llms.txt', dist);
 assert(existsSync(llmsFile), 'Missing dist/llms.txt');
 const llms = readFileSync(llmsFile, 'utf8');
 assert(llms.startsWith('# '), 'llms.txt must start with an H1 title');
-for (const url of [absoluteUrl(BLOG_PATH), ...articleUrls]) {
+for (const url of [absoluteUrl(BLOG_PATH), ...articleUrls, ...projectUrls]) {
   // Match the whole link target: the archive URL is a prefix of every article URL.
   assert(llms.includes(`](${url})`), `llms.txt must link to ${url}`);
 }

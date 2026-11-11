@@ -11,8 +11,9 @@ import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE, AUTHOR_NAME, AUTHOR_SAME_AS } from '../src/constants/siteConfig.js';
 import { readPosts, byDateDesc, escapeXml as escAttr, escapeText as escText, parseTags, postPublishedAt, postLastModified } from './lib/seo.mjs';
 import { prerenderContent } from './lib/prerenderContent.mjs';
-import { postJsonLd, blogIndexJsonLd, homeJsonLd } from './lib/structuredData.mjs';
+import { postJsonLd, blogIndexJsonLd, homeJsonLd, projectJsonLd } from './lib/structuredData.mjs';
 import { PROFILE } from '../src/constants/profile.js';
+import { PROJECT_PAGES } from '../src/constants/projectStories.js';
 import { READING_LIST_DESCRIPTION, READING_LIST_JSON_LD } from '../src/constants/readingListSeo.js';
 import { BLOG_INDEX_DESCRIPTION } from '../src/constants/blogConstants.js';
 import { BLOG_PATH, READING_LIST_PATH, postPath, absoluteUrl } from '../src/constants/routes.js';
@@ -80,8 +81,9 @@ const buildShell = (post) => {
   return html;
 };
 
-// The /blog listing shell: index metadata + Blog/ItemList structured data so
-// crawlers see a real content hub, not just the SPA fallback.
+// A non-article page shell (the /blog listing, the reading list, project
+// stories): page metadata + structured data so crawlers see real content,
+// not just the SPA fallback.
 const buildPageShell = ({ path, title, description: desc, jsonLd }) => {
   const canonical = absoluteUrl(path);
   const ogImage = `${SITE}/og-image.png`;
@@ -137,4 +139,18 @@ writeFileSync(join(distDir, 'reading-list', 'index.html'), withContent(buildPage
   jsonLd: READING_LIST_JSON_LD,
 }), { page: 'reading-list' }));
 
-console.log(`Prerendered ${posts.length} posts, blog index, and reading list.`);
+// One shell per featured project story (dist/projects/<id>/index.html).
+// Unknown ids have no file, so GitHub Pages serves 404.html and the SPA
+// renders its noindex 404 state.
+for (const project of PROJECT_PAGES) {
+  const dir = join(distDir, 'projects', project.id);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'index.html'), withContent(buildPageShell({
+    path: project.path,
+    title: project.pageTitle,
+    description: project.story.description,
+    jsonLd: projectJsonLd(project, identity),
+  }), { project }));
+}
+
+console.log(`Prerendered ${posts.length} posts, blog index, reading list, and ${PROJECT_PAGES.length} project pages.`);

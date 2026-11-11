@@ -8,7 +8,8 @@ import { FEATURED_PROJECTS, PROJECT_DIRECTORY, CASE_STUDY_FIELDS } from '../../s
 import { EXPERIENCE, EARLIER_EXPERIENCE } from '../../src/constants/experience.js';
 import { BOOKS, ESSAYS } from '../../src/constants/books.js';
 import { BLOG_CONTENT, BLOG_INDEX_DESCRIPTION } from '../../src/constants/blogConstants.js';
-import { HOME_PATH, BLOG_PATH, READING_LIST_PATH, postPath } from '../../src/constants/routes.js';
+import { PROJECT_PAGES } from '../../src/constants/projectStories.js';
+import { HOME_PATH, BLOG_PATH, READING_LIST_PATH, postPath, projectPath, homeSectionPath } from '../../src/constants/routes.js';
 import { escapeXml, escapeText } from './seo.mjs';
 import { renderMarkdown } from './markdown.mjs';
 import { articleHeadings, MIN_TOC_HEADINGS } from '../../src/utils/articleHeadings.js';
@@ -28,13 +29,34 @@ const tableOfContents = markdown => {
 
 const socialLinks = () => list(SOCIAL_PROFILES.map(profile => link(profile.url, profile.label)));
 
-const featuredProject = project => {
-  const caseStudy = CASE_STUDY_FIELDS
-    .map(([field, label]) => `<dt>${escapeText(label)}</dt><dd>${escapeText(project.caseStudy[field])}</dd>`)
+const caseStudyList = project => `<dl>${CASE_STUDY_FIELDS
+  .map(([field, label]) => `<dt>${escapeText(label)}</dt><dd>${escapeText(project.caseStudy[field])}</dd>`)
+  .join('')}</dl>`;
+
+const featuredProject = project => `<article><h3>${escapeText(project.title)}</h3>${paragraph(project.role)}${paragraph(project.description)}`
+  + `${caseStudyList(project)}${list(project.stats.map(stat => escapeText(stat.text)))}`
+  + `<p>${link(projectPath(project.id), 'Read the full story')} · ${link(project.link, `Visit ${project.title}`)}</p></article>`;
+
+// A featured project's full story, mirroring src/pages/ProjectPage.jsx.
+const projectContent = page => {
+  const { story } = page;
+  const facts = [...page.stats.map(stat => stat.text), ...story.facts];
+  const sections = story.sections
+    .map(section => `<section><h2>${escapeText(section.heading)}</h2>${section.paragraphs.map(paragraph).join('')}</section>`)
     .join('');
-  return `<article><h3>${escapeText(project.title)}</h3>${paragraph(project.role)}${paragraph(project.description)}`
-    + `<dl>${caseStudy}</dl>${list(project.stats.map(stat => escapeText(stat.text)))}`
-    + `<p>${link(project.link, `Visit ${project.title}`)}</p></article>`;
+  const links = [
+    link(page.link, story.linkLabel),
+    story.repo && link(story.repo, 'Source code'),
+  ].filter(Boolean).join(' · ');
+  const others = PROJECT_PAGES.filter(other => other.id !== page.id);
+  return `<article><p>${escapeText(page.role)}</p><h1>${escapeText(page.title)}</h1>${paragraph(story.summary)}`
+    + `<img src="${escapeXml(page.image)}" alt="${escapeXml(page.title)}">`
+    + `<section><h2>Key facts</h2>${list(facts.map(escapeText))}</section>`
+    + `<section><h2>In short</h2>${caseStudyList(page)}</section>`
+    + sections
+    + `<p>${links}</p></article>`
+    + `<nav aria-label="More projects"><h2>More projects</h2>${list(others.map(other => link(other.path, other.title)))}`
+    + `<p>${link(homeSectionPath('projects'), 'All projects')}</p></nav>`;
 };
 
 const directoryItem = item => {
@@ -86,12 +108,14 @@ const homeContent = posts => `<h1>${escapeText(AUTHOR_NAME)}</h1>`
   + `<p>${link(BLOG_PATH, 'All posts')} · ${link(READING_LIST_PATH, 'From My Shelf')}</p></section>`
   + `<section id="contact"><h2>Get In Touch</h2>${socialLinks()}</section>`;
 
-export const prerenderContent = ({ post, posts = [], page = 'home' } = {}) => {
+export const prerenderContent = ({ post, project, posts = [], page = 'home' } = {}) => {
   const navigation = `<nav aria-label="Main navigation">${link(HOME_PATH, 'Home')} ${link(BLOG_PATH, 'Writings')} ${link(READING_LIST_PATH, 'Reading List')}</nav>`;
   let content;
   if (post) {
     const markdown = renderMarkdown(post.body);
     content = `<article><h1>${escapeText(post.title)}</h1><p>By ${escapeText(AUTHOR_NAME)}</p>${tableOfContents(post.body)}${markdown}</article><nav aria-label="More writings"><h2>More writings</h2>${postLinks(posts.filter(item => item.slug !== post.slug))}</nav>`;
+  } else if (project) {
+    content = projectContent(project);
   } else if (page === 'blog') {
     content = `<h1>Writings</h1>${paragraph(BLOG_INDEX_DESCRIPTION)}${postLinks(posts)}`;
   } else if (page === 'reading-list') {

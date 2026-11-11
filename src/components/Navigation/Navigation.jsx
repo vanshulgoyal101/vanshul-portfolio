@@ -270,12 +270,13 @@ const Navigation = () => {
     restDelta: 0.001
   });
 
-  // Scroll-spy applies to the homepage; writing pages highlight Blog and other
-  // routes (shelf aside) highlight nothing.
+  // Scroll-spy applies to the homepage; writing pages (and the shelf) highlight
+  // Blog, project stories highlight Projects and other routes highlight nothing.
   const { pathname } = location;
   const effectiveSection = pathname === '/'
     ? activeSection
-    : /^\/(blog|reading-list)(\/|$)/.test(pathname) ? 'blog' : null;
+    : /^\/(blog|reading-list)(\/|$)/.test(pathname) ? 'blog'
+      : /^\/projects\//.test(pathname) ? 'projects' : null;
 
   // Keep the shared header offset in sync with the actual nav height so
   // native anchor jumps and programmatic scrolls land cleanly below the fixed bar.

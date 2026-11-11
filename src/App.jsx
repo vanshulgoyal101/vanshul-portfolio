@@ -24,6 +24,7 @@ import SiteFooter from './components/SiteFooter';
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 const BlogIndex = lazy(() => import('./pages/BlogIndex'));
 const ReadingListPage = lazy(() => import('./pages/ReadingList'));
+const ProjectPage = lazy(() => import('./pages/ProjectPage'));
 
 // Sections (critical path)
 import Hero from './components/Hero/Hero';
@@ -268,6 +269,9 @@ function App() {
             
             {/* Curated reading list */}
             <Route path="/reading-list" element={<ReadingListPage />} />
+
+            {/* A featured project's full story; unknown ids render the 404 */}
+            <Route path="/projects/:id" element={<ProjectPage />} />
 
             {/* Individual blog post page */}
             <Route path="/blog/:slug" element={<BlogPost />} />

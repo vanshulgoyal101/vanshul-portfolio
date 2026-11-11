@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildSitemap } from './sitemap.mjs';
+import { PROJECT_PAGES } from '../../src/constants/projectStories.js';
 
 const site = 'https://example.com';
 const posts = [
@@ -23,6 +24,23 @@ describe('sitemap/buildSitemap', () => {
 
   it('includes the reading-list page', () => {
     expect(xml).toContain(`<loc>${site}/reading-list/</loc>`);
+  });
+
+  it('includes every project page with its image and no invented lastmod', () => {
+    expect(PROJECT_PAGES.length).toBeGreaterThan(0);
+    for (const project of PROJECT_PAGES) {
+      const entry = xml.match(new RegExp(`<url><loc>${site}${project.path}</loc>.*?</url>`))?.[0];
+      expect(entry).toBeDefined();
+      expect(entry).not.toContain('<lastmod>');
+      expect(entry).toContain(`<image:loc>${site}${project.image}</image:loc>`);
+    }
+  });
+
+  it('builds project entries from the projects passed in', () => {
+    const custom = buildSitemap(posts, { site, projects: [{ id: 'rover', title: 'Rover & Co', image: '/rover.webp?v=1&x=2' }] });
+    expect(custom).toContain(`<loc>${site}/projects/rover/</loc>`);
+    expect(custom).toContain(`<image:loc>${site}/rover.webp?v=1&amp;x=2</image:loc><image:title>Rover &amp; Co</image:title>`);
+    expect(custom).not.toContain('/projects/adbrain/');
   });
 
   it('includes each post that has a slug and drops slug-less entries', () => {

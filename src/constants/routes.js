@@ -12,6 +12,10 @@ export const READING_LIST_PATH = '/reading-list/';
 
 export const postPath = (slug) => `${BLOG_PATH}${slug}/`;
 
+// A featured project's full story. There is no /projects/ index page: the
+// homepage's #projects section is the list.
+export const projectPath = (id) => `/projects/${id}/`;
+
 // In-page section of the homepage, e.g. homeSectionPath('contact') -> '/#contact'.
 export const homeSectionPath = (sectionId) => `${HOME_PATH}#${sectionId}`;
 

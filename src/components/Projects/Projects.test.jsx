@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render as renderInDom, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import Projects from './Projects';
+import { FEATURED_PROJECTS } from '../../constants/projects';
+
+// Story links are router links, so the section renders inside a router.
+const render = (ui) => renderInDom(ui, { wrapper: MemoryRouter });
 
 describe('Projects', () => {
   it('renders the section heading', () => {
@@ -27,14 +32,16 @@ describe('Projects', () => {
     expect(screen.getByRole('img', { name: 'AdBrain', exact: true })).toHaveAttribute('src', '/images/projects/adbrain.webp?v=99a19eb');
   });
 
-  it('provides a case study for each featured project and keeps the directory secondary', () => {
+  it('links each featured project to its full story and keeps the directory secondary', () => {
     const { container } = render(<Projects />);
-    const studies = [...container.querySelectorAll('details')].filter(detail => detail.querySelector('dl'));
-    expect(studies).toHaveLength(3);
-    for (const study of studies) {
-      expect(study.querySelectorAll('dt')).toHaveLength(4);
-      expect(study.querySelector('summary')).toHaveTextContent('Read case study');
+    for (const project of FEATURED_PROJECTS) {
+      const link = screen.getByRole('link', { name: `Read the full story: ${project.title}` });
+      expect(link).toHaveAttribute('href', `/projects/${project.id}/`);
+      expect(link).toHaveTextContent('Read the full story');
+      expect(link).not.toHaveAttribute('target');
     }
+    // The case study now lives on the project page, not in a card disclosure.
+    expect([...container.querySelectorAll('details')].filter(detail => detail.querySelector('dl'))).toHaveLength(0);
     expect(screen.getByRole('region', { name: "More things I've built" })).not.toHaveAttribute('open');
   });
 

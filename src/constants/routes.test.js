@@ -4,6 +4,7 @@ import {
   BLOG_PATH,
   READING_LIST_PATH,
   postPath,
+  projectPath,
   homeSectionPath,
   absoluteUrl,
 } from './routes';
@@ -11,7 +12,7 @@ import { SITE_URL } from './siteConfig';
 
 describe('routes', () => {
   it('uses trailing-slash paths for every prerendered directory route', () => {
-    for (const path of [BLOG_PATH, READING_LIST_PATH, postPath('a-post')]) {
+    for (const path of [BLOG_PATH, READING_LIST_PATH, postPath('a-post'), projectPath('nasa-herc')]) {
       expect(path).toMatch(/^\/[a-z0-9/-]+\/$/);
     }
     expect(HOME_PATH).toBe('/');
@@ -19,6 +20,10 @@ describe('routes', () => {
 
   it('builds post paths under the blog path', () => {
     expect(postPath('the-new-leverage')).toBe('/blog/the-new-leverage/');
+  });
+
+  it('builds project story paths', () => {
+    expect(projectPath('nasa-herc')).toBe('/projects/nasa-herc/');
   });
 
   it('builds homepage section links', () => {

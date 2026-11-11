@@ -86,6 +86,38 @@ export const postJsonLd = (post, { site, authorName, authorSameAs }) => {
 };
 
 /**
+ * JSON-LD for a featured project's page: a WebPage about the project, written
+ * by the site's Person (referenced by @id), plus a Home → project breadcrumb.
+ * The page is not a ProfilePage or an Article: it carries no publication date
+ * and describes a project, not the person.
+ * @param {ReturnType<typeof import('../../src/constants/projectStories.js').getProjectPage>} page
+ * @param {SeoIdentity} identity
+ * @returns {object[]}
+ */
+export const projectJsonLd = (page, { site, authorName }) => {
+  const canonical = absoluteUrl(page.path, site);
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': `${canonical}#webpage`,
+      url: canonical,
+      name: page.title,
+      description: page.story.description,
+      inLanguage: 'en',
+      isPartOf: { '@type': 'WebSite', '@id': websiteId(site) },
+      author: { '@type': 'Person', '@id': personId(site), name: authorName, url: site },
+      primaryImageOfPage: { '@type': 'ImageObject', url: `${site}${page.image}` },
+      about: page.story.about,
+    },
+    breadcrumbList([
+      ['Home', absoluteUrl(HOME_PATH, site)],
+      [page.title, canonical],
+    ]),
+  ];
+};
+
+/**
  * JSON-LD for the homepage only: the WebSite, the Person it is about and the
  * ProfilePage describing them. Other pages reference the Person by `@id`
  * instead of repeating a ProfilePage that would claim to be the homepage.

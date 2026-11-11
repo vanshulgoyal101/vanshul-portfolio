@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Generates public/sitemap.xml from the blog markdown files so search engines
- * can discover the homepage, the /blog hub, and every post. Runs automatically
+ * can discover the homepage, the /blog hub, the reading list, the project
+ * pages and every post. Runs automatically
  * before `npm run build` via the `prebuild` script. The XML shape lives in
  * scripts/lib/sitemap.mjs (pure + unit-tested); this file just does I/O.
  */
@@ -11,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { SITE_URL as SITE } from '../src/constants/siteConfig.js';
 import { readPosts } from './lib/seo.mjs';
 import { buildSitemap } from './lib/sitemap.mjs';
+import { PROJECT_PAGES } from '../src/constants/projectStories.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const blogsDir = join(root, 'src', 'blogs');
@@ -21,6 +23,6 @@ const xml = buildSitemap(posts, { site: SITE });
 
 writeFileSync(join(root, 'public', 'sitemap.xml'), xml);
 console.log(
-  `Wrote public/sitemap.xml with ${posts.length + 3} URLs (${posts.length} posts + home + /blog + /reading-list).`,
+  `Wrote public/sitemap.xml with ${posts.length + PROJECT_PAGES.length + 3} URLs (${posts.length} posts + ${PROJECT_PAGES.length} projects + home + /blog + /reading-list).`,
 );
 

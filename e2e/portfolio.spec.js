@@ -19,7 +19,7 @@ test.beforeEach(async ({ page }, testInfo) => {
   });
 });
 
-test('published writing and shelf remain readable without JavaScript', async ({ browser }, testInfo) => {
+test('published writing, shelf and project stories remain readable without JavaScript', async ({ browser }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop', 'Static document contract');
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
@@ -34,6 +34,10 @@ test('published writing and shelf remain readable without JavaScript', async ({ 
     await page.getByRole('link', { name: 'Reading List', exact: true }).click();
     await expect(page.locator('#books li')).toHaveCount(BOOKS.length);
     await expect(page.locator('#essays li')).toHaveCount(ESSAYS.length);
+    await page.goto(`${origin}/`);
+    await page.locator('#projects a[href="/projects/nasa-herc/"]').click();
+    await expect(page.getByRole('heading', { level: 1, name: 'NASA Human Exploration Rover Challenge' })).toBeVisible();
+    expect(await page.locator('main').innerText()).toContain('Top 20');
   } finally {
     await context.close();
   }
@@ -235,13 +239,32 @@ test('featured images fill consistent frames without changing on hover', async (
   await expect(mark).toHaveCSS('object-fit', 'contain');
 });
 
-test('case studies expand and the project directory supports pointer and keyboard disclosure', async ({ page }, testInfo) => {
+test('project cards open their full stories from the keyboard', async ({ page }, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await visit(page, '/');
-  await page.getByLabel('Read case study: AdBrain', { exact: true }).click();
-  const study = page.locator('details').filter({ has: page.getByLabel('Read case study: AdBrain', { exact: true }) });
-  await expect(study).toHaveAttribute('open', '');
-  await expect(study.getByText('Engineering decision')).toBeVisible();
+  for (const project of FEATURED_PROJECTS) {
+    await expect(page.getByRole('link', { name: `Read the full story: ${project.title}`, exact: true })).toHaveAttribute('href', `/projects/${project.id}/`);
+  }
+  await page.getByRole('link', { name: 'Read the full story: AdBrain', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/projects\/adbrain\/$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'AdBrain' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'In short' }).getByText('Engineering decision')).toBeVisible();
+  if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Toggle mobile menu' }).click();
+  await expect(page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Projects', exact: true })).toHaveAttribute('aria-current', 'true');
+  if (testInfo.project.name === 'mobile') await page.keyboard.press('Escape');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.getByRole('navigation', { name: 'More projects' }).getByRole('link', { name: /NASA Human Exploration Rover Challenge/ }).click();
+  await expect(page).toHaveURL(/\/projects\/nasa-herc\/$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'NASA Human Exploration Rover Challenge' })).toBeVisible();
+  await page.getByRole('link', { name: 'All projects', exact: true }).click();
+  await expect(page).toHaveURL(/\/#projects$/);
+  await expect(page.locator('#projects h2')).toBeFocused();
+});
+
+test('the project directory supports pointer and keyboard disclosure', async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await visit(page, '/');
   const directory = page.getByRole('region', { name: "More things I've built" });
   const summary = directory.locator('summary');
   await expect(directory).not.toHaveAttribute('open');

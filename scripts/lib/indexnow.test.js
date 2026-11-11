@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildSitemap } from './sitemap.mjs';
 import { INDEXNOW_KEY, changedUrls, indexNowPayload, sitemapEntries } from './indexnow.mjs';
+import { PROJECT_PAGES } from '../../src/constants/projectStories.js';
 
 const site = 'https://example.com';
 const posts = [
@@ -18,6 +19,7 @@ describe('indexnow/sitemapEntries', () => {
       [`${site}/`, '2025-08-27'],
       [`${site}/blog/`, '2025-08-27'],
       [`${site}/reading-list/`, ''],
+      ...PROJECT_PAGES.map((project) => [`${site}${project.path}`, '']),
       [`${site}/blog/newer/`, '2025-08-27'],
       [`${site}/blog/older/`, '2025-01-01'],
     ]);

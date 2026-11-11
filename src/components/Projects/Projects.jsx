@@ -1,6 +1,7 @@
 // src/components/Projects/Projects.jsx
-import { Fragment, useState } from 'react';
-import styled from 'styled-components';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import styled, { css } from 'styled-components';
 import { motion } from 'framer-motion';
 import {
   FaRocket, FaCode, FaGithub, FaSun, FaPuzzlePiece, FaTools, FaBrain, FaLock, FaEnvelope,
@@ -10,9 +11,10 @@ import {
 import { MdGroups } from 'react-icons/md';
 import { BiMoney } from 'react-icons/bi';
 import { IoGameController } from 'react-icons/io5';
-import { HiArrowUpRight, HiChevronDown } from 'react-icons/hi2';
+import { HiArrowRight, HiArrowUpRight, HiChevronDown } from 'react-icons/hi2';
 import SectionHeader from '../ui/SectionHeader';
-import { FEATURED_PROJECTS, PROJECT_DIRECTORY, CASE_STUDY_FIELDS } from '../../constants/projects';
+import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../../constants/projects';
+import { projectPath } from '../../constants/routes';
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
@@ -163,72 +165,9 @@ const StatItem = styled.li`
   }
 `;
 
-const CaseStudy = styled.details`
-  border-top: 1px solid var(--color-border);
-
-  summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 48px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--color-ink);
-    list-style: none;
-    cursor: pointer;
-  }
-
-  summary::-webkit-details-marker {
-    display: none;
-  }
-
-  summary svg {
-    color: var(--color-text-muted);
-    transition: transform var(--duration-base) var(--ease-out);
-  }
-
-  &[open] summary svg {
-    transform: rotate(180deg);
-  }
-
-  summary:hover {
-    color: var(--color-accent-primary);
-  }
-
-  summary:focus-visible {
-    outline: 3px solid var(--color-accent-primary);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  dl {
-    padding-bottom: 1rem;
-  }
-
-  dt {
-    margin-top: 1rem;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
-  }
-
-  dt:first-child {
-    margin-top: 0.25rem;
-  }
-
-  dd {
-    margin-top: 0.375rem;
-    font-size: 0.9375rem;
-    line-height: 1.6;
-    color: var(--color-text-secondary);
-  }
-`;
-
-const ProjectLink = styled.a`
+// The card's two exits share one row style: the full story on this site, then
+// the project itself.
+const cardLink = css`
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
@@ -239,20 +178,38 @@ const ProjectLink = styled.a`
   width: 100%;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-accent-primary);
 
   svg {
     transition: transform var(--duration-fast) var(--ease-out);
-  }
-
-  &:hover svg {
-    transform: translate(2px, -2px);
   }
 
   &:focus-visible {
     outline: 3px solid var(--color-accent-primary);
     outline-offset: 2px;
     border-radius: 4px;
+  }
+`;
+
+const StoryLink = styled(Link)`
+  ${cardLink}
+  color: var(--color-ink);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent-primary);
+  }
+
+  &:hover svg {
+    transform: translateX(3px);
+  }
+`;
+
+const ProjectLink = styled.a`
+  ${cardLink}
+  color: var(--color-accent-primary);
+
+  &:hover svg {
+    transform: translate(2px, -2px);
   }
 `;
 
@@ -525,20 +482,10 @@ const Projects = () => (
                 ))}
               </ProjectStats>
 
-              <CaseStudy>
-                <summary aria-label={`Read case study: ${project.title}`}>
-                  Read case study
-                  <HiChevronDown aria-hidden="true" />
-                </summary>
-                <dl>
-                  {CASE_STUDY_FIELDS.map(([field, label]) => (
-                    <Fragment key={field}>
-                      <dt>{label}</dt>
-                      <dd>{project.caseStudy[field]}</dd>
-                    </Fragment>
-                  ))}
-                </dl>
-              </CaseStudy>
+              <StoryLink to={projectPath(project.id)} aria-label={`Read the full story: ${project.title}`}>
+                Read the full story
+                <HiArrowRight aria-hidden="true" />
+              </StoryLink>
 
               <ProjectLink href={project.link} target="_blank" rel="noopener noreferrer">
                 Visit Website

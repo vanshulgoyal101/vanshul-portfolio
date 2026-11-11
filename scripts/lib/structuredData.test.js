@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { postJsonLd, blogIndexJsonLd, breadcrumbList, homeJsonLd } from './structuredData.mjs';
+import { postJsonLd, blogIndexJsonLd, breadcrumbList, homeJsonLd, projectJsonLd } from './structuredData.mjs';
+import { PROJECT_PAGES } from '../../src/constants/projectStories.js';
 import { PROFILE } from '../../src/constants/profile.js';
 
 const identity = {
@@ -188,5 +189,34 @@ describe('structuredData/homeJsonLd', () => {
     expect(page.url).toBe('https://example.com/');
     expect(page.mainEntity).toEqual({ '@id': 'https://example.com/#person' });
     expect(page.isPartOf).toEqual({ '@id': 'https://example.com/#website' });
+  });
+});
+
+describe('structuredData/projectJsonLd', () => {
+  it.each(PROJECT_PAGES.map((page) => [page.id, page]))('describes %s as a WebPage with a Home breadcrumb', (_id, page) => {
+    const [webPage, crumbs] = projectJsonLd(page, identity);
+    const canonical = `https://example.com/projects/${page.id}/`;
+    expect(webPage).toMatchObject({
+      '@type': 'WebPage',
+      '@id': `${canonical}#webpage`,
+      url: canonical,
+      name: page.title,
+      description: page.story.description,
+      isPartOf: { '@id': 'https://example.com/#website' },
+      author: { '@id': 'https://example.com/#person', name: 'Jane Doe' },
+      primaryImageOfPage: { '@type': 'ImageObject', url: `https://example.com${page.image}` },
+    });
+    expect(webPage.about).toEqual(page.story.about);
+    expect(webPage.about.name).toBeTruthy();
+    expect(crumbs['@type']).toBe('BreadcrumbList');
+    expect(crumbs.itemListElement.map((item) => [item.name, item.item])).toEqual([
+      ['Home', 'https://example.com/'],
+      [page.title, canonical],
+    ]);
+  });
+
+  it('never claims a publication date or a profile page', () => {
+    const json = JSON.stringify(PROJECT_PAGES.map((page) => projectJsonLd(page, identity)));
+    expect(json).not.toMatch(/datePublished|dateModified|ProfilePage|BlogPosting/);
   });
 });
