@@ -102,7 +102,6 @@ const BlogIndex = () => {
   useEffect(() => {
     if (!query.trim() || fullPosts) return;
     let active = true;
-    setSearchError(false);
     import('../utils/blogPostLoader')
       .then(module => module.loadFullBlogPosts())
       .then(loaded => {
@@ -124,6 +123,7 @@ const BlogIndex = () => {
   const reset = () => {
     setQuery('');
     setCategory('');
+    setSearchError(false);
     searchRef.current?.focus();
   };
 
@@ -155,7 +155,10 @@ const BlogIndex = () => {
       <Filters role="search" aria-label="Search writings">
         <label>
           Search writings
-          <input ref={searchRef} type="search" value={query} onChange={event => setQuery(event.target.value)}
+          <input ref={searchRef} type="search" value={query} onChange={event => {
+            setQuery(event.target.value);
+            setSearchError(false);
+          }}
             placeholder="Search titles, topics, or article text" aria-describedby="archive-results" />
         </label>
         <label>

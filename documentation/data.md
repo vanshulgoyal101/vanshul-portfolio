@@ -81,15 +81,16 @@ Body content in Markdown…
 | `slug`     | string | Required. Must match the filename; lowercase kebab-case, at most 120 characters, unique. Drives the URL and is the post's identity. |
 | `summary`  | string | Required. Card, archive and article dek; the meta description. |
 | `date`     | string | Required. Publication date as `27 Aug, 2025` (also accepts `2025-08-27`, full month names and no comma). A calendar date in India Standard Time; see below. Displayed by `formatPostDate` as `27 Aug 2025` (`27 Aug` in the archive, under its year heading). |
-| `readTime` | string | Required. e.g. `"4 min read"`. Displayed as-is; its number becomes the JSON-LD `timeRequired`. |
+| `readTime` | string | Required. A positive integer without leading zeroes followed by `" min read"`, e.g. `"4 min read"`. Displayed as-is; its number becomes the JSON-LD `timeRequired`. |
 | `updated`  | string | Optional. The date of the last meaningful revision, in the same formats as `date`; it may not be earlier than `date`. Becomes the JSON-LD `dateModified`, `article:modified_time`, the post's sitemap `<lastmod>` (and the homepage and archive `<lastmod>` when it is the latest change) and an "Updated <date>" note in the byline. Without it, all of these use `date`. Leave it alone for typo fixes. |
 | `category` | string | Optional. Article eyebrow, related-post grouping, archive row facts, feed `<category>`, `article:section`, JSON-LD `articleSection` and `keywords`, and the per-post social card label. |
 | `tags`     | string | Optional comma-separated list (no post uses it yet). Added to the JSON-LD `keywords` after the category and emitted as `article:tag` meta tags, both in the prerendered article and by `useSeo` at runtime. |
 
-The content tests (`src/blogs/blogContent.test.js`) require `title`, `slug`,
-`summary`, `date` and `readTime` on every post. The build's post reader fails
-on a missing title, an invalid or duplicate slug, an invalid date, or an
-`updated` date that is invalid or earlier than `date`. Each frontmatter line is
+The shared validator in [`postContent.js`](../src/utils/postContent.js) requires
+non-empty `title`, `slug`, `summary`, `date`, `readTime` and body; a filename-matching,
+URL-safe slug; real dates with `updated` on or after publication; and valid read
+time. Both the build reader and full-article loader use it, so invalid content
+fails explicitly instead of creating a partial archive. Each frontmatter line is
 split at its first colon, values stay strings and one pair of matching
 surrounding quotes is removed; YAML features such as lists or multi-line values
 are not supported (see [Loading & parsing](#loading--parsing)).
@@ -129,6 +130,8 @@ suffixes for repeats. For example `## The counter-force` becomes
   the static HTML (both are a `nav` labelled "Table of contents").
 - Renaming a heading changes its anchor and breaks existing deep links to that
   section.
+- Every generated ID is checked against earlier IDs, including literal suffix
+  names such as "Notes 1". Duplicate headings cannot steal a later deep link.
 
 ### Loading & parsing
 
@@ -145,8 +148,9 @@ carry every article:
   `import.meta.glob('../blogs/*.md', { query: '?raw', import: 'default', eager: true })`
   inlines every post's raw markdown; `loadFullBlogPosts()` returns
   `{ ...frontmatter, content, filename }` (parsed once, cached) and
-  `loadBlogBySlug(slug)` one post or `null`. Only the lazy article page
-  imports it. Before this split, six more posts pushed the homepage past the
+  `loadBlogBySlug(slug)` one post or `null`. The lazy article page imports it,
+  and archive search dynamically imports it for the first text query. Before
+  this split, six more posts pushed the homepage past the
   first-load budget; the split cut it from 217.8 KB to 191.4 KB.
 - `parseFrontmatter(markdown)` from
   [`src/utils/frontmatter.js`](../src/utils/frontmatter.js) returns
@@ -168,6 +172,23 @@ carry every article:
 - `groupPostsByYear(posts)` splits newest-first posts into
   `{ year, posts }` groups for the archive (`Undated` for posts without a
   valid date).
+
+### Archive search
+
+The archive searches title, summary, category, tags and body locally. Matching is
+literal, case/accent-insensitive and requires every whitespace-separated query
+word; the topic filter matches an exact category. Publication order and year
+groups remain unchanged. The metadata-only archive and topic filter do not
+download article bodies. A text query loads the existing lazy body module, with
+an announced pending state rather than incomplete results. A failed import logs
+the cause and shows a visible error, reload link and clear-to-browse recovery.
+Clearing or unmounting ignores late results. Loaded bodies are cached.
+
+Search state stays in component memory: no query URLs, persistence, tracking
+or search backend. Canonical and structured data still describe the complete
+archive, and static HTML remains complete without inert search controls.
+Clear resets both filters and focuses search. Tests cover body-only matches,
+failure recovery, pending/late results, keyboard behavior and exact 320px bounds.
 
 ### Rendering
 

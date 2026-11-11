@@ -91,17 +91,24 @@
 
 ## Engineering (✅)
 
-- ✅ React 19 + Vite 7, styled-components, react-icons.
+- ✅ React 19 + Vite 8, styled-components, react-icons.
 - ✅ **Vitest 5 + React Testing Library**, isolated SQL authorization tests,
   desktop/mobile Playwright interaction and canvas checks, axe accessibility scans.
 - ✅ Verified database TLS, least-privilege schema grants, DNT/GPC privacy gates,
   sanitized analytics URLs and shared build/runtime article structured data.
 - ✅ **Auto-deploy** to GitHub Pages on push to `main`, only after the audit,
   lint, unit, build, build-verification and browser gates pass in CI.
+- ✅ Local full-text archive search and topic filtering with announced loading,
+  results, visible failures and recovery. Article bodies load only for a text
+  query; the complete static archive remains readable without JavaScript.
+- ✅ Shared build/article publishing validation, literal metadata replacements,
+  substantive revision dates and collision-free heading anchors.
+- ✅ Enforced frontend/build-helper coverage floors, generated metadata/fragment
+  checks, configuration validation, CSP/referrer policy and stamped live smoke.
 
 ## Proposed / potential 🔜
 
-- Smaller first load: Framer Motion is 45 KB of the 200 KB the heaviest page
+- Smaller first load: the Framer chunk is about 54 KB of the 173.2 KB the heaviest page
   loads up front. Switching to `LazyMotion` with `m.*` components would defer most of it,
   but touches every animated component, so it waits for a dedicated pass with
   browser verification of each animation.

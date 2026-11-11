@@ -55,12 +55,13 @@ required. Dashboard tests cover promise rejections and out-of-order responses.
 
 ### November 2026 coverage baseline
 
-Vitest 5.1: 775 tests in 85 files, 97.56% lines, 93.67% branches, 97.61%
-functions and 96.89% statements (`npm run test:coverage`, including build helpers).
+Vitest 5.1: 827 tests in 90 files, 97.63% lines, 93.67% branches, 97.62%
+functions and 96.94% statements (`npm run test:coverage`, including build helpers).
 The prior 614-test snapshot had 97.02% lines and 92.56% branches. Earlier the same
 month it was 487 tests, 85.95% lines and 79.70% branches; in September 2026,
 401 tests, 64.93% lines and 65.51% branches. The latest baseline adds shared
-publishing/revision contracts, archive search, stable motion mocks and performance
+publishing/revision contracts, deferred full-text archive search, project stories,
+IndexNow, stable motion mocks and performance
 regressions on top of the intro gate and deep links in `App`, the decorative
 layers' timing, input and cleanup, navigation keyboard and viewport behaviour,
 post sharing, dashboard states, the route error fallback and build-helper corner
@@ -123,8 +124,8 @@ article's JSON-LD `datePublished`/`dateModified` must equal its
 `article:published_time`/`article:modified_time` (modified never before
 published). Finally, the gzipped JS and CSS a page loads up front (entry
 script, module preloads and stylesheets) must stay within
-`FIRST_LOAD_BUDGET_KB` (205 KB; every page measured 187 KB earlier in
-November 2026 and 200.0 KB after the project pages were added),
+`FIRST_LOAD_BUDGET_KB` (205 KB; the heaviest page measured 173.2 KB after
+the lazy-homepage and metadata-index integration in November 2026),
 so an accidental heavy import fails the build. It also requires the IndexNow
 key file at the root of `dist/`. Playwright
 starts a production preview on port 4327 and tests desktop and mobile Chromium.

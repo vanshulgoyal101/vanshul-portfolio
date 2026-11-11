@@ -21,8 +21,8 @@ credentials line beyond "Associate Analyst at United Airlines".
 - Routes: `/` (portfolio), `/blog/` (archive), `/blog/:slug` (article),
   `/reading-list/`, `/projects/:id` (a featured project's story; unknown ids
   render the noindex 404), `/dashboard` (private), `/blogs` and `/blogs/:slug`
-  (redirect aliases) and `*` (noindex 404). Long-form pages, project stories
-  and the dashboard are lazy-loaded. React Router matches each path with or without the
+  (redirect aliases) and `*` (noindex 404). Long-form pages, project stories,
+  the homepage and the dashboard are lazy-loaded. React Router matches each path with or without the
   trailing slash.
 - While a lazy page loads, `PageLoading` (a `role="status"` "Loading page..."
   block, 70vh tall so the footer does not jump) fills the page. Every lazy
@@ -34,10 +34,10 @@ credentials line beyond "Associate Analyst at United Airlines".
 - All routes sit inside `RouteBoundary`: an `ErrorBoundary` whose fallback is
   `RouteError` and whose `resetKey` is the pathname, so navigating anywhere
   else clears a failed page. Each homepage section has its own boundary.
-- `HomeMetadata` sets the homepage title, description, canonical and the
+- `HomeMetadata` in `pages/Home.jsx` sets the homepage title, description, canonical and the
   homepage-only JSON-LD graph through `useSeo`.
 - `ScrollToHash` scrolls to `#section` targets after the boot loader and fonts
-  are ready.
+  are ready and the lazy route has committed.
 - `IdleBackground` lazy-loads the rocket, smoke, telemetry and starfield after
   the browser is idle (`useIdle(1200)`), only once the boot loader has
   finished, ambient motion is enabled and the visitor has not asked for
@@ -67,8 +67,9 @@ a numbered mono eyebrow inside a centred h2, followed by a lede.
   h1. Centred at 768px and below; stacked 280px buttons at 480px and below.
   These are e2e contracts.
 - `HeroScene.jsx` (lazy) mounts the three.js sculpture (`FloatingShape.jsx`)
-  only on desktop (≥1025px), after the boot loader and browser idle, without
-  reduced motion. It pauses rendering when off-screen or when the tab is
+  only on desktop (≥1025px), after the boot loader and browser idle, when its
+  reserved area enters the viewport and without reduced motion. It pauses
+  rendering when off-screen or when the tab is
   hidden. `FloatingShape` is a gradient torus knot with a wireframe overlay
   and two rings; visitors can drag to rotate it (`OrbitControls`, no zoom or
   pan).

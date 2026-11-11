@@ -78,7 +78,7 @@ No forced runtime override is needed.
 
 1. **build** (ubuntu-latest, Node `lts/*` with the npm download cache):
    checkout → `npm ci` → `npm audit --audit-level=moderate` → `npm run lint` →
-   `npm test` → `npm run build` (with the `VITE_SUPABASE_URL`,
+   `npm run test:coverage` → `npm run build` (with the `VITE_SUPABASE_URL`,
    `VITE_SUPABASE_ANON_KEY` and `VITE_GOATCOUNTER_CODE` repository secrets) →
    `npm run verify:build` → on `main`, `node scripts/indexnow-plan.mjs` →
    `npx playwright install --with-deps chromium` → `npm run test:e2e` →
@@ -105,13 +105,35 @@ npm run check
 ```
 
 `npm run check` runs `npm audit --audit-level=moderate`, `npm run lint`,
-`npm test`, `npm run build`, `npm run verify:build` and `npm run test:e2e`, and
+`npm run test:coverage`, `npm run build`, `npm run verify:build` and `npm run test:e2e`, and
 stops at the first failure. A local build reads `.env`; the CI build uses the
 repository secrets.
 
 The prebuild sitemap generator (`scripts/generate-sitemap.mjs`) is the only
 sitemap source. Postbuild creates the page shells and the separate family
 sitemap index.
+
+### Live smoke and release identity
+
+Every built page carries one `build-commit` meta stamp (`GITHUB_SHA` in CI,
+local HEAD otherwise). The verifier checks the stamp and final assets.
+[`live-smoke.yml`](../.github/workflows/live-smoke.yml) checks the live site
+after a successful main deploy and daily at 04:23 UTC. It validates published
+routes, metadata, assets, social images, feed and 404 behavior without
+authentication, database writes or contact submissions.
+
+The post-deploy check waits up to 15 minutes for the expected commit; if main
+has advanced, the newer release owns the check and the old run is skipped.
+Daily checks require main's current commit, exposing deployment drift.
+For a manual read-only check:
+
+```bash
+node scripts/smoke-live.mjs --expect <full-commit-sha> --wait-minutes 15
+```
+
+GitHub Pages is static hosting; use the documented meta CSP/referrer policy,
+not unsupported server-header configuration. Live smoke does not prove email
+delivery, deployed grants, OAuth configuration or search indexing.
 
 ### Legacy Branch Deployment
 `npm run deploy` builds (`predeploy`) and pushes `dist/` to the `gh-pages`
@@ -336,7 +358,7 @@ Search Console (see [seo.md](seo.md#owner-operations-and-limitations)).
 
 Every public route is first served from a prerendered file with its own
 metadata (next section). After React starts, the
-[`useSeo`](../src/hooks/useSeo.js) hook (used by `HomeMetadata` in `App.jsx`
+[`useSeo`](../src/hooks/useSeo.js) hook (used by `HomeMetadata` in `pages/Home.jsx`
 and by every page) updates the document head for the current route and
 restores the previous values when the route unmounts. For a post it sets:
 

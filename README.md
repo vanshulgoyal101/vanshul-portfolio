@@ -15,7 +15,7 @@ GitHub Pages at [vanshul.com](https://vanshul.com).
 | Build tool  | Vite 8 |
 | Routing     | react-router-dom 7 |
 | Styling     | styled-components 6 (CSS-in-JS) + CSS custom properties |
-| Animation   | Framer Motion 12 |
+| Animation   | Framer Motion 14 |
 | 3D graphics | three.js, @react-three/fiber, @react-three/drei |
 | Markdown    | react-markdown (frontmatter parsed by a small in-house parser) |
 | Icons       | react-icons |
@@ -56,7 +56,7 @@ A `Makefile` provides shortcuts (`make dev`, `make build`, `make preview`,
 
 ```
 src/
-  App.jsx              # Router, page composition, homepage metadata
+  App.jsx              # Router and shared page shell; lazy Home owns sections/metadata
   main.jsx             # React entry point
   index.css            # Reset, global focus ring, custom-cursor and print rules
   blogs/               # Markdown blog posts (one file per post)
@@ -66,9 +66,9 @@ src/
                        # Analytics, ui/ primitives, FunElements/ (decorative)
   constants/           # Content and config data modules (site, profile,
                        # projects, experience, books, blog copy, routes)
-  hooks/               # useSeo, useBlogViews, useContactForm, useIdle
+  hooks/               # useSeo, useBlogViews, useContactForm, useIdle, useAwayTitle, useKonamiCode
   lib/                 # Supabase clients (view counts, private analytics)
-  pages/               # BlogIndex, BlogPost, ReadingList, ProjectPage,
+  pages/               # Home, BlogIndex, BlogPost, ReadingList, ProjectPage,
                        # Dashboard, NotFound
   styles/              # GlobalStyles (design tokens, element defaults)
   test/                # Vitest setup
@@ -88,7 +88,7 @@ architecture, components, hooks, data/blog system, styling, assets, testing,
 configuration, deployment, accessibility, SEO, analytics and the homepage
 contracts.
 Start with the [capability catalog](FEATURES.md) and the
-[September audit](documentation/audit-2026-09.md) for verified changes and
+[November audit](documentation/audit-2026-11.md) for current verified changes and
 operational limitations. Push validated changes to `main` for deployment;
 the legacy `npm run deploy` command bypasses the release gates and does not
 update the live site, which GitHub Pages serves from the Actions workflow
