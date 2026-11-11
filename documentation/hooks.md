@@ -34,12 +34,13 @@ site's Formspree form (`https://formspree.io/f/xgvzkqob`).
 - `handleSubmit` calls `preventDefault` and validates all three fields on
   trimmed values: each is required and the email must look like an address.
   If any field is invalid it sets `errors`, moves focus to the first invalid
-  field (name, then email, then message) and shows a "Missing details" error
-  toast without sending anything.
+  field (name, then email, then message) and shows a "Not quite ready for
+  launch" error toast without sending anything.
 - A valid form POSTs JSON with the trimmed fields plus `_replyto` (the email)
   and `_subject` (`Portfolio Contact: <name>`). Success shows a "Message
-  Sent!" toast and resets the form; an error response or a network failure
-  shows an error toast and keeps the entered values so the user can retry.
+  launched 🚀" toast and resets the form; an error response ("Houston, we have
+  a problem") or a network failure ("Lost signal") shows an error toast and
+  keeps the entered values so the user can retry.
 - An in-flight ref prevents duplicate requests before React renders the disabled
   button. Unmount aborts the client request and suppresses late toasts/state updates.
   Aborting the client does not guarantee a message already received by the server
@@ -121,6 +122,37 @@ return <Suspense fallback={null}>{/* heavy decorative elements */}</Suspense>;
 
 Implementation: uses `requestIdleCallback` when available (with a `timeout`
 fallback), otherwise `setTimeout`; cleans up on unmount.
+
+---
+
+## useKonamiCode
+
+**Location**: [`src/hooks/useKonamiCode.js`](../src/hooks/useKonamiCode.js)
+
+```javascript
+useKonamiCode(() => showInfo('Cheat code accepted 🎮'));
+```
+
+Calls the callback each time ↑ ↑ ↓ ↓ ← → ← → B A (`KONAMI_SEQUENCE`) is typed,
+matching the last ten keys case-insensitively. Keys pressed with Ctrl, Meta or
+Alt, or inside inputs, textareas, selects and editable content, are ignored.
+It never calls `preventDefault`, so the arrows still scroll. The latest
+callback is always used; the window listener is removed on unmount.
+
+---
+
+## useAwayTitle
+
+**Location**: [`src/hooks/useAwayTitle.js`](../src/hooks/useAwayTitle.js)
+
+```javascript
+useAwayTitle(); // defaults to AWAY_TITLES from constants/wit.js
+```
+
+On `visibilitychange` to hidden, saves `document.title` and sets a random away
+title. On return it restores the saved title, but only if the away title is
+still showing, so a title set meanwhile (by `useSeo` on a route change) is kept.
+Unmounting removes the listener and restores the title the same way.
 
 ---
 

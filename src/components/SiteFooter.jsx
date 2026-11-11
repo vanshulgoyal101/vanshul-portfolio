@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { HiOutlineAdjustments } from 'react-icons/hi';
 import CursorToggle from './CursorToggle';
 import { BLOG_PATH, homeSectionPath } from '../constants/routes';
 import { SOCIAL_LINKS } from '../constants/siteConfig';
+import { FOOTER_QUIPS } from '../constants/wit';
+import { pickRandom } from '../utils/pickRandom';
 
 const Footer = styled.footer`
   position: relative;
@@ -64,9 +67,16 @@ const Identity = styled.div`
   }
 `;
 
+const Quip = styled.p`
+  flex-basis: 100%;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+`;
+
 const Links = styled.nav`
   display: flex;
   flex-wrap: wrap;
+  align-self: start;
   gap: 0 1.75rem;
 `;
 
@@ -132,33 +142,37 @@ const Preferences = styled.details`
   }
 `;
 
-const SiteFooter = ({ ambientEnabled, reducedMotion, onAmbientChange }) => (
-  <Footer>
-    <Inner>
-      <Identity>
-        <Link to={homeSectionPath('home')}>Vanshul Goyal</Link>
-        <span>&copy; {new Date().getFullYear()} · vanshul.com</span>
-      </Identity>
-      <Links aria-label="Footer links">
-        <Link to={BLOG_PATH}>Blog</Link>
-        <a href={SOCIAL_LINKS.games} target="_blank" rel="noopener noreferrer">Games</a>
-        <a href={SOCIAL_LINKS.links} target="_blank" rel="noopener noreferrer">Links</a>
-        <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-      </Links>
-      <Preferences onToggle={event => {
-        if (event.currentTarget.open) event.currentTarget.scrollIntoView({ block: 'nearest', behavior: 'instant' });
-      }}>
-        <summary><HiOutlineAdjustments aria-hidden="true" />Display settings</summary>
-        <div>
-          <CursorToggle />
-          <label title={reducedMotion ? 'Disabled by your reduced-motion preference' : undefined}>
-            Ambient motion
-            <input type="checkbox" role="switch" checked={ambientEnabled && !reducedMotion} disabled={Boolean(reducedMotion)} onChange={event => onAmbientChange(event.target.checked)} />
-          </label>
-        </div>
-      </Preferences>
-    </Inner>
-  </Footer>
-);
+const SiteFooter = ({ ambientEnabled, reducedMotion, onAmbientChange }) => {
+  const [quip] = useState(() => pickRandom(FOOTER_QUIPS));
+  return (
+    <Footer>
+      <Inner>
+        <Identity>
+          <Link to={homeSectionPath('home')}>Vanshul Goyal</Link>
+          <span>&copy; {new Date().getFullYear()} · vanshul.com</span>
+          <Quip data-footer-quip>{quip}</Quip>
+        </Identity>
+        <Links aria-label="Footer links">
+          <Link to={BLOG_PATH}>Blog</Link>
+          <a href={SOCIAL_LINKS.games} target="_blank" rel="noopener noreferrer">Games</a>
+          <a href={SOCIAL_LINKS.links} target="_blank" rel="noopener noreferrer">Links</a>
+          <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+        </Links>
+        <Preferences onToggle={event => {
+          if (event.currentTarget.open) event.currentTarget.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+        }}>
+          <summary><HiOutlineAdjustments aria-hidden="true" />Display settings</summary>
+          <div>
+            <CursorToggle />
+            <label title={reducedMotion ? 'Disabled by your reduced-motion preference' : undefined}>
+              Ambient motion
+              <input type="checkbox" role="switch" checked={ambientEnabled && !reducedMotion} disabled={Boolean(reducedMotion)} onChange={event => onAmbientChange(event.target.checked)} />
+            </label>
+          </div>
+        </Preferences>
+      </Inner>
+    </Footer>
+  );
+};
 
 export default SiteFooter;

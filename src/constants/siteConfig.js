@@ -18,6 +18,9 @@ export const SOCIAL_LINKS = {
   links: 'https://links.vanshul.com',
 };
 
+// This site's own public source code.
+export const SOURCE_REPO_URL = 'https://github.com/vanshulgoyal101/vanshul-portfolio';
+
 // schema.org `sameAs` — the canonical set of profiles that identify the author,
 // used for Person/BlogPosting structured data.
 export const AUTHOR_SAME_AS = [

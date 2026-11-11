@@ -58,7 +58,7 @@ export const useContactForm = (initialState = { name: '', email: '', message: ''
     if (firstInvalid) {
       // Take keyboard and screen-reader users straight to the first problem.
       e.currentTarget?.elements?.namedItem(firstInvalid)?.focus();
-      showError('Missing details', 'Please add your name, a valid email, and a message.');
+      showError('Not quite ready for launch', 'Please add your name, a valid email, and a message.');
       return;
     }
 
@@ -84,21 +84,21 @@ export const useContactForm = (initialState = { name: '', email: '', message: ''
       if (request.signal.aborted) return;
       if (response.ok) {
         showSuccess(
-          'Message Sent!',
-          "Thank you for reaching out. I'll get back to you soon!"
+          'Message launched 🚀',
+          "It's in orbit and headed for my inbox. I'll get back to you soon!"
         );
         setFormState(initialState);
         setErrors({});
       } else {
         showError(
-          'Oops! Something went wrong',
+          'Houston, we have a problem',
           'Failed to send your message. Please try again or email me directly.'
         );
       }
     } catch {
       if (request.signal.aborted) return;
       showError(
-        'Network Error',
+        'Lost signal',
         'Unable to send message. Please check your connection and try again.'
       );
     } finally {

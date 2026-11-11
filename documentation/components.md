@@ -43,6 +43,9 @@ credentials line beyond "Associate Analyst at United Airlines".
   finished, ambient motion is enabled and the visitor has not asked for
   reduced motion.
 - The "Ambient motion" preference is stored in `localStorage` (`vg.ambient`).
+- `KonamiCode` (inside `ToastProvider`) listens for the Konami code on every
+  route, and `useAwayTitle` swaps the tab title while the tab is hidden (see
+  [Playful touches](#playful-touches)).
 
 ## Homepage sections
 
@@ -136,7 +139,7 @@ page's single `<main>`. Their titles use `PageHeader`.
 | Project story | `pages/ProjectPage.jsx` | `/projects/<id>/` for each `FEATURED_PROJECTS` entry. "All projects" (`/#projects`), the role as eyebrow, the title, the story summary as lede, the 8:5 project image, "Key facts" (the card stats plus `story.facts`), "In short" (the four `CASE_STUDY_FIELDS`), the story sections, the live link and source code link (when public), and a "More projects" nav linking to the other stories and back to `/#projects`. Copy comes from `constants/projectStories.js`. Emits `projectJsonLd`. Unknown ids render `NotFound`. |
 | Reading list | `pages/ReadingList.jsx` | "Back to Writings" (`/#blog`), a header with Books/Essays pills, a numbered two-column book catalogue and an essay list with source hostnames from `constants/books.js`. Deep links to `#books`, `#essays` and `#shelf-top`. |
 | Dashboard | `pages/Dashboard.jsx` | Private analytics UI; see [analytics.md](analytics.md). |
-| Not found | `pages/NotFound.jsx` | noindex 404 with a large "404", "This page wandered off." and buttons home, to the blog and to the shelf. |
+| Not found | `pages/NotFound.jsx` | noindex 404 with a large "404", "This page wandered off.", a random quip from `NOT_FOUND_QUIPS`, the missing path (decoded, in `<code>`) and buttons home, to the blog and to the shelf. |
 
 ## Shared UI
 
@@ -162,7 +165,8 @@ page's single `<main>`. Their titles use `PageHeader`.
     `inert` while closed; widening past 768px closes it
   - it keeps `--header-offset` in sync with its height for anchor scrolling
 - **SiteFooter** (`components/SiteFooter.jsx`):
-  - name, "© YEAR · vanshul.com" and the four footer links
+  - name, "© YEAR · vanshul.com", a quip from `FOOTER_QUIPS` (one per page
+    load) and the four footer links
   - a "Display settings" disclosure holding `CursorToggle` and the
     ambient-motion switch
   - `App` renders it after every route, the private dashboard included
@@ -236,6 +240,31 @@ digits, a haiku and a code fragment) stay out of the accessibility tree.
   every 700ms across eight screen zones (a 3×3 grid without the centre). Each
   glyph lives 3.2–4.8s from its own spawn, whatever else appears meanwhile, and
   never repeats one of the seven most recent shapes.
+- **KonamiCode**: renders nothing. Typing ↑ ↑ ↓ ↓ ← → ← → B A (outside form
+  fields) shows a "Cheat code accepted" info toast and spins the page's
+  `<main>` once around the middle of the viewport. Unlike the layers above it
+  stays mounted under reduced motion and with ambient motion off, but then
+  only the toast appears (`App` passes the ambient switch as `motionEnabled`).
+
+## Playful touches
+
+All playful copy lives in `constants/wit.js`. Jokes may only draw on what the
+site already shows (the rocket, NASA and the rover, cricket, the shelf, the
+panda favicon); never invent facts about the author for a punchline.
+
+- `FOOTER_QUIPS` and `NOT_FOUND_QUIPS`: one line is chosen with
+  `utils/pickRandom.js` when the footer or 404 page mounts.
+- `AWAY_TITLES`: `hooks/useAwayTitle.js` sets one as the tab title while the
+  tab is hidden and restores the real title on return, unless something (a
+  route change) set a new title meanwhile. Analytics records the pathname,
+  not `document.title`, so the away title never reaches the stats.
+- `KONAMI_TOAST`: the Konami toast (above).
+- `CONSOLE_GREETING`: `utils/consoleGreeting.js` logs it once from
+  `main.jsx`, with a link to the public source (`SOURCE_REPO_URL`) and a hint
+  about the Konami code.
+- Contact copy is space-themed but keeps plain instructions: "Launching..."
+  while sending, "Message launched 🚀", "Not quite ready for launch",
+  "Houston, we have a problem" and "Lost signal".
 
 ## Conventions
 

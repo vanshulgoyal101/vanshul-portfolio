@@ -25,7 +25,9 @@ const ProjectPage = lazy(() => import('./pages/ProjectPage'));
 // Decorative elements
 import CustomCursor from './components/FunElements/CustomCursor';
 import BootLoader from './components/FunElements/BootLoader';
+import KonamiCode from './components/FunElements/KonamiCode';
 import Analytics from './components/Analytics';
+import { useAwayTitle } from './hooks/useAwayTitle';
 
 // Heavy decorative elements — lazy loaded after first paint
 const FloatingRocket = lazy(() => import('./components/FunElements/FloatingRocket'));
@@ -145,6 +147,7 @@ const RedirectBlogSlug = () => {
 };
 
 function App() {
+  useAwayTitle();
   const [isBooting, setIsBooting] = useState(true);
   useEffect(() => {
     if (!isBooting) return;
@@ -170,6 +173,7 @@ function App() {
       <Analytics />
       <ToastProvider>
         <GlobalStyles />
+        <KonamiCode motionEnabled={ambientEnabled} />
         {isBooting && <BootLoader onComplete={() => setIsBooting(false)} />}
         
         <AppWrapper inert={isBooting} $isBooting={isBooting}>

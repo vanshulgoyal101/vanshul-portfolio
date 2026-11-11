@@ -21,6 +21,11 @@
   `404.html` GitHub-Pages shim.
 - ✅ Original multilingual intro, three-tap rocket/smoke/About transition,
   desktop sculpture and persistent display preferences are retained.
+- ✅ **Playful touches** (copy in `constants/wit.js`, built only from what the
+  site already shows): a random footer quip, space-themed 404 quips with the
+  missing path, a Konami-code toast and barrel roll (toast only under reduced
+  motion or with ambient motion off), an away-tab title, space-themed contact
+  toasts and a DevTools console greeting linking to the source.
 - ✅ Featured projects plus a keyboard-operable, initially collapsed directory.
 - ✅ Work: full cards for the current and most recent roles, then a compact
   "Earlier" list of shorter roles (internships, NASA HERC team lead, Space Apps

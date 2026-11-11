@@ -254,7 +254,7 @@ const Contact = () => {
           index="05"
           eyebrow="Say hello"
           title="Get In Touch"
-          lede="Let's connect and build something amazing together"
+          lede="My inbox is open. Ideas, opportunities and cricket debates welcome"
         />
 
         <ContactGrid>
@@ -267,9 +267,9 @@ const Contact = () => {
             <motion.div variants={itemVariants}>
               <InfoTitle>Let&apos;s Connect</InfoTitle>
               <InfoText>
-                Whether you want to discuss technology, engineering, or just say hello,
-                I&apos;d love to hear from you. Feel free to reach out through the form or connect
-                on social media.
+                Whether it&apos;s technology, engineering, a book I should add to my shelf or
+                just a hello, I&apos;d love to hear from you. Use the form or find me on
+                social media.
               </InfoText>
             </motion.div>
 
@@ -315,7 +315,7 @@ const Contact = () => {
                   autoComplete="name"
                   value={formState.name}
                   onChange={handleChange}
-                  placeholder="John Doe"
+                  placeholder="Ada Lovelace"
                   required
                   disabled={isSubmitting}
                   aria-invalid={errors.name ? 'true' : undefined}
@@ -333,7 +333,7 @@ const Contact = () => {
                   autoComplete="email"
                   value={formState.email}
                   onChange={handleChange}
-                  placeholder="john@example.com"
+                  placeholder="ada@example.com"
                   required
                   disabled={isSubmitting}
                   aria-invalid={errors.email ? 'true' : undefined}
@@ -349,7 +349,7 @@ const Contact = () => {
                   name="message"
                   value={formState.message}
                   onChange={handleChange}
-                  placeholder="Tell me about your project or just say hi!"
+                  placeholder="Pitch me a project, recommend a book, or just say hi!"
                   rows="5"
                   required
                   disabled={isSubmitting}
@@ -363,7 +363,7 @@ const Contact = () => {
                 {isSubmitting ? (
                   <>
                     <Spinner aria-hidden="true" />
-                    Sending...
+                    Launching...
                   </>
                 ) : (
                   <>

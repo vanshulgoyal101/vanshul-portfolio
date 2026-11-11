@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { act, render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import SiteFooter from './SiteFooter';
+import { FOOTER_QUIPS } from '../constants/wit';
 
 const renderFooter = (props = {}) => render(
   <MemoryRouter>
@@ -17,6 +18,22 @@ describe('SiteFooter', () => {
     expect(screen.getByRole('link', { name: 'Blog' })).toHaveAttribute('href', '/blog/');
     expect(screen.getByRole('link', { name: 'Vanshul Goyal' })).toHaveAttribute('href', '/#home');
     expect(container.querySelector('details')).not.toHaveAttribute('open');
+  });
+
+  it('keeps one random quip for the life of the footer', () => {
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    const { container, rerender } = renderFooter();
+    const quip = container.querySelector('[data-footer-quip]');
+    expect(quip).toHaveTextContent(FOOTER_QUIPS.at(-1));
+
+    random.mockReturnValue(0);
+    rerender(
+      <MemoryRouter>
+        <SiteFooter ambientEnabled reducedMotion={false} onAmbientChange={vi.fn()} />
+      </MemoryRouter>,
+    );
+    expect(quip).toHaveTextContent(FOOTER_QUIPS.at(-1));
+    random.mockRestore();
   });
 
   it('changes ambient motion through a labelled switch', () => {

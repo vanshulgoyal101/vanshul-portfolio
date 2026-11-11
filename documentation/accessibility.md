@@ -78,18 +78,19 @@ Manual spot checks for releases: tab through every route, test with VoiceOver
   - invalid fields get `aria-invalid="true"`
   - each message is linked through `aria-describedby`, so it is read with its
     field
-  - a "Missing details" toast is announced
+  - a "Not quite ready for launch" toast is announced
 - The email format is checked live as you type; empty fields are flagged only
   on submit.
 - Error text is `--color-danger` (`#b91c1c`, at least 4.5:1 on white and the
   input background);
-  `#ef4444` failed AA. The submit button disables and reads "Sending..."
+  `#ef4444` failed AA. The submit button disables and reads "Launching..."
   during a request, and double submits are ignored.
 
 ## Status messages
 
 Toasts render inside an always-mounted `aria-live="polite"` container. Contact
-results, "Missing details" and "Link copied" are therefore announced without
+results, "Not quite ready for launch", "Link copied" and the Konami code's
+"Cheat code accepted" are therefore announced without
 moving focus (WCAG 4.1.3). Each toast has a 44px "Close notification" button;
 toasts auto-dismiss after five seconds. Tone colours (`--color-success`
 `#166534`, `--color-danger` `#b91c1c`, info accent) meet 4.5:1 on white. The

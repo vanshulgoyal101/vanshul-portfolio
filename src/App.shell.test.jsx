@@ -171,4 +171,21 @@ describe('App ambient motion', () => {
     expect(toggle).toBeDisabled();
     expect(toggle).not.toBeChecked();
   });
+
+  it('lets the Konami code roll the page only while ambient motion is on', () => {
+    const animate = vi.fn(() => ({ playState: 'finished', cancel: vi.fn() }));
+    renderAt('/no-such-page');
+    finishIntro();
+    document.querySelector('main').animate = animate;
+    const typeCode = () => ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']
+      .forEach(key => fireEvent.keyDown(window, { key }));
+
+    typeCode();
+    expect(animate).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(ambientSwitch());
+    typeCode();
+    expect(animate).toHaveBeenCalledTimes(1);
+    expect(screen.getAllByText('Cheat code accepted 🎮')).toHaveLength(2);
+  });
 });
