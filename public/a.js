@@ -15,6 +15,9 @@
 (function () {
   'use strict';
   if (navigator.globalPrivacyControl || navigator.doNotTrack === '1' || window.doNotTrack === '1') return;
+  // One instance per page: a second copy of the tag would send every event twice.
+  if (window.__vgBeacon) return;
+  window.__vgBeacon = true;
   var ENDPOINT = 'https://tmngedsmgcgbkbkmsnsw.supabase.co/rest/v1/web_events';
   var KEY = 'sb_publishable_qFZySs9l19_7bISrvmLHIw_vwt-DUdx';
 

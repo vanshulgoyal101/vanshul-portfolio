@@ -89,6 +89,8 @@ Design notes:
 - **SPA-aware** — it patches `history.pushState`/`replaceState` and listens for
   `popstate`/`hashchange`, so client-side navigations count as pageviews
   (de-duped per path).
+- **Single instance** — a second copy of the tag on the same page does nothing
+  (`window.__vgBeacon`), so events are never counted twice.
 - **Resilient** — every call is wrapped so a blocked network or missing API
   never affects the host page.
 - **Manual instrumentation** — `window.vtrack('jwt')` logs a tool event;

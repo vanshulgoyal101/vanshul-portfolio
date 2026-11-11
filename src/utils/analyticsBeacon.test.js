@@ -28,6 +28,23 @@ const boot = (url = 'https://vanshul.com/', privacy = {}) => {
   return { context, fetch, storage, listeners, payloads: () => fetch.mock.calls.map(([, options]) => JSON.parse(options.body)) };
 };
 
+describe('analytics beacon installation', () => {
+  it('sends each event once when a page includes the script twice', () => {
+    const beacon = boot();
+    runInNewContext(source, beacon.context);
+    expect(beacon.payloads().map(payload => payload.kind)).toEqual(['pageview']);
+
+    beacon.context.location = new URL('https://vanshul.com/blog/');
+    beacon.context.history.pushState();
+    beacon.context.vtrack('copy-link');
+    expect(beacon.payloads().map(payload => [payload.kind, payload.path])).toEqual([
+      ['pageview', '/'],
+      ['pageview', '/blog/'],
+      ['tool', '/blog/'],
+    ]);
+  });
+});
+
 describe('analytics beacon privacy', () => {
   it('never records query strings or OAuth token fragments', () => {
     const beacon = boot('https://vanshul.com/?code=secret#access_token=secret&refresh_token=private');
