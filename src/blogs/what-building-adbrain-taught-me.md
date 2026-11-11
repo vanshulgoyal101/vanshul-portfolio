@@ -2,7 +2,7 @@
 title: "What Building AdBrain Taught Me Before Anyone Paid"
 slug: "what-building-adbrain-taught-me"
 summary: "I built an AI ad tool for local businesses. It works. Nobody outside my team uses it yet. Here is what that gap taught me about demand, trust and other people's money."
-date: "11 Nov, 2026"
+date: "1 Nov, 2026"
 readTime: "6 min read"
 category: "Startups"
 ---

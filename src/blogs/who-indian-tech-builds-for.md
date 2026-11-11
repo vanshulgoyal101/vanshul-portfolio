@@ -2,7 +2,7 @@
 title: "Who Indian Tech Builds For"
 slug: "who-indian-tech-builds-for"
 summary: "Indian tech looks American because its customers are. Whoever pays an industry teaches it what to notice, and India has mostly been taught by someone else."
-date: "11 Nov, 2026"
+date: "16 Sep, 2026"
 readTime: "5 min read"
 category: "Tech Industry"
 ---

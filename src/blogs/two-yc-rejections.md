@@ -2,7 +2,7 @@
 title: "What Two YC Rejections Taught Me About Traction"
 slug: "two-yc-rejections"
 summary: "I applied to Y Combinator twice and was turned down twice. The gap wasn't ideas. It was that nobody had ever paid for anything I built."
-date: "11 Nov, 2026"
+date: "8 Nov, 2026"
 readTime: "6 min read"
 category: "Startups"
 ---

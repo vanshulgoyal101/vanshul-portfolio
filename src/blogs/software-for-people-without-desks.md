@@ -2,7 +2,7 @@
 title: "Software for People Without Desks"
 slug: "software-for-people-without-desks"
 summary: "Most software is built by desk workers for desk workers. The people who run airports, warehouses and sites get the leftovers, and the reason is not what you'd guess."
-date: "11 Nov, 2026"
+date: "21 Aug, 2026"
 readTime: "6 min read"
 category: "Future of Work"
 ---

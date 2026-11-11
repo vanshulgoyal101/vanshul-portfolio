@@ -2,7 +2,7 @@
 title: "Agents Write Faster Than I Can Check"
 slug: "agents-write-faster-than-i-can-check"
 summary: "I build AdBrain with a team of AI coding agents working in parallel. Writing code stopped being the hard part. Knowing which of it to trust became the job."
-date: "11 Nov, 2026"
+date: "4 Nov, 2026"
 readTime: "6 min read"
 category: "AI"
 ---

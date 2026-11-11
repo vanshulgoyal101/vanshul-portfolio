@@ -2,7 +2,7 @@
 title: "The Trap of Basics First"
 slug: "the-trap-of-basics-first"
 summary: "Poorer places are told to fix the basics before caring about beauty or the frontier. That order sounds responsible, and it may be what keeps the two worlds apart."
-date: "11 Nov, 2026"
+date: "7 Oct, 2026"
 readTime: "6 min read"
 category: "Infrastructure"
 ---
