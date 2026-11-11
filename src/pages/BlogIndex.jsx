@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { HiArrowRight, HiOutlineRss } from 'react-icons/hi';
 
 import PageLayout from '../components/ui/PageLayout';
 import PageHeader from '../components/ui/PageHeader';
-import { TextLink } from '../components/ui/Button';
+import { Button, TextLink } from '../components/ui/Button';
 import PostList from '../components/Blog/PostList';
 import { loadBlogPosts } from '../utils/blogLoader';
 import { sortBlogsByDate, groupPostsByYear } from '../utils/blogUtils';
@@ -14,6 +14,7 @@ import { SITE_URL, AUTHOR_NAME } from '../constants/siteConfig';
 import { BLOG_PATH, READING_LIST_PATH } from '../constants/routes';
 import { BLOG_INDEX_DESCRIPTION } from '../constants/blogConstants';
 import { blogIndexJsonLd } from '../../scripts/lib/structuredData.mjs';
+import { filterPosts } from '../utils/blogSearch';
 
 const FEED_PATH = '/feed.xml';
 
@@ -54,10 +55,57 @@ const YearHeading = styled.h2`
 
 const TITLE = `Blog — ${AUTHOR_NAME}`;
 
+const Filters = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(10rem, 15rem) auto;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+
+  label {
+    display: grid;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  input, select {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0.75rem;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    background: var(--color-bg-card);
+    font: inherit;
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+`;
+
+const ResultCount = styled.p`
+  margin-bottom: 1.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+`;
+
 const BlogIndex = () => {
   const posts = useMemo(() => sortBlogsByDate(loadBlogPosts()), []);
-  const years = useMemo(() => groupPostsByYear(posts), [posts]);
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('');
+  const searchRef = useRef(null);
+  const categories = useMemo(() => [...new Set(posts.map(post => post.category).filter(Boolean))].sort(), [posts]);
+  const filtered = useMemo(() => filterPosts(posts, query, category), [posts, query, category]);
+  const years = useMemo(() => groupPostsByYear(filtered), [filtered]);
   const views = useBlogViews();
+  const reset = () => {
+    setQuery('');
+    setCategory('');
+    searchRef.current?.focus();
+  };
 
   const jsonLd = useMemo(
     () => JSON.stringify(blogIndexJsonLd(posts, {
@@ -83,6 +131,28 @@ const BlogIndex = () => {
           </TextLink>
         </Links>
       </PageHeader>
+
+      <Filters role="search" aria-label="Search writings">
+        <label>
+          Search writings
+          <input ref={searchRef} type="search" value={query} onChange={event => setQuery(event.target.value)}
+            placeholder="Search titles, topics, or article text" aria-describedby="archive-results" />
+        </label>
+        <label>
+          Topic
+          <select value={category} onChange={event => setCategory(event.target.value)}>
+            <option value="">All topics</option>
+            {categories.map(topic => <option key={topic} value={topic}>{topic}</option>)}
+          </select>
+        </label>
+        <Button type="button" $variant="secondary" onClick={reset} disabled={!query && !category}>
+          Clear filters
+        </Button>
+      </Filters>
+      <ResultCount id="archive-results" role="status" aria-atomic="true">
+        {filtered.length} of {posts.length} posts
+      </ResultCount>
+      {filtered.length === 0 && <p>No writings match these filters. Try another word or clear the filters.</p>}
 
       {years.map(({ year, posts: yearPosts }) => (
         <Year key={year}>
