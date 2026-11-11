@@ -7,7 +7,7 @@ import { SITE_URL } from '../src/constants/siteConfig.js';
 import { BOOKS, ESSAYS, SHELF_ITEMS } from '../src/constants/books.js';
 import { BLOG_PATH, READING_LIST_PATH, absoluteUrl } from '../src/constants/routes.js';
 import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../src/constants/projects.js';
-import { EXPERIENCE } from '../src/constants/experience.js';
+import { EXPERIENCE, EARLIER_EXPERIENCE } from '../src/constants/experience.js';
 import { INDEXNOW_KEY } from './lib/indexnow.mjs';
 
 const dist = new URL('../dist/', import.meta.url);
@@ -100,6 +100,7 @@ for (const url of urls) {
       ...FEATURED_PROJECTS.map(project => project.title),
       ...PROJECT_DIRECTORY.flatMap(group => group.items.map(item => item.title)),
       ...EXPERIENCE.map(job => job.title),
+      ...EARLIER_EXPERIENCE.flatMap(role => [role.title, role.company]),
     ];
     for (const phrase of expected) assert(text.includes(phrase), `Homepage static content is missing "${phrase}"`);
   }

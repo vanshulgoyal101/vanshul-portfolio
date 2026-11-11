@@ -3,7 +3,7 @@ import { JSDOM } from 'jsdom';
 import { prerenderContent } from './prerenderContent.mjs';
 import { BOOKS, ESSAYS } from '../../src/constants/books.js';
 import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../../src/constants/projects.js';
-import { EXPERIENCE } from '../../src/constants/experience.js';
+import { EXPERIENCE, EARLIER_EXPERIENCE } from '../../src/constants/experience.js';
 import { PROFILE, HIGHLIGHTS, SKILL_GROUPS } from '../../src/constants/profile.js';
 import { SOCIAL_PROFILES } from '../../src/constants/siteConfig.js';
 
@@ -75,6 +75,9 @@ describe('crawler-readable content', () => {
     for (const job of EXPERIENCE) {
       expect(text).toContain(job.title);
       expect(text).toContain(job.description);
+    }
+    for (const role of EARLIER_EXPERIENCE) {
+      for (const fact of [role.title, role.company, role.duration, role.summary]) expect(text).toContain(fact);
     }
     for (const highlight of HIGHLIGHTS) expect(text).toContain(highlight.label);
     for (const skill of SKILL_GROUPS.flatMap(group => group.skills)) expect(text).toContain(skill);

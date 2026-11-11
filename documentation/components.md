@@ -91,11 +91,14 @@ a numbered mono eyebrow inside a centred h2, followed by a lede.
 - Four `HIGHLIGHTS` stat tiles (`ul`) and `SKILL_GROUPS` as neutral chips.
 
 ### Work — `components/Work/Work.jsx` (03 / Experience)
-- An ordered timeline (`ol`) of `EXPERIENCE` cards:
+- An ordered timeline (`ol`) of full `EXPERIENCE` cards:
   - an icon, the title (h3) and company/department (h4)
   - dates and location, then the description
   - mono technology chips and a hostname link (for example "united.com")
     labelled "Visit the … website"
+- A compact "Earlier" list (`ul` labelled by its mono label) of
+  `EARLIER_EXPERIENCE`: title · company, dates and a one-line summary per row.
+  It uses no h3/h4, so the full cards stay the only role headings.
 - Typography sizes are e2e contracts (see [homepage.md](homepage.md)).
 
 ### Blog — `components/Blog/Blog.jsx` (04 / Essays)

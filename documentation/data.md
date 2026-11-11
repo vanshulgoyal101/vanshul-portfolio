@@ -16,7 +16,7 @@ maps to an icon component.
 | [`constants/siteConfig.js`](../src/constants/siteConfig.js) | `SITE_URL`, `AUTHOR_NAME`, `HOME_DESCRIPTION`, `DEFAULT_OG_IMAGE`, `SOCIAL_LINKS`, `AUTHOR_SAME_AS`, `SOCIAL_PROFILES` | Hero, Contact, footer, dashboard footer, SEO and build scripts |
 | [`constants/profile.js`](../src/constants/profile.js) | `PROFILE` (headline, role, employer, education, summary, location, languages, photo, `photoAlt`, `avatar`, `knowsAbout`), `HIGHLIGHTS`, `SKILL_GROUPS` | Hero, About, Contact, article byline and author card, homepage JSON-LD |
 | [`constants/projects.js`](../src/constants/projects.js) | `FEATURED_PROJECTS`, `CASE_STUDY_FIELDS`, `PROJECT_DIRECTORY` | Projects |
-| [`constants/experience.js`](../src/constants/experience.js) | `EXPERIENCE` (newest first; the first entry is the current role) | Work, About |
+| [`constants/experience.js`](../src/constants/experience.js) | `EXPERIENCE` (full cards, newest first; the first entry is the current role), `EARLIER_EXPERIENCE` (shorter earlier roles for the compact list, newest first by start date) | Work, About |
 | [`constants/books.js`](../src/constants/books.js) | `BOOKS`, `ESSAYS`, `SHELF_ITEMS` (books then essays) | Reading list, shelf card |
 | [`constants/readingListSeo.js`](../src/constants/readingListSeo.js) | `READING_LIST_DESCRIPTION`, `READING_LIST_JSON_LD` (an `ItemList` of `SHELF_ITEMS` plus a `BreadcrumbList`) | Reading list page metadata and its prerendered shell (`verify:build` checks that shell's `ItemList` against `books.js`) |
 | [`constants/blogConstants.js`](../src/constants/blogConstants.js) | `BLOG_CONTENT`, `BLOG_INDEX_DESCRIPTION` | Blog preview, archive |
@@ -32,10 +32,11 @@ Rules:
   generated from these modules, so an inaccurate entry becomes an inaccurate
   claim to search engines.
 - `scripts/lib/prerenderContent.test.js` fails if a featured project
-  (title, description, outcome, link), directory entry, job, highlight, skill,
+  (title, description, outcome, link), directory entry, job, earlier role, highlight, skill,
   the school, the summary or a social profile is missing from the static
   homepage HTML. `npm run verify:build` re-checks the built homepage for every
-  featured project, directory entry and job title.
+  featured project, directory entry and job title, and every earlier role's title
+  and company.
 - Editing a module updates the UI, the fallback HTML and the structured data
   together; no other file needs to change unless a new icon key is introduced
   (add it to the component's `ICONS` map).

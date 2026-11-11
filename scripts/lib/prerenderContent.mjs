@@ -5,7 +5,7 @@
 import { AUTHOR_NAME, SOCIAL_PROFILES } from '../../src/constants/siteConfig.js';
 import { PROFILE, HIGHLIGHTS, SKILL_GROUPS } from '../../src/constants/profile.js';
 import { FEATURED_PROJECTS, PROJECT_DIRECTORY, CASE_STUDY_FIELDS } from '../../src/constants/projects.js';
-import { EXPERIENCE } from '../../src/constants/experience.js';
+import { EXPERIENCE, EARLIER_EXPERIENCE } from '../../src/constants/experience.js';
 import { BOOKS, ESSAYS } from '../../src/constants/books.js';
 import { BLOG_CONTENT, BLOG_INDEX_DESCRIPTION } from '../../src/constants/blogConstants.js';
 import { HOME_PATH, BLOG_PATH, READING_LIST_PATH, postPath } from '../../src/constants/routes.js';
@@ -70,6 +70,8 @@ const workSection = () => `<section id="work"><h2>Work Experience</h2>`
     + paragraph(job.description)
     + paragraph(job.tech.join(', '))
     + `<p>${link(job.link, `${job.company} website`)}</p></article>`).join('')
+  + `<h3>Earlier</h3>`
+  + list(EARLIER_EXPERIENCE.map(role => `<strong>${escapeText(role.title)}</strong> · ${escapeText(role.company)} · ${escapeText(role.duration)}${paragraph(role.summary)}`))
   + `</section>`;
 
 const homeContent = posts => `<h1>${escapeText(AUTHOR_NAME)}</h1>`

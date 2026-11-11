@@ -26,3 +26,43 @@ export const EXPERIENCE = [
     link: 'https://www.zhealthehr.com/',
   },
 ];
+
+// Earlier, shorter roles. The Work section lists them compactly below the
+// full cards, newest first by start date.
+export const EARLIER_EXPERIENCE = [
+  {
+    id: 'space-apps-collective',
+    title: 'Global Community Member (Volunteer)',
+    company: 'NASA Space Apps Collective',
+    duration: 'Jul 2023 – Jul 2024',
+    summary: "Selected among 30 global space leaders for the Collective's 2023 pilot. Worked remotely with an international team on open NASA data.",
+  },
+  {
+    id: 'accelor',
+    title: 'Software Development Intern',
+    company: 'Accelor Microsystems',
+    duration: 'Feb – Mar 2023',
+    summary: 'Built a full-stack system to detect intrusions in border areas in real time, for the defence industry.',
+  },
+  {
+    id: 'nasa-herc',
+    title: 'Team Lead',
+    company: 'NASA Human Exploration Rover Challenge 2023',
+    duration: 'Aug 2022 – 2023',
+    summary: "Led a six-person student team to NASA's Marshall Space Flight Center and a global top-20 finish.",
+  },
+  {
+    id: 'ednite',
+    title: 'Business Research Analyst',
+    company: 'Ednite Educorp',
+    duration: 'Aug 2022',
+    summary: 'Researched the fees, facilities and operations of local education institutes to assess opening a new centre in two cities.',
+  },
+  {
+    id: 'chandigarh-police',
+    title: 'Cyber Security Intern',
+    company: 'Chandigarh Police Cyber Cell',
+    duration: 'Jul 2022 – Apr 2023',
+    summary: 'Used open-source intelligence and social-media sentiment analysis to gauge public perception and flag potential threats.',
+  },
+];

@@ -22,6 +22,9 @@
 - ✅ Original multilingual intro, three-tap rocket/smoke/About transition,
   desktop sculpture and persistent display preferences are retained.
 - ✅ Featured projects plus a keyboard-operable, initially collapsed directory.
+- ✅ Work: full cards for the current and most recent roles, then a compact
+  "Earlier" list of shorter roles (internships, NASA HERC team lead, Space Apps
+  Collective volunteer).
 - ✅ **Editorial design system**: one palette of paper, ink and a single blue
   accent; hairline surfaces; mono eyebrows; motion tokens; shared
   `SectionHeader`, `PageHeader`, `PageLayout` and `Button`/`ButtonLink`/

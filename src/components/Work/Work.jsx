@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import { FaPlane, FaLaptopCode } from 'react-icons/fa';
 import { HiArrowUpRight } from 'react-icons/hi2';
 import SectionHeader from '../ui/SectionHeader';
-import { EXPERIENCE } from '../../constants/experience';
+import { EXPERIENCE, EARLIER_EXPERIENCE } from '../../constants/experience';
 
 // Typography sizes here are a tested contract (see documentation/homepage.md):
 // role 20px / 18px mobile, company 16px, description 16px, metadata 14px.
+// The compact "Earlier" list deliberately avoids h3/h4 so the full cards stay
+// the only role headings; its text stays within the same 16px / 14px scale.
 
 const WorkSection = styled.section`
   position: relative;
@@ -196,6 +198,72 @@ const CompanyLink = styled.a`
   }
 `;
 
+const Earlier = styled.div`
+  max-width: 56rem;
+  margin: clamp(2rem, 4vw, 2.75rem) auto 0;
+`;
+
+const EarlierLabel = styled.div`
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+`;
+
+const EarlierList = styled.ul`
+  list-style: none;
+  border-top: 1px solid var(--color-border);
+`;
+
+const EarlierItem = styled.li`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1.5rem;
+  row-gap: 0.25rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border);
+
+  @media (max-width: 768px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+`;
+
+const EarlierRole = styled.p`
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+
+  strong {
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+`;
+
+const EarlierDates = styled.span`
+  grid-column: 2;
+  grid-row: 1;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+`;
+
+const EarlierSummary = styled.p`
+  grid-column: 1 / -1;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+`;
+
 // Data in constants/experience.js refers to icons by key.
 const ICONS = { plane: FaPlane, laptop: FaLaptopCode };
 
@@ -217,7 +285,7 @@ const Work = () => (
         index="03"
         eyebrow="Experience"
         title="Work Experience"
-        lede="Building impactful solutions across aviation and healthcare"
+        lede="Where I have worked, newest first."
       />
 
       <Timeline>
@@ -266,6 +334,23 @@ const Work = () => (
           );
         })}
       </Timeline>
+
+      {EARLIER_EXPERIENCE.length > 0 && (
+        <Earlier>
+          <EarlierLabel id="earlier-roles">Earlier</EarlierLabel>
+          <EarlierList aria-labelledby="earlier-roles">
+            {EARLIER_EXPERIENCE.map((role) => (
+              <EarlierItem key={role.id}>
+                <EarlierRole>
+                  <strong>{role.title}</strong> · {role.company}
+                </EarlierRole>
+                <EarlierDates>{role.duration}</EarlierDates>
+                <EarlierSummary>{role.summary}</EarlierSummary>
+              </EarlierItem>
+            ))}
+          </EarlierList>
+        </Earlier>
+      )}
     </Container>
   </WorkSection>
 );

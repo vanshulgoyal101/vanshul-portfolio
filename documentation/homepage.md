@@ -81,7 +81,9 @@ Work Experience uses a 40px desktop heading and a 32px heading through 768px.
 Its supporting typography has a separate, fixed responsive hierarchy:
 job titles are 20px desktop / 18px mobile, company names 16px, the section
 lede 18px desktop / 16px mobile (`--text-lede`), descriptions 16px, and
-date/location metadata 14px. Sizes are rem
+date/location metadata 14px. The compact "Earlier" list below the cards reuses
+that scale (16px role line and summary, 14px dates) and uses no h3/h4, so the
+test's two role and company headings stay the full cards. Sizes are rem
 based and respect browser text preferences. Do not let fluid card-title tokens
 grow to match the mobile section heading. The browser regression checks heading
 order and text containment at 320, 390, 600, 768, 769 and 1440px, with a minimum
