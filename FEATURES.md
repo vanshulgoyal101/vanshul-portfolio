@@ -53,6 +53,7 @@
 
 ## Blog (✅)
 
+- ✅ Unpublished drafts live in `drafts/` (never built); see `drafts/README.md`.
 - ✅ Markdown posts in `src/blogs/*.md` (filename = slug), rendered at `/blog/<slug>/`
   with a `/blog/` index and a homepage `#blog` section.
 - ✅ View counts: one count per post per browser session, queried only for

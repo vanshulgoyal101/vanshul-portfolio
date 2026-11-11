@@ -37,7 +37,7 @@ party. To update a font, copy the `*-latin-wght-normal.woff2` and
   rest. Strong 1px ink rules divide major groups: archive years, shelf
   collections and "More writings".
 - **Mono eyebrows.** Small uppercase JetBrains Mono labels sit above titles
-  (`01 / Selected work`, `Archive · 14 posts`) and carry metadata (dates, read
+  (`01 / Selected work`, `Archive · 8 posts`) and carry metadata (dates, read
   times, tech chips).
 - **Display headings.** Space Grotesk for headings, Inter for text,
   `text-wrap: balance` on headings and `pretty` on paragraphs.

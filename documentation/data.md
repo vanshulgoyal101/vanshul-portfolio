@@ -214,6 +214,14 @@ failure recovery, pending/late results, keyboard behavior and exact 320px bounds
   `rel="noopener noreferrer"`; `#anchors`, `mailto:`, `tel:` and relative
   paths are plain links. The prerendered HTML and the feed keep plain links.
 
+### Drafts
+
+Unpublished essays live in [`drafts/`](../drafts/README.md) at the repository
+root. Nothing reads that folder, so drafts never reach the build, the sitemap,
+the feed or llms.txt. To publish one, move it into `src/blogs/` (steps in the
+drafts README). The folder is in the public repository, so a draft is readable
+on GitHub, just not on the site.
+
 ### Adding a post
 
 1. Create `src/blogs/<slug>.md`.
