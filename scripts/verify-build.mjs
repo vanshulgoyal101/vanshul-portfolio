@@ -9,7 +9,9 @@ import { BLOG_PATH, READING_LIST_PATH, absoluteUrl } from '../src/constants/rout
 import { PROJECT_PAGES } from '../src/constants/projectStories.js';
 import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../src/constants/projects.js';
 import { EXPERIENCE, EARLIER_EXPERIENCE } from '../src/constants/experience.js';
+import { ANALYTICS_SUPABASE_URL } from '../src/lib/runtimeConfig.js';
 import { INDEXNOW_KEY } from './lib/indexnow.mjs';
+import { REFERRER_POLICY, inlineScripts, parsePolicy, scriptHash } from './lib/securityPolicy.mjs';
 
 const dist = new URL('../dist/', import.meta.url);
 // Heavy or single-route code must stay lazy: no page may fetch these before
@@ -24,6 +26,46 @@ const gzipKb = path => gzipSync(readFileSync(new URL(path.slice(1), dist))).leng
 let heaviestFirstLoadKb = 0;
 const pageTitles = new Map();
 const pageDescriptions = new Map();
+// Everything a document asks the browser to fetch; each must ship in dist.
+const ASSET_REFERENCES = [
+  'script[src]', 'link[rel~="stylesheet"]', 'link[rel="modulepreload"]', 'link[rel="preload"]',
+  'link[rel~="icon"]', 'link[rel="apple-touch-icon"]', 'link[rel="manifest"]', 'link[rel="alternate"]',
+  'img[src]', 'source[src]', 'meta[property="og:image"]', 'meta[name="twitter:image"]',
+].join(', ');
+const distFile = (pathname) => {
+  const relative = decodeURIComponent(pathname).replace(/^\/+/, '');
+  return new URL(!relative || relative.endsWith('/') ? `${relative}index.html` : relative, dist);
+};
+const assertShipped = (reference, from) => {
+  const target = new URL(reference, `${SITE_URL}/`);
+  if (target.origin !== SITE_URL) return;
+  assert(existsSync(distFile(target.pathname)), `${reference} (referenced by ${from}) is missing from dist`);
+};
+const assertAssetsShipped = (document, from) => {
+  for (const element of document.querySelectorAll(ASSET_REFERENCES)) {
+    assertShipped(element.getAttribute('src') ?? element.getAttribute('href') ?? element.getAttribute('content'), from);
+  }
+};
+// A PNG's IHDR chunk stores width and height at bytes 16-23.
+const pngSize = (file) => {
+  const bytes = readFileSync(file);
+  assert(bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])), `${fileURLToPath(file)} is not a PNG`);
+  return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+};
+// The meta policy must precede every script and allow exactly this page's
+// inline scripts, so a prerender or template edit cannot silently break them.
+const assertSecurityPolicy = (html, document, from) => {
+  const policies = document.querySelectorAll('meta[http-equiv="Content-Security-Policy"]');
+  assert.equal(policies.length, 1, `Expected one Content-Security-Policy for ${from}`);
+  assert.equal(document.querySelector('head > script, head > meta[http-equiv="Content-Security-Policy"]'), policies[0], `Content-Security-Policy must precede every script in ${from}`);
+  const policy = parsePolicy(policies[0].content);
+  const hashes = policy['script-src'].filter(source => source.startsWith("'sha256-"));
+  assert.deepEqual([...hashes].sort(), [...new Set(inlineScripts(html).map(scriptHash))].sort(), `script-src hashes disagree with the inline scripts in ${from}`);
+  for (const unsafe of ["'unsafe-inline'", "'unsafe-eval'", '*']) assert(!policy['script-src'].includes(unsafe), `script-src allows ${unsafe} in ${from}`);
+  assert.deepEqual(policy['object-src'], ["'none'"], `object-src must be 'none' in ${from}`);
+  assert.equal(document.querySelector('meta[name="referrer"]')?.content, REFERRER_POLICY, `Missing referrer policy in ${from}`);
+  return policy;
+};
 const sitemap = new JSDOM(readFileSync(new URL('sitemap.xml', dist), 'utf8'), { contentType: 'text/xml' });
 const urls = [...sitemap.window.document.querySelectorAll('url > loc')].map(element => element.textContent);
 assert.equal(new Set(urls).size, urls.length, 'Sitemap URLs must be unique');
@@ -40,8 +82,12 @@ for (const url of urls) {
   assert(route.pathname.endsWith('/') && !route.search && !route.hash, `Published URL would redirect: ${url}`);
   const path = route.pathname.replace(/^\/+|\/+$/g, '');
   const file = new URL(path ? `${path}/index.html` : 'index.html', dist);
-  const document = new JSDOM(readFileSync(fileURLToPath(file), 'utf8')).window.document;
+  const html = readFileSync(fileURLToPath(file), 'utf8');
+  const document = new JSDOM(html).window.document;
   assert.equal(document.querySelector('link[rel="canonical"]')?.getAttribute('href'), url, `Canonical mismatch for ${url}`);
+  const policy = assertSecurityPolicy(html, document, url);
+  // The SPA serves /dashboard from this shell, so its analytics API must stay allowed.
+  assert(policy['connect-src'].includes(ANALYTICS_SUPABASE_URL), `connect-src must allow the analytics project in ${url}`);
   assert(document.querySelector('#root'), `Missing app root for ${url}`);
   const eager = [...document.querySelectorAll('script[src], link[rel="modulepreload"]')]
     .map(element => element.getAttribute('src') ?? element.getAttribute('href'));
@@ -74,6 +120,13 @@ for (const url of urls) {
   const image = new URL(document.querySelector('meta[property="og:image"]').content);
   assert.equal(image.origin, SITE_URL);
   assert(existsSync(new URL(image.pathname.slice(1), dist)), `Missing social image: ${image}`);
+  // Scrapers render only raster cards, and only at the size the tags declare.
+  const ogImageMeta = key => document.querySelector(`meta[property="og:image:${key}"]`)?.getAttribute('content');
+  assert.equal(ogImageMeta('type'), 'image/png', `og:image:type must be image/png for ${url}`);
+  assert.deepEqual(pngSize(new URL(image.pathname.slice(1), dist)), [Number(ogImageMeta('width')), Number(ogImageMeta('height'))], `Social image size disagrees with its tags for ${url}`);
+  assert(ogImageMeta('alt')?.trim(), `Missing og:image:alt for ${url}`);
+  assert.equal(document.querySelector('meta[name="twitter:image"]')?.content, image.href, `twitter:image differs from og:image for ${url}`);
+  assertAssetsShipped(document, url);
   const schemas = [...document.querySelectorAll('script[type="application/ld+json"]')]
     .flatMap(script => [JSON.parse(script.textContent)].flat())
     .flatMap(schema => schema['@graph'] ?? [schema]);
@@ -92,11 +145,19 @@ for (const url of urls) {
     assert.equal(posting.dateModified, modified, `dateModified disagrees with article:modified_time for ${url}`);
     assert(modified >= published, `Article modified before it was published: ${url}`);
   }
-  for (const anchor of document.querySelectorAll('#root a[href^="/"]')) {
-    const target = new URL(anchor.getAttribute('href'), SITE_URL);
-    assert(urls.includes(`${target.origin}${target.pathname}`), `Internal link ${target} in ${url} is not a published URL`);
+  // Same-origin links, absolute or relative: pages must be published URLs and
+  // files (the feed, llms.txt) must ship.
+  for (const anchor of document.querySelectorAll('a[href]')) {
+    const target = new URL(anchor.getAttribute('href'), url);
+    if (target.origin !== SITE_URL || (target.pathname === route.pathname && target.hash)) continue;
+    if (/\.[a-z0-9]+$/i.test(target.pathname)) assertShipped(target.href, url);
+    else assert(urls.includes(`${target.origin}${target.pathname}`), `Internal link ${target} in ${url} is not a published URL`);
   }
   assert(!document.title.includes('Redirecting'), `Fallback shell for ${url}`);
+  const commits = [...document.querySelectorAll('meta[name="build-commit"]')].map(element => element.content);
+  assert.equal(commits.length, 1, `Expected one build-commit stamp for ${url}`);
+  assert.match(commits[0], /^[0-9a-f]{40}$/, `Invalid build-commit stamp for ${url}`);
+  if (process.env.GITHUB_SHA) assert.equal(commits[0], process.env.GITHUB_SHA, `Build-commit stamp is not this CI commit for ${url}`);
   for (const anchor of document.querySelectorAll('#root a[href^="#"]')) {
     assert(document.getElementById(anchor.getAttribute('href').slice(1)), `Broken in-page link ${anchor.getAttribute('href')} in ${url}`);
   }
@@ -155,6 +216,9 @@ for (const href of fontUrls) assert(existsSync(new URL(href.slice(1), dist)), `@
 // Search engines fetch this file to accept IndexNow submissions for the site.
 const indexNowKeyFile = new URL(`${INDEXNOW_KEY}.txt`, dist);
 assert(existsSync(indexNowKeyFile) && readFileSync(indexNowKeyFile, 'utf8') === INDEXNOW_KEY, 'dist must serve the IndexNow key file at the site root');
+const manifest = JSON.parse(readFileSync(new URL('site.webmanifest', dist), 'utf8'));
+for (const reference of [manifest.start_url, ...manifest.icons.map(icon => icon.src)]) assertShipped(reference, 'site.webmanifest');
+assertAssetsShipped(new JSDOM(readFileSync(new URL('404.html', dist), 'utf8')).window.document, '404.html');
 const llmsFile = new URL('llms.txt', dist);
 assert(existsSync(llmsFile), 'Missing dist/llms.txt');
 const llms = readFileSync(llmsFile, 'utf8');

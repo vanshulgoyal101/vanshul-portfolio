@@ -135,6 +135,30 @@ describe('recordBlogView', () => {
     await expect(recordBlogView('a')).resolves.toBe(1);
     expect(client.supabase.rpc).toHaveBeenCalledTimes(2);
   });
+
+  it.each([
+    ['a bare string', '"a"'],
+    ['an object', '{"a":true}'],
+    ['a number', '7'],
+    ['null', 'null'],
+    ['invalid JSON', '[a'],
+  ])('treats %s in session storage as nothing counted', async (_, stored) => {
+    sessionStorage.setItem('vg.viewedPosts', stored);
+    client.state.rpc = { data: 1, error: null };
+    await expect(recordBlogView('a')).resolves.toBe(1);
+    expect(client.supabase.rpc).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(sessionStorage.getItem('vg.viewedPosts'))).toEqual(['a']);
+  });
+
+  it('keeps only bounded, unique slug strings from a stored list', async () => {
+    sessionStorage.setItem('vg.viewedPosts', JSON.stringify(['b', 5, null, {}, 'b', '', 'x'.repeat(121)]));
+    client.state.rpc = { data: 1, error: null };
+    client.state.row = { data: { views: 1 }, error: null };
+    await recordBlogView('b');
+    await recordBlogView('a');
+    expect(client.supabase.rpc).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(sessionStorage.getItem('vg.viewedPosts'))).toEqual(['b', 'a']);
+  });
 });
 
 describe('when supabase-js fails to download', () => {

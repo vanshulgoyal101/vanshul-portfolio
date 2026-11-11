@@ -77,4 +77,26 @@ describe('database authorization and schema behavior', () => {
     await database.exec(analyticsSchema);
     expect((await database.query('select count(*) from web_events')).rows[0].count).toBe(before);
   });
+
+  // Schema-wide, so a table or function added later cannot skip the boundary.
+  // arcade_events belongs to the Arcade schema and is only a fixture here.
+  it('secures every table and definer function the schemas create', async () => {
+    const tables = await database.query(`
+      select c.relname, c.relrowsecurity from pg_class c join pg_namespace n on n.oid = c.relnamespace
+      where n.nspname = 'public' and c.relkind in ('r', 'p') and c.relname <> 'arcade_events' order by 1`);
+    expect(tables.rows).toEqual([
+      { relname: 'blog_views', relrowsecurity: true },
+      { relname: 'web_events', relrowsecurity: true },
+    ]);
+    const writes = await database.query(`
+      select table_name, grantee, privilege_type from information_schema.role_table_grants
+      where table_schema = 'public' and table_name <> 'arcade_events'
+        and grantee in ('anon', 'authenticated', 'PUBLIC') and privilege_type in ('UPDATE', 'DELETE', 'TRUNCATE')`);
+    expect(writes.rows).toEqual([]);
+    const definers = await database.query(`
+      select p.proname, p.proconfig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname = 'public' and p.prosecdef order by 1`);
+    expect(definers.rows.map(row => row.proname)).toEqual(['increment_blog_view', 'web_stats']);
+    for (const { proconfig } of definers.rows) expect(proconfig).toContain('search_path=public, pg_temp');
+  });
 });

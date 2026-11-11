@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useSeo } from './useSeo';
+import { useSeo, socialImageType } from './useSeo';
 import { SITE_URL, DEFAULT_OG_IMAGE } from '../constants/siteConfig';
 
 const metaContent = (attr, key) =>
@@ -46,7 +46,30 @@ describe('useSeo', () => {
   it('falls back to the default OG image when none is provided', () => {
     const { unmount } = renderHook(() => useSeo({ title: 'T' }));
     expect(metaContent('property', 'og:image')).toBe(DEFAULT_OG_IMAGE);
+    expect(metaContent('property', 'og:image:type')).toBe('image/png');
     unmount();
+  });
+
+  it('labels raster social images with their MIME type and omits unsupported formats', () => {
+    expect(socialImageType('https://vanshul.com/og/y.png')).toBe('image/png');
+    expect(socialImageType('https://vanshul.com/card.JPG?v=2')).toBe('image/jpeg');
+    expect(socialImageType('/relative/card.jpeg')).toBe('image/jpeg');
+    expect(socialImageType('https://vanshul.com/panda.svg')).toBeUndefined();
+
+    const { unmount } = renderHook(() => useSeo({ title: 'T', image: 'https://vanshul.com/panda.svg' }));
+    expect(metaContent('property', 'og:image:type')).toBeUndefined();
+    unmount();
+
+    // A static template tag must not keep claiming PNG for an unsupported image.
+    const staticTag = document.createElement('meta');
+    staticTag.setAttribute('property', 'og:image:type');
+    staticTag.setAttribute('content', 'image/png');
+    document.head.appendChild(staticTag);
+    const svgPage = renderHook(() => useSeo({ title: 'T', image: 'https://vanshul.com/panda.svg' }));
+    expect(metaContent('property', 'og:image:type')).toBeUndefined();
+    svgPage.unmount();
+    expect(metaContent('property', 'og:image:type')).toBe('image/png');
+    staticTag.remove();
   });
 
   it('sets the requested robots policy, and cleans it up', () => {

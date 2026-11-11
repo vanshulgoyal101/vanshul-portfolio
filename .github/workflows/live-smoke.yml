@@ -1,0 +1,47 @@
+name: Live smoke
+
+# Read-only checks of https://vanshul.com (scripts/smoke-live.mjs): after every
+# successful deploy, and daily to catch drift, when production no longer serves
+# main. Separate from the deploy workflow so its wait never holds the Pages
+# concurrency group, and so every run uses the newest guard on main.
+# See documentation/deployment.md#live-smoke.
+on:
+  workflow_run:
+    workflows: [Deploy to GitHub Pages]
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '23 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-smoke-${{ github.event.workflow_run.head_sha || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+
+      # Waits up to 15 minutes for production to serve the commit, skips when
+      # main has already moved past it, then checks every published route.
+      - name: Smoke production
+        timeout-minutes: 20
+        env:
+          EXPECTED_COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: node scripts/smoke-live.mjs --expect "$EXPECTED_COMMIT"

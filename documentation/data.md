@@ -251,17 +251,19 @@ and can be called directly.
 
 #### Environment variables
 
-Copy `.env.example` to `.env` for local development. Production builds read
-`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from GitHub Actions secrets
-(see `.github/workflows/deploy.yml`).
+Copy `.env.example` to `.env` for local development and uncomment the values you
+use. Production builds read `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+from GitHub Actions secrets (see `.github/workflows/deploy.yml`).
 
 ```
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-public-key
+VITE_SUPABASE_ANON_KEY=sb_publishable_your-key
 ```
 
 The anon key is a **public** key — safe to ship in the bundle. Security is
 enforced by Row Level Security and grants in the database, not by hiding the key.
+The build rejects a secret or service-role key, a non-`https` URL and other
+malformed values (see [config.md](config.md#environment-variables)).
 
 #### Database schema
 

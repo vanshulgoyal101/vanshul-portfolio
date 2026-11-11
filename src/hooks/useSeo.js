@@ -21,6 +21,13 @@ const upsertMeta = (attr, key, content) => {
   };
 };
 
+// Remove a static <meta> that would misdescribe the page, restoring it on cleanup.
+const detachMeta = (attr, key) => {
+  const el = document.head.querySelector(`meta[${attr}="${key}"]`);
+  el?.remove();
+  return () => { if (el) document.head.appendChild(el); };
+};
+
 const upsertLink = (rel, href) => {
   let el = document.head.querySelector(`link[rel="${rel}"]`);
   const created = !el;
@@ -35,6 +42,14 @@ const upsertLink = (rel, href) => {
     if (created) el.remove();
     else if (prev != null) el.setAttribute('href', prev);
   };
+};
+
+const IMAGE_TYPES = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg' };
+
+/** The MIME type for a raster social image URL, or undefined when unsupported. */
+export const socialImageType = (url) => {
+  const pathname = URL.canParse(url) ? new URL(url).pathname : String(url);
+  return IMAGE_TYPES[pathname.split('.').pop().toLowerCase()];
 };
 
 /**
@@ -88,6 +103,10 @@ export const useSeo = ({
     cleanups.push(upsertMeta('property', 'og:url', url));
     cleanups.push(upsertMeta('name', 'twitter:url', url));
     cleanups.push(upsertMeta('property', 'og:image', image));
+    // Crawlers refuse SVG cards; the type tag states the raster format outright.
+    const imageType = socialImageType(image);
+    if (imageType) cleanups.push(upsertMeta('property', 'og:image:type', imageType));
+    else cleanups.push(detachMeta('property', 'og:image:type'));
     cleanups.push(upsertMeta('property', 'og:image:width', '1200'));
     cleanups.push(upsertMeta('property', 'og:image:height', '630'));
     if (title) cleanups.push(upsertMeta('property', 'og:image:alt', title));

@@ -10,10 +10,16 @@ const loadClient = () => getSupabase().catch((error) => {
 // Slugs already counted in this browser session, so reloads and revisits do
 // not inflate the public counts.
 const SESSION_KEY = 'vg.viewedPosts';
+const MAX_COUNTED = 500;
+// Slugs are at most 120 characters (the increment_blog_view RPC enforces it).
+const isStoredSlug = value => typeof value === 'string' && value.length > 0 && value.length <= 120;
 
+// Stored data is untrusted: anything but a list of slugs reads as empty or
+// loses the bad entries, so a corrupt value can never block a count.
 const countedSlugs = () => {
   try {
-    return new Set(JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? '[]'));
+    const stored = JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? '[]');
+    return new Set(Array.isArray(stored) ? stored.filter(isStoredSlug).slice(-MAX_COUNTED) : []);
   } catch {
     return new Set();
   }

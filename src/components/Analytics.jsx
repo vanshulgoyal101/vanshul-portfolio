@@ -1,15 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { parseRuntimeConfig } from '../lib/runtimeConfig';
 
 const Analytics = () => {
   const { pathname } = useLocation();
   const lastPath = useRef(null);
-  const code = import.meta.env.VITE_GOATCOUNTER_CODE;
+  const code = parseRuntimeConfig(import.meta.env).goatCounterCode;
 
   useEffect(() => {
     const optedOut = () => navigator.globalPrivacyControl === true ||
       navigator.doNotTrack === '1' || window.doNotTrack === '1';
-    if (!code || !/^[a-z0-9-]+$/i.test(code) || optedOut() || /^\/dashboard(?:\/|$)/i.test(pathname)) {
+    if (!code || optedOut() || /^\/dashboard(?:\/|$)/i.test(pathname)) {
       lastPath.current = null;
       return;
     }

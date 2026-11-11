@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from '../components/Toast';
+import { parseRuntimeConfig } from '../lib/runtimeConfig';
 
 // Formspree endpoint for the contact form. Override with VITE_CONTACT_ENDPOINT.
-const CONTACT_ENDPOINT =
-  import.meta.env.VITE_CONTACT_ENDPOINT || 'https://formspree.io/f/xgvzkqob';
+const { contactEndpoint: CONTACT_ENDPOINT } = parseRuntimeConfig(import.meta.env);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

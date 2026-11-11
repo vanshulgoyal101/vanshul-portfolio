@@ -51,6 +51,15 @@ tags. Passing the `article` option also emits `article:*` Open Graph tags
 (`published_time`, `modified_time`, `author`, `section`) for blog posts. This
 keeps meta correct as the user moves between sections and posts without a reload.
 
+Social images are raster PNGs at 1200×630, because X, LinkedIn, Slack and
+others refuse SVG cards. `og:image:type` is derived from the image URL
+(`socialImageType`) and dropped for an unsupported format rather than left
+claiming PNG. `verify:build` reads each published page's card file and fails
+unless it is a PNG whose real dimensions match `og:image:width`/`height`, with
+`og:image:type`, alt text and a matching `twitter:image`. It also fails when
+any script, stylesheet, preload, icon, manifest member, feed link or
+same-origin link on a published page points at a file missing from `dist`.
+
 ## Build-time generation
 
 The build pipeline (see [config.md](config.md) and [deployment.md](deployment.md))

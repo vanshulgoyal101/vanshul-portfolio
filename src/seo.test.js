@@ -17,6 +17,17 @@ describe('index.html template', () => {
   it('carries no structured data of its own', () => {
     expect(template).not.toMatch(/application\/ld\+json/);
   });
+
+  // Every shell inherits these tags; scrapers render only raster cards.
+  it('declares a 1200x630 PNG social card with its type and alt text', () => {
+    const head = new DOMParser().parseFromString(template, 'text/html').head;
+    const og = (key) => head.querySelector(`meta[property="og:${key}"]`)?.getAttribute('content');
+    expect(og('image')).toMatch(/^https:\/\/vanshul\.com\/.+\.png$/);
+    expect(og('image:type')).toBe('image/png');
+    expect([og('image:width'), og('image:height')]).toEqual(['1200', '630']);
+    expect(og('image:alt')).toBeTruthy();
+    expect(head.querySelector('meta[name="twitter:image"]')?.getAttribute('content')).toBe(og('image'));
+  });
 });
 
 describe('homepage structured data', () => {

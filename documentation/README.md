@@ -15,8 +15,8 @@ then dive into specific areas.
 | [styles.md](styles.md) | Design system: visual language, tokens, shared primitives (`components/ui`), recurring patterns, focus/tap-target rules, motion and reduced motion. |
 | [assets.md](assets.md) | Images, public assets, and file organisation. |
 | [testing.md](testing.md) | Vitest + React Testing Library setup, PGlite SQL tests, Playwright and axe browser checks, conventions, mocks, and how to run/extend tests. |
-| [config.md](config.md) | `package.json`, `vite.config.js`, `eslint.config.js`, `playwright.config.js`, `Makefile`, environment variables, every script in `scripts/`, and hosting files. |
-| [deployment.md](deployment.md) | GitHub Pages deployment through GitHub Actions, the Cloudflare-fronted domain, the SPA routing workaround, build output, rollback and troubleshooting. |
+| [config.md](config.md) | `package.json`, `vite.config.js` (build stamp, Content-Security-Policy), `eslint.config.js`, `playwright.config.js`, `Makefile`, the validated environment variables, every script in `scripts/`, and hosting files. |
+| [deployment.md](deployment.md) | GitHub Pages deployment through GitHub Actions, the post-deploy and daily live smoke, the Cloudflare-fronted domain, the SPA routing workaround, build output, rollback and troubleshooting. |
 | [accessibility.md](accessibility.md) | WCAG 2.1 AA as implemented and tested: automated checks, landmarks and headings, keyboard and focus, forms, status messages, contrast, targets, motion. |
 | [seo.md](seo.md) | Runtime meta (`useSeo`), build-time generation (sitemap, OG images, RSS feed, blog pre-rendering), JSON-LD, and static SEO files. |
 | [analytics.md](analytics.md) | Optional GoatCounter page counts, the first-party `a.js` beacon, the `web_events` schema + RLS, the owner-gated `web_stats()` RPC, and the private `/dashboard`. |
