@@ -6,6 +6,7 @@ import { FEATURED_PROJECTS, PROJECT_DIRECTORY } from '../src/constants/projects.
 const visit = async (page, url) => {
   const response = await page.goto(url);
   await expect(page.locator('[data-boot-loader]')).toHaveCount(0, { timeout: 10000 });
+  await expect(page.locator('main h1')).toBeVisible();
   return response;
 };
 
