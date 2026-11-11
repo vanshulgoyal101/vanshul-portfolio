@@ -1,4 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, afterAll } from 'vitest';
+// jsdom re-parses styled-components' whole text stylesheet on every append,
+// making the first full homepage render quadratic. CSSOM injection keeps the
+// same rules and computed styles while parsing each rule only once.
+vi.hoisted(() => vi.stubEnv('SC_DISABLE_SPEEDY', 'false'));
 import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
 import App from './App';
 import { RETRY_KEY } from './utils/routeRetry';
@@ -18,6 +22,8 @@ vi.mock('./pages/Dashboard', () => ({
 
 // Route composition does not need decorative idle work; the shell suite tests it.
 vi.mock('./hooks/useIdle', () => ({ useIdle: () => false }));
+
+afterAll(() => vi.unstubAllEnvs());
 
 // Reduced motion completes the greeting immediately and skips decorative work,
 // so the tests exercise routing and page composition only.
