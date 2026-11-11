@@ -72,7 +72,7 @@ describe('App deep links', () => {
 
     finishIntro();
     await waitFor(() => expect(main).toHaveFocus());
-    expect(window.scrollTo).toHaveBeenCalled();
+    expect(window.scrollTo).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'instant' }));
   });
 
   it('waits for web fonts so the section lands where the final layout puts it', async () => {

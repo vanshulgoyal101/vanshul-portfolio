@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { Profiler } from 'react';
 import Magnetic from './Magnetic';
 import { magneticOffset } from '../../utils/magnetic';
 
@@ -7,11 +8,25 @@ import { magneticOffset } from '../../utils/magnetic';
 // to animate to, so the pull can be asserted without running springs.
 vi.mock('framer-motion', async (importOriginal) => {
   const React = await import('react');
+  const original = await importOriginal();
   return {
-    ...(await importOriginal()),
+    ...original,
+    useSpring: original.useMotionValue,
     motion: {
-      div: React.forwardRef(function MotionDiv({ animate, transition, ...props }, ref) {
-        return <div ref={ref} data-x={animate.x} data-y={animate.y} {...props} />;
+      div: React.forwardRef(function MotionDiv({ style: { x, y, ...style }, ...props }, ref) {
+        const element = React.useRef(null);
+        React.useImperativeHandle(ref, () => element.current);
+        React.useEffect(() => {
+          const update = () => {
+            element.current.dataset.x = x.get();
+            element.current.dataset.y = y.get();
+          };
+          update();
+          const stopX = x.on('change', update);
+          const stopY = y.on('change', update);
+          return () => { stopX(); stopY(); };
+        }, [x, y]);
+        return <div ref={element} style={style} {...props} />;
       }),
     },
   };
@@ -92,6 +107,25 @@ describe('Magnetic', () => {
     expect(offset()).toEqual([0, 0]);
   });
 
+  it('updates pointer offsets without re-rendering the React subtree', () => {
+    setMatchMedia({ hover: true, reducedMotion: false });
+    const commits = vi.fn();
+    const { container } = render(
+      <Profiler id="magnet" onRender={commits}>
+        <Magnetic><button>Pull</button></Magnetic>
+      </Profiler>
+    );
+    const magnet = container.firstChild;
+    magnet.getBoundingClientRect = () => ({ left: 100, top: 100, width: 80, height: 40 });
+    commits.mockClear();
+    for (let clientX = 140; clientX < 160; clientX++) {
+      fireEvent.mouseMove(magnet, { clientX, clientY: 130 });
+    }
+    expect(Number(magnet.dataset.x)).toBeGreaterThan(0);
+    fireEvent.mouseLeave(magnet);
+    expect(commits).not.toHaveBeenCalled();
+  });
+
   it('follows preference changes and stops listening on unmount', () => {
     const pointer = { matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() };
     const motion = { matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() };
@@ -106,6 +140,13 @@ describe('Magnetic', () => {
     });
     expect(container.querySelector('div')).toBeNull();
     expect(screen.getByText('icon')).toBeInTheDocument();
+
+    act(() => {
+      motion.matches = false;
+      evaluate();
+    });
+    expect(container.firstChild).toHaveAttribute('data-x', '0');
+    expect(container.firstChild).toHaveAttribute('data-y', '0');
 
     unmount();
     expect(pointer.removeEventListener).toHaveBeenCalledWith('change', evaluate);

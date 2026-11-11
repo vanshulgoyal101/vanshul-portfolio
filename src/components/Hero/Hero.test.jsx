@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import Hero from './Hero';
 import { MemoryRouter } from 'react-router-dom';
@@ -16,14 +16,31 @@ vi.mock('../FunElements/FloatingRocket', () => ({
 }));
 
 // The scene and rocket resolve lazily; settle them inside act().
-const renderHero = async () => {
-  const result = render(<MemoryRouter><Hero /></MemoryRouter>);
-  await act(async () => {});
+const renderHero = async (props = {}) => {
+  const result = render(<MemoryRouter><Hero {...props} /></MemoryRouter>);
+  await act(() => new Promise(resolve => requestAnimationFrame(resolve)));
   return result;
 };
 
 describe('Hero', () => {
-  beforeEach(() => useIdle.mockReturnValue(true));
+  let visible;
+  let observers;
+
+  beforeEach(() => {
+    useIdle.mockReturnValue(true);
+    visible = true;
+    observers = [];
+    vi.stubGlobal('IntersectionObserver', class {
+      constructor(callback) {
+        this.callback = callback;
+        observers.push(this);
+      }
+      observe = vi.fn(target => this.callback([{ target, isIntersecting: visible }]));
+      disconnect = vi.fn();
+    });
+  });
+
+  afterEach(() => vi.unstubAllGlobals());
 
   it('renders the name and the primary calls to action', async () => {
     await renderHero();
@@ -91,6 +108,53 @@ describe('Hero', () => {
     await renderHero();
     expect(screen.getByText('Vanshul Goyal')).toBeInTheDocument();
     expect(screen.queryByTestId('hero-scene')).toBeNull();
+  });
+
+  it('does not request the scene until the desktop hero enters the viewport', async () => {
+    visible = false;
+    window.matchMedia = vi.fn(query => ({
+      matches: query.includes('min-width: 1025px'),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    await renderHero();
+    expect(screen.queryByTestId('hero-scene')).toBeNull();
+    expect(observers[0].observe).toHaveBeenCalledWith(document.querySelector('[data-hero-scene]'));
+
+    await act(async () => observers[0].callback([{ isIntersecting: true }]));
+    expect(await screen.findByTestId('hero-scene')).toBeInTheDocument();
+    expect(observers[0].disconnect).toHaveBeenCalled();
+  });
+
+  it('waits for the intro before observing the hero', async () => {
+    window.matchMedia = vi.fn(query => ({
+      matches: query.includes('min-width: 1025px'),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    await renderHero({ sceneEnabled: false });
+    expect(observers).toHaveLength(0);
+    expect(screen.queryByTestId('hero-scene')).toBeNull();
+  });
+
+  it('cancels visibility work if unmounted while fonts are loading', async () => {
+    window.matchMedia = vi.fn(query => ({
+      matches: query.includes('min-width: 1025px'),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    let resolveFonts;
+    document.fonts = { ready: new Promise(resolve => { resolveFonts = resolve; }) };
+    try {
+      const { unmount } = await renderHero();
+      expect(observers[0].observe).not.toHaveBeenCalled();
+      unmount();
+      await act(async () => resolveFonts());
+      expect(observers[0].observe).not.toHaveBeenCalled();
+      expect(observers[0].disconnect).toHaveBeenCalled();
+    } finally {
+      delete document.fonts;
+    }
   });
 
   it('unmounts the scene when motion preference changes and removes listeners', async () => {

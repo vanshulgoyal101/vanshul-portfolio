@@ -1,5 +1,5 @@
 // src/components/Hero/Hero.jsx
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { HiArrowRight } from 'react-icons/hi';
@@ -218,6 +218,8 @@ const itemVariants = {
 const Hero = ({ sceneEnabled = true }) => {
   const idle = useIdle(1200);
   const [sceneAllowed, setSceneAllowed] = useState(false);
+  const sceneArea = useRef(null);
+  const [sceneRequested, setSceneRequested] = useState(false);
 
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 1025px)');
@@ -231,6 +233,27 @@ const Hero = ({ sceneEnabled = true }) => {
       reducedMotion.removeEventListener('change', update);
     };
   }, []);
+
+  useEffect(() => {
+    if (!sceneEnabled || !idle || !sceneAllowed || sceneRequested) return;
+    let cancelled = false;
+    let frame;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!cancelled && entry.isIntersecting) setSceneRequested(true);
+    });
+    const observe = () => {
+      if (cancelled) return;
+      // Let the initial hash scroll and font layout settle before deciding to download 3D.
+      frame = requestAnimationFrame(() => observer.observe(sceneArea.current));
+    };
+    if (document.fonts) document.fonts.ready.then(observe);
+    else observe();
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [sceneEnabled, idle, sceneAllowed, sceneRequested]);
 
   return (
     <HeroSection>
@@ -292,8 +315,8 @@ const Hero = ({ sceneEnabled = true }) => {
             })}
           </SocialLinks>
         </HeroContent>
-        <SceneArea aria-hidden="true" data-hero-scene>
-          {sceneEnabled && idle && sceneAllowed && (
+        <SceneArea ref={sceneArea} aria-hidden="true" data-hero-scene>
+          {sceneEnabled && idle && sceneAllowed && sceneRequested && (
             <ErrorBoundary fallback={null}>
               <Suspense fallback={null}>
                 <HeroScene />

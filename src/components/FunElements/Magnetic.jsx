@@ -1,18 +1,25 @@
 // src/components/FunElements/Magnetic.jsx
 import { useRef, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useSpring } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { magneticOffset } from '../../utils/magnetic';
 
+const SPRING = { stiffness: 180, damping: 22, mass: 0.1 };
+
 const Magnetic = ({ children, range = 40 }) => {
   const ref = useRef(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const x = useSpring(0, SPRING);
+  const y = useSpring(0, SPRING);
   const [isEnabled, setIsEnabled] = useState(false);
 
   useEffect(() => {
     const pointer = window.matchMedia('(hover: hover) and (pointer: fine)');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const evaluate = () => setIsEnabled(pointer.matches && !reducedMotion.matches);
+    const evaluate = () => {
+      setIsEnabled(pointer.matches && !reducedMotion.matches);
+      x.jump(0);
+      y.jump(0);
+    };
     evaluate();
 
     pointer.addEventListener('change', evaluate);
@@ -21,23 +28,24 @@ const Magnetic = ({ children, range = 40 }) => {
       pointer.removeEventListener('change', evaluate);
       reducedMotion.removeEventListener('change', evaluate);
     };
-  }, []);
+  }, [x, y]);
 
   const handleMouseMove = (e) => {
     if (!isEnabled || !ref.current) return;
 
     const { left, top, width, height } = ref.current.getBoundingClientRect();
-    setPosition(
-      magneticOffset(
-        e.clientX - (left + width / 2),
-        e.clientY - (top + height / 2),
-        range
-      )
+    const offset = magneticOffset(
+      e.clientX - (left + width / 2),
+      e.clientY - (top + height / 2),
+      range
     );
+    x.set(offset.x);
+    y.set(offset.y);
   };
 
   const handleMouseLeave = () => {
-    setPosition({ x: 0, y: 0 });
+    x.set(0);
+    y.set(0);
   };
 
   if (!isEnabled) {
@@ -49,9 +57,7 @@ const Magnetic = ({ children, range = 40 }) => {
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      animate={{ x: position.x, y: position.y }}
-      transition={{ type: 'spring', stiffness: 180, damping: 22, mass: 0.1 }}
-      style={{ display: 'inline-block' }}
+      style={{ x, y, display: 'inline-block' }}
     >
       {children}
     </motion.div>

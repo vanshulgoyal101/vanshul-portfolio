@@ -1,5 +1,5 @@
 // src/App.jsx
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { MotionConfig, useReducedMotion } from 'framer-motion';
@@ -7,12 +7,7 @@ import { MotionConfig, useReducedMotion } from 'framer-motion';
 import GlobalStyles from './styles/GlobalStyles';
 import { useIdle } from './hooks/useIdle';
 import { getHashTarget, scrollToSection as scrollToSectionUtil } from './utils/scrollToSection';
-import { useSeo } from './hooks/useSeo';
-import { SITE_URL, AUTHOR_NAME, AUTHOR_SAME_AS, HOME_DESCRIPTION } from './constants/siteConfig';
-import { PROFILE } from './constants/profile';
-import { homeJsonLd } from '../scripts/lib/structuredData.mjs';
-import { HOME_PATH, BLOG_PATH, postPath } from './constants/routes';
-import Navigation from './components/Navigation/Navigation';
+import { BLOG_PATH, postPath } from './constants/routes';
 import ErrorBoundary from './components/ErrorBoundary';
 import RouteError from './components/RouteError';
 import { ToastProvider } from './components/Toast';
@@ -20,19 +15,12 @@ import BackgroundElements from './components/BackgroundElements';
 import NotFound from './pages/NotFound';
 import SiteFooter from './components/SiteFooter';
 
-// Long-form pages pull in the markdown renderer — keep them off the home bundle.
+// Each route loads only its own content, not the entire portfolio.
+const Home = lazy(() => import('./pages/Home'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 const BlogIndex = lazy(() => import('./pages/BlogIndex'));
 const ReadingListPage = lazy(() => import('./pages/ReadingList'));
 const ProjectPage = lazy(() => import('./pages/ProjectPage'));
-
-// Sections (critical path)
-import Hero from './components/Hero/Hero';
-import About from './components/About/About';
-import Work from './components/Work/Work';
-import Projects from './components/Projects/Projects';
-import Blog from './components/Blog/Blog';
-import Contact from './components/Contact/Contact';
 
 // Decorative elements
 import CustomCursor from './components/FunElements/CustomCursor';
@@ -54,11 +42,6 @@ const AppWrapper = styled.div`
   min-height: 100vh;
   overflow: hidden;
   opacity: ${({ $isBooting }) => ($isBooting ? 0 : 1)};
-`;
-
-const MainContent = styled.main`
-  position: relative;
-  z-index: 2;
 `;
 
 // Holds the page's height while a lazy route loads, so the footer does not
@@ -97,38 +80,34 @@ const SkipLink = styled.a`
   }
 `;
 
-const SectionWrapper = styled.div`
-  width: 100%;
-  position: relative;
-`;
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-const HOME_JSON_LD = JSON.stringify(homeJsonLd({
-  site: SITE_URL, authorName: AUTHOR_NAME, authorSameAs: AUTHOR_SAME_AS, profile: PROFILE,
-}));
-
-const HomeMetadata = () => {
-  useSeo({ title: AUTHOR_NAME, description: HOME_DESCRIPTION, path: HOME_PATH, jsonLd: HOME_JSON_LD });
-  return null;
-};
 
 // ScrollToHash: scrolls to a section when returning from a subroute, or when
 // the URL contains a hash on a direct hit.
 const ScrollToHash = ({ isBooting }) => {
   const location = useLocation();
+  const firstScroll = useRef(true);
 
   useEffect(() => {
-    if (isBooting || !location.hash) return;
+    if (isBooting) return;
+    if (!location.hash) {
+      firstScroll.current = false;
+      return;
+    }
     const target = getHashTarget(location.hash);
     let cancelled = false;
     let frame;
+    const scroll = () => {
+      // Direct links should land immediately; subsequent section clicks stay smooth.
+      scrollToSectionUtil(target, { focus: true, behavior: firstScroll.current ? 'instant' : undefined });
+      firstScroll.current = false;
+    };
     document.fonts?.ready.then(() => {
-      if (!cancelled) frame = requestAnimationFrame(() => scrollToSectionUtil(target, { focus: true }));
+      if (!cancelled) frame = requestAnimationFrame(scroll);
     });
-    if (!document.fonts) frame = requestAnimationFrame(() => scrollToSectionUtil(target, { focus: true }));
+    if (!document.fonts) frame = requestAnimationFrame(scroll);
     return () => {
       cancelled = true;
       cancelAnimationFrame(frame);
@@ -188,7 +167,6 @@ function App() {
   return (
     <MotionConfig reducedMotion="user">
     <Router>
-      <ScrollToHash isBooting={isBooting} />
       <Analytics />
       <ToastProvider>
         <GlobalStyles />
@@ -206,65 +184,10 @@ function App() {
           <div id="main-content" tabIndex={-1}>
           <Suspense fallback={<PageLoading role="status">Loading page...</PageLoading>}>
           <RouteBoundary>
+          <ScrollToHash isBooting={isBooting} />
           <Routes>
             {/* Main portfolio page */}
-            <Route path="/" element={
-            <>
-              <HomeMetadata />
-              <Navigation />
-              <MainContent>
-                  {/* Hero Section */}
-                  <ErrorBoundary>
-                    <SectionWrapper id="home">
-                      <Hero sceneEnabled={!isBooting} />
-                    </SectionWrapper>
-                  </ErrorBoundary>
-
-                  <ErrorBoundary>
-                    <SectionWrapper id="projects">
-                      <Projects />
-                    </SectionWrapper>
-                  </ErrorBoundary>
-
-                  {/* About Section */}
-                  <ErrorBoundary>
-                    <SectionWrapper
-                      id="about"
-                    >
-                      <About />
-                    </SectionWrapper>
-                  </ErrorBoundary>
-
-                  {/* Work Experience Section */}
-                  <ErrorBoundary>
-                    <SectionWrapper
-                      id="work"
-                    >
-                      <Work />
-                    </SectionWrapper>
-                  </ErrorBoundary>
-
-                  {/* Blog Section */}
-                  <ErrorBoundary>
-                    <SectionWrapper
-                      id="blog"
-                    >
-                      <Blog />
-                    </SectionWrapper>
-                  </ErrorBoundary>
-
-                  {/* Contact Section */}
-                  <ErrorBoundary>
-                    <SectionWrapper
-                      id="contact"
-                    >
-                      <Contact />
-                    </SectionWrapper>
-                  </ErrorBoundary>
-                </MainContent>
-
-            </>
-          } />
+            <Route path="/" element={<Home sceneEnabled={!isBooting} />} />
           
             
             {/* Curated reading list */}

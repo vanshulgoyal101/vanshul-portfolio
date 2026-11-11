@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
 import App from './App';
 import { RETRY_KEY } from './utils/routeRetry';
+// Keep cold source transforms outside routing assertion timeouts. The browser
+// performance suite separately checks the actual lazy chunk boundary.
+import './pages/Home';
 
 // The private dashboard talks to Supabase auth; routing tests only need its
 // shell. `fail` makes it throw like a page whose code could not be loaded.
@@ -12,6 +15,9 @@ vi.mock('./pages/Dashboard', () => ({
     return <h1>Owner dashboard</h1>;
   },
 }));
+
+// Route composition does not need decorative idle work; the shell suite tests it.
+vi.mock('./hooks/useIdle', () => ({ useIdle: () => false }));
 
 // Reduced motion completes the greeting immediately and skips decorative work,
 // so the tests exercise routing and page composition only.
@@ -31,14 +37,17 @@ const preferReducedMotion = () => {
 const renderAt = async (path) => {
   window.history.pushState({}, '', path);
   const result = render(<App />);
-  await act(async () => {});
+  await act(() => vi.dynamicImportSettled());
   return result;
 };
 
 // Subpages are lazy chunks; their first import can take over a second when the
 // whole suite transforms in parallel, so lookups allow for that cold start.
 const LAZY = { timeout: 5000 };
-const findPageHeading = (name) => screen.findByRole('heading', { level: 1, name }, LAZY);
+// Routing checks need the actual h1, not jsdom's expensive accessible-name and
+// computed-visibility scan of the entire styled homepage. Browser tests verify
+// painted visibility and accessibility separately.
+const findPageHeading = (name) => screen.findByText(name, { selector: 'h1' }, LAZY);
 
 // A lazy page can be found in the DOM before its effects (which write the head
 // tags) have run, so head assertions after a lazy load wait for them.
@@ -50,10 +59,11 @@ describe('App routing', () => {
 
   it('composes every homepage section at /', async () => {
     await renderAt('/');
+    await findPageHeading('Vanshul Goyal');
     for (const id of ['home', 'projects', 'about', 'work', 'blog', 'contact']) {
       expect(document.getElementById(id)).not.toBeNull();
     }
-    expect(screen.getByRole('heading', { level: 1, name: 'Vanshul Goyal' })).toBeInTheDocument();
+    expect(await findPageHeading('Vanshul Goyal')).toBeInTheDocument();
     expect(document.title).toBe('Vanshul Goyal');
     expect(canonical()).toBe('https://vanshul.com/');
   });
@@ -120,7 +130,8 @@ describe('App structured data', () => {
 
   it('describes the person and profile page only on the homepage', async () => {
     const { unmount } = await renderAt('/');
-    expect(schemaTypes()).toEqual(expect.arrayContaining(['WebSite', 'Person', 'ProfilePage']));
+    await findPageHeading('Vanshul Goyal');
+    await waitFor(() => expect(schemaTypes()).toEqual(expect.arrayContaining(['WebSite', 'Person', 'ProfilePage'])));
     unmount();
 
     await renderAt('/blog/the-new-leverage/');

@@ -127,7 +127,7 @@ describe('Navigation', () => {
     expect(offset()).toBe('92px');
   });
 
-  it('highlights the section crossing the upper third of the viewport as the page scrolls', () => {
+  it('highlights the section crossing the upper third of the viewport as the page scrolls', async () => {
     const sections = ['home', 'projects', 'about'].map((id) => {
       const section = document.createElement('section');
       section.id = id;
@@ -140,9 +140,42 @@ describe('Navigation', () => {
     place('projects', -300, 200);
     place('about', 200, 900);
     act(() => window.dispatchEvent(new Event('scroll')));
+    await act(() => new Promise(resolve => requestAnimationFrame(resolve)));
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('aria-current', 'true');
     expect(screen.getByRole('link', { name: 'Home' })).not.toHaveAttribute('aria-current');
     sections.forEach((section) => section.remove());
+  });
+
+  it('coalesces scroll measurements into one frame and cancels pending work on unmount', async () => {
+    const section = document.createElement('section');
+    section.id = 'home';
+    const measure = vi.spyOn(section, 'getBoundingClientRect').mockReturnValue({ top: 0, bottom: 900 });
+    document.body.append(section);
+    const { unmount } = renderNav();
+    measure.mockClear();
+
+    for (let index = 0; index < 20; index++) fireEvent.scroll(window);
+    expect(measure).not.toHaveBeenCalled();
+    await act(() => new Promise(resolve => requestAnimationFrame(resolve)));
+    expect(measure).toHaveBeenCalledTimes(1);
+
+    fireEvent.scroll(window);
+    unmount();
+    await act(() => new Promise(resolve => requestAnimationFrame(resolve)));
+    expect(measure).toHaveBeenCalledTimes(1);
+    section.remove();
+  });
+
+  it('does not measure homepage sections while reading a subpage', async () => {
+    const section = document.createElement('section');
+    section.id = 'home';
+    const measure = vi.spyOn(section, 'getBoundingClientRect');
+    document.body.append(section);
+    renderNav(['/blog/']);
+    fireEvent.scroll(window);
+    await act(() => new Promise(resolve => requestAnimationFrame(resolve)));
+    expect(measure).not.toHaveBeenCalled();
+    section.remove();
   });
 });
 

@@ -18,24 +18,39 @@ test('multilingual greeting finishes and reveals centered projects', async ({ pa
       }
     });
     observer.observe(document, { subtree: true, childList: true, characterData: true });
+    window.bootFrames = { locked: 0, visibleContent: 0, interactiveContent: 0, customCursor: 0, welcome: false };
+    const sample = () => {
+      const loader = document.querySelector('[data-boot-loader]');
+      const content = document.querySelector('#main-content')?.parentElement;
+      if (loader && content) {
+        if (document.body.style.overflow === 'hidden') window.bootFrames.locked++;
+        if (getComputedStyle(content).opacity !== '0') window.bootFrames.visibleContent++;
+        if (!content.inert) window.bootFrames.interactiveContent++;
+        if (document.body.classList.contains('has-custom-cursor')) window.bootFrames.customCursor++;
+        if ([...document.querySelectorAll('[data-greeting-word]')].some(word =>
+          word.textContent === 'Welcome' && Number(getComputedStyle(word.parentElement).opacity) > 0.9
+        )) window.bootFrames.welcome = true;
+      }
+      requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
   });
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   const loader = page.locator('[data-boot-loader]');
-  await expect(loader).toBeVisible();
-  await expect(page.locator('body')).not.toHaveClass(/has-custom-cursor/);
-  await expect.poll(() => page.locator('#main-content').locator('..').evaluate(element => element.inert)).toBe(true);
-  await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
-  await page.waitForFunction(() => [...document.querySelectorAll('[data-greeting-word]')].some(word =>
-    word.textContent === 'Welcome' && Number(getComputedStyle(word.parentElement).opacity) > 0.9
-  ));
+  // Capture the transient state in browser frames, not after serial tool round-trips.
+  await page.waitForFunction(() => window.bootFrames.welcome);
   const capture = await page.context().newCDPSession(page);
   const { data } = await capture.send('Page.captureScreenshot');
   await writeFile(testInfo.outputPath('multilingual-greeting.png'), Buffer.from(data, 'base64'));
   await capture.detach();
   await expect(loader).toHaveCount(0, { timeout: 7000 });
-  const greetings = await page.evaluate(() => window.bootGreetings);
+  const { greetings, frames } = await page.evaluate(() => ({ greetings: window.bootGreetings, frames: window.bootFrames }));
   expect(greetings.length).toBeGreaterThanOrEqual(4);
   expect(greetings.at(-1)).toEqual({ word: 'Welcome', language: 'English' });
+  expect(frames.locked).toBeGreaterThan(0);
+  expect(frames.visibleContent).toBe(0);
+  expect(frames.interactiveContent).toBe(0);
+  expect(frames.customCursor).toBe(0);
   await expect.poll(() => page.locator('#main-content').locator('..').evaluate(element => element.inert)).toBe(false);
   await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
   await expect(page.locator('#projects h2')).toHaveCSS('text-align', 'center');

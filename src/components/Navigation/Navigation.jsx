@@ -298,10 +298,13 @@ const Navigation = () => {
 
   // Handle scroll events
   useEffect(() => {
-    const handleScroll = () => {
+    let frame = null;
+    const updateScroll = () => {
+      frame = null;
       // Update navbar background on scroll
       setIsScrolled(window.scrollY > 50);
 
+      if (location.pathname !== '/') return;
       // Update active section based on scroll position
       const sections = navItems.map(item => document.getElementById(item.id));
       const scrollPosition = window.innerHeight / 3;
@@ -316,10 +319,16 @@ const Navigation = () => {
       });
     };
 
+    const handleScroll = () => {
+      if (frame === null) frame = requestAnimationFrame(updateScroll);
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial check
+    updateScroll();
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (frame !== null) cancelAnimationFrame(frame);
+    };
   }, [location.pathname]);
 
   useEffect(() => {
