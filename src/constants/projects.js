@@ -27,14 +27,14 @@ export const FEATURED_PROJECTS = [
   },
   {
     id: 'tiny-arcade',
-    title: 'Tiny Arcade — 11 Browser Games',
+    title: 'Tiny Arcade — 12 Browser Games',
     role: 'Solo Developer',
     description:
-      '11 instant-play games including 2048, reflex, memory, typing and mental maths. Lightweight TypeScript interfaces, shared game architecture and cloud leaderboards.',
+      '12 instant-play games including 2048, reflex, memory, typing and mental maths. Lightweight TypeScript interfaces, shared game architecture and cloud leaderboards.',
     image: '/images/projects/tiny-arcade.webp',
     fallbackIcon: 'game',
     stats: [
-      { icon: 'rocket', text: '11 instant-play games, including 2048' },
+      { icon: 'rocket', text: '12 instant-play games, including 2048' },
       { icon: 'code', text: 'TypeScript + Vite' },
     ],
     link: 'https://games.vanshul.com',
@@ -110,7 +110,8 @@ export const PROJECT_DIRECTORY = [
   {
     category: 'Space & earlier',
     items: [
-      { icon: 'globe', title: 'NASA Space Apps Collective', desc: 'Selected among 30 global space leaders; built weather-visualisation tools for Zimbabwean farmers from open NASA data.', live: 'https://www.spaceappschallenge.org/collective/' },
+      { icon: 'globe', title: 'NASA Space Apps Collective', desc: 'Worked with an international team on weather visualisations for farming communities in Zimbabwe, built from open NASA soil, precipitation, temperature and humidity data and aimed at crop-rotation planning.', live: 'https://www.spaceappschallenge.org/collective/' },
+      { icon: 'rocket', title: 'CanSat 2023 Ground Station', desc: 'A real-time ground-station GUI for sensor data, which I built for our team in the CanSat "satellite in a can" aerospace competition. The team went through the Preliminary Design Review.' },
       { icon: 'desktop', title: 'GoRemote', desc: 'My B.Tech major project — a virtual-office platform for remote teams (Phaser, React, Redux, PeerJS, Colyseus).', repo: 'https://github.com/vanshulgoyal101/GoRemote' },
     ],
   },
